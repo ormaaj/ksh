@@ -71,6 +71,9 @@ One line screen editor for any program
 #include	"history.h"
 #include	"edit.h"
 #include	"terminal.h"
+#if SHOPT_MULTIBYTE
+#include	<wctype.h>
+#endif /* SHOPT_MULTIBYTE */
 
 #define ESH_NFIRST
 #define ESH_KAPPEND
@@ -174,12 +177,14 @@ static void search(Emacs_t*,genchar*,int);
 static void setcursor(Emacs_t*,int, int);
 static void show_info(Emacs_t*,const char*);
 static void xcommands(Emacs_t*,int);
+static char allwhitespace(Emacs_t*, genchar*);
 
 int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 {
 	Edit_t *ed = (Edit_t*)context;
 	register int c;
 	register int i;
+	register int uparrow;
 	register genchar *out;
 	register int count;
 	register Emacs_t *ep = ed->e_emacs;
@@ -656,6 +661,7 @@ update:
 				continue;
 #endif
 			}
+			uparrow = 1;
 			goto common;
 
 		case cntl('O') :
@@ -697,6 +703,7 @@ update:
 			}
 			hline = location.hist_command;
 			hloff = location.hist_line;
+			uparrow = 0;
 		common:
 #ifdef ESH_NFIRST
 			location.hist_command = hline;	/* save current position */
@@ -712,6 +719,13 @@ update:
 			eol = genlen(out);
 			cur = eol;
 			draw(ep,UPDATE);
+			if(allwhitespace(ep,out))
+			{
+				if(!uparrow && hline != histlines)
+					ed_ungetchar(ep->ed,cntl('N'));
+				if(uparrow && hline != hismin)
+					ed_ungetchar(ep->ed,cntl('P'));
+			}
 			continue;
 		}
 	}
@@ -1003,18 +1017,7 @@ static int escape(register Emacs_t* ep,register genchar *out,int count)
 		case '*':		/* filename expansion */
 		case '=':	/* escape = - list all matching file names */
 		{
-			char allempty = 1;
-			int x;
-			ep->mark = cur;
-			for(x=0; x < cur; x++)
-			{
-				if(!isspace(out[x]))
-				{
-					allempty = 0;
-					break;
-				}
-			}
-			if(cur<1 || allempty)
+			if(cur<1 || allwhitespace(ep,out))
 			{
 				beep();
 				return(-1);
@@ -1293,6 +1296,21 @@ static void xcommands(register Emacs_t *ep,int count)
 
 #ifdef ESH_BETTER
                 case cntl('E'):	/* invoke emacs on current command */
+			if(eol>=0 && sh.hist_ptr)
+			{
+				if(allwhitespace(ep,drawbuff))
+				{
+					cur = 0;
+					eol = 1;
+					drawbuff[cur] = '\n';
+					drawbuff[eol] = '\0';
+				}
+				else
+				{
+					drawbuff[eol] = '\n';
+					drawbuff[eol+1] = '\0';
+				}
+			}
 			if(ed_fulledit(ep->ed)==-1)
 				beep();
 			else
@@ -1729,4 +1747,19 @@ static int _isword(register int c)
 }
 #endif /* SHOPT_MULTIBYTE */
 
+static char allwhitespace(register Emacs_t *ep, register genchar *out)
+{
+	int x;
+	ep->mark = cur;
+	for(x=0; x < cur; x++)
+	{
+#if SHOPT_MULTIBYTE
+		if(!iswspace((wchar_t)out[x]))
+#else
+		if(!isspace(out[x]))
+#endif /* SHOPT_MULTIBYTE */
+			return(0);
+	}
+	return(1);
+}
 #endif /* SHOPT_ESH */

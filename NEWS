@@ -11,6 +11,22 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   line from the history, the U command now correctly undoes the latest edit
   to the history line instead of jumping back to the current command line.
 
+- In vi mode, issuing the v command from a completely empty line now invokes
+  the full editor with an empty file instead of beeping.
+
+- Fixed a bug in vi mode where the v command from a line with only whitespace
+  resulted in an "invalid range" hist error and the editor failed to open.
+
+- Fixed a bug in emacs mode where calling the full editor saved the current
+  command line to the history file without a terminating newline.
+
+- Fixed a bug in emacs and vi modes where navigating to a null or empty
+  history line displays an empty line onscreen.
+
+- Fixed a bug in emacs and vi modes where attempting to tab-complete an
+  alias or $PATH item containing wide characters failed before the first
+  normal-width character had been entered.
+
 2023-02-22:
 
 - ksh now throws a panic and exits if a read error (such as an I/O error)

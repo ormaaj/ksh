@@ -388,13 +388,14 @@ static short		filemapsize;
 int  sh_iovalidfd(int fd)
 {
 	Sfio_t		**sftable = sh.sftable;
-	int		max,n, **fdptrs = sh.fdptrs;
+	int		n, **fdptrs = sh.fdptrs;
 	unsigned char	*fdstatus = sh.fdstatus;
+	long		max;
 	if(fd<0)
 		return(0);
 	if(fd < sh.lim.open_max)
 		return(1);
-	max = (int)astconf_long(CONF_OPEN_MAX);
+	max = astconf_long(CONF_OPEN_MAX);
 	if(fd >= max)
 	{
 		errno = EBADF;
@@ -452,7 +453,11 @@ void sh_ioinit(void)
 {
 	filemapsize = 8;
 	filemap = (struct fdsave*)sh_malloc(filemapsize*sizeof(struct fdsave));
-	sh_iovalidfd(16);
+	if(!sh_iovalidfd(16))
+	{
+		errormsg(SH_DICT,ERROR_SYSTEM|ERROR_PANIC,"open files limit insufficient");
+		UNREACHABLE();
+	}
 	sh.sftable[0] = sfstdin;
 	sh.sftable[1] = sfstdout;
 	sh.sftable[2] = sfstderr;

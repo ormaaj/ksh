@@ -7,6 +7,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a bug causing incorrect greedy ${.sh.match} results when matching
   the pattern [^]] in a non-ASCII locale.
 
+- Fixed a crash on initialisation that occurred if ksh was launched from a
+  parent process with a very high or very low open files limit (ulimit -n).
+
 2023-01-08:
 
 - Fixed a completion bug in vi mode in multibyte character locales, in which

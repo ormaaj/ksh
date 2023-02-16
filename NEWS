@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-02-16:
+
+- Fixed a bug in 'cd' with no arguments. When changing the working directory
+  to the default value ($HOME), it incorrectly used the global scope of the
+  HOME variable even if a local scope was active.
+
 2023-01-09:
 
 - Fixed a bug causing incorrect greedy ${.sh.match} results when matching

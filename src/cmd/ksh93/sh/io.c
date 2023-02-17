@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -396,6 +396,8 @@ int  sh_iovalidfd(int fd)
 	if(fd < sh.lim.open_max)
 		return(1);
 	max = astconf_long(CONF_OPEN_MAX);
+	if(max > INT_MAX)
+		max = INT_MAX;
 	if(fd >= max)
 	{
 		errno = EBADF;
@@ -455,7 +457,7 @@ void sh_ioinit(void)
 	filemap = (struct fdsave*)sh_malloc(filemapsize*sizeof(struct fdsave));
 	if(!sh_iovalidfd(16))
 	{
-		errormsg(SH_DICT,ERROR_SYSTEM|ERROR_PANIC,"open files limit insufficient");
+		errormsg(SH_DICT,ERROR_PANIC,"open files limit insufficient");
 		UNREACHABLE();
 	}
 	sh.sftable[0] = sfstdin;

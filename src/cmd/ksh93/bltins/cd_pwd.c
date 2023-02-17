@@ -175,7 +175,7 @@ int	b_cd(int argc, char *argv[],Shbltin_t *context)
 			char *last=(char*)stakfreeze(1);
 			stakseek(PATH_OFFSET);
 			stakputs(oldpwd);
-			/* don't add '/' of oldpwd is / itself */
+			/* don't add '/' if oldpwd is / itself */
 			if(*oldpwd!='/' || oldpwd[1])
 				stakputc('/');
 			stakputs(last+PATH_OFFSET);

@@ -2560,37 +2560,40 @@ do_install() # dir [ command ... ]
 {
 	cd "$INSTALLROOT"
 	printf 'install: installing from %s\n' "$PWD"
-	set -o errexit
 	dd=$1
 	shift
 	case $dd in
 	'' | [!/]*)
 		err_out "ERROR: destination directory '$dd' must begin with a /" ;;
+	/)
+		# avoid //foo
+		dd='' ;;
 	esac
 	# commands to install by default
-	test "$#" -eq 0 && set -- ksh shcomp  # pty suid_exec
+	test "$#" -eq 0 && set -- ksh shcomp
 	for f
 	do	test -f "bin/$f" || err_out "Not found: $f" "Build first? Run $0 make"
 	done
 	# set install directories
 	bindir=$dd/bin
-	mandir=$dd/share/man
-	man1dir=$mandir/man1
+	man1dir=${dd:-/usr}/share/man/man1
 	# and off we go
-	trace mkdir -p "$bindir" "$man1dir"
+	trace mkdir -p "$bindir" "$man1dir" || exit
 	for f
 	do	# install executable
-		trace cp "bin/$f" "$bindir/"
+		trace cp "bin/$f" "$bindir/" || exit
 		# install manual
 		case $f in
-		ksh)	trace cp "$PACKAGEROOT/src/cmd/ksh93/sh.1" "$man1dir/ksh.1"
+		ksh)	trace cp "$PACKAGEROOT/src/cmd/ksh93/sh.1" "$man1dir/ksh.1" || exit
 			;;
 		*)	# AT&T --man, etc. is a glorified error message: writes to stderr and exits with status 2 :-/
+			# So we cannot reliably check for success; must check the result, too.
 			manfile=$man1dir/${f##*/}.1
-			bin/ksh -c '"$@" 2>&1; exit 0' _ "bin/$f" --nroff >$manfile
-			# ...so we cannot check for success; instead, check the result.
-			if	grep -q '^.TH .* 1' "$manfile"
-			then	printf "install: wrote '%s --nroff' output into %s\n" "bin/$f" "$manfile"
+			bin/ksh -c '"$@" 2>&1' _ "bin/$f" --\?\?nroff >$manfile
+			if	test "$?" -eq 2 &&
+				read -r magic < "$manfile" &&
+				test "X$magic" = 'X.\" format with nroff|troff|groff -man'  # string from optget.c
+			then	printf '%s: executing: %s --\\?\\?nroff > %s\n' "$action" "bin/$f" "$manfile"
 			else	rm "$manfile"
 			fi
 			;;

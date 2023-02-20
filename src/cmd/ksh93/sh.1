@@ -5556,8 +5556,6 @@ Delete previous character.
 .TP 10
 .BI ^W
 Delete the previous blank separated word.
-On some systems the \f3viraw\fP option
-may be required for this to work.
 .TP 10
 .I eof
 As the first character of the line causes
@@ -5574,8 +5572,6 @@ or
 if not defined.)
 Removes the next character's
 editing features (if any).
-On some systems the \f3viraw\fP option
-may be required for this to work.
 .TP 10
 .BI \e
 If the
@@ -7656,7 +7652,8 @@ This mode is disabled while reading profiles.
 Disables pathname expansion.
 .TP 8
 .B \-h
-Obsolete; no effect.
+Obsolete; has no effect.
+This option will be removed in ksh 93u+m/1.1.
 .TP 8
 .B \-k
 All variable assignment arguments are placed in the environment for a command,
@@ -7818,6 +7815,7 @@ Same as
 .TP 8
 .B nolog
 Obsolete; has no effect.
+This option will be removed in ksh 93u+m/1.1.
 .TP 8
 .B notify
 Same as
@@ -7959,22 +7957,8 @@ This puts you in control mode.
 A return sends the line.
 .TP 8
 .B viraw
-Each character is processed as it is typed
-in
-.I vi\^
-mode.
-The shell may have been compiled to force this option on at all times.
-Otherwise, canonical processing (line-by-line input) is initially enabled
-and the command line will be echoed again if the speed is 1200 baud or
-greater and it contains any control characters or less than one second has
-elapsed since the prompt was printed. The ESC character terminates canonical
-processing for the remainder of the command and the user can then modify the
-command line. This scheme has the advantages of canonical processing with
-the type-ahead echoing of raw mode. If the
-.B viraw
-option is set, the terminal will always have canonical processing disabled.
-This mode is implicit for systems that do not support two alternate end of
-line delimiters, and may be helpful for certain terminals.
+Obsolete; has no effect.
+This option will be removed in ksh 93u+m/1.1.
 .TP 8
 .B xtrace
 Same as

@@ -1956,12 +1956,8 @@ static ssize_t slowread(Sfio_t *iop,void *buff,register size_t size,Sfdisc_t *ha
 	else
 #endif	/* SHOPT_ESH */
 #if SHOPT_VSH
-#   if SHOPT_RAWONLY
-	    /* In multibyte locales, vi handles the no-editor mode as well. TODO: is this actually still needed? */
-	    if(sh_isoption(SH_VI) || mbwide())
-#   else
-	    if(sh_isoption(SH_VI))
-#   endif
+	/* In multibyte locales, vi handles the no-editor mode as well. TODO: is this actually still needed? */
+	if(sh_isoption(SH_VI) || mbwide())
 		readf = ed_viread;
 	else
 #endif	/* SHOPT_VSH */

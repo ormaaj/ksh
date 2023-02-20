@@ -293,7 +293,7 @@ const char sh_set[] =
 		"[+multiline?Use multiple lines when editing lines that are "
 			"longer than the window width.]"
 #endif
-		"[+log?Obsolete; has no effect.]"
+		"[+log?Obsolete; no effect.]"
 		"[+notify?Equivalent to \b-b\b.]"
 		"[+pipefail?A pipeline will not complete until all components "
 			"of the pipeline have completed, and the exit status "
@@ -309,8 +309,7 @@ const char sh_set[] =
 		"[+verbose?Equivalent to \b-v\b.]"
 #if SHOPT_VSH
 		"[+vi?Enables/disables \bvi\b editing mode.]"
-		"[+viraw?Does not use canonical input mode when using \bvi\b "
-			"edit mode.]"
+		"[+viraw?Obsolete; no effect.]"
 #endif
 		"[+xtrace?Equivalent to \b-x\b.]"
 	"}"

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -595,7 +595,7 @@ void sh_printopts(Shopt_t oflags,register int mode, Shopt_t *mask)
 			sfputc(sfstdout,'\n');
 		return;
 	}
-#if SHOPT_VSH && SHOPT_RAWONLY
+#if SHOPT_VSH
 	on_option(&oflags,SH_VIRAW);
 #endif
 	if(!(mode&(PRINT_ALL|PRINT_VERBOSE))) /* only print set options */

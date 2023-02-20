@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-02-20:
+
+- The SHOPT_RAWONLY compile-time has been removed. Ksh's vi editor now always
+  operates in raw mode (but note that "raw only" was already the default
+  compiled-in behaviour as of 93m+ 2002-03-17).
+
 2023-02-16:
 
 - Fixed a bug in 'cd' with no arguments. When changing the working directory

@@ -564,6 +564,12 @@ static void	exfile(register Sfio_t *iop,register int fno)
 					continue;
 				}
 			}
+			else if(errno && sferr)
+			{
+				/* Error reading from running script; panic */
+				errormsg(SH_DICT,ERROR_SYSTEM|ERROR_PANIC,e_readscript);
+				UNREACHABLE();
+			}
 			if(errno==0 && sferr && --maxtry>0)
 			{
 				sfclrlock(iop);

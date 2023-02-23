@@ -659,6 +659,8 @@ static int cntlmode(Vi_t *vp)
 #endif /* SHOPT_MULTIBYTE */
 			if((last_virt=genlen(virtual)-1) >= 0  && cur_virt == INVALID)
 				cur_virt = 0;
+			virtual[last_virt+1] = '\0';
+			gencpy(vp->U_space, virtual);
 #if SHOPT_EDPREDICT
 			if(vp->ed->hlist)
 			{

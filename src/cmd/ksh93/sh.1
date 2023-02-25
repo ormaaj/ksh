@@ -312,7 +312,7 @@ built-in below.
 A
 .I command\^
 is either a \fIsimple-command\fR
-or one of the following.
+or a \fIcompound-command\fR, which is one of the following.
 Unless otherwise stated,
 the value returned by a command is that of the
 last \fIsimple-command\fR executed in the command.
@@ -600,9 +600,9 @@ below, for a description of
 .IR expression .
 .TP
 .PD 0
-\f3function\fP \f2varname\^\fP \f3{\fP \f2list\^\fP \f3;}\fP
+\f3function\fP \f2varname\^\fP \f3{\fP \f2list\^\fP \f3;}\fP \*(OK \f2redirection\^\fP ... \*(CK
 .TP
-\f2varname\^\fP \f3() {\fP \f2list\^\fP \f3;}\fP
+\f2varname\^\fP \f3()\fP \f2compound-command\^\fP \*(OK \f2redirection\^\fP ... \*(CK
 .PD
 Define a function which is referenced by
 .IR varname .

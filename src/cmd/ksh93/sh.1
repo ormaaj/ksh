@@ -641,18 +641,6 @@ in this name space.
 .I Name Spaces\^
 below.)
 .TP
-\f3&\fP \*(OK \f2name\^\fP \*(OK \f2arg...\^\fP \*(CK  \*(CK
-Causes subsequent
-.I list\^
-commands terminated by
-.B &
-to be placed in the background job pool
-.IR name .
-If
-.I name\^
-is omitted a default unnamed pool is used.
-Commands in a named background pool may be executed remotely.
-.TP
 \f3time\fP \*(OK \f2pipeline\^\fP \*(CK
 .br
 If \f2pipeline\^\fP is omitted the user and system time for
@@ -1695,17 +1683,10 @@ the new type is derived from the type of the first variable. (See
 below.)
 .TP
 .B !
-The process ID or the pool name and job number of the last background command
+The process ID of the last background command
 invoked or the most recent job put in the background with the
 .B bg
 built-in command.
-Background jobs started in a named pool will be in the form
-.IB pool . number
-where
-.I pool\^
-is the pool name and
-.I number\^
-is the job number within that pool.
 .TP
 .B .sh.command
 When processing a
@@ -4309,11 +4290,6 @@ If you set this
 tty option, then background jobs will stop when they try to produce
 output like they do when they try to read input.
 .PP
-A job pool is a collection of jobs started with
-.I list\^
-.B &
-associated with a name.
-.PP
 There are several ways to refer to jobs in the shell.
 A job can be referred to by the process ID of any process of the job
 or by one of the following:
@@ -4322,16 +4298,6 @@ or by one of the following:
 .TP
 .BI % number
 The job with the given number.
-.TP
-.I  pool\^
-All the jobs in the job pool named by
-.IR pool .
-.TP
-.IB  pool . number
-The job number
-.I number\^
-in the job pool named by
-.IR pool .
 .TP
 .BI % string
 Any job whose command line begins with
@@ -4352,10 +4318,6 @@ Equivalent to
 Previous job.
 .RE
 .PD
-.PP
-In addition, unless noted otherwise, wherever a job can be specified,
-the name of a background job pool can be used to represent all the
-jobs in that pool.
 .PP
 The shell learns immediately whenever a process changes state.
 It normally informs you whenever a job becomes blocked so that

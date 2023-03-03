@@ -34,6 +34,7 @@ SHOPT OPTIMIZE=1			# optimize loop invariants
 SHOPT P_SUID=0				# real UIDs >= this value require -p for set[ug]id (to turn off, use empty, not 0)
 SHOPT REGRESS=				# enable __regress__ builtin and instrumented intercepts for testing
 SHOPT REMOTE=				# enable --rc if running as a remote shell
+SHOPT SCRIPTONLY=0			# build ksh for running scripts only; compile out the interactive shell
 SHOPT SPAWN=				# use spawnveg for fork/exec
 SHOPT STATS=1				# add .sh.stats variable
 SHOPT SUID_EXEC=1			# allow (safe) SUID/SGID shell scripts

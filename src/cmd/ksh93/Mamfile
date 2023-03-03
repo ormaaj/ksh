@@ -22,10 +22,13 @@ make install
 	make ksh
 		make shopt.h implicit
 			make SHOPT.sh implicit
-			done SHOPT.sh generated
+			done SHOPT.sh
 			note * the SHOPT.sh file calls the SHOPT function once for each option
+			exec -	set +v +x
 			exec -	SHOPT()
 			exec -	{
+			exec -		n=${1%%=*}	# name
+			exec -		v=${1#*=}	# value
 			exec -		case $1 in
 			exec -		'MULTIBYTE=')
 			exec -			echo
@@ -34,14 +37,27 @@ make install
 			exec -			echo '#endif'
 			exec -			;;
 			exec -		*=?*)	echo
-			exec -			echo "#ifndef SHOPT_${1%%=*}"
-			exec -			echo "#define SHOPT_${1%%=*}	${1#*=}"
+			exec -			echo "#ifndef SHOPT_$n"
+			exec -			echo "#define SHOPT_$n	$v"
 			exec -			echo "#endif"
 			exec -			;;
 			exec -		esac
+			exec -		echo "* SHOPT_$n = ${v:-(probe)}" >&2  # show in make.out
 			exec -	}
-			exec -	echo "/* Generated from ksh93/SHOPT.sh by ksh93/Mamfile */" > shopt.h
-			exec -	. "$PACKAGEROOT/src/cmd/ksh93/SHOPT.sh" >> shopt.h
+			exec -	exec >shopt.h
+			exec -	echo '/* Generated from ksh93/SHOPT.sh by ksh93/Mamfile */'
+			exec -	. "$PACKAGEROOT/src/cmd/ksh93/SHOPT.sh"
+			exec -	exec cat <<-EOF
+			exec -		/* overrides */
+			exec -		#if SHOPT_SCRIPTONLY
+			exec -		#undef SHOPT_ACCT
+			exec -		#undef SHOPT_AUDIT
+			exec -		#undef SHOPT_ESH
+			exec -		#undef SHOPT_HISTEXPAND
+			exec -		#undef SHOPT_SYSRC
+			exec -		#undef SHOPT_VSH
+			exec -		#endif
+			exec -	EOF
 		done shopt.h generated
 		make pmain.o
 			make sh/pmain.c

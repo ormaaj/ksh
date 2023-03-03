@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2014 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -167,7 +167,10 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 	register int n, fd = 1;
 	const char *options, *msg = e_file+4;
 	char *format = 0;
-	int sflag = 0, nflag=0, rflag=0, vflag=0;
+#if !SHOPT_SCRIPTONLY
+	int sflag = 0;
+#endif /* !SHOPT_SCRIPTONLY */
+	int nflag=0, rflag=0, vflag=0;
 	Namval_t *vname=0;
 	Optdisc_t disc;
 	exitval = 0;
@@ -204,6 +207,7 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 		case 'f':
 			format = opt_info.arg;
 			break;
+#if !SHOPT_SCRIPTONLY
 		case 's':
 			/* print to history file */
 			if(!sh_histinit())
@@ -215,6 +219,7 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 			sh_onstate(SH_HISTORY);
 			sflag++;
 			break;
+#endif /* !SHOPT_SCRIPTONLY */
 		case 'e':
 			rflag = 0;
 			break;
@@ -233,7 +238,11 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 				fd = -1;
 			else if(!sh_iovalidfd(fd))
 				fd = -1;
+#if SHOPT_SCRIPTONLY
+			else if(!(sh.inuse_bits&(1<<fd)) && sh_inuse(fd))
+#else
 			else if(!(sh.inuse_bits&(1<<fd)) && (sh_inuse(fd) || (sh.hist_ptr && fd==sffileno(sh.hist_ptr->histfp))))
+#endif /* SHOPT_SCRIPTONLY */
 				fd = -1;
 			break;
 		case 'v':
@@ -380,11 +389,13 @@ printf_v:
 	}
 	if(vname)
 		nv_putval(vname, sfstruse(outfile), 0);
+#if !SHOPT_SCRIPTONLY
 	else if(sflag)
 	{
 		hist_flush(sh.hist_ptr);
 		sh_offstate(SH_HISTORY);
 	}
+#endif /* !SHOPT_SCRIPTONLY */
 	else
 	{
 		if(n&SF_SHARE)

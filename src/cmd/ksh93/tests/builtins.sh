@@ -241,11 +241,13 @@ if	[[ $(printf "%g\n" x2 2>/dev/null) != 1e-09 ]]
 then	err_exit 'printf "%g" not working correctly'
 fi
 
+if((!SHOPT_SCRIPTONLY));then
 (read -s foobar <<<testing_read_s) 2> /dev/null || err_exit "'read -s var' fails"
 exp=$'^[[:digit:]]+\ttesting_read_s$'
 got=$(fc -l -0)
 [[ $got =~ $exp ]] || err_exit "'read -s' did not write to history file" \
 	"(expected match of regex $(printf %q "$exp"), got $(printf %q "$got"))"
+fi # !SHOPT_SCRIPTONLY
 
 if	[[ $(printf +3 2>/dev/null) !=   +3 ]]
 then	err_exit 'printf is not processing formats beginning with + correctly'
@@ -696,9 +698,11 @@ then	[[ $(kill -l HUP) == "$(kill -L HUP)" ]] || err_exit 'kill -l and kill -L a
 	[[ $(kill -L) == *'9) KILL'* ]] || err_exit 'kill -L output does not contain 9) KILL'
 fi
 
+if((!SHOPT_SCRIPTONLY));then
 export ENV=/./dev/null
 v=$($SHELL 2> /dev/null +o rc -ic $'getopts a:bc: opt --man\nprint $?')
 [[ $v == 2* ]] || err_exit 'getopts --man does not exit 2 for interactive shells'
+fi # !SHOPT_SCRIPTONLY
 
 read baz <<< 'foo\\\\bar'
 [[ $baz == 'foo\\bar' ]] || err_exit 'read of foo\\\\bar not getting foo\\bar'
@@ -1111,6 +1115,7 @@ IMPLEMENTATION
 
 # ======
 # 'sleep -s' should work in interactive shells when seconds > 30.
+if((!SHOPT_SCRIPTONLY));then
 sleepsig="$tmp/sleepsig.sh"
 cat >| "$sleepsig" << 'EOF'
 sleep -s 31 &
@@ -1125,6 +1130,7 @@ else
 fi
 EOF
 "$SHELL" -i "$sleepsig" 2> /dev/null || err_exit "'sleep -s' doesn't work with intervals of more than 30 seconds"
+fi # !SHOPT_SCRIPTONLY
 
 # ======
 # floating point
@@ -1200,6 +1206,8 @@ function test_usage
 {
 	while IFS= read -r bltin <&3
 	do	case $bltin in
+		fc | hist )
+			((SHOPT_SCRIPTONLY)) && continue ;;
 		echo | test | true | false | \[ | : | expr | */expr | getconf | */getconf | uname | */uname | catclose | catgets | catopen | Dt* | _Dt* | X* | login | newgrp )
 			continue ;;
 		/*/*)	expect="Usage: ${bltin##*/} "
@@ -1396,6 +1404,8 @@ got=$(	readonly v=foo
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
+if((!SHOPT_SCRIPTONLY));then
+
 # https://github.com/att/ast/issues/872
 hist_leak=$tmp/hist_leak.sh
 print 'ulimit -n 15' > "$hist_leak"
@@ -1419,6 +1429,8 @@ exp="OK"
 got="$($SHELL -i "$hist_error_leak" 2>&1)"
 [[ $exp == "$got" ]] || err_exit "file descriptor leak after substitution error in hist builtin" \
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+
+fi # !SHOPT_SCRIPTONLY
 
 # ======
 # printf -v works as of 2021-11-18
@@ -1513,9 +1525,11 @@ kill "$sleep_pid" 2>/dev/null
 
 # Backported ksh93v- 2014-06-25 test for eval bug when called
 # from . script in a startup file.
+if((!SHOPT_SCRIPTONLY));then
 print $'eval : foo\nprint ok' > "$tmp/evalbug"
 print ". $tmp/evalbug" > "$tmp/envfile"
 [[ $(ENV=$tmp/envfile "$SHELL" -i -c : 2> /dev/null) == ok ]] || err_exit 'eval inside dot script called from profile file not working'
+fi # !SHOPT_SCRIPTONLY
 
 # Backported ksh93v- 2013-03-18 test for 'read -A', where
 # IFS sets the delimiter to a newline while -d specifies
@@ -1571,6 +1585,8 @@ while IFS= read -r bltin <&3
 do	case $bltin in
 	echo | test | true | false | \[ | : | catclose | catgets | catopen | Dt* | _Dt* | X* | login | newgrp )
 		continue ;;
+	fc | hist )
+		((SHOPT_SCRIPTONLY)) && continue ;;
 	esac
 	got=$({ "$bltin" --version; } 2>&1)  # the extra { } are needed for 'redirect'
 	[[ $got == "  version  "* ]] || err_exit "$bltin does not support --version (got $(printf %q "$got"))"

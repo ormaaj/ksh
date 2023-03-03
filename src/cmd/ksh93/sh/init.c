@@ -135,6 +135,10 @@ char e_version[]	= "\n@(#)$Id: Version "
 #define ATTRS		1
 			"R"
 #endif
+#if SHOPT_SCRIPTONLY
+#define ATTRS		1
+			"s"
+#endif
 #if !_std_malloc && !_AST_std_malloc
 #define ATTRS		1
 			"v"	/* uses vmalloc */

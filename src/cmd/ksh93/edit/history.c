@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2014 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -39,6 +39,11 @@
 
 
 #include "shopt.h"
+#include <ast.h>
+
+#if SHOPT_SCRIPTONLY
+NoN(history)
+#else
 
 #define HIST_MAX	(sizeof(int)*HIST_BSIZE)
 #define HIST_BIG	(0100000-1024)	/* 1K less than maximum short */
@@ -70,7 +75,6 @@
 
 #define hist_ind(hp,c)	((int)((c)&(hp)->histmask))
 
-#include	<ast.h>
 #include	<sfio.h>
 #include	"FEATURE/time"
 #include	<error.h>
@@ -1157,3 +1161,5 @@ static int hist_exceptf(Sfio_t* fp, int type, void *data, Sfdisc_t *handle)
 	}
 	return(0);
 }
+
+#endif /* SHOPT_SCRIPTONLY */

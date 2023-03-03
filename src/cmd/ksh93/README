@@ -140,6 +140,13 @@ The options have the following defaults and meanings:
     REMOTE       off Set --rc (read profile scripts) even if ksh was invoked
                      with standard input on a socket, i.e. as a remote shell.
 
+    SCRIPTONLY   off Compile out the interactive shell, resulting in a smaller
+                     ksh binary that can only run scripts. Noted by "s" in the
+                     version string when enabled. The option makes it an error
+                     to invoke ksh as an interactive shell. The command history
+                     mechanism, the fc/hist built-in, and the '-s' options to
+                     the 'read' and 'print' built-ins are also compiled out.
+
     SPAWN        on  Use posix_spawn(3) as combined fork/exec if job control
                      is not active. Improves speed.
 

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -37,7 +37,9 @@
 #include	"edit.h"
 
 #define	R_FLAG	1	/* raw mode */
+#if !SHOPT_SCRIPTONLY
 #define	S_FLAG	2	/* save in history file */
+#endif
 #define	A_FLAG	4	/* read into array */
 #define N_FLAG	8	/* fixed size read at most */
 #define NN_FLAG	0x10	/* fixed size read exact */
@@ -120,10 +122,12 @@ int	b_read(int argc,char *argv[], Shbltin_t *context)
 	    case 'r':
 		flags |= R_FLAG;
 		break;
+#if !SHOPT_SCRIPTONLY
 	    case 's':
 		/* save in history file */
 		flags |= S_FLAG;
 		break;
+#endif
 	    case 'S':
 		flags |= SS_FLAG;
 		break;
@@ -498,12 +502,14 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 	}
 	if(timeslot)
 		sh_timerdel(timeslot);
+#if !SHOPT_SCRIPTONLY
 	if((flags&S_FLAG) && !sh.hist_ptr)
 	{
 		sh_histinit();
 		if(!sh.hist_ptr)
 			flags &= ~S_FLAG;
 	}
+#endif
 	if(cp)
 	{
 		cpmax = cp + c;
@@ -513,8 +519,10 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 #endif /* SHOPT_CRNL */
 		if(*(cpmax-1) != delim)
 			*(cpmax-1) = delim;
+#if !SHOPT_SCRIPTONLY
 		if(flags&S_FLAG)
 			sfwrite(sh.hist_ptr->histfp,(char*)cp,c);
+#endif
 		c = sh.ifstable[*cp++];
 #if !SHOPT_MULTIBYTE
 		if(!name && (flags&R_FLAG)) /* special case single argument */
@@ -637,8 +645,10 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 					c = sfvalue(iop)+1;
 				if(cp)
 				{
+#if !SHOPT_SCRIPTONLY
 					if(flags&S_FLAG)
 						sfwrite(sh.hist_ptr->histfp,(char*)cp,c);
+#endif
 					cpmax = cp + c;
 					c = sh.ifstable[*cp++];
 					val=0;
@@ -825,8 +835,10 @@ done:
 		sfset(iop,SF_SHARE,0);
 	if((sh.fdstatus[fd]&IOTTY) && !keytrap)
 		tty_cooked(fd);
+#if !SHOPT_SCRIPTONLY
 	if(flags&S_FLAG)
 		hist_flush(sh.hist_ptr);
+#endif
 	if(jmpval > 1)
 		siglongjmp(*sh.jmplist,jmpval);
 	return(jmpval);

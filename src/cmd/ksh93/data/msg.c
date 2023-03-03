@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -45,8 +45,10 @@ const char e_runvi[]		= "\\hist -e \"${VISUAL:-${EDITOR:-vi}}\" ";
 const char e_timeout[]		= "timed out waiting for input";
 const char e_mailmsg[]		= "you have mail in $_";
 const char e_query[]		= "no query process";
+#if !SHOPT_SCRIPTONLY
 const char e_history[]		= "no history file";
 const char e_histopen[]		= "cannot open history file";
+#endif /* !SHOPT_SCRIPTONLY */
 const char e_optincompat1[]	= "%s cannot be used with other options";
 const char e_optincompat2[]	= "%s cannot be used with %s";
 const char e_toomany[]		= "open file limit exceeded";
@@ -197,9 +199,14 @@ const char e_sysrc[]		= "/etc/ksh.kshrc";
    const char e_suidexec[]	= "/etc/suid_exec";
 #endif /* SHOPT_SUID_EXEC */
 #endif
+#if !SHOPT_SCRIPTONLY
 const char hist_fname[]		= "/.sh_history";
+#endif /* !SHOPT_SCRIPTONLY */
 const char e_dot[]		= ".";
 const char e_envmarker[]	= "A__z";
 const char e_timeformat[]	= "\nreal\t%2lR\nuser\t%2lU\nsys\t%2lS";
 const char e_dict[]		= "libshell";
 const char e_funload[]		= "function, built-in or type definition for %s not found in %s";
+#if SHOPT_SCRIPTONLY
+const char e_scriptonly[]	= "script-only shell";
+#endif /* SHOPT_SCRIPTONLY */

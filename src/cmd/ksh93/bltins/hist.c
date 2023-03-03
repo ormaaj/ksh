@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -30,6 +30,19 @@
 #endif
 
 #define HIST_RECURSE	5
+
+#if SHOPT_SCRIPTONLY
+
+int	b_hist(int argc,char *argv[], Shbltin_t *context)
+{
+	NOT_USED(argc);
+	NOT_USED(argv);
+	NOT_USED(context);
+	errormsg(SH_DICT,ERROR_exit(1),e_scriptonly);
+	UNREACHABLE();
+}
+
+#else
 
 static void hist_subst(const char*, int fd, char*);
 
@@ -321,3 +334,5 @@ static void hist_subst(const char *command,int fd,char *replace)
 	*(newp-1) =  '=';
 	sh_eval(sfopen(NIL(Sfio_t*),sp,"s"),1);
 }
+
+#endif /* SHOPT_SCRIPTONLY */

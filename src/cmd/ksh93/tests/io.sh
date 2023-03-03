@@ -257,6 +257,8 @@ then	{ redirect {n}<#((EOF)) ;} 2> /dev/null || err_exit '{n}<# not working'
 	else	err_exit 'not able to parse {n}</dev/null'
 	fi
 fi
+
+if((!SHOPT_SCRIPTONLY));then
 $SHELL -ic '
 {
     print -u2  || exit 2
@@ -270,6 +272,8 @@ $SHELL -ic '
 }  3> /dev/null 4> /dev/null 5> /dev/null 6> /dev/null 7> /dev/null 8> /dev/null 9> /dev/null' > /dev/null 2>&1
 exitval=$?
 (( exitval ))  && err_exit  "print to unit $exitval failed"
+fi # !SHOPT_SCRIPTONL~Y
+
 $SHELL -c "{ > $tmp/1 ; date;} >&- 2> /dev/null" > $tmp/2
 [[ -s $tmp/1 || -s $tmp/2 ]] && err_exit 'commands with standard output closed produce output'
 $SHELL -c "$SHELL -c ': 3>&1' 1>&- 2>/dev/null" && err_exit 'closed standard output not passed to subshell'
@@ -589,10 +593,12 @@ result=$("$SHELL" -c 'echo ok > >(sed s/ok/good/); wait' 2>&1)
 
 # Process substitution in an interactive shell or profile script shouldn't
 # print the process ID of the asynchronous process.
+if((!SHOPT_SCRIPTONLY));then
 echo 'false >(false)' > "$tmp/procsub-envtest"
 result=$(set +x; ENV=$tmp/procsub-envtest "$SHELL" -ic 'true >(true)' 2>&1)
 [[ -z $result ]] || err_exit 'interactive shells and/or profile scripts print a PID during process substitution' \
 				"(expected '', got $(printf %q "$result"))"
+fi # !SHOPT_SCRIPTONLY
 
 # ======
 # Out of range file descriptors shouldn't cause 'read -u' to segfault
@@ -699,6 +705,7 @@ got=$(command -x cat <(command -x echo foo) 2>&1) || err_exit "process substitut
 
 # ======
 # A redirection with a null command could crash under certain circumstances (rhbz#1200534)
+if((!SHOPT_SCRIPTONLY));then
 "$SHELL" -i >/dev/null 2>&1 -c '
 	function dlog
 	{
@@ -712,6 +719,7 @@ got=$(command -x cat <(command -x echo foo) 2>&1) || err_exit "process substitut
 ' empty_redir_crash_test "$tmp"
 ((!(e = $?))) || err_exit 'crash on null-command redirection with DEBUG trap' \
 	"(got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"), $(printf %q "$got"))"
+fi # !SHOPT_SCRIPTONLY
 
 # ======
 # stdout was misdirected if an EXIT/ERR trap handler was defined in a -c script

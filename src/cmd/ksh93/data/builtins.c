@@ -1634,11 +1634,13 @@ const char sh_optksh[] =
 	"Any \aarg\as become the positional parameters starting at \b$1\b. "
 	"This option is forced on if no \aarg\a is given "
 	"and is ignored if \b-c\b is also specified.]"
-#if !SHOPT_SCRIPTONLY
-"[i?Specifies that the shell is interactive.]"
+"[i?Specifies that the shell is interactive."
+#if SHOPT_SCRIPTONLY
+	" Not supported, as this ksh was compiled as a script-only shell."
+#endif
+	"]"
 "[l?Invoke the shell as a login shell; \b/etc/profile\b and \b$HOME/.profile\b, "
 	"if they exist, are read before the first command.]"
-#endif
 "[r\f:restricted\f?Invoke the shell in a restricted mode.  A restricted "
 	"shell does not permit any of the following:]{"
 	"[+-?Changing the working directory.]"

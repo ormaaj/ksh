@@ -55,7 +55,7 @@
 #endif
 
 #undef _use_ntfork_tcpgrp
-#if defined(JOBS) && SHOPT_SPAWN && _lib_posix_spawn > 1 && _lib_posix_spawn_file_actions_addtcsetpgrp_np
+#if SHOPT_SPAWN && _lib_posix_spawn > 1 && _lib_posix_spawn_file_actions_addtcsetpgrp_np
 #define _use_ntfork_tcpgrp 1
 #endif
 
@@ -1542,18 +1542,9 @@ int sh_exec(register const Shnode_t *t, int flags)
 					if(!sh_isstate(SH_MONITOR))
 						sigrelease(SIGINT);
 				}
-				if(type&FAMP)
-				{
-					if(sh_isstate(SH_PROFILE) || sh_isstate(SH_INTERACTIVE))
-					{
-						/* print job number */
-#ifdef JOBS
-						sfprintf(sfstderr,"[%d]\t%d\n",jobid,parent);
-#else
-						sfprintf(sfstderr,"%d\n",parent);
-#endif /* JOBS */
-					}
-				}
+				/* print job number */
+				if(type&FAMP && (sh_isstate(SH_PROFILE) || sh_isstate(SH_INTERACTIVE)))
+					sfprintf(sfstderr,"[%d]\t%d\n",jobid,parent);
 				break;
 			}
 			else
@@ -1925,10 +1916,8 @@ int sh_exec(register const Shnode_t *t, int flags)
 				}
 			}
 			sh.exitval = n;
-#ifdef SIGTSTP
 			if(!pipejob && sh_isstate(SH_MONITOR) && job.jobcontrol)
 				tcsetpgrp(JOBTTY,sh.pid);
-#endif /* SIGTSTP */
 			job.curpgid = savepgid;
 			job.exitval = saveexitval;
 			job.waitall = savewaitall;
@@ -2819,7 +2808,6 @@ pid_t _sh_fork(register pid_t parent,int flags,int *jobid)
 		if(job.toclear)
 			job_clear();
 		job.waitall = waitall;
-#ifdef JOBS
 		/* first process defines process group */
 		if(sh_isstate(SH_MONITOR))
 		{
@@ -2835,7 +2823,6 @@ pid_t _sh_fork(register pid_t parent,int flags,int *jobid)
 					setpgid(parent,parent);
 			}
 		}
-#endif /* JOBS */
 		if(!sh_isstate(SH_MONITOR) && job.waitall && postid==0)
 			job.curpgid = parent;
 		if(flags&FCOOP)
@@ -2866,7 +2853,6 @@ pid_t _sh_fork(register pid_t parent,int flags,int *jobid)
 	if(sh.trapnote&SH_SIGTERM)
 		sh_exit(SH_EXITSIG|SIGTERM);
 	sh_timerdel(NIL(void*));
-#ifdef JOBS
 	if(sh_isstate(SH_MONITOR))
 	{
 		parent = sh.current_pid;
@@ -2874,21 +2860,16 @@ pid_t _sh_fork(register pid_t parent,int flags,int *jobid)
 			job.curpgid = parent;
 		while(setpgid(0,job.curpgid)<0 && job.curpgid!=parent)
 			job.curpgid = parent;
-#   ifdef SIGTSTP
 		if(job.jobcontrol && job.curpgid==parent && !(flags&FAMP))
 			tcsetpgrp(job.fd,job.curpgid);
-#   endif /* SIGTSTP */
 	}
-#   ifdef SIGTSTP
 	if(job.jobcontrol)
 	{
 		signal(SIGTTIN,SIG_DFL);
 		signal(SIGTTOU,SIG_DFL);
 		signal(SIGTSTP,SIG_DFL);
 	}
-#   endif /* SIGTSTP */
 	job.jobcontrol = 0;
-#endif /* JOBS */
 	job.toclear = 1;
 	sh_offoption(SH_LOGIN_SHELL);
 	sh_onstate(SH_FORKED);
@@ -3537,10 +3518,8 @@ static pid_t sh_ntfork(const Shnode_t *t,char *argv[],int *jobid,int topfd)
 	{
 		_sh_fork(spawnpid,0,jobid);
 		job_fork(spawnpid);
-#ifdef JOBS
 		if(grp==1)
 			job.curpgid = spawnpid;
-#endif /* JOBS */
 	}
 	return(spawnpid);
 }

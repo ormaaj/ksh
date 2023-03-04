@@ -146,24 +146,20 @@ const char is_talias[]		= "is a tracked alias for";
 const char is_function[]	= " is a function";
 const char is_ufunction[]	= " is an undefined function";
 const char e_autoloadfrom[]	= " (autoload from %s)";
-#ifdef JOBS
-#   ifdef SIGTSTP
-	const char e_newtty[]	= "Switching to new tty driver...";
-	const char e_oldtty[]	= "Reverting to old tty driver...";
-	const char e_no_start[]	= "Cannot start job control";
-#   endif /*SIGTSTP */
-    const char e_no_jctl[]	= "No job control";
-    const char e_terminate[]	= "You have stopped jobs";
-    const char e_done[]		= " Done";
-    const char e_nlspace[]	= "\n      ";
-    const char e_running[]	= " Running";
-    const char e_ambiguous[]	= "%s: Ambiguous";
-    const char e_jobsrunning[]	= "You have running jobs";
-    const char e_no_job[]	= "no such job";
-    const char e_no_proc[]	= "no such process";
-    const char e_badpid[]	= "%s: invalid process ID";
-    const char e_jobusage[]	= "%s: Arguments must be %%job or process IDs";
-#endif /* JOBS */
+const char e_newtty[]		= "Switching to new tty driver...";
+const char e_oldtty[]		= "Reverting to old tty driver...";
+const char e_no_start[]		= "Cannot start job control";
+const char e_no_jctl[]		= "No job control";
+const char e_terminate[]	= "You have stopped jobs";
+const char e_done[]		= " Done";
+const char e_nlspace[]		= "\n      ";
+const char e_running[]		= " Running";
+const char e_ambiguous[]	= "%s: Ambiguous";
+const char e_jobsrunning[]	= "You have running jobs";
+const char e_no_job[]		= "no such job";
+const char e_no_proc[]		= "no such process";
+const char e_badpid[]		= "%s: invalid process ID";
+const char e_jobusage[]		= "%s: Arguments must be %%job or process IDs";
 const char e_coredump[]		= "(coredump)";
 const char e_alphanum[]		= "[_[:alpha:]]*([_[:alnum:]])";
 const char e_devfdNN[]		= "/dev/fd/+([0-9])";

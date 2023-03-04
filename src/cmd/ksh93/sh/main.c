@@ -457,9 +457,7 @@ static void	exfile(register Sfio_t *iop,register int fno)
 				sfclose(top);
 		}
 		/* make sure that we own the terminal */
-#ifdef SIGTSTP
 		tcsetpgrp(job.fd,sh.pid);
-#endif /* SIGTSTP */
 	}
 	/* error return here */
 	sfclrerr(iop);
@@ -499,7 +497,6 @@ static void	exfile(register Sfio_t *iop,register int fno)
 		if(sh_isstate(SH_INTERACTIVE) && !tdone)
 		{
 			register char *mail;
-#ifdef JOBS
 			sh_offstate(SH_MONITOR);
 			if(sh_isoption(SH_MONITOR))
 				sh_onstate(SH_MONITOR);
@@ -508,7 +505,6 @@ static void	exfile(register Sfio_t *iop,register int fno)
 				job_walk(sfstderr,job_list,JOB_NFLAG,(char**)0);
 				job_wait((pid_t)0);
 			}
-#endif	/* JOBS */
 			if((mail=nv_getval(MAILPNOD)) || (mail=nv_getval(MAILNOD)))
 			{
 				time(&curtime);

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -219,16 +219,12 @@ int	b_kill(int argc,char *argv[],Shbltin_t *context)
 	register int sig=SIGTERM, flag=0, n;
 	int usemenu = 0;
 	NOT_USED(argc);
-#if defined(JOBS) && defined(SIGSTOP)
 	if(**argv == 's')	/* <s>top == kill -s STOP */
 	{
 		flag |= S_FLAG;
 		signame = "STOP";
 	}
 	while((n = optget(argv, **argv == 's' ? sh_optstop : sh_optkill))) switch(n)
-#else
-	while((n = optget(argv,sh_optkill))) switch(n)
-#endif /* defined(JOBS) && defined(SIGSTOP) */
 	{
 		case ':':
 			if((signame=argv[opt_info.index++]) && (sig=sig_number(signame+1))>=0)
@@ -298,7 +294,6 @@ endopts:
 	return(sh.exitval);
 }
 
-#if defined(JOBS) && defined(SIGSTOP)
 /*
  * former default alias suspend='kill -s STOP $$'
  */
@@ -337,7 +332,6 @@ int	b_suspend(int argc,char *argv[],Shbltin_t *context)
 	}
 	return(0);
 }
-#endif /* defined(JOBS) && defined(SIGSTOP) */
 
 /*
  * Given the name or number of a signal return the signal number

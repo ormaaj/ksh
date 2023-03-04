@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2014 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -174,7 +174,6 @@ void	sh_fault(register int sig)
 	{
 		sh.lastsig = sig;
 		flag = SH_SIGSET;
-#ifdef SIGTSTP
 		if(sig==SIGTSTP && pp->mode==SH_JMPCMD)
 		{
 			if(sh_isstate(SH_STOPOK))
@@ -185,7 +184,6 @@ void	sh_fault(register int sig)
 			}
 			goto done;
 		}
-#endif /* SIGTSTP */
 	}
 #ifdef ERROR_NOTIFY
 	if((error_info.flags&ERROR_NOTIFY) && sh.bltinfun)
@@ -566,7 +564,6 @@ void sh_exit(register int xno)
 		sh.exitval |= (sig=sh.lastsig);
 	if(pp && pp->mode>1)
 		cursig = -1;
-#ifdef SIGTSTP
 	if((sh.trapnote&SH_SIGTSTP) && job.jobcontrol)
 	{
 		/* ^Z detected by the shell */
@@ -611,16 +608,13 @@ void sh_exit(register int xno)
 			return;
 		}
 	}
-#endif /* SIGTSTP */
 	/* unlock output pool */
 	sh_offstate(SH_NOTRACK);
 	if(!(pool=sfpool(NIL(Sfio_t*),sh.outpool,SF_WRITE)))
 		pool = sh.outpool; /* can't happen? */
 	sfclrlock(pool);
-#ifdef SIGPIPE
 	if(sh.lastsig==SIGPIPE)
 		sfpurge(pool);
-#endif /* SIGPIPE */
 	sfclrlock(sfstdin);
 	if(!pp)
 		sh_done(sig);
@@ -677,10 +671,8 @@ noreturn void sh_done(register int sig)
 #endif	/* SHOPT_ACCT */
 	if(mbwide() && sh_editor_active())
 		tty_cooked(-1);
-#ifdef JOBS
 	if((sh_isoption(SH_INTERACTIVE) && sh_isoption(SH_LOGIN_SHELL)) || (!sh_isoption(SH_INTERACTIVE) && (sig==SIGHUP)))
 		job_walk(sfstderr, job_hup, SIGHUP, NIL(char**));
-#endif	/* JOBS */
 	job_close();
 	if(nv_search("VMTRACE", sh.var_tree,0))
 		strmatch((char*)0,(char*)0);

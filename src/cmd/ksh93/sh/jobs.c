@@ -171,22 +171,17 @@ static Sfio_t		*outfile;
 static pid_t		lastpid;
 static struct back_save	bck;
 
-#ifdef JOBS
-    static void			job_set(struct process*);
-    static void			job_reset(struct process*);
-    static void			job_waitsafe(int);
-    static struct process	*job_byname(char*);
-    static struct process	*job_bystring(char*);
-    static struct termios	my_stty;  /* terminal state for shell */
-    static char			*job_string;
-#else
-    extern const char		e_coredump[];
-#endif /* JOBS */
+static void		job_set(struct process*);
+static void		job_reset(struct process*);
+static void		job_waitsafe(int);
+static struct process	*job_byname(char*);
+static struct process	*job_bystring(char*);
+static struct termios	my_stty;  /* terminal state for shell */
+static char		*job_string;
 
-#ifdef SIGTSTP
     static void		job_unstop(struct process*);
     static void		job_fgrp(struct process*, int);
-#   ifndef _lib_tcgetpgrp
+#ifndef _lib_tcgetpgrp
 #	ifdef TIOCGPGRP
 	   static int _i_;
 #	   define tcgetpgrp(a) (ioctl(a, TIOCGPGRP, &_i_)>=0?_i_:-1)	
@@ -200,17 +195,11 @@ static struct back_save	bck;
 			return(-1);
 #		endif /* TIOCGPGRP */
 	}
-#   endif /* _lib_tcgetpgrp */
-#else
-#   define job_unstop(pw)
-#   undef CNSUSP
-#endif /* SIGTSTP */
+#endif /* _lib_tcgetpgrp */
 
 #ifndef OTTYDISC
 #   undef NTTYDISC
 #endif /* OTTYDISC */
-
-#ifdef JOBS
 
 typedef int (*Waitevent_f)(int,long,int);
 
@@ -369,7 +358,6 @@ int job_reap(register int sig)
 				continue;
 			}
 		}
-#ifdef SIGTSTP
 		else
 			px=job_byjid(pw->p_job);
 		if (WIFCONTINUED(wstat) && wcontinued)
@@ -390,7 +378,6 @@ int job_reap(register int sig)
 			continue;
 		}
 		else
-#endif /* SIGTSTP */
 		{
 			/* check for coprocess completion */
 			if(pid==sh.cpid)
@@ -513,7 +500,7 @@ int job_reap(register int sig)
 }
 
 /*
- * This is the SIGCLD interrupt routine
+ * This is the SIGCHLD interrupt routine
  */
 static void job_waitsafe(int sig)
 {
@@ -535,9 +522,6 @@ void job_init(int lflag)
 	register int ntry=0;
 	job.fd = JOBTTY;
 	signal(SIGCHLD,job_waitsafe);
-#   if defined(SIGCLD) && (SIGCLD!=SIGCHLD)
-	signal(SIGCLD,job_waitsafe);
-#   endif
 	if(njob_savelist < NJOB_SAVELIST)
 		init_savelist();
 	if(!sh_isoption(SH_INTERACTIVE))
@@ -569,9 +553,7 @@ void job_init(int lflag)
 		/* This should have already been done by rlogin */
                 register int fd;
                 register char *ttynam;
-#ifndef SIGTSTP
                 setpgid(0,sh.pid);
-#endif /*SIGTSTP */
 		if(job.mypgid<0 || !(ttynam=ttyname(JOBTTY)))
 			return;
 		while(close(JOBTTY)<0 && errno==EINTR)
@@ -580,12 +562,9 @@ void job_init(int lflag)
 			return;
 		if(fd!=JOBTTY)
 			sh_iorenumber(fd,JOBTTY);
-#ifdef SIGTSTP
 		tcsetpgrp(JOBTTY,sh.pid);
-#endif /* SIGTSTP */
                 job.mypgid = sh.pid;
         }
-#ifdef SIGTSTP
 	possible = (setpgid(0,job.mypgid) >= 0) || errno==EPERM;
 	if(possible)
 	{
@@ -605,7 +584,6 @@ void job_init(int lflag)
 			}
 		}
 	}
-#endif /* SIGTTIN */
 #ifdef NTTYDISC
 	/* set the line discipline */
 	if(job.linedisc>=0)
@@ -633,11 +611,10 @@ void job_init(int lflag)
 #endif /* NTTYDISC */
 	if(!possible)
 		return;
-#ifdef SIGTSTP
 	/* make sure that we are a process group leader */
 	setpgid(0,sh.pid);
 	job.mypid = sh.pid;
-#   if defined(SA_NOCLDSTOP) || defined(SA_NOCLDWAIT)
+#if defined(SA_NOCLDSTOP) || defined(SA_NOCLDWAIT)
 #   	if !defined(SA_NOCLDSTOP)
 #	    define SA_NOCLDSTOP	0
 #   	endif
@@ -645,13 +622,13 @@ void job_init(int lflag)
 #	    define SA_NOCLDWAIT	0
 #   	endif
 	sigflag(SIGCHLD, SA_NOCLDSTOP|SA_NOCLDWAIT, 0);
-#   endif /* SA_NOCLDSTOP || SA_NOCLDWAIT */
+#endif /* SA_NOCLDSTOP || SA_NOCLDWAIT */
 	signal(SIGTTIN,SIG_IGN);
 	signal(SIGTTOU,SIG_IGN);
 	/* The shell now handles ^Z */
 	signal(SIGTSTP,sh_fault);
 	tcsetpgrp(JOBTTY,sh.pid);
-#   ifdef CNSUSP
+#ifdef CNSUSP
 	/* set the switch character */
 	tty_get(JOBTTY,&my_stty);
 	job.suspend = (unsigned)my_stty.c_cc[VSUSP];
@@ -660,10 +637,9 @@ void job_init(int lflag)
 		my_stty.c_cc[VSUSP] = CSWTCH;
 		tty_set(JOBTTY,TCSAFLUSH,&my_stty);
 	}
-#   endif /* CNSUSP */
+#endif /* CNSUSP */
 	sh_onoption(SH_MONITOR);
 	job.jobcontrol++;
-#endif /* SIGTSTP */
 	return;
 }
 
@@ -711,10 +687,8 @@ int job_close(void)
 		}
 	}
 	job_unlock();
-#   ifdef SIGTSTP
 	if(job.jobcontrol && setpgid(0,job.mypgid)>=0)
 		tcsetpgrp(job.fd,job.mypgid);
-#   endif /* SIGTSTP */
 #   ifdef NTTYDISC
 	if(job.linedisc>=0)
 	{
@@ -760,30 +734,24 @@ static void job_set(register struct process *pw)
 		/* restore terminal state for job */
 		tty_set(job.fd,TCSAFLUSH,&pw->p_stty);
 	}
-#ifdef SIGTSTP
 	if((pw->p_flag&P_STOPPED) || tcgetpgrp(job.fd) == sh.pid)
 		tcsetpgrp(job.fd,pw->p_fgrp);
 	/* if job is stopped, resume it in the background */
 	if(!sh.forked)
 		job_unstop(pw);
 	sh.forked = 0;
-#endif	/* SIGTSTP */
 }
 
 static void job_reset(register struct process *pw)
 {
 	/* save the terminal state for current job */
-#ifdef SIGTSTP
 	pid_t tgrp;
-#endif
 	if(!job.jobcontrol)
 		return;
-#ifdef SIGTSTP
 	if((tgrp=tcgetpgrp(job.fd))!=job.mypid)
 		job_fgrp(pw,tgrp);
 	if(tcsetpgrp(job.fd,job.mypid) !=0)
 		return;
-#endif	/* SIGTSTP */
 	/* force the following tty_get() to do a tcgetattr() unless fg */
 	if(!(pw->p_flag&P_MOVED2FG))
 		tty_set(-1, 0, NIL(struct termios*));
@@ -796,7 +764,6 @@ static void job_reset(register struct process *pw)
 	}
 	beenhere = 0;
 }
-#endif /* JOBS */
 
 /*
  * wait built-in command
@@ -810,7 +777,6 @@ void job_bwait(char **jobs)
 		job_wait((pid_t)-1);
 	else while(jp = *jobs++)
 	{
-#ifdef JOBS
 		if(*jp == '%')
 		{
 			job_lock();
@@ -822,13 +788,11 @@ void job_bwait(char **jobs)
 				return;
 		}
 		else
-#endif /* JOBS */
 			pid = pid_fromstring(jp);
 		job_wait(-pid);
 	}
 }
 
-#ifdef JOBS
 /*
  * execute function <fun> for each job
  */
@@ -1012,11 +976,7 @@ int job_kill(register struct process *pw,register int sig)
 	register pid_t pid;
 	register int r;
 	const char *msg;
-#ifdef SIGTSTP
 	int stopsig = (sig==SIGSTOP||sig==SIGTSTP||sig==SIGTTIN||sig==SIGTTOU);
-#else
-#	define stopsig	1
-#endif	/* SIGTSTP */
 	job_lock();
 	errno = ECHILD;
 	if(!pw)
@@ -1026,7 +986,6 @@ int job_kill(register struct process *pw,register int sig)
 	{
 		if(pid==0 && job.jobcontrol)
 			r = job_walk(outfile, job_kill,sig, (char**)0);
-#ifdef SIGTSTP
 		if(sig==SIGSTOP && pid==sh.pid && sh.ppid==1)
 		{
 			/* can't stop login shell */
@@ -1055,31 +1014,21 @@ int job_kill(register struct process *pw,register int sig)
 				}
 			}
 		}
-#else
-		if(pid>=0)
-			r = kill(pid,sig);
-		else
-			r = killpg(-pid,sig);
-#endif	/* SIGTSTP */
 	}
 	else
 	{
 		if(pid = pw->p_pgrp)
 		{
 			r = killpg(pid,sig);
-#ifdef SIGTSTP
 			if(r>=0 && (sig==SIGHUP||sig==SIGTERM || sig==SIGCONT))
 				job_unstop(pw);
-#endif	/* SIGTSTP */
 			if(r>=0)
 				sh_delay(.05,0);
 		}
 		while(pw && pw->p_pgrp==0 && (r=kill(pw->p_pid,sig))>=0) 
 		{
-#ifdef SIGTSTP
 			if(sig==SIGHUP || sig==SIGTERM)
 				kill(pw->p_pid,SIGCONT);
-#endif	/* SIGTSTP */
 			pw = pw->p_nxtproc;
 		}
 	}
@@ -1155,13 +1104,6 @@ static struct process *job_byname(char *name)
 	}
 	return(pz);
 }
-
-#else
-#   define job_set(x)
-#   define job_reset(x)
-#endif /* JOBS */
-
-
 
 /*
  * Initialize the process posting array
@@ -1292,12 +1234,10 @@ int job_post(pid_t pid, pid_t join)
 		pw->p_pid,pw->p_pgrp,job.savesig,join);
 	sfsync(sfstderr);
 #endif /* DEBUG */
-#ifdef JOBS
 	if(hp && !sh_isstate(SH_PROFILE))
 		pw->p_name=hist_tell(sh.hist_ptr,(int)hp->histind-1);
 	else
 		pw->p_name = -1;
-#endif /* JOBS */
 	if ((val = job_chksave(pid))>=0 && !jobfork)
 	{
 		pw->p_exit = val;
@@ -1471,7 +1411,6 @@ int	job_wait(register pid_t pid)
 		}
 		if(pw && (pw->p_flag&(P_DONE|P_STOPPED)))
 		{
-#ifdef SIGTSTP
 			if(pw->p_flag&P_STOPPED)
 			{
 				pw->p_flag |= P_EXITSAVE;
@@ -1487,7 +1426,6 @@ int	job_wait(register pid_t pid)
 					pw->p_flag &= ~(P_NOTIFY|P_SIGNALLED|P_STOPPED|P_EXITSAVE);
 			}
 			else
-#endif /* SIGTSTP */
 			{
 				if(pw->p_flag&P_SIGNALLED)
 				{
@@ -1546,13 +1484,11 @@ int	job_wait(register pid_t pid)
 		/* propagate keyboard interrupts to parent */
 		if((pw->p_flag&P_SIGNALLED) && pw->p_exit==SIGINT && !(sh.sigflag[SIGINT]&SH_SIGOFF))
 			kill(sh.current_pid,SIGINT);
-#ifdef SIGTSTP
 		else if((pw->p_flag&P_STOPPED) && pw->p_exit==SIGTSTP)
 		{
 			job.parent = 0;
 			kill(sh.current_pid,SIGTSTP);
 		}
-#endif /* SIGTSTP */
 	}
 	else if(job.jobcontrol)
 	{
@@ -1601,7 +1537,6 @@ int job_switch(register struct process *pw,int bgflag)
 		job_unlock();
 		return(0);
 	}
-#ifdef SIGTSTP
 	if(bgflag=='b')
 	{
 		sfprintf(outfile,"[%d]\t",(int)pw->p_job);
@@ -1634,13 +1569,10 @@ int job_switch(register struct process *pw,int bgflag)
 	}
 	else if(pw->p_flag&P_STOPPED)
 		job_unstop(pw);
-#endif /* SIGTSTP */
 	job_unlock();
 	return(0);
 }
 
-
-#ifdef SIGTSTP
 /*
  * Set the foreground group associated with a job
  */
@@ -1672,7 +1604,6 @@ static void job_unstop(register struct process *px)
 		killpg(px->p_pgrp,SIGCONT);
 	}
 }
-#endif	/* SIGTSTP */
 
 /*
  * remove a job from table

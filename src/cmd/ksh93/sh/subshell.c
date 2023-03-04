@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -639,7 +639,6 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 					sh_subfork();
 			}
 #endif /* _lib_fchdir */
-#ifdef SIGTSTP
 			/* Virtual subshells are not safe to suspend (^Z, SIGTSTP) in the interactive main shell. */
 			if(sh_isstate(SH_INTERACTIVE))
 			{
@@ -648,7 +647,6 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 				else
 					sh_subfork();
 			}
-#endif
 			sh_offstate(SH_INTERACTIVE);
 			sh_exec(t,flags);
 		}
@@ -677,10 +675,8 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 	nv_restore(sp);
 	if(comsub)
 	{
-#ifdef SIGTSTP
 		if(savst.states & sh_state(SH_INTERACTIVE))
 			sigrelease(SIGTSTP);
-#endif
 		/* re-enable job control */
 		job.jobcontrol = sp->jobcontrol;
 		if(sp->monitor)

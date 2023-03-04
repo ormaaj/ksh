@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -56,9 +56,7 @@ static char*	Version = "\n@(#)$Id: sfio (AT&T Labs - Research) 2009-09-15 $\0\n"
 #include		<signal.h>
 typedef void(*		Sfsignal_f)(int);
 #endif
-#ifdef SIGPIPE
 static int		_Sfsigp = 0; /* # of streams needing SIGPIPE protection */ 
-#endif
 
 /* done at exiting time */
 static void _sfcleanup(void)
@@ -196,7 +194,7 @@ int _sfpopen(reg Sfio_t* f, int fd, int pid, int stdio)	/* stdio popen() does no
 	p->file = fd;
 	p->sigp = (!stdio && pid >= 0 && (f->flags&SF_WRITE)) ? 1 : 0;
 
-#ifdef SIGPIPE	/* protect from broken pipe signal */
+	/* protect from broken pipe signal */
 	if(p->sigp)
 	{	Sfsignal_f	handler;
 
@@ -204,7 +202,6 @@ int _sfpopen(reg Sfio_t* f, int fd, int pid, int stdio)	/* stdio popen() does no
 			signal(SIGPIPE, handler); /* honor user handler */
 		_Sfsigp += 1;
 	}
-#endif
 
 	return 0;
 }
@@ -243,15 +240,12 @@ int _sfpclose(reg Sfio_t* f)
 			 EXIT_CODE(WEXITSTATUS(status));
 		sigcritical(0);
 #endif
-
-#ifdef SIGPIPE
 		if(p->sigp && (_Sfsigp -= 1) <= 0)
 		{	Sfsignal_f	handler;
 			if((handler = signal(SIGPIPE,SIG_DFL)) != SIG_DFL && handler != SIG_IGN)
 				signal(SIGPIPE,handler); /* honor user handler */
 			_Sfsigp = 0;
 		}
-#endif
 	}
 
 	free(p);

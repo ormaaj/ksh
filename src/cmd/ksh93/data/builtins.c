@@ -97,21 +97,13 @@ const struct shtable3 shtab_builtins[] =
 #else
 	"echo",		NV_BLTIN|BLT_ENV,		Bltin(echo),
 #endif /* SHOPT_ECHOPRINT */
-#ifdef JOBS
-#   ifdef SIGTSTP
 	"bg",		NV_BLTIN|BLT_ENV,		bltin(bg),
 	"fg",		NV_BLTIN|BLT_ENV|BLT_EXIT,	bltin(bg),
 	"disown",	NV_BLTIN|BLT_ENV,		bltin(bg),
 	"kill",		NV_BLTIN|BLT_ENV,		bltin(kill),
-#   else
-	"/bin/kill",	NV_BLTIN|BLT_ENV,		bltin(kill),
-#   endif	/* SIGTSTP */
 	"jobs",		NV_BLTIN|BLT_ENV,		bltin(jobs),
-#   ifdef SIGSTOP
 	"stop",		NV_BLTIN|BLT_ENV,		bltin(kill),
 	"suspend", 	NV_BLTIN|BLT_ENV,		bltin(suspend),
-#   endif	/* SIGSTOP */
-#endif	/* JOBS */
 	"false",	NV_BLTIN|BLT_ENV,		bltin(false),
 	"getopts",	NV_BLTIN|BLT_ENV,		bltin(getopts),
 #if SHOPT_MKSERVICE
@@ -1136,7 +1128,6 @@ _JOB_
 "[+SEE ALSO?\bps\b(1), \bjobs\b(1), \bkill\b(2), \bsignal\b(2)]"
 ;
 
-#if defined(JOBS) && defined(SIGSTOP)
 const char sh_optstop[] =
 "[-1c?\n@(#)$Id: stop (ksh 93u+m) 2020-06-22 $\n]"
 "[--catalog?" SH_DICT "]"
@@ -1172,7 +1163,6 @@ const char sh_optsuspend[] =
 "}"
 "[+SEE ALSO?\bkill\b(1)]"
 ;
-#endif /* defined(JOBS) && defined(SIGSTOP) */
 
 const char sh_optlet[]	=
 "[-1c?\n@(#)$Id: let (AT&T Research) 2000-04-02 $\n]"

@@ -78,16 +78,10 @@ extern int b_unset(int, char*[],Shbltin_t*);
 extern int b_unalias(int, char*[],Shbltin_t*);
 
 /* The following are for job control */
-#if defined(SIGCLD) || defined(SIGCHLD)
-    extern int b_jobs(int, char*[],Shbltin_t*);
-    extern int b_kill(int, char*[],Shbltin_t*);
-#   ifdef SIGTSTP
-	extern int b_bg(int, char*[],Shbltin_t*);
-#   endif	/* SIGTSTP */
-#   ifdef SIGSTOP
-	extern int b_suspend(int, char*[],Shbltin_t*);
-#   endif	/* SIGSTOP */
-#endif
+extern int b_jobs(int, char*[],Shbltin_t*);
+extern int b_kill(int, char*[],Shbltin_t*);
+extern int b_bg(int, char*[],Shbltin_t*);
+extern int b_suspend(int, char*[],Shbltin_t*);
 
 /* The following utilities are built-in because of side-effects */
 extern int b_builtin(int, char*[],Shbltin_t*);
@@ -180,10 +174,8 @@ extern const char sh_opthist[];
 #endif /* !SHOPT_SCRIPTONLY */
 extern const char sh_optjobs[];
 extern const char sh_optkill[];
-#if defined(JOBS) && defined(SIGSTOP)
 extern const char sh_optstop[];
 extern const char sh_optsuspend[];
-#endif /* defined(JOBS) && defined(SIGSTOP) */
 extern const char sh_optksh[];
 extern const char sh_optlet[];
 extern const char sh_optprint[];

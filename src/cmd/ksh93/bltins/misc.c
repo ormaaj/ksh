@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -143,10 +143,8 @@ int    b_exec(int argc,char *argv[], Shbltin_t *context)
 		pname = argv[0];
 		if(arg0)
 			argv[0] = arg0;
-#ifdef JOBS
 		if(job_close() < 0)
 			return(1);
-#endif /* JOBS */
 		/* if the main shell is about to be replaced, decrease SHLVL to cancel out a subsequent increase */
 		if(!sh.realsubshell)
 			(*SHLVL->nvalue.ip)--;
@@ -421,12 +419,11 @@ int    b_wait(int n,register char *argv[],Shbltin_t *context)
 	return(sh.exitval);
 }
 
-#ifdef JOBS
-#   if 0
+#if 0
     /* for the dictionary generator */
 	int    b_fg(int n,char *argv[],Shbltin_t *context){}
 	int    b_disown(int n,char *argv[],Shbltin_t *context){}
-#   endif
+#endif
 int    b_bg(register int n,register char *argv[],Shbltin_t *context)
 {
 	register int flag = **argv;
@@ -504,7 +501,6 @@ int    b_jobs(register int n,char *argv[],Shbltin_t *context)
 	job_wait((pid_t)0);
 	return(sh.exitval);
 }
-#endif
 
 /*
  * times command

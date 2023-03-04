@@ -1261,7 +1261,7 @@ case $stdlib in
 		*)	case " $stdlib " in
 			*\ $d\ *)
 				;;
-			*)	if	ls $d ${PREROOT+$PREROOT/../$d} > tmp.tmp && test -s tmp.tmp
+			*)	if	ls $d > tmp.tmp && test -s tmp.tmp
 				then	for i in $probe_lib $obj
 					do	if	grep -i "\\.$i\$" tmp.tmp >/dev/null
 						then	case " $probe_lib_append " in
@@ -1330,9 +1330,9 @@ case $stdlib in
 	for f in $probe_libdir
 	do	for d in $stdlib $libstd $tstlib
 		do	if	test -d ${d}${f}
-			then	ls ${d}${f} ${PREROOT:+$PREROOT/../${d}${f}} |
+			then	ls ${d}${f} |
 				while read i
-				do	for j in ${d}${f}/${i} ${PREROOT:+$PREROOT/../${d}${f}/${i}}
+				do	for j in ${d}${f}/${i}
 					do	if	test -f $j -a -r $j -a -s $j
 						then	echo $i
 							break

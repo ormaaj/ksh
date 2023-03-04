@@ -32,7 +32,6 @@
 
 #include <ast.h>
 #include <ctype.h>
-#include <preroot.h>
 #include <ls.h>
 
 char*
@@ -103,23 +102,12 @@ pathkey_20100601(const char* lang, const char* tool, const char* apath, char* ke
 
 		if (attr)
 			attr = strcopy(attr, "PREROOT='");
-#if FS_PREROOT
-		if (k = getenv(PR_BASE))
-		{
-			if (s = strrchr(k, '/'))
-				k = s + 1;
-			n = memsum(k, strlen(k), n);
-		}
-		if (attr && (getpreroot(attr, path) || getpreroot(attr, NiL)))
-			attr += strlen(attr);
-#else
 		if ((k = getenv("VIRTUAL_ROOT")) && *k == '/')
 		{
 			n = memsum(k, strlen(k), n);
 			if (attr)
 				attr = strcopy(attr, k);
 		}
-#endif
 
 		/*
 		 * universe

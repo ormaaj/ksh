@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -120,9 +120,6 @@ extern const char is_talias[];
 extern const char is_function[];
 extern const char is_ufunction[];
 extern const char e_autoloadfrom[];
-#ifdef SHELLMAGIC
-    extern const char e_prohibited[];
-#endif /* SHELLMAGIC */
 
 #if SHOPT_ACCT
 #   include	"FEATURE/acct"

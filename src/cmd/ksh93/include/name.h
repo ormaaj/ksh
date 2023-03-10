@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -246,7 +246,6 @@ extern const char	e_selfref[];
 extern const char	e_staticfun[];
 extern const char	e_envmarker[];
 extern const char	e_badlocale[];
-extern const char	e_loop[];
 extern const char	e_redef[];
 extern const char	e_required[];
 extern const char	e_badappend[];

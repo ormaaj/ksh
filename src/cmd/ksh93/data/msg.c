@@ -84,7 +84,6 @@ const char e_found[]		= "%s: not found";
 const char e_toolong[]		= "%s: file name too long";
 #endif
 const char e_defined[]		= "%s: function not defined";
-const char e_nointerp[]		= "%s: interpreter not found";
 const char e_subscript[]	= "%s: subscript out of range";
 const char e_toodeep[]		= "%s: recursion too deep";
 const char e_access[]		= "permission denied";
@@ -129,8 +128,6 @@ const char e_typecompat[]	= "%s: array instance incompatible with type assignmen
 const char e_nosupport[]	= "not supported";
 const char e_badrange[]		= "%d-%d: invalid range";
 const char e_eneedsarg[]	= "-e - requires single argument";
-const char e_badbase[]		= "%s unknown base";
-const char e_loop[]		= "%s: would cause loop";
 const char e_limit[]		= "%s: could not get limit";
 const char e_overlimit[]	= "%s: limit exceeded";
 const char e_badsyntax[]	= "incorrect syntax";
@@ -157,12 +154,10 @@ const char e_ambiguous[]	= "%s: Ambiguous";
 const char e_jobsrunning[]	= "You have running jobs";
 const char e_no_job[]		= "no such job";
 const char e_no_proc[]		= "no such process";
-const char e_badpid[]		= "%s: invalid process ID";
 const char e_jobusage[]		= "%s: Arguments must be %%job or process IDs";
 const char e_coredump[]		= "(coredump)";
 const char e_alphanum[]		= "[_[:alpha:]]*([_[:alnum:]])";
 const char e_devfdNN[]		= "/dev/fd/+([0-9])";
-const char e_devfdstd[]		= "/dev/@(fd/+([0-9])|std@(in|out|err))";
 const char e_signo[]		= "Signal %d";
 
 /* string constants */

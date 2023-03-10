@@ -122,7 +122,6 @@ extern const char	e_nofork[];
 extern const char	e_nosignal[];
 extern const char	e_notimp[];
 extern const char	e_nosupport[];
-extern const char	e_badbase[];
 extern const char	e_limit[];
 extern const char	e_overlimit[];
 

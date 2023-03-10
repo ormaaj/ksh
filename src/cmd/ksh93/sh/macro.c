@@ -354,8 +354,7 @@ void sh_machere(Sfio_t *infile, Sfio_t *outfile, char *string)
 				sfputc(stkp,c);
 				if(n==S_LBRA)
 				{
-					c = fcget();
-					fcseek(-1);
+					c = fcpeek(0);
 					if(sh_lexstates[ST_NORM][c]==S_BREAK)
 					{
 						comsubst(mp,(Shnode_t*)0,2);
@@ -1237,8 +1236,7 @@ retry1:
 		/* Handle 'set -u'/'set -o nounset' for positional parameters */
 		if(!v && sh_isoption(SH_NOUNSET))
 		{
-			d=fcget();
-			fcseek(-1);
+			unsigned char d = fcpeek(0);
 			if(!(d && strchr(":+-?=",d)))
 			{
 				errormsg(SH_DICT,ERROR_exit(1),e_notset,ltos(c));
@@ -2824,8 +2822,7 @@ static char *special(register int c)
 	/* Handle 'set -u'/'set -o nounset' for special parameters */
 	if(sh_isoption(SH_NOUNSET))
 	{
-		int d=fcget();
-		fcseek(-1);
+		unsigned char d = fcpeek(0);
 		if(!(d && strchr(":+-?=",d)))
 		{
 			char c_str[2];

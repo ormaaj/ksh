@@ -2,7 +2,7 @@
 #                                                                      #
 #               This software is part of the ast package               #
 #          Copyright (c) 1994-2012 AT&T Intellectual Property          #
-#          Copyright (c) 2020-2022 Contributors to ksh 93u+m           #
+#          Copyright (c) 2020-2023 Contributors to ksh 93u+m           #
 #                      and is licensed under the                       #
 #                 Eclipse Public License, Version 2.0                  #
 #                                                                      #
@@ -340,7 +340,7 @@ do	case $# in
 	0)	set host type ;;
 	esac
 	case $1 in
-	clean|clobber|export|host|install|make|remove|results|test|use|view)
+	clean|clobber|export|host|install|make|results|test|use|view)
 		action=$1
 		shift
 		break
@@ -568,9 +568,8 @@ hostopts()
 {
 	_ifs_=$IFS
 	IFS=,
-	set '' $HOSTTYPE
+	set -- $HOSTTYPE
 	IFS=$_ifs_
-	shift
 	while	:
 	do	case $# in
 		0|1)	break ;;
@@ -733,9 +732,8 @@ onpath() # command
 		;;
 	esac
 	IFS=':'
-	set '' $PATH
+	set -- $PATH
 	IFS=$ifs
-	shift
 	for _onpath_d
 	do	case $_onpath_d in
 		'')	_onpath_d=. ;;
@@ -1592,8 +1590,7 @@ int b() { return 0; }
 		;;
 	esac
 	done
-	set '' $_hostinfo_
-	shift
+	set -- $_hostinfo_
 	_hostinfo_=$*
 
 	# restore the global state
@@ -1717,8 +1714,7 @@ case $x in
 			case $show in
 			echo)	exec=echo make=echo show=echo ;;
 			esac
-			set '' $args
-			shift
+			set -- $args
 			case $# in
 			0)	;;
 			*)	case $1 in
@@ -1814,7 +1810,7 @@ case $x in
 	export HOSTTYPE
 	INSTALLROOT=$PACKAGEROOT/arch/$HOSTTYPE
 	case $action in
-	install|make|remove|test|view)
+	install|make|test|view)
 		;;
 	*)	if	test ! -d $INSTALLROOT
 		then	INSTALLROOT=$PACKAGEROOT
@@ -2158,8 +2154,7 @@ cat $INITROOT/$i.sh
 	case $USER_VPATH in
 	'')	case $VPATH in
 		?*)	IFS=':'
-			set '' $VPATH
-			shift
+			set -- $VPATH
 			IFS=$ifs
 			USER_VPATH=
 			for i
@@ -2180,8 +2175,7 @@ cat $INITROOT/$i.sh
 	esac
 	case $USER_VPATH in
 	?*)	IFS=':'
-		set '' $USER_VPATH
-		shift
+		set -- $USER_VPATH
 		IFS=$ifs
 		USER_VPATH=
 		USER_VPATH_CHAIN=
@@ -2203,8 +2197,7 @@ esac
 
 PACKAGEBIN=$INSTALLROOT/lib/package
 case $action:$run in
-use:-)	set '' $args
-	shift
+use:-)	set -- $args
 	case $# in
 	0)	;;
 	*)	shift ;;
@@ -2260,8 +2253,7 @@ $show VPATH=$VPATH
 $show export VPATH
 export VPATH
 IFS=':'
-set '' $VPATH
-shift
+set -- $VPATH
 IFS=$ifs
 for i
 do	case $i in
@@ -2323,13 +2315,9 @@ view() # [test] [-|type] [src|bin|all] file
 case $action in
 *)	package=
 	target=
-	set '' $args
-	while	:
-	do	shift
-		case $# in
-		0)	break ;;
-		esac
-		case $1 in
+	set -- $args
+	while	test "$#" -gt 0
+	do	case $1 in
 		''|-)	target="$target $package"
 			package=
 			;;
@@ -2340,6 +2328,7 @@ case $action in
 			fi
 			;;
 		esac
+		shift
 	done
 	;;
 esac
@@ -2601,21 +2590,6 @@ do_install() # dir [ command ... ]
 	done
 }
 
-# check for native ASCII 0:yes 1:no
-
-__isascii__=
-
-isascii()
-{
-	case $__isascii__ in
-	'')	case $(echo A | od -o | sed -e 's/[ 	]*$//' -e '/[ 	]/!d' -e 's/.*[ 	]//') in
-		005101|040412)	__isascii__=0 ;;
-		*)		__isascii__=1 ;;
-		esac
-	esac
-	return $__isascii__
-}
-
 error_status=0
 
 case $action in
@@ -2656,17 +2630,12 @@ export)	case $INSTALLROOT in
 	0)	v='$i=' ;;
 	*)	v= ;;
 	esac
-	set '' $target $package
-	case $# in
-	1)	set '' $env ;;
-	esac
-	while	:
-	do	case $# in
-		1)	break ;;
-		esac
-		shift
-		i=$1
+	set -- $target $package
+	test "$#" -eq 0 && set -- $env
+	while	test "$#" -gt 0
+	do	i=$1
 		eval echo ${v}'$'${i}
+		shift
 	done
 	;;
 
@@ -3202,8 +3171,7 @@ cat $j $k
 	esac
 	;;
 
-results)set '' $target
-	shift
+results)set -- $target
 	def=make
 	dir=$PACKAGEBIN/gen
 	case $verbose in

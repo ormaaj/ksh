@@ -198,7 +198,7 @@ static void hist_touch(void *handle)
  * open the history file
  * if HISTNAME is not given and userid==0 then no history file.
  * if HISTFILE is longer than HIST_MAX bytes then it is cleaned up.
- * hist_open() returns 1, if history file is open
+ * sh_histinit() returns 1 if history file is open.
  */
 int  sh_histinit(void)
 {

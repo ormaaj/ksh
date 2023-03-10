@@ -1961,7 +1961,7 @@ int sh_exec(register const Shnode_t *t, int flags)
 			break;
 
 		    /*
-		     * Loop: 'for' or 'select'
+		     * Loop: iterative 'for' or 'select'
 		     */
 		    case TFOR:
 		    {
@@ -2007,7 +2007,6 @@ int sh_exec(register const Shnode_t *t, int flags)
 				{
 					char *val;
 					int save_prompt;
-					/* reuse register */
 					if(refresh)
 					{
 						sh_menu(sfstderr,nargs,args);
@@ -2027,22 +2026,23 @@ int sh_exec(register const Shnode_t *t, int flags)
 						continue;
 					else
 					{
+						int c;  /* user's menu choice */
 						if(*(cp=val) == 0)
 						{
 							refresh++;
 							goto check;
 						}
-						while(type = *cp++)
-							if(type < '0' && type > '9')
+						while(c = *cp++)
+							if(c < '0' && c > '9')
 								break;
-						if(type!=0)
-							type = nargs;
+						if(c!=0)
+							c = nargs;
 						else
-							type = (int)strtol(val, (char**)0, 10)-1;
-						if(type<0 || type >= nargs)
+							c = (int)strtol(val, (char**)0, 10)-1;
+						if(c<0 || c >= nargs)
 							cp = Empty;
 						else
-							cp = args[type];
+							cp = args[c];
 					}
 				}
 				if(nameref)
@@ -2092,7 +2092,7 @@ int sh_exec(register const Shnode_t *t, int flags)
 		    }
 
 		    /*
-		     * Loop: 'while' or 'until'
+		     * Loop: 'while', 'until', or arithmetic 'for'
 		     */
 		    case TWH:
 		    {

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -25,7 +25,7 @@
  */
 
 static const char usage[] =
-"[-?\n@(#)$Id: uname (AT&T Research) 2007-04-19 $\n]"
+"[-?\n@(#)$Id: uname (ksh 93u+m) 2023-03-09 $\n]"
 "[--catalog?" ERROR_CATALOG "]"
 "[+NAME?uname - identify the current system ]"
 "[+DESCRIPTION?By default \buname\b writes the operating system name to"

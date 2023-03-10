@@ -544,4 +544,15 @@ if builtin cat 2> /dev/null; then
 fi
 
 # ======
+# on ksh 93v-/2020, 'exec cat' with a heredoc is broken
+# https://github.com/ksh93/ksh/pull/604
+exp=hello
+got=$( set +x; { "$SHELL" -c "exec cat <<_EOF
+$exp
+_EOF"; } 2>&1 )
+[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "'exec cat' with a heredoc" \
+	"(expected status 0, '$exp';" \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"), $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

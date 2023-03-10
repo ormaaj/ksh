@@ -96,13 +96,13 @@ signal(int sig, Sig_handler_t fun)
 		na.sa_flags = SA_RESTART;
 #endif
 		break;
-#endif
 	default:
 #if defined(SA_INTERRUPT)
 		na.sa_flags = SA_INTERRUPT;
 #endif
 		break;
 	}
+#endif
 	if (sigaction(sig, &na, &oa))
 		return 0;
 	if (unblock)

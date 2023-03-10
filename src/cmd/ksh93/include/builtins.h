@@ -120,7 +120,6 @@ extern const char	e_badfun[];
 extern const char	e_baddisc[];
 extern const char	e_nofork[];
 extern const char	e_nosignal[];
-extern const char	e_nolabels[];
 extern const char	e_notimp[];
 extern const char	e_nosupport[];
 extern const char	e_badbase[];

@@ -117,7 +117,6 @@ const char e_format[]		= "%s: bad format";
 const char e_redef[]		= "%s: type cannot be redefined";
 const char e_required[]		= "%s: is a required element of %s";
 const char e_badtformat[]	= "%c: bad format character in time format";
-const char e_nolabels[]		= "%s: label not implemented";
 const char e_notimp[]		= "%s: not implemented";
 const char e_notelem[]		= "%.*s: is not an element of %s";
 const char e_notenum[]		= "%s: not an enumeration type";

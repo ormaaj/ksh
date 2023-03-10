@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -119,7 +119,7 @@ int	b_break(register int n, register char *argv[],Shbltin_t *context)
 		n = (int)strtol(arg,&arg,10);
 		if(n<=0 || *arg)
 		{
-			errormsg(SH_DICT,ERROR_exit(1),e_nolabels,*argv);
+			errormsg(SH_DICT,ERROR_exit(1),e_number,*argv);
 			UNREACHABLE();
 		}
 	}

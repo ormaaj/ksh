@@ -346,7 +346,7 @@ const char sh_set[] =
 ;
 
 const char sh_optbreak[] =
-"[-1c?\n@(#)$Id: break (AT&T Research) 1999-04-07 $\n]"
+"[-1c?\n@(#)$Id: break (ksh 93u+m) 2023-03-09 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?break - break out of loop ]"
 "[+DESCRIPTION?\bbreak\b is a shell special built-in that exits the "
@@ -364,7 +364,7 @@ const char sh_optbreak[] =
 ;
 
 const char sh_optcont[] =
-"[-1c?\n@(#)$Id: continue (AT&T Research) 1999-04-07 $\n]"
+"[-1c?\n@(#)$Id: continue (ksh 93u+m) 2023-03-09 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?continue - continue execution at top of the loop]"
 "[+DESCRIPTION?\bcontinue\b is a shell special built-in that continues " 

@@ -110,7 +110,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2023-01-08 $
+@(#)$Id: '$command$' (ksh 93u+m) 2023-03-11 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -331,7 +331,6 @@ tab="        "
 verbose=0
 AUTHORIZE=
 DEBUG=
-SHELLMAGIC=-
 
 unset FIGNORE BINDIR DLLDIR ETCDIR FUNDIR INCLUDEDIR LIBDIR LOCALEDIR MANDIR SHAREDIR 2>/dev/null || true
 
@@ -538,7 +537,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2023-01-08
+  version         package (ksh 93u+m) 2023-03-11
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -698,23 +697,6 @@ executable() # [!] command
 	case $1 in
 	'!')	test ! -x "$2" && test ! -x "$2.exe" ;;
 	*)	test -x "$1" || test -x "$1.exe" ;;
-	esac
-}
-
-# initialize SHELLMAGIC
-# tangible proof of Cygwin's disdain for Unix
-
-shellmagic()
-{
-	case $SHELLMAGIC in
-	'')	;;
-	-)	if	test -f /emx/bin/sh.exe
-		then	SHELLMAGIC='#!/emx/bin/sh.exe'$nl
-		elif	test -f /bin/env.exe
-		then	SHELLMAGIC='#!/bin/env sh'$nl
-		else	SHELLMAGIC=
-		fi
-		;;
 	esac
 }
 
@@ -1861,24 +1843,7 @@ case $x in
 				case $(ls -t $INITROOT/$i.sh $PACKAGEROOT/bin/$i 2>/dev/null) in
 				"$INITROOT/$i.sh"*)
 					note "update $PACKAGEROOT/bin/$i"
-					shellmagic
-					case $SHELLMAGIC in
-					'')	$exec cp $INITROOT/$i.sh $PACKAGEROOT/bin/$i || exit
-						;;
-					*)	case $exec in
-						'')	{
-							echo "$SHELLMAGIC"
-							cat $INITROOT/$i.sh
-							} > $PACKAGEROOT/bin/$i || exit
-							;;
-						*)	echo "{
-echo \"$SHELLMAGIC\"
-cat $INITROOT/$i.sh
-} > $PACKAGEROOT/bin/$i"
-							;;
-						esac
-						;;
-					esac
+					$exec cp $INITROOT/$i.sh $PACKAGEROOT/bin/$i || exit
 					$exec chmod +x $PACKAGEROOT/bin/$i || exit
 					;;
 				esac
@@ -2905,19 +2870,10 @@ make|view)
 		$i*)	;;
 		*)	if	test -f "$j" && test -f "$k"
 			then	note "update $i"
-				shellmagic
 				case $exec in
-				'')	{
-					case $SHELLMAGIC in
-					?*)	echo "$SHELLMAGIC" ;;
-					esac
-					cat $j $k
-					} > $i || exit
+				'')	cat $j $k > $i || exit
 					;;
-				*)	echo "{
-echo $SHELLMAGIC
-cat $j $k
-} > $i"
+				*)	echo "cat $j $k > $i"
 					;;
 				esac
 				$exec chmod +x $i || exit

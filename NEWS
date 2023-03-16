@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-03-16:
+
+- Backported a fix from ksh 93v- beta for a bug in the 'for' loop optimizer
+  which could falsely treat 'typeset -b' variables as loop invariants.
+
 2023-03-04:
 
 - Fixed a bug introduced on 2022-02-08 that caused string translation using

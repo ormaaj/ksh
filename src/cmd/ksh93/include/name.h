@@ -217,6 +217,9 @@ extern Namfun_t		*nv_mapchar(Namval_t*, const char*);
 
 extern const Namdisc_t	RESTRICTED_disc;
 extern const Namdisc_t	ENUM_disc;
+#if SHOPT_OPTIMIZE
+extern const Namdisc_t	OPTIMIZE_disc;
+#endif /* SHOPT_OPTIMIZE */
 extern char		nv_local;
 extern Dtdisc_t		_Nvdisc;
 extern const char	*nv_discnames[];

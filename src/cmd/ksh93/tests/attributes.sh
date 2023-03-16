@@ -831,4 +831,19 @@ unset foo
 ) || err_exit 'failed to convert from -Z to -i'
 
 # ======
+# Bug in the 'for' loop optimizer which could falsely treat 'typeset -b' variables as loop invariants
+# Fix backported from ksh 93v- 2013-03-18
+# (hint: use 'base64 -d' to decode base64-encoded values)
+unset var i
+exp='dGhyZWV0'
+typeset -bZ6 var
+for i in first second
+do	read -r -N6 var
+	set -- "$var"
+	[[ $i == first ]] && continue
+	got=$1
+	[[ $got == "$exp" ]] || err_exit "loop optimization bug with 'typeset -b' variables (expected '$exp', got '$got')"
+done <<< 'twotowthreetfourro'
+
+# ======
 exit $((Errors<125?Errors:125))

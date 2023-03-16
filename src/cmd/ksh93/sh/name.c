@@ -2594,7 +2594,7 @@ static Namfun_t *clone_optimize(Namval_t* np, Namval_t *mp, int flags, Namfun_t 
 	return((Namfun_t*)0);
 }
 
-static const Namdisc_t optimize_disc  = {sizeof(struct optimize),put_optimize,0,0,0,0,clone_optimize};
+const Namdisc_t OPTIMIZE_disc  = {sizeof(struct optimize),put_optimize,0,0,0,0,clone_optimize};
 
 void nv_optimize(Namval_t *np)
 {
@@ -2614,7 +2614,7 @@ void nv_optimize(Namval_t *np)
 				sh.argaddr = 0;
 				return;
 			}
-			if(fp->disc== &optimize_disc)
+			if(fp->disc == &OPTIMIZE_disc)
 				break;
 		}
 		if((xp= (struct optimize*)fp) && xp->ptr==sh.argaddr)
@@ -2640,7 +2640,7 @@ void nv_optimize(Namval_t *np)
 		}
 		else
 		{
-			op->hdr.disc = &optimize_disc;
+			op->hdr.disc = &OPTIMIZE_disc;
 			op->next = (struct optimize*)sh.optlist;
 			sh.optlist = (void*)op;
 			nv_stack(np,&op->hdr);
@@ -3531,7 +3531,7 @@ void nv_unref(register Namval_t *np)
 		Namfun_t *fp;
 		for(fp=nq->nvfun; fp; fp = fp->next)
 		{
-			if(fp->disc== &optimize_disc)
+			if(fp->disc == &OPTIMIZE_disc)
 			{
 				optimize_clear(nq,fp);
 				return;

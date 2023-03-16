@@ -468,7 +468,13 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 			sh_timerdel(timeslot);
 		if(binary && !((size=nv_size(np)) && nv_isarray(np) && c!=size))
 		{
-			if((c==size) && np->nvalue.cp && !nv_isarray(np))
+#if SHOPT_OPTIMIZE
+			/* only optimize this operation if the loop invariants optimizer is not being used */
+			int optimize = !np->nvfun || !nv_hasdisc(np,&OPTIMIZE_disc);
+#else
+			int optimize = 1;
+#endif
+			if(optimize && c==size && np->nvalue.cp && !nv_isarray(np))
 				memcpy((char*)np->nvalue.cp,var,c);
 			else
 			{

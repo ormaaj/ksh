@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1218,6 +1218,7 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
  * delete the node <np> from the dictionary <root> and clear from the cache
  * if <root> is NULL, only the cache is cleared
  * if flags does not contain NV_NOFREE, the node is freed
+ * if flags contains NV_REF, does not set NullNode to avoid defeating nameref loop detection
  * if np==0 && !root && flags==0, delete the Refdict dictionary
  */
 void nv_delete(Namval_t* np, Dt_t *root, int flags)
@@ -1249,8 +1250,9 @@ void nv_delete(Namval_t* np, Dt_t *root, int flags)
 				if(rp->sub)
 					free(rp->sub);
 				rp->sub = 0;
-				rp = dtdelete(Refdict,(void*)rp);
-				rp->np = &NullNode;
+				rp = dtremove(Refdict,(void*)rp);
+				if(rp && !(flags&NV_REF))
+					rp->np = &NullNode;
 			}
 		}
 	}
@@ -3419,7 +3421,7 @@ void nv_setref(register Namval_t *np, Dt_t *hp, int flags)
 	sh.instance = 0;
 	sh.last_root = root;
 	_nv_unset(np,0);
-	nv_delete(np,(Dt_t*)0,0);
+	nv_delete(np,(Dt_t*)0,NV_REF);
 	np->nvalue.nrp = sh_newof(0,struct Namref,1,sizeof(Dtlink_t));
 	np->nvalue.nrp->np = nq;
 	np->nvalue.nrp->root = hp;

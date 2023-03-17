@@ -152,8 +152,6 @@ The options have the following defaults and meanings:
 
     STATS        on  Add .sh.stats compound variable.
 
-    SUID_EXEC    on  Execute /etc/suid_exec for setuid, setgid script.
-
     SYSRC            Source /etc/ksh.kshrc on initializing an interactive
                      shell. This is on by default if /etc/ksh.kshrc or
                      /etc/bash.bashrc exists at compile time.
@@ -229,19 +227,6 @@ The build should also generate shcomp, a program that will precompile
 a script.  ksh93 is able to recognize files in this format and process
 them as scripts.  You can use shcomp to send out scripts when you
 don't want to give away the original script source.
-
-To be able to run setuid/setgid shell scripts, or scripts without read
-permission, the SUID_EXEC compile option must be on, and ksh must be installed
-in the /bin directory, the /usr/bin directory, the /usr/lbin directory,
-or the /usr/local/bin directory and the name must end in sh. The program
-suid_exec must be installed in the /etc directory, must be owned by root,
-and must be an SUID program.  If you must install ksh in some other directory
-and want to be able to run setuid/setgid and execute only scripts, then
-you will have to change the source code file sh/suid_exec.c explicitly.
-If you do not have ksh in one of these secure locations, /bin/sh will
-be invoked with the -p options and will fail when you execute a setuid/setgid
-and/or execute only script.  Note that ksh does not read the .profile
-or $ENV file when the real and effective user/group IDs are not equal.
 
 #### TESTING KSH ####
 

@@ -108,9 +108,6 @@ extern const char e_mailmsg[];
 extern const char e_suidprofile[];
 extern const char e_sysprofile[];
 extern const char e_traceprompt[];
-#if SHOPT_SUID_EXEC
-    extern const char	e_suidexec[];
-#endif /* SHOPT_SUID_EXEC */
 extern const char is_alias[];
 extern const char is_builtin[];
 extern const char is_spcbuiltin[];

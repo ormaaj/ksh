@@ -37,7 +37,6 @@ SHOPT REMOTE=				# enable --rc if running as a remote shell
 SHOPT SCRIPTONLY=0			# build ksh for running scripts only; compile out the interactive shell
 SHOPT SPAWN=				# use spawnveg for fork/exec
 SHOPT STATS=1				# add .sh.stats variable
-SHOPT SUID_EXEC=1			# allow (safe) SUID/SGID shell scripts
 SHOPT SYSRC=				# attempt . /etc/ksh.kshrc if interactive
 SHOPT TEST_L=				# add 'test -l' as an alias for 'test -L'
 SHOPT TIMEOUT=				# number of seconds for shell timeout

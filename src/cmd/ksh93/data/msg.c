@@ -182,13 +182,6 @@ const char e_suidprofile[]	= "/etc/suid_profile";
 #if SHOPT_SYSRC
 const char e_sysrc[]		= "/etc/ksh.kshrc";
 #endif
-#ifdef BUILD_DTKSH
-   const char e_suidexec[]      = SUIDEXECPATH;
-#else
-#if SHOPT_SUID_EXEC
-   const char e_suidexec[]	= "/etc/suid_exec";
-#endif /* SHOPT_SUID_EXEC */
-#endif
 #if !SHOPT_SCRIPTONLY
 const char hist_fname[]		= "/.sh_history";
 #endif /* !SHOPT_SCRIPTONLY */

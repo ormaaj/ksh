@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1214,10 +1214,6 @@ pid_t path_spawn(const char *opath,register char **argv, char **envp, Pathcomp_t
 	    case EISDIR:
 		return -1;
 	    case ENOEXEC:
-#if SHOPT_SUID_EXEC
-	    case EPERM:
-		/* some systems return EPERM if setuid bit is on */
-#endif
 		errno = ENOEXEC;
 		if(spawn)
 		{
@@ -1253,10 +1249,8 @@ pid_t path_spawn(const char *opath,register char **argv, char **envp, Pathcomp_t
 	    /* FALLTHROUGH */
 	    case ENAMETOOLONG:
 #endif /* ENAMETOOLONG */
-#if !SHOPT_SUID_EXEC
 	    /* FALLTHROUGH */
 	    case EPERM:
-#endif
 		sh.path_err = errno;
 		return(-1);
 	    case ENOTDIR:
@@ -1316,64 +1310,11 @@ static noreturn void exscript(register char *path,register char *argv[],char **e
 		sh_close(sh.infd);
 	sh_setstate(sh_state(SH_FORKED));
 	sfsync(sfstderr);
-#if SHOPT_SUID_EXEC
-	/* check if file cannot open for read or script is setuid/setgid */
-	{
-		static char name[] = "/tmp/euidXXXXXXXXXX";
-		register int n;
-		register uid_t euserid;
-		char *savet=0;
-		struct stat statb;
-		if((n=sh_open(path,O_RDONLY,0)) >= 0)
-		{
-			/* move <n> if n=0,1,2 */
-			n = sh_iomovefd(n);
-			if(fstat(n,&statb)>=0 && !(statb.st_mode&(S_ISUID|S_ISGID)))
-				goto openok;
-			sh_close(n);
-		}
-		if((euserid=geteuid()) != sh.userid)
-		{
-			strncpy(name+9,fmtbase((intmax_t)sh.current_pid,10,0),sizeof(name)-10);
-			/* create an SUID open file with owner equal to effective UID */
-			if((n=open(name,O_CREAT|O_TRUNC|O_WRONLY,S_ISUID|S_IXUSR)) < 0)
-				goto fail;
-			unlink(name);
-			/* make sure that file has right owner */
-			if(fstat(n,&statb)<0 || statb.st_uid != euserid)
-				goto fail;
-			if(n!=10)
-			{
-				sh_close(10);
-				fcntl(n, F_DUPFD, 10);
-				sh_close(n);
-				n=10;
-			}
-		}
-		savet = *--argv;
-		*argv = path;
-		execve(e_suidexec,argv,envp);
-	fail:
-		/*
-		 *  The following code is just for compatibility
-		 */
-		if((n=open(path,O_RDONLY,0)) < 0)
-		{
-			errormsg(SH_DICT,ERROR_system(ERROR_NOEXEC),e_exec,path);
-			UNREACHABLE();
-		}
-		if(savet)
-			*argv++ = savet;
-	openok:
-		sh.infd = n;
-	}
-#else
 	if((sh.infd = sh_open(path,O_RDONLY,0)) < 0)
 	{
 		errormsg(SH_DICT,ERROR_system(ERROR_NOEXEC),e_exec,path);
 		UNREACHABLE();
 	}
-#endif
 	sh.infd = sh_iomovefd(sh.infd);
 #if SHOPT_ACCT
 	sh_accbegin(path) ;  /* reset accounting */

@@ -2,6 +2,18 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-03-19:
+
+- Fixed a crash in 'read' (as well as a spurious error in 'printf -v', added
+  on 2021-11-18) when using an indexed array subscript with an arithmetic
+  expression that yields 0 while also modifying the variable. For example,
+  'i=-1; read a[i+=1]' crashed. Bug introduced in ksh 93s+ 2008-01-31.
+
+- In the 'read' built-in, a '=' in a variable name argument is now once
+  again an error and is no longer misparsed as an assignment, which caused
+  inconsistent behaviour or (in the case of 'read -C foo=bar') a crash. This
+  fixes a bug introduced in ksh 93u+ 2011-04-28.
+
 2023-03-17:
 
 - Fixed nameref self-reference loop detection; as of ksh 93u 2010-11-22, this

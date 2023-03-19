@@ -236,7 +236,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 	int			delim = '\n';
 	int			jmpval=0;
 	int			binary;
-	int			oflags=NV_ASSIGN|NV_VARNAME;
+	int			oflags=NV_VARNAME;
 	char			inquote = 0;
 	struct	checkpt		buff;
 	Edit_t			*ep = (struct edit*)sh.ed_context;
@@ -249,9 +249,26 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 		if(val= strchr(name,'?'))
 			*val = 0;
 		if(flags&C_FLAG)
-			oflags |= NV_ARRAY;
+		{
+			oflags |= NV_ARRAY|NV_ASSIGN;
+			/*
+			 * For some reason, so far known only to the AT&T deities, we need not only
+			 * NV_ARRAY but also NV_ASSIGN to make -C work. But an actual assignment-argument
+			 * would be nonsense and also crashes the shell if allowed, so block that here.
+			 */
+			if(strchr(name,'='))
+			{
+				errormsg(SH_DICT, ERROR_exit(1), e_varname, name);
+				UNREACHABLE();
+			}
+		}
 		np = nv_open(name,sh.var_tree,oflags);
-		if(np && nv_isarray(np) && (mp=nv_opensub(np)))
+		if(!np)
+		{
+			errormsg(SH_DICT, ERROR_exit(2), e_create, name);
+			UNREACHABLE();
+		}
+		if(nv_isarray(np) && (mp=nv_opensub(np)))
 			np = mp;
 		if((flags&V_FLAG) && sh.ed_context)
 			((struct edit*)sh.ed_context)->e_default = np;

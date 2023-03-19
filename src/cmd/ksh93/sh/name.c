@@ -1012,6 +1012,7 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
 				if(c=='[' || (c=='.' && nv_isarray(np)))
 				{
 					int n = 0;
+					sh.nv_putsub_already_called_sh_arith = 0;
 					sub = 0;
 					mode &= ~NV_NOSCOPE;
 					if(c=='[')
@@ -1106,11 +1107,19 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
 #endif /* SHOPT_FIXEDARRAY */
 					{
 						/* subscript must be 0 */
-						cp[-1] = 0;
-						n = sh_arith(sp+1);
-						cp[-1] = ']';
+						/* avoid double arithmetic evaluation */
+						if(sh.nv_putsub_already_called_sh_arith)
+							n = sh.nv_putsub_idx;
+						else
+						{
+							cp[-1] = 0;
+							n = sh_arith(sp+1);
+							cp[-1] = ']';
+						}
 						if(n)
 							return(0);
+						if(nv_isarray(np))
+							nv_putsub(np,"0",ARRAY_FILL);
 						if(c)
 							sp = cp;
 					}

@@ -377,6 +377,9 @@ struct Shell_s
 	Namfun_t	nvfun;
 	char		*mathnodes;
 	char		*bltin_dir;
+	/* nv_putsub() hack for nv_create() to avoid double arithmetic evaluation */
+	char		nv_putsub_already_called_sh_arith;
+	int		nv_putsub_idx;	/* saves array index obtained by nv_putsub() using sh_arith() */
 #if SHOPT_FILESCAN
 	char		*cur_line;
 #endif /* SHOPT_FILESCAN */

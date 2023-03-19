@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1180,7 +1180,8 @@ Namval_t *nv_putsub(Namval_t *np,register char *sp,register long mode)
 			else
 			{
 				Dt_t *root = sh.last_root;
-				size = (int)sh_arith((char*)sp);
+				sh.nv_putsub_idx = size = (int)sh_arith((char*)sp);
+				sh.nv_putsub_already_called_sh_arith = 1;  /* tell nv_create() to avoid double arith eval */
 				sh.last_root = root;
 			}
 		}

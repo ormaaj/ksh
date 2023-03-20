@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1715,56 +1715,58 @@ retry1:
 		fcseek(-1);
 		c=0;
 	}
-	if(c==':')  /* ${name:expr1[:expr2]} */
+	/* check for slice operator: ${parameter:offset[:length]} */
+	if(c==':')
 	{
-		char *ptr;
-		type = (int)sh_strnum(argp,&ptr,1);
+		char *lastchar;
+		int sliceoffset = (int)sh_strnum(argp,&lastchar,1);
 		if(isastchar(mode))
 		{
 			if(id==idbuff)  /* ${@} or ${*} */
 			{
-				if(type<0 && (type+= dolmax)<0)
-					type = 0;
-				if(type==0)
+				if(sliceoffset < 0 && (sliceoffset += dolmax) < 0)
+					sliceoffset = 0;
+				if(sliceoffset==0)
 					v = special(dolg=0);
 #if  SHOPT_FILESCAN
 				else if(sh.cur_line)
 				{
-					v = getdolarg(dolg=type,&vsize);
+					v = getdolarg(dolg = sliceoffset, &vsize);
 					if(!v)
-						dolmax = type;
+						dolmax = sliceoffset;
 				}
 #endif  /* SHOPT_FILESCAN */
-				else if(type < dolmax)
-					v = sh.st.dolv[dolg=type];
+				else if(sliceoffset < dolmax)
+					v = sh.st.dolv[dolg = sliceoffset];
 				else
 					v =  0;
 			}
 			else if(ap)
 			{
+				/* Array slicing */
 				ap = nv_arrayptr(np); /* update */
-				if(type<0)
+				if(sliceoffset < 0)
 				{
 					if(array_assoc(ap))
-						type = -type;
+						sliceoffset = -sliceoffset;
 					else
-						type += array_maxindex(np);
+						sliceoffset += array_maxindex(np);
 				}
 				if(array_assoc(ap))
 				{
 					nv_putsub(np, NIL(char*), ap->nelem&ARRAY_SCAN ? 0 : ARRAY_SCAN);
-					while(type-- >0 && (v=0,nv_nextsub(np)))
+					while(sliceoffset-- > 0 && (v=0,nv_nextsub(np)))
 						v = nv_getval(np);
 				}
-				else if(type >= 0)
+				else if(sliceoffset >= 0)
 				{
-					if(nv_putsub(np,NIL(char*),type|ARRAY_SCAN))
+					if(nv_putsub(np, NIL(char*), sliceoffset|ARRAY_SCAN))
 						v = nv_getval(np);
 					else
 						v = 0;
 				}
 			}
-			else if(type>0)
+			else if(sliceoffset > 0)
 				v = 0;
 			if(!v)
 				mp->atmode = 0;
@@ -1772,24 +1774,25 @@ retry1:
 		else if(v)
 		{
 			vsize = charlen(v,vsize);
-			if(type<0 && (type += vsize)<0)
-				type = 0;
-			if(vsize < type)
+			if(sliceoffset < 0 && (sliceoffset += vsize) < 0)
+				sliceoffset = 0;
+			if(vsize < sliceoffset)
 				v = 0;
 			else if(mbwide())
 			{
 				mbinit();
-				for(c=type;c;c--)
+				for(c = sliceoffset; c; c--)
 					mbchar(v);
 				c = ':';
 			}
 			else
-				v += type;
+				v += sliceoffset;
 			vsize = v?strlen(v):0;
 		}
-		if(*ptr==':')
+		if(*lastchar==':')
 		{
-			if((type = (int)sh_strnum(ptr+1,&ptr,1)) <=0)
+			int slicelength = (int)sh_strnum(lastchar+1,&lastchar,1);
+			if(slicelength <= 0)
 			{
 				v = 0;
 				mp->atmode = 0;
@@ -1798,33 +1801,33 @@ retry1:
 			{
 				if(dolg>=0)
 				{
-					if(dolg+type < dolmax)
-						dolmax = dolg+type;
+					if(dolg + slicelength < dolmax)
+						dolmax = dolg + slicelength;
 				}
 				else
-					dolmax = type;
+					dolmax = slicelength;
 			}
-			else if(type < vsize)
+			else if(slicelength < vsize)
 			{
 				if(mbwide())
 				{
 					char *vp = v;
 					mbinit();
-					while(type-->0)
+					while(slicelength-- > 0)
 					{
 						if((c=mbsize(vp))<1)
 							c = 1;
 						vp += c;
 					}
-					type = vp-v;
+					slicelength = vp - v;
 					c = ':';
 				}
-				vsize = type;
+				vsize = slicelength;
 			}
 			else
 				vsize = v?strlen(v):0;
 		}
-		if(*ptr)
+		if(*lastchar)
 			mac_error();
 		stkseek(stkp,offset);
 		argp = 0;

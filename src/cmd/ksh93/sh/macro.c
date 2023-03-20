@@ -1752,10 +1752,11 @@ retry1:
 				}
 				if(array_assoc(ap))
 				{
+					nv_putsub(np, NIL(char*), ap->nelem&ARRAY_SCAN ? 0 : ARRAY_SCAN);
 					while(type-- >0 && (v=0,nv_nextsub(np)))
 						v = nv_getval(np);
 				}
-				else if(type > 0)
+				else if(type >= 0)
 				{
 					if(nv_putsub(np,NIL(char*),type|ARRAY_SCAN))
 						v = nv_getval(np);

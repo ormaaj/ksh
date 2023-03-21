@@ -1567,13 +1567,13 @@ or
 the substring operation is applied to each element in turn.
 .TP
 .PD 0
-\f3${\fP\f2parameter\^\fP\f3/\fP\f2pattern\^\fP\f3/\f2string\^\fP\f3}\fP
+\f3${\fP\f2parameter\^\fP\f3/\fP\f2pattern\^\fP\f3/\fP\f2string\^\fP\f3}\fP
 .TP
-\f3${\fP\f2parameter\^\fP\f3//\fP\f2pattern\^\fP\f3/\f2string\^\fP\f3}\fP
+\f3${\fP\f2parameter\^\fP\f3//\fP\f2pattern\^\fP\f3/\fP\f2string\^\fP\f3}\fP
 .TP
-\f3${\fP\f2parameter\^\fP\f3/#\fP\f2pattern\^\fP\f3/\f2string\^\fP\f3}\fP
+\f3${\fP\f2parameter\^\fP\f3/#\fP\f2pattern\^\fP\f3/\fP\f2string\^\fP\f3}\fP
 .TP
-\f3${\fP\f2parameter\^\fP\f3/%\fP\f2pattern\^\fP\f3/\f2string\^\fP\f3}\fP
+\f3${\fP\f2parameter\^\fP\f3/%\fP\f2pattern\^\fP\f3/\fP\f2string\^\fP\f3}\fP
 .PD
 Expands
 .I parameter\^
@@ -1765,17 +1765,23 @@ Set during a
 trap to the line number for the caller of each function.
 .TP
 .B .sh.match
-An indexed array which stores the most recent match and subpattern
-matches after conditional pattern matches that match and after
-variables expansions using the operators
-.BR # ,
-.BR % ,
-or
-.BR / .
+Whenever a match is found in a pattern matching operation using either the
+.B [[
+compound command (see
+.I "Conditional Expressions\^"
+below) or the expansions
+\f3${\fP\f2parameter\^\fP\f3#\fP\f2pattern\^\fP\f3}\fP,
+\f3${\fP\f2parameter\^\fP\f3%\fP\f2pattern\^\fP\f3}\fP,
+\f3${\fP\f2parameter\^\fP\f3/\fP\f2pattern\^\fP\f3/\fP\f2string\^\fP\f3}\fP,
+or one of their variants (see
+.I "Parameter Expansion\^"
+above),
+the match and its subpattern matches are stored in this indexed array,
+overwriting its previous values.
 The
 .BR 0 -th
 element stores the complete match and the
-.IR i\^ -th.
+.IR i\^ -th
 element stores the
 .IR i\^ -th
 submatch.
@@ -1786,11 +1792,12 @@ most recent match and subpattern match, and the second subscript indicating
 which match with
 .B 0
 representing the first match.
-The
+If no match is found,
 .B .sh.match
-variable
-becomes unset when the variable that has expanded
-is assigned a new value.
+is not reset or modified.
+Note that even matching operations performed on the
+.B .sh.match
+variable itself will overwrite it upon finding a match.
 .TP
 .B .sh.math
 Used for defining arithmetic functions

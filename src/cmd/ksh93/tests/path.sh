@@ -502,7 +502,7 @@ then
 	got=$(PATH=$tmp; command -vx echo 2>&1)
 	[[ $got == "$exp" ]] || err_exit "'command -v -x' failed to look up external command in \$PATH" \
 		"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
-	exp="echo is a tracked alias for $exp"
+	exp="echo is $exp"
 	got=$(PATH=$tmp; command -Vx echo 2>&1)
 	[[ $got == "$exp" ]] || err_exit "'command -V -x' failed to look up external command in \$PATH" \
 		"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
@@ -994,6 +994,11 @@ then	got=$(PATH=/opt/ast/bin:$PATH "$SHELL" -c 'command -x cat /dev/null; whence
 	exp='cat is a shell builtin version of /opt/ast/bin/cat'
 	[[ $got == "$exp" ]] || err_exit "'command -x' creates tracked alias" \
 	        "(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+	# https://github.com/ksh93/ksh/issues/609
+	exp=$(builtin -d cat; whence -p cat)
+	got=$(PATH=/opt/ast/bin:$PATH "$SHELL" -c 'command -vx cat; command -x cat /dev/null' 2>&1)
+	[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "'command -vx' breakage" \
+		"(expected status 0, $(printf %q "$exp"); got status $e, $(printf %q "$got"))"
 fi
 
 # ======

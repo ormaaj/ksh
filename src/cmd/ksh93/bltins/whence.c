@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -99,6 +99,8 @@ int	b_command(register int argc,char *argv[],Shbltin_t *context)
 	}
 	if(!*argv)
 		return((flags & (X_FLAG|V_FLAG)) != 0 ? 2 : 0);
+	if(flags & P_FLAG)
+		sh_onstate(SH_XARG);
 	return(whence(argv, flags));
 }
 
@@ -314,10 +316,7 @@ static int whence(char **argv, register int flags)
 							msg = sh_translate(is_builtver);
 					}
 					/* tracked aliases next */
-					else if(!sh_isstate(SH_DEFPATH)
-					&& (np = nv_search(name,sh.track_tree,0))
-					&& !nv_isattr(np,NV_NOALIAS)
-					&& strcmp(cp,nv_getval(np))==0)
+					else if((np = path_gettrackedalias(name)) && strcmp(cp,nv_getval(np))==0)
 						msg = sh_translate(is_talias);
 					else
 						msg = sh_translate("is");

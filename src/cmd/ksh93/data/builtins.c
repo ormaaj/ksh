@@ -542,7 +542,7 @@ const char sh_optcd[] =
 ;
 
 const char sh_optcommand[] =
-"[-1c?\n@(#)$Id: command (ksh 93u+m) 2021-01-30 $\n]"
+"[-1c?\n@(#)$Id: command (ksh 93u+m) 2023-03-20 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?command - execute a simple command disabling special properties]"
 "[+DESCRIPTION?Without \b-v\b or \b-V\b,  \bcommand\b executes \acmd\a "
@@ -2119,7 +2119,7 @@ _JOB_
 ;
 
 const char sh_optwhence[] =
-"[-1c?\n@(#)$Id: whence (ksh 93u+m) 2021-12-27 $\n]"
+"[-1c?\n@(#)$Id: whence (ksh 93u+m) 2023-03-20 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?whence, type - locate a command and describe its type]"
 "[+DESCRIPTION?Without \b-v\b, \bwhence\b writes on standard output an "

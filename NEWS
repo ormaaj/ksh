@@ -8,6 +8,10 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   'length' is a nested expansion involving an array. For example,
   ${array[@]:0:${#array[@]}} is now correctly equivalent to ${array[@]}.
 
+- Fixed bugs in 'command -x' and 'command -v -x' (see 2021-01-30) that caused
+  it to fail to disregard built-ins if /opt/ast/bin (the virtual path for
+  path-bound built-ins) is in $PATH.
+
 2023-03-19:
 
 - Fixed a crash in 'read' (as well as a spurious error in 'printf -v', added

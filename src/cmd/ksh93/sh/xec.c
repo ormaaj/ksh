@@ -1142,17 +1142,8 @@ int sh_exec(register const Shnode_t *t, int flags)
 								np = mp;
 						}
 					}
-					else
-					{
-						/* if a tracked alias exists and we're not searching the default path, use it */
-						if(!sh_isstate(SH_DEFPATH)
-						&& (np=nv_search(com0,sh.track_tree,0))
-						&& !nv_isattr(np,NV_NOALIAS)
-						&& np->nvalue.cp)
-							np=nv_search(nv_getval(np),sh.bltin_tree,0);
-						else
-							np = 0;
-					}
+					else if(np = path_gettrackedalias(com0))
+						np = nv_search(nv_getval(np),sh.bltin_tree,0);
 				}
 				if(np && pipejob==2)
 				{
@@ -3369,11 +3360,7 @@ static pid_t sh_ntfork(const Shnode_t *t,char *argv[],int *jobid,int topfd)
 		if(!strchr(path=argv[0],'/')) 
 		{
 			Namval_t *np;
-			/* if a tracked alias exists and we're not searching the default path, use it */
-			if(!sh_isstate(SH_DEFPATH)
-			&& (np=nv_search(path,sh.track_tree,0))
-			&& !nv_isattr(np,NV_NOALIAS)
-			&& np->nvalue.cp)
+			if(np = path_gettrackedalias(path))
 				path = nv_getval(np);
 			else if(path_absolute(path,NIL(Pathcomp_t*),0))
 			{

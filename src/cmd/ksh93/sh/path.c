@@ -664,13 +664,9 @@ int	path_search(register const char *name,Pathcomp_t **oldpp, int flag)
 		pathinit();
 	if(flag)
 	{
-		/* if a tracked alias exists and we're not searching the default path, use it */
-		if(!sh_isstate(SH_DEFPATH)
-		&& !(flag&1)
-		&& (np=nv_search(name,sh.track_tree,0))
-		&& !nv_isattr(np,NV_NOALIAS)
-		&& (pp=(Pathcomp_t*)np->nvalue.cp))
+		if(!(flag & 1) && (np = path_gettrackedalias(name)))
 		{
+			pp = (Pathcomp_t*)np->nvalue.cp;
 			stakseek(PATH_OFFSET);
 			path_nextcomp(pp,name,pp);
 			if(oldpp)
@@ -1074,8 +1070,7 @@ pid_t path_spawn(const char *opath,register char **argv, char **envp, Pathcomp_t
 	pidsize = sfprintf(stkstd, "*%lld*", (Sflong_t)(spawn ? sh.current_pid : sh.current_ppid));
 	stakputs(opath);
 	opath = stakfreeze(1)+PATH_OFFSET+pidsize;
-	/* only use tracked alias if we're not searching default path */
-	np = sh_isstate(SH_DEFPATH) ? NIL(Namval_t*) : nv_search(argv[0],sh.track_tree,0);
+	np = path_gettrackedalias(argv[0]);
 	while(libpath && !libpath->lib)
 		libpath=libpath->next;
 	if(libpath && (!np || nv_size(np)>0))
@@ -1791,4 +1786,19 @@ void path_alias(register Namval_t *np,register Pathcomp_t *pp)
 	}
 	else
 		_nv_unset(np,0);
+}
+
+/*
+ * return a valid tracked alias if one exists and should currently be used
+ */
+Namval_t *path_gettrackedalias(const char *name)
+{
+	Namval_t *np;
+	if(!sh_isstate(SH_DEFPATH)
+	&& !sh_isstate(SH_XARG)
+	&& (np=nv_search(name,sh.track_tree,0))
+	&& !nv_isattr(np,NV_NOALIAS)
+	&& np->nvalue.cp)
+		return(np);
+	return(0);
 }

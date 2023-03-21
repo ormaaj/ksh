@@ -74,6 +74,7 @@ extern Pathcomp_t	*path_addpath(Pathcomp_t*,const char*,int);
 extern Pathcomp_t	*path_dup(Pathcomp_t*);
 extern void		path_delete(Pathcomp_t*);
 extern void 		path_alias(Namval_t*,Pathcomp_t*);
+extern Namval_t		*path_gettrackedalias(const char*);
 extern Pathcomp_t 	*path_absolute(const char*, Pathcomp_t*, int);
 extern char 		*path_basename(const char*);
 extern char 		*path_fullname(const char*);

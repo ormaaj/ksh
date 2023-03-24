@@ -101,9 +101,9 @@ int	b_read(int argc,char *argv[], Shbltin_t *context)
 	    case 'd':
 		if(opt_info.arg && *opt_info.arg!='\n')
 		{
-			char *cp = opt_info.arg;
+			const unsigned char c = *(unsigned char*)opt_info.arg;
 			flags &= ((1<<D_FLAG+1)-1);
-			flags |= (mbchar(cp)<<D_FLAG+1) | (1<<D_FLAG);
+			flags |= (c<<D_FLAG+1) | (1<<D_FLAG);
 		}
 		break;
 	    case 'p':

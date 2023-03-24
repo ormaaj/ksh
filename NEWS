@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-03-24:
+
+- Fixed a crash in read -d D in multibyte locales that occurred when a byte
+  with the 8th bit set was passed as the delimiter character D. For example,
+  read -d $'\200' crashed in a UTF-8 locale. (Note that multibyte delimiter
+  characters are not supported yet.)
+
 2023-03-23:
 
 - A bug has been fixed in 'printf' and 'print -f' that caused the %a, %A, %e,

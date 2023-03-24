@@ -1624,4 +1624,13 @@ done >/dev/null
 unset c i
 
 # ======
+# segfault with read -rd $'\200' in multibyte locales
+# https://github.com/ksh93/ksh/issues/590
+exp='first line'
+got=$(set +x; { "$SHELL" -c 'read -rd $'\''\200'\'' && echo "$REPLY"';} 2>&1 <<<$'first line\200second line')
+[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "read -rd \$'\\200'" \
+	"(expected status 0, '$exp';" \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"), $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

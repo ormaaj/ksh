@@ -2,6 +2,17 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-03-23:
+
+- A bug has been fixed in 'printf' and 'print -f' that caused the %a, %A, %e,
+  %E, %f, %F, %g, and %G conversion specifiers to evaluate any unexpanded
+  arithmetic expression passed to them twice, causing any side effects, such
+  as incrementing a variable, to be incorrect. Bug introduced in 93t- (2008).
+
+- The POSIX compatibility mode has been amended to cause 'printf' to parse only
+  decimal/hexadecimal/octal constants for its numerical conversion specifiers,
+  instead of arithmetic expressions. (POSIX mode does not change 'print -f'.)
+
 2023-03-20:
 
 - Fixed incorrect result of array slicing ${array[@]:offset:length} where

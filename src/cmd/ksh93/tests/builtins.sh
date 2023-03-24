@@ -1612,4 +1612,16 @@ unset -f fn
 [[ $PWD == /tmp ]] || err_exit "'cd' does not chdir to \$HOME (local assignment)"
 
 # ======
+# Double evaluation of arithmetic expression passed to float conversion operators in printf
+# https://github.com/ksh93/ksh/issues/610#issuecomment-1480530518
+typeset -si i
+unset c
+for c in o x X u U d D i a e f g A E F G
+do	i=0
+	printf "%$c" ++i
+	let i==1 || err_exit "printf %$c: bad arithmetic evaluation (expected 1, got $i)"
+done >/dev/null
+unset c i
+
+# ======
 exit $((Errors<125?Errors:125))

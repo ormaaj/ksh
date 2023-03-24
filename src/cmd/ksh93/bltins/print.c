@@ -902,7 +902,15 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 				}
 				break;
 			default:
-				d = sh_strnum(argp,&lastchar,0);
+				if(sh.bltinfun==b_printf && sh_isoption(SH_POSIX))
+				{
+					/* POSIX requires evaluating a number here, not an arithmetic expression */
+					d = (Sfdouble_t)strtoll(*pp->nextarg,&lastchar,0);
+					if(*lastchar)
+						errormsg(SH_DICT,ERROR_exit(0),e_number,*pp->nextarg);
+				}
+				else
+					d = sh_strnum(argp,&lastchar,0);
 				if(d<longmin)
 				{
 					errormsg(SH_DICT,ERROR_warn(0),e_overflow,argp);
@@ -933,7 +941,6 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 		case 'E':
 		case 'F':
 		case 'G':
-			d = sh_strnum(*pp->nextarg,&lastchar,0);
 			switch(*argp)
 			{
 			    case '\'':
@@ -946,7 +953,15 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 				}
 				break;
 			    default:
-				d = sh_strnum(*pp->nextarg,&lastchar,0);
+				if(sh.bltinfun==b_printf && sh_isoption(SH_POSIX))
+				{
+					/* POSIX requires evaluating a number here, not an arithmetic expression */
+					d = strtold(*pp->nextarg,&lastchar);
+					if(*lastchar)
+						errormsg(SH_DICT,ERROR_exit(0),e_number,*pp->nextarg);
+				}
+				else
+					d = sh_strnum(*pp->nextarg,&lastchar,0);
 				break;
 			}
                         if(SFFMT_LDOUBLE)

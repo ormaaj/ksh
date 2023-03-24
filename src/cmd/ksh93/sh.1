@@ -7868,6 +7868,12 @@ built-ins;
 stops the \fB.\fR command (but not \fBsource\fR) from looking up functions
 defined with the \fBfunction\fR syntax;
 .IP \[bu]
+disables the recognition of unexpanded shell arithmetic expressions for the
+numerical conversion specifiers of the
+.B printf
+built-in command, causing them to print a warning for operands that are not
+valid decimal, \fB0x\fR-prefixed hexadecimal or \fB0\fR-prefixed octal numbers;
+.IP \[bu]
 disables the recognition of unexpanded shell arithmetic expressions in the
 numerical comparison operators
 .BR \-eq ,

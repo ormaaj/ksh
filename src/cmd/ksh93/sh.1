@@ -1728,7 +1728,7 @@ Upon executing a
 trap action, the value of this variable is set
 to the ESC control character if the shell is in
 .B vi
-insert mode (See
+input mode (See
 .I "Vi Editing Mode"\^
 below), or to the empty string value otherwise.
 .TP
@@ -4991,7 +4991,7 @@ is set to
 ESC
 when in
 .B vi
-insert mode (see below)
+input mode (see below)
 and set to the empty string otherwise.
 Prepending
 .B ${.sh.editmode}
@@ -7671,9 +7671,12 @@ Same as
 .BR \-B .
 .TP 8
 .B emacs
-Puts you in an
-.I emacs
-style in-line editor for command entry.
+Activates the
+.IR emacs -style
+command line editor.
+See
+.I "Emacs Editing Mode\^"
+above.
 .TP 8
 .B errexit
 Same as
@@ -7716,9 +7719,13 @@ Same as
 .BR \-G .
 .TP 8
 .B gmacs
-Puts you in a
-.I gmacs
-style in-line editor for command entry.
+Activates the
+.IR emacs -style
+command line editor with modified
+.BR ^T .
+See
+.I "Emacs Editing Mode\^"
+above.
 .TP 8
 .B histexpand
 Same as
@@ -7920,13 +7927,12 @@ Same as
 .BR \-v .
 .TP 8
 .B vi
-Puts you in insert mode of a
-.I vi\^
-style in-line editor
-until you hit the escape character
-.BR 033 .
-This puts you in control mode.
-A return sends the line.
+Activates the
+.IR vi -style
+command line editor, initially in input mode.
+See
+.I "Vi Editing Mode\^"
+above.
 .TP 8
 .B viraw
 Obsolete; has no effect.

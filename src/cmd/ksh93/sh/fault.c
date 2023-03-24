@@ -674,8 +674,6 @@ noreturn void sh_done(register int sig)
 	if((sh_isoption(SH_INTERACTIVE) && sh_isoption(SH_LOGIN_SHELL)) || (!sh_isoption(SH_INTERACTIVE) && (sig==SIGHUP)))
 		job_walk(sfstderr, job_hup, SIGHUP, NIL(char**));
 	job_close();
-	if(nv_search("VMTRACE", sh.var_tree,0))
-		strmatch((char*)0,(char*)0);
 	sfsync((Sfio_t*)sfstdin);
 	sfsync((Sfio_t*)sh.outpool);
 	sfsync((Sfio_t*)sfstdout);

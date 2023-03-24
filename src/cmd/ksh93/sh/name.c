@@ -2523,7 +2523,7 @@ void	_nv_unset(register Namval_t *np,int flags)
 	else if(nv_isref(np) && !nv_isattr(np,NV_EXPORT|NV_MINIMAL) && np->nvalue.nrp)
 	{
 		if(np->nvalue.nrp->root && Refdict)
-			dtdelete(Refdict,(void*)np->nvalue.nrp);
+			dtremove(Refdict,(void*)np->nvalue.nrp);
 		if(np->nvalue.nrp->sub)
 			free(np->nvalue.nrp->sub);
 		free((void*)np->nvalue.nrp);
@@ -3533,7 +3533,7 @@ void nv_unref(register Namval_t *np)
 	{
 		if(np->nvalue.nrp->sub)
 			free(np->nvalue.nrp->sub);
-		dtdelete(Refdict,(void*)np->nvalue.nrp);
+		dtremove(Refdict,(void*)np->nvalue.nrp);
 	}
 	free((void*)np->nvalue.nrp);
 	np->nvalue.cp = sh_strdup(nv_name(nq));

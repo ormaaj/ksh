@@ -91,6 +91,8 @@ For more details, see the NEWS file and for complete details, see the git log.
 14.	The DEBUG trap has reverted to pre-93t behavior. It is now once again
 	reset like other traps upon entering a subshell or ksh-style function,
 	as documented, and it is no longer prone to crash or get corrupted.
+	A new --functrace shell option has been added that, when turned on,
+	makes subshells and functions correctly inherit the DEBUG trap.
 
 15.	'command -x' now always runs an external command, bypassing built-ins.
 

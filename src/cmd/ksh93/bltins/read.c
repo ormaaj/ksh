@@ -554,7 +554,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 			while(c==S_SPACE)
 				c = sh.ifstable[*cp++];
 			/* strip trailing delimiters */
-			if(cpmax[-1] == '\n')
+			if(cpmax[-1] == delim)
 				cpmax--;
 			if(cpmax>cp)
 			{

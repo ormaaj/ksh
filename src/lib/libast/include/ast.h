@@ -399,7 +399,7 @@ extern int		strnacmp(const char*, const char*, size_t);
 extern char*		strncopy(char*, const char*, size_t);
 extern int		strnpcmp(const char*, const char*, size_t);
 extern double		strntod(const char*, size_t, char**);
-extern _ast_fltmax_t	strntold(const char*, size_t, char**);
+extern long double	strntold(const char*, size_t, char**);
 extern long		strntol(const char*, size_t, char**, int);
 extern intmax_t		strntoll(const char*, size_t, char**, int);
 extern long		strnton(const char*, size_t, char**, char*, int);

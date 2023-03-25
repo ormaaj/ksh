@@ -59,11 +59,6 @@
 #endif
 #endif
 
-#if S2F_type == 2 && _ast_fltmax_double
-#undef	S2F_type
-#define S2F_type	1
-#endif
-
 #if S2F_type == 0
 #define S2F_number	float
 #define S2F_ldexp	ldexp

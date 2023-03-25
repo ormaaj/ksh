@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -181,13 +181,13 @@ static int Is_wc_16(int c) { return iswctype(c, ctype[CTYPES+15].wtype); }
 regclass_t
 regclass(const char* s, char** e)
 {
-	register Ctype_t*	cp;
-	register int		c;
-	register size_t		n;
-	register const char*	t;
-	Ctype_t*		lc;
-	Ctype_t*		xp;
-	Ctype_t*		zp;
+	Ctype_t*	cp;
+	int		c;
+	size_t		n;
+	const char*	t;
+	Ctype_t*	lc;
+	Ctype_t*	xp;
+	Ctype_t*	zp;
 
 	if (!(c = *s++))
 		return 0;
@@ -198,7 +198,7 @@ regclass(const char* s, char** e)
 		if (n == cp->size && strneq(s, cp->name, n))
 			goto found;
 	xp = zp = 0;
-	lc = (Ctype_t*)setlocale(LC_CTYPE, NiL);
+	lc = (Ctype_t*)setlocale(LC_CTYPE, NULL);
 	for (cp = ctype; cp < &ctype[elementsof(ctype)]; cp++)
 	{
 #if _lib_wctype
@@ -254,9 +254,9 @@ regclass(const char* s, char** e)
 int
 regaddclass(const char* name, regclass_t fun)
 {
-	register Ctype_t*	cp;
-	register Ctype_t*	np;
-	register size_t		n;
+	Ctype_t*	cp;
+	Ctype_t*	np;
+	size_t		n;
 
 	n = strlen(name);
 	for (cp = ctypes; cp; cp = cp->next)

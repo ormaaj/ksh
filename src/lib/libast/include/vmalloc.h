@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -51,7 +51,7 @@ struct _vmstat_s
 	size_t	extent;			/* total size of region		*/
 	int	n_region;		/* #parallel regions (Vmregion)	*/
 	int	n_open;			/* #calls that finds open reg	*/
-	int	n_lock;			/* #calls where reg was locked	*/
+	int	n_lock;			/* #calls where was locked	*/
 	int	n_probe;		/* #probes to find a region	*/
 	int	mode;			/* region mode bits		*/
 };
@@ -198,7 +198,7 @@ extern int		setregmax( int );
 #if defined(__FILE__)
 #define _VMFILE_(vm)	(_VM_(vm)->file = (char*)__FILE__)
 #else
-#define _VMFILE_(vm)	(_VM_(vm)->file = (char*)0)
+#define _VMFILE_(vm)	(_VM_(vm)->file = NULL)
 #endif
 
 #if defined(__LINE__)
@@ -210,7 +210,7 @@ extern int		setregmax( int );
 #if defined(__FUNCTION__)
 #define _VMFUNC_(vm)	(_VM_(vm)->func = (char*)__FUNCTION__)
 #else
-#define _VMFUNC_(vm)	(_VM_(vm)->func = (char*)0)
+#define _VMFUNC_(vm)	(_VM_(vm)->func = NULL)
 #endif
 
 #define _VMFL_(vm)	(_VMFILE_(vm), _VMLINE_(vm), _VMFUNC_(vm))

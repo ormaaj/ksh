@@ -69,13 +69,13 @@ static time_t	mailtime;
 static char	beenhere = 0;
 
 #ifdef _lib_sigvec
-    void clearsigmask(register int sig)
+    void clearsigmask(int sig)
     {
 	struct sigvec vec;
-	if(sigvec(sig,NIL(struct sigvec*),&vec)>=0 && vec.sv_mask)
+	if(sigvec(sig,NULL,&vec)>=0 && vec.sv_mask)
 	{
 		vec.sv_mask = 0;
-		sigvec(sig,&vec,NIL(struct sigvec*));
+		sigvec(sig,&vec,NULL);
 	}
     }
 #endif /* _lib_sigvec */
@@ -90,7 +90,7 @@ static int sh_source(Sfio_t *iop, const char *file)
 	char*	nid;
 	int	fd;
 
-	if (!file || !*file || (fd = path_open(file, NIL(Pathcomp_t*))) < 0)
+	if (!file || !*file || (fd = path_open(file, NULL)) < 0)
 	{
 		REGRESS(source, "sh_source", ("%s:ENOENT", file));
 		return 0;
@@ -113,9 +113,9 @@ static int sh_source(Sfio_t *iop, const char *file)
 
 int sh_main(int ac, char *av[], Shinit_f userinit)
 {
-	register char	*name;
-	register int	fdin;
-	register Sfio_t  *iop;
+	char	*name;
+	int	fdin;
+	Sfio_t  *iop;
 	struct stat	statb;
 	int i, rshflag;		/* set for restricted shell */
 	char *command;
@@ -136,12 +136,12 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 	if(sigsetjmp(*((sigjmp_buf*)sh.jmpbuffer),0))
 	{
 		/* begin script execution here */
-		sh_reinit((char**)0);
+		sh_reinit(NULL);
 	}
 	sh.fn_depth = sh.dot_depth = 0;
 	command = error_info.id;
 	path_pwd();
-	iop = (Sfio_t*)0;
+	iop = NULL;
 	if(sh_isoption(SH_POSIX))
 		sh_onoption(SH_LETOCTAL);
 #if SHOPT_BRACEPAT
@@ -210,7 +210,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 			if(!sh_isoption(SH_NOUSRPROFILE) && !sh_isoption(SH_PRIVILEGED) && sh_isoption(SH_RC))
 			{
 				if(name = sh_mactry(nv_getval(ENVNOD)))
-					name = *name ? sh_strdup(name) : (char*)0;
+					name = *name ? sh_strdup(name) : NULL;
 #if SHOPT_SYSRC
 				if(!strmatch(name, "?(.)/./*"))
 					sh_source(iop, e_sysrc);
@@ -233,7 +233,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 		if(sh.comdiv)
 		{
 		shell_c:
-			iop = sfnew(NIL(Sfio_t*),sh.comdiv,strlen(sh.comdiv),0,SF_STRING|SF_READ);
+			iop = sfnew(NULL,sh.comdiv,strlen(sh.comdiv),0,SF_STRING|SF_READ);
 		}
 		else
 		{
@@ -251,7 +251,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 					char *cp;
 					int type;
 #endif
-					fdin = (int)strtol(name+8, (char**)0, 10);
+					fdin = (int)strtol(name+8, NULL, 10);
 					if(fstat(fdin,&statb)<0)
 					{
 						errormsg(SH_DICT,ERROR_system(1),e_open,name);
@@ -292,7 +292,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 					sp = 0;
 					if(fdin < 0 && !strchr(name,'/'))
 					{
-						if(path_absolute(name,NIL(Pathcomp_t*),0))
+						if(path_absolute(name,NULL,0))
 							sp = stakptr(PATH_OFFSET);
 						if(sp)
 						{
@@ -332,7 +332,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 		}
 		/* If the shell is initialised with std{in,out,err} closed, make the shell's FD state reflect that. */
 		for(i=0; i<=2; i++)
-			if(fcntl(i,F_GETFD,NiL)==-1 && errno==EBADF)	/* closed at OS level? */
+			if(fcntl(i,F_GETFD,NULL)==-1 && errno==EBADF)	/* closed at OS level? */
 				sh_close(i); 				/* update shell FD state */
 	}
 	else
@@ -353,7 +353,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 	else
 	{
 		/* keep $COLUMNS and $LINES up to date even for scripts that don't trap SIGWINCH */
-		sh_winsize(NIL(int*),NIL(int*));
+		sh_winsize(NULL,NULL);
 #ifdef SIGWINCH
 		signal(SIGWINCH,sh_fault);
 #endif /* SIGWINCH */
@@ -375,7 +375,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
  * iop is not null when the input is a string
  * fdin is the input file descriptor 
  */
-static void	exfile(register Sfio_t *iop,register int fno)
+static void	exfile(Sfio_t *iop,int fno)
 {
 	time_t curtime;
 	Shnode_t *t;
@@ -477,7 +477,7 @@ static void	exfile(register Sfio_t *iop,register int fno)
 	{
 		sh.nextprompt = 1;
 		sh_freeup();
-		stakset(NIL(char*),0);
+		stakset(NULL,0);
 		sh_offstate(SH_STOPOK);
 		sh_offstate(SH_ERREXIT);
 		sh_offstate(SH_VERBOSE);
@@ -496,14 +496,14 @@ static void	exfile(register Sfio_t *iop,register int fno)
 		}
 		if(sh_isstate(SH_INTERACTIVE) && !tdone)
 		{
-			register char *mail;
+			char *mail;
 			sh_offstate(SH_MONITOR);
 			if(sh_isoption(SH_MONITOR))
 				sh_onstate(SH_MONITOR);
 			if(job.pwlist)
 			{
-				job_walk(sfstderr,job_list,JOB_NFLAG,(char**)0);
-				job_wait((pid_t)0);
+				job_walk(sfstderr,job_list,JOB_NFLAG,NULL);
+				job_wait(0);
 			}
 			if((mail=nv_getval(MAILPNOD)) || (mail=nv_getval(MAILNOD)))
 			{
@@ -578,7 +578,7 @@ static void	exfile(register Sfio_t *iop,register int fno)
 		maxtry = IOMAXTRY;
 		if(sh_isstate(SH_INTERACTIVE) && sh.hist_ptr)
 		{
-			job_wait((pid_t)0);
+			job_wait(0);
 			hist_eof(sh.hist_ptr);
 			sfsync(sfstderr);
 		}
@@ -638,11 +638,11 @@ done:
 /* prints out messages if files in list have been modified since last call */
 static void chkmail(char *files)
 {
-	register char *cp,*sp,*qp;
-	register char save;
-	struct argnod *arglist=0;
-	int	offset = staktell();
-	char 	*savstak=stakptr(0);
+	char		*cp,*sp,*qp;
+	char		save;
+	struct argnod	*arglist=0;
+	int		offset = staktell();
+	char	 	*savstak=stakptr(0);
 	struct stat	statb;
 	if(*(cp=files) == 0)
 		return;

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -125,7 +125,7 @@ static int enuminfo(Opt_t* op, Sfio_t *out, const char *str, Optdisc_t *fp)
 	np = *(Namval_t**)(fp+1);
 	ep = (struct Enum*)np->nvfun;
 	if(!ep)
-		return(0);
+		return 0;
 	if(strcmp(str,"default")==0)
 		sfprintf(out,"\b%s\b",ep->values[0]);
 	else if(strncmp(str,"last",4)==0)
@@ -145,7 +145,7 @@ static int enuminfo(Opt_t* op, Sfio_t *out, const char *str, Optdisc_t *fp)
 	}
 	else while(v=ep->values[n])
 		sfprintf(out, n++ ? ", \b%s\b" : "\b%s\b", v);
-	return(0);
+	return 0;
 }
 
 static Namfun_t *clone_enum(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
@@ -153,13 +153,13 @@ static Namfun_t *clone_enum(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 	struct Enum	*ep, *pp=(struct Enum*)fp;
 	ep = sh_newof(0,struct Enum,1,pp->nelem*sizeof(char*));
 	memcpy((void*)ep,(void*)pp,sizeof(struct Enum)+pp->nelem*sizeof(char*));
-	return(&ep->hdr);
+	return &ep->hdr;
 }
 
 static void put_enum(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
 	struct Enum 		*ep = (struct Enum*)fp;
-	register const char	*v;
+	const char		*v;
 	unsigned short		i=0;
 	int			n;
 	if(!val)
@@ -192,7 +192,7 @@ static void put_enum(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	UNREACHABLE();
 }
 
-static char* get_enum(register Namval_t* np, Namfun_t *fp)
+static char* get_enum(Namval_t* np, Namfun_t *fp)
 {
 	static char buff[6];
 	struct Enum *ep = (struct Enum*)fp;
@@ -200,10 +200,10 @@ static char* get_enum(register Namval_t* np, Namfun_t *fp)
 	if(n < ep->nelem)
 		return((char*)ep->values[n]);
 	sfsprintf(buff,sizeof(buff),"%u%c",n,0);
-	return(buff);
+	return buff;
 }
 
-static Sfdouble_t get_nenum(register Namval_t* np, Namfun_t *fp)
+static Sfdouble_t get_nenum(Namval_t* np, Namfun_t *fp)
 {
 	return(nv_getn(np,fp));
 }
@@ -246,7 +246,7 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 	argv += opt_info.index;
 	if (error_info.errors || !*argv)
 	{
-		error(ERROR_USAGE|2, "%s", optusage(NiL));
+		error(ERROR_USAGE|2, "%s", optusage(NULL));
 		return 1;
 	}
 #ifndef STANDALONE
@@ -262,7 +262,7 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 			errormsg(SH_DICT,ERROR_exit(1),"%s:%s",cp,is_spcbuiltin);
 			UNREACHABLE();
 		}
-		if(!(np = nv_open(cp, (void*)0, NV_VARNAME|NV_NOADD))  || !(ap=nv_arrayptr(np)) || ap->fun || (sz=ap->nelem&(((1L<<ARRAY_BITS)-1))) < 2)
+		if(!(np = nv_open(cp, NULL, NV_VARNAME|NV_NOADD))  || !(ap=nv_arrayptr(np)) || ap->fun || (sz=ap->nelem&(((1L<<ARRAY_BITS)-1))) < 2)
 		{
 			error(ERROR_exit(1), "%s must name an array containing at least two elements",cp);
 			UNREACHABLE();
@@ -275,7 +275,7 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 		i = 0;
 		nv_onattr(tp, NV_UINT16);
 		nv_putval(tp, (char*)&i, NV_INTEGER);
-		nv_putsub(np, (char*)0, ARRAY_SCAN);
+		nv_putsub(np, NULL, ARRAY_SCAN);
 		do
 		{
 			sz += strlen(nv_getval(np));
@@ -286,7 +286,7 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 		ep->iflag = iflag;
 		ep->nelem = n;
 		cp = (char*)&ep->values[n+1];
-		nv_putsub(np, (char*)0, ARRAY_SCAN);
+		nv_putsub(np, NULL, ARRAY_SCAN);
 		ep->values[n] = 0;
 		i = 0;
 		do
@@ -318,7 +318,7 @@ void lib_init(int flag, void* context)
 	NOT_USED(context);
 	if(flag)
 		return;
-	bp = sh_addbuiltin("Enum", enum_create, (void*)0); 
+	bp = sh_addbuiltin("Enum", enum_create, NULL); 
 	mp = nv_search("typeset",sh.bltin_tree,0);
 	nv_onattr(bp,nv_isattr(mp,NV_PUBLIC));
 }

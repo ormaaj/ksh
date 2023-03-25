@@ -72,8 +72,7 @@ extern char*	sh_setenviron(const char*);
 #include	"shtable.h"
 #include	"regress.h"
 
-/* error exits from various parts of shell */
-#define	NIL(type)	((type)0)
+#define	NIL(type)	NULL		/* for backward compatibility */
 
 #define exitset()	(sh.savexit=sh.exitval)
 

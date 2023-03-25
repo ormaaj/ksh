@@ -82,7 +82,7 @@ tst	note{ determining default number of extra bytes per argument for arguments l
 					bytec += strlen(argv[argc]) + 1 + extra_bytes;
 					argc++;
 				}
-				argv[argc] = (char*)0;
+				argv[argc] = NULL;
 				if(execve(argv[0], argv, environ) < 0)
 				{
 					if(errno == E2BIG)

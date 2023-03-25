@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -152,10 +152,10 @@ static const NV_t	family[] =
 int
 b_fds(int argc, char** argv, Shbltin_t* context)
 {
-	register char*		s;
-	register int		i;
-	register char*		m;
-	register char*		x;
+	char*			s;
+	int			i;
+	char*			m;
+	char*			x;
 	int			flags;
 	int			details;
 	int			open_max;
@@ -204,7 +204,7 @@ b_fds(int argc, char** argv, Shbltin_t* context)
 	argv += opt_info.index;
 	if (error_info.errors || *argv)
 	{
-		error(ERROR_usage(2), "%s", optusage(NiL));
+		error(ERROR_usage(2), "%s", optusage(NULL));
 		UNREACHABLE();
 	}
 	if ((open_max = (int)astconf_long(CONF_OPEN_MAX)) <= 0)
@@ -217,7 +217,7 @@ b_fds(int argc, char** argv, Shbltin_t* context)
 	}
 	if (unit == 1)
 		sp = sfstdout;
-	else if (fstat(unit, &st) || !(sp = sfnew(NiL, NiL, SF_UNBOUND, unit, SF_WRITE)))
+	else if (fstat(unit, &st) || !(sp = sfnew(NULL, NULL, SF_UNBOUND, unit, SF_WRITE)))
 	{
 		error(ERROR_SYSTEM|3, "%d: cannot write to file descriptor");
 		UNREACHABLE();
@@ -234,7 +234,7 @@ b_fds(int argc, char** argv, Shbltin_t* context)
 			sfprintf(sp, "%d\n", i);
 			continue;
 		}
-		if ((flags = fcntl(i, F_GETFL, (char*)0)) == -1)
+		if ((flags = fcntl(i, F_GETFL, NULL)) == -1)
 			m = "--";
 		else
 			switch (flags & (O_RDONLY|O_WRONLY|O_RDWR))
@@ -252,7 +252,7 @@ b_fds(int argc, char** argv, Shbltin_t* context)
 				m = "??";
 				break;
 			}
-		x = (fcntl(i, F_GETFD, (char*)0) > 0) ? "x" : "-";
+		x = (fcntl(i, F_GETFD, NULL) > 0) ? "x" : "-";
 		if (isatty(i) && (s = ttyname(i)))
 		{
 			sfprintf(sp, "%02d %s%s %s %s\n", i, m, x, fmtmode(st.st_mode, 0), s);

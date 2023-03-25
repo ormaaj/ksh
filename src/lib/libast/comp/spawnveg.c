@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -72,12 +72,12 @@ spawnveg(const char* path, char* const argv[], char* const envv[], pid_t pgid, i
 		if (err = posix_spawn_file_actions_addtcsetpgrp_np(&actions, tcfd))
 			goto fail;
 	}
-	if (err = posix_spawn(&pid, path, (tcfd >= 0) ? &actions : NiL, &attr, argv, envv ? envv : environ))
+	if (err = posix_spawn(&pid, path, (tcfd >= 0) ? &actions : NULL, &attr, argv, envv ? envv : environ))
 #else
-	if (err = posix_spawn(&pid, path, NiL, &attr, argv, envv ? envv : environ))
+	if (err = posix_spawn(&pid, path, NULL, &attr, argv, envv ? envv : environ))
 #endif
 	{
-		if ((err != EPERM) || (err = posix_spawn(&pid, path, NiL, NiL, argv, envv ? envv : environ)))
+		if ((err != EPERM) || (err = posix_spawn(&pid, path, NULL, NULL, argv, envv ? envv : environ)))
 			goto fail;
 	}
 #if _lib_posix_spawn_file_actions_addtcsetpgrp_np
@@ -144,7 +144,7 @@ spawnveg(const char* path, char* const argv[], char* const envv[], pid_t pgid, i
 		inherit.flags |= SPAWN_SETGROUP;
 		inherit.pgroup = (pgid > 1) ? pgid : SPAWN_NEWPGROUP;
 	}
-	return spawn(path, 0, (int*)0, &inherit, (const char**)argv, (const char**)envv);
+	return spawn(path, 0, NULL, &inherit, (const char**)argv, (const char**)envv);
 }
 
 #else
@@ -248,7 +248,7 @@ spawnveg(const char* path, char* const argv[], char* const envv[], pid_t pgid, i
 #if _real_vfork
 	if (pid != -1 && (m = *exec_errno_ptr))
 	{
-		while (waitpid(pid, NiL, 0) == -1 && errno == EINTR);
+		while (waitpid(pid, NULL, 0) == -1 && errno == EINTR);
 		rid = pid = -1;
 		n = m;
 	}

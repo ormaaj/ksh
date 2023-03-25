@@ -98,12 +98,12 @@ pid_t	pid_fromstring(char *str)
 		errormsg(SH_DICT,ERROR_exit(1),"%s: invalid process ID",str);
 		UNREACHABLE();
 	}
-	return(pid);
+	return pid;
 }
 
 static void init_savelist(void)
 {
-	register struct jobsave *jp;
+	struct jobsave *jp;
 	while(njob_savelist < NJOB_SAVELIST)
 	{
 		jp = sh_newof(0,struct jobsave,1,0);
@@ -192,7 +192,7 @@ static char		*job_string;
 #		ifdef TIOCGPGRP
 			return(ioctl(fd, TIOCSPGRP, &pgid));	
 #		else
-			return(-1);
+			return -1;
 #		endif /* TIOCGPGRP */
 	}
 #endif /* _lib_tcgetpgrp */
@@ -206,7 +206,7 @@ typedef int (*Waitevent_f)(int,long,int);
 #if SHOPT_BGX
 void job_chldtrap(int unpost)
 {
-	register struct process *pw,*pwnext;
+	struct process *pw,*pwnext;
 	pid_t bckpid;
 	int oldexit,trapnote;
 	job_lock();
@@ -243,7 +243,7 @@ void job_chldtrap(int unpost)
  */
 static struct jobsave *jobsave_create(pid_t pid)
 {
-	register struct jobsave *jp = job_savelist;
+	struct jobsave *jp = job_savelist;
 	job_chksave(pid);
 	if(++bck.count > sh.lim.child_max)
 		job_chksave(0);
@@ -261,19 +261,19 @@ static struct jobsave *jobsave_create(pid_t pid)
 		bck.list = jp;
 		jp->exitval = 0;
 	}
-	return(jp);
+	return jp;
 }
 
 /*
  * Reap one job
  * When called with sig==0, it does a blocking wait
  */
-int job_reap(register int sig)
+int job_reap(int sig)
 {
-	register pid_t pid;
-	register struct process *pw = NIL(struct process*);
+	pid_t pid;
+	struct process *pw = NULL;
 	struct process *px;
-	register int flags;
+	int flags;
 	struct jobsave *jp;
 	int nochild = 0, oerrno = errno, wstat;
 	Waitevent_f waitevent = sh.waitevent;
@@ -496,7 +496,7 @@ int job_reap(register int sig)
 	 * otherwise that may fail if SIGCHLD is handled between the open() call and the errno!=EINTR check.
 	 */
 	errno = oerrno;
-	return(nochild);
+	return nochild;
 }
 
 /*
@@ -519,7 +519,7 @@ static void job_waitsafe(int sig)
  */
 void job_init(int lflag)
 {
-	register int ntry=0;
+	int ntry=0;
 	job.fd = JOBTTY;
 	signal(SIGCHLD,job_waitsafe);
 	if(njob_savelist < NJOB_SAVELIST)
@@ -551,8 +551,8 @@ void job_init(int lflag)
         {
 		/* Get a controlling terminal and set process group */
 		/* This should have already been done by rlogin */
-                register int fd;
-                register char *ttynam;
+                int fd;
+                char *ttynam;
                 setpgid(0,sh.pid);
 		if(job.mypgid<0 || !(ttynam=ttyname(JOBTTY)))
 			return;
@@ -650,14 +650,14 @@ void job_init(int lflag)
  */
 int job_close(void)
 {
-	register struct process *pw;
-	register int count = 0, running = 0;
+	struct process *pw;
+	int count = 0, running = 0;
 	if(possible && !job.jobcontrol)
-		return(0);
+		return 0;
 	else if(!possible && (!sh_isstate(SH_MONITOR) || sh_isstate(SH_FORKED)))
-		return(0);
+		return 0;
 	else if(sh.current_pid != job.mypid)
-		return(0);
+		return 0;
 	job_lock();
 	if(!tty_check(0))
 		beenhere++;
@@ -678,12 +678,12 @@ int job_close(void)
 		if(count)
 		{
 			errormsg(SH_DICT,0,e_terminate);
-			return(-1);
+			return -1;
 		}
 		else if(running && sh_isoption(SH_LOGIN_SHELL))
 		{
 			errormsg(SH_DICT,0,e_jobsrunning);
-			return(-1);
+			return -1;
 		}
 	}
 	job_unlock();
@@ -696,17 +696,17 @@ int job_close(void)
 #	ifdef FIOPUSHLD
 		tty_get(job.fd,&my_stty);
 		if (ioctl(job.fd, FIOPOPLD, 0) < 0)
-			return(0);
+			return 0;
 		if (ioctl(job.fd, FIOPUSHLD, &job.linedisc) < 0)
 		{
 			job.linedisc = NTTYDISC;
 			ioctl(job.fd, FIOPUSHLD, &job.linedisc);
-			return(0);
+			return 0;
 		}
 		tty_set(job.fd,TCSAFLUSH,&my_stty);
 #	else
 		if(ioctl(job.fd,TIOCSETD,&job.linedisc) !=0)
-			return(0);
+			return 0;
 #	endif /* FIOPUSHLD */
 		errormsg(SH_DICT,0,e_oldtty);
 	}
@@ -720,10 +720,10 @@ int job_close(void)
 	}
 #   endif /* CNSUSP */
 	job.jobcontrol = 0;
-	return(0);
+	return 0;
 }
 
-static void job_set(register struct process *pw)
+static void job_set(struct process *pw)
 {
 	if(!job.jobcontrol)
 		return;
@@ -742,7 +742,7 @@ static void job_set(register struct process *pw)
 	sh.forked = 0;
 }
 
-static void job_reset(register struct process *pw)
+static void job_reset(struct process *pw)
 {
 	/* save the terminal state for current job */
 	pid_t tgrp;
@@ -754,7 +754,7 @@ static void job_reset(register struct process *pw)
 		return;
 	/* force the following tty_get() to do a tcgetattr() unless fg */
 	if(!(pw->p_flag&P_MOVED2FG))
-		tty_set(-1, 0, NIL(struct termios*));
+		tty_set(-1, 0, NULL);
 	if(pw && (pw->p_flag&P_SIGNALLED) && pw->p_exit!=SIGHUP)
 	{
 		if(tty_get(job.fd,&pw->p_stty) == 0)
@@ -770,9 +770,9 @@ static void job_reset(register struct process *pw)
  */
 void job_bwait(char **jobs)
 {
-	register char *jp;
-	register struct process *pw;
-	register pid_t pid;
+	char *jp;
+	struct process *pw;
+	pid_t pid;
 	if(*jobs==0)
 		job_wait((pid_t)-1);
 	else while(jp = *jobs++)
@@ -798,10 +798,10 @@ void job_bwait(char **jobs)
  */
 int job_walk(Sfio_t *file,int (*fun)(struct process*,int),int arg,char *joblist[])
 {
-	register struct process *pw;
-	register int r = 0;
-	register char *jobid, **jobs=joblist;
-	register struct process *px;
+	struct process *pw;
+	int r = 0;
+	char *jobid, **jobs=joblist;
+	struct process *px;
 	job_string = 0;
 	outfile = file;
 	by_number = 0;
@@ -854,7 +854,7 @@ int job_walk(Sfio_t *file,int (*fun)(struct process*,int),int arg,char *joblist[
 		by_number = 0;
 	}
 	job_unlock();
-	return(r);
+	return r;
 }
 
 /*
@@ -864,25 +864,25 @@ int job_walk(Sfio_t *file,int (*fun)(struct process*,int),int arg,char *joblist[
  * flag JOB_NLFLAG to print an initial newline
  * flag JOB_PFLAG for process ID(s) only
  */
-int job_list(struct process *pw,register int flag)
+int job_list(struct process *pw,int flag)
 {
-	register struct process *px = pw;
-	register int  n;
-	register const char *msg;
-	register int msize;
+	struct process *px = pw;
+	int  n;
+	const char *msg;
+	int msize;
 	if(!pw || pw->p_job<=0)
-		return(1);
+		return 1;
 	if(pw->p_env != sh.jobenv)
-		return(0);
+		return 0;
 	if((flag&JOB_NFLAG) && (!(px->p_flag&P_NOTIFY)||px->p_pgrp==0))
-		return(0);
+		return 0;
 	if((flag&JOB_PFLAG))
 	{
 		sfprintf(outfile,"%d\n",px->p_pgrp?px->p_pgrp:px->p_pid);
-		return(0);
+		return 0;
 	}
 	if((px->p_flag&P_DONE) && job.waitall && !(flag&JOB_LFLAG))
-		return(0);
+		return 0;
 	job_lock();
 	n = px->p_job;
 	if(px==job.pwlist)
@@ -938,22 +938,22 @@ int job_list(struct process *pw,register int flag)
 	}
 	while(px);
 	job_unlock();
-	return(0);
+	return 0;
 }
 
 /*
  * get the process group given the job number
  * This routine returns the process group number or -1
  */
-static struct process *job_bystring(register char *ajob)
+static struct process *job_bystring(char *ajob)
 {
-	register struct process *pw=job.pwlist;
-	register int c;
+	struct process *pw=job.pwlist;
+	int c;
 	if(*ajob++ != '%' || !pw)
-		return(NIL(struct process*));
+		return NULL;
 	c = *ajob;
 	if(isdigit(c))
-		pw = job_byjid((int)strtol(ajob, (char**)0, 10));
+		pw = job_byjid((int)strtol(ajob, NULL, 10));
 	else if(c=='+' || c=='%')
 		;
 	else if(c=='-')
@@ -964,17 +964,17 @@ static struct process *job_bystring(register char *ajob)
 	else
 		pw = job_byname(ajob);
 	if(pw && pw->p_flag)
-		return(pw);
-	return(NIL(struct process*));
+		return pw;
+	return NULL;
 }
 
 /*
  * Kill a job or process
  */
-int job_kill(register struct process *pw,register int sig)
+int job_kill(struct process *pw,int sig)
 {
-	register pid_t pid;
-	register int r;
+	pid_t pid;
+	int r;
 	const char *msg;
 	int stopsig = (sig==SIGSTOP||sig==SIGTSTP||sig==SIGTTIN||sig==SIGTTOU);
 	job_lock();
@@ -985,7 +985,7 @@ int job_kill(register struct process *pw,register int sig)
 	if(by_number)
 	{
 		if(pid==0 && job.jobcontrol)
-			r = job_walk(outfile, job_kill,sig, (char**)0);
+			r = job_walk(outfile, job_kill,sig, NULL);
 		if(sig==SIGSTOP && pid==sh.pid && sh.ppid==1)
 		{
 			/* can't stop login shell */
@@ -1046,7 +1046,7 @@ int job_kill(register struct process *pw,register int sig)
 	}
 	sh_delay(.001,0);
 	job_unlock();
-	return(r);
+	return r;
 }
 
 /*
@@ -1058,7 +1058,7 @@ int job_hup(struct process *pw, int sig)
 	struct process	*px;
 	NOT_USED(sig);
 	if(pw->p_pgrp == 0 || (pw->p_flag & P_DISOWN))
-		return(0);
+		return 0;
 	job_lock();
 	/*
 	 * Only kill process group if we still have at least one process. If all the processes are P_DONE,
@@ -1074,7 +1074,7 @@ int job_hup(struct process *pw, int sig)
 		}
 	}
 	job_unlock();
-	return(0);
+	return 0;
 }
 
 /*
@@ -1082,13 +1082,13 @@ int job_hup(struct process *pw, int sig)
  */
 static struct process *job_byname(char *name)
 {
-	register struct process *pw = job.pwlist;
-	register struct process *pz = 0;
-	register int *flag = 0;
-	register char *cp = name;
+	struct process *pw = job.pwlist;
+	struct process *pz = 0;
+	int *flag = 0;
+	char *cp = name;
 	int offset;
 	if(!sh.hist_ptr)
-		return(NIL(struct process*));
+		return NULL;
 	if(*cp=='?')
 		cp++,flag= &offset;
 	{
@@ -1102,7 +1102,7 @@ static struct process *job_byname(char *name)
 			pz = pw;
 		}
 	}
-	return(pz);
+	return pz;
 }
 
 /*
@@ -1110,10 +1110,10 @@ static struct process *job_byname(char *name)
  */
 void	job_clear(void)
 {
-	register struct process *pw, *px;
-	register struct process *pwnext;
-	register int j = BYTE(sh.lim.child_max);
-	register struct jobsave *jp,*jpnext;
+	struct process *pw, *px;
+	struct process *pwnext;
+	int j = BYTE(sh.lim.child_max);
+	struct jobsave *jp,*jpnext;
 	job_lock();
 	for(pw=job.pwlist; pw; pw=pwnext)
 	{
@@ -1132,7 +1132,7 @@ void	job_clear(void)
 	bck.list = 0;
 	if(njob_savelist < NJOB_SAVELIST)
 		init_savelist();
-	job.pwlist = NIL(struct process*);
+	job.pwlist = NULL;
 	job.numpost=0;
 #if SHOPT_BGX
 	job.numbjob = 0;
@@ -1154,15 +1154,15 @@ void	job_clear(void)
  */
 int job_post(pid_t pid, pid_t join)
 {
-	register struct process *pw;
-	register History_t *hp = sh.hist_ptr;
+	struct process *pw;
+	History_t *hp = sh.hist_ptr;
 	int val;
 	char bg = 0;
 	sh.jobenv = sh.curenv;
 	if(job.toclear)
 	{
 		job_clear();
-		return(0);
+		return 0;
 	}
 	job_lock();
 	if(join==1)
@@ -1265,7 +1265,7 @@ int job_post(pid_t pid, pid_t join)
 	}
 	lastpid = 0;
 	job_unlock();
-	return(pw->p_job);
+	return pw->p_job;
 }
 
 /*
@@ -1273,14 +1273,14 @@ int job_post(pid_t pid, pid_t join)
  */
 static struct process *job_bypid(pid_t pid)
 {
-	register struct process  *pw, *px;
+	struct process  *pw, *px;
 	for(pw=job.pwlist; pw; pw=pw->p_nxtjob)
 		for(px=pw; px; px=px->p_nxtproc)
 		{
 			if(px->p_pid==pid)
-				return(px);
+				return px;
 		}
-	return(NIL(struct process*));
+	return NULL;
 }
 
 /*
@@ -1288,23 +1288,23 @@ static struct process *job_bypid(pid_t pid)
  */
 static struct process *job_byjid(int jobid)
 {
-	register struct process *pw;
+	struct process *pw;
 	for(pw=job.pwlist;pw; pw = pw->p_nxtjob)
 	{
 		if(pw->p_job==jobid)
 			break;
 	}
-	return(pw);
+	return pw;
 }
 
 /*
  * print a signal message
  */
-static void job_prmsg(register struct process *pw)
+static void job_prmsg(struct process *pw)
 {
 	if(pw->p_exit!=SIGINT && pw->p_exit!=SIGPIPE)
 	{
-		register const char *msg, *dump;
+		const char *msg, *dump;
 		msg = job_sigmsg((int)(pw->p_exit));
 		msg = sh_translate(msg);
 		if(pw->p_flag&P_COREDUMP)
@@ -1325,10 +1325,10 @@ static void job_prmsg(register struct process *pw)
  * pid=1 to wait for at least one process to complete
  * pid=-1 to wait for all running processes
  */
-int	job_wait(register pid_t pid)
+int	job_wait(pid_t pid)
 {
-	register struct process *pw=0,*px;
-	register int	jobid = 0;
+	struct process	*pw=0,*px;
+	int		jobid = 0;
 	int		nochild = 1;
 	char		intr = 0;
 	if(pid < 0)
@@ -1360,13 +1360,13 @@ int	job_wait(register pid_t pid)
 				sh.exitval = ERROR_NOENT;
 			exitset();
 			job_unlock();
-			return(nochild);
+			return nochild;
 		}
 		else if(intr && pw->p_env!=sh.curenv)
 		{
 			sh.exitval = ERROR_NOENT;
 			job_unlock();
-			return(nochild);
+			return nochild;
 		}
 		jobid = pw->p_job;
 		if(!intr)
@@ -1474,7 +1474,7 @@ int	job_wait(register pid_t pid)
 	pwfg = 0;
 	job_unlock();
 	if(pid==1)
-		return(nochild);
+		return nochild;
 	exitset();
 	if(pid==0)
 		goto done;
@@ -1498,11 +1498,11 @@ int	job_wait(register pid_t pid)
 				pw->p_pgrp = pw->p_pid;
 			job_reset(pw);
 		}
-		tty_set(-1, 0, NIL(struct termios*));
+		tty_set(-1, 0, NULL);
 	}
 done:
 	if(!job.waitall && sh_isoption(SH_PIPEFAIL))
-		return(nochild);
+		return nochild;
 	if(!sh.intrap)
 	{
 		job_lock();
@@ -1513,7 +1513,7 @@ done:
 		}
 		job_unlock();
 	}
-	return(nochild);
+	return nochild;
 }
 
 /*
@@ -1521,21 +1521,21 @@ done:
  * move job to background if bgflag == 'b'
  * disown job if bgflag == 'd'
  */
-int job_switch(register struct process *pw,int bgflag)
+int job_switch(struct process *pw,int bgflag)
 {
-	register const char *msg;
+	const char *msg;
 	job_lock();
 	if(!pw || !(pw=job_byjid((int)pw->p_job)))
 	{
 		job_unlock();
-		return(1);
+		return 1;
 	}
 	if(bgflag=='d')
 	{
 		for(; pw; pw=pw->p_nxtproc)
 			pw->p_flag |= P_DISOWN;
 		job_unlock();
-		return(0);
+		return 0;
 	}
 	if(bgflag=='b')
 	{
@@ -1559,7 +1559,7 @@ int job_switch(register struct process *pw,int bgflag)
 		if(!(pw=job_unpost(pw,1)))
 		{
 			job_unlock();
-			return(1);
+			return 1;
 		}
 		job.waitall = 1;
 		pw->p_flag |= P_MOVED2FG;
@@ -1570,13 +1570,13 @@ int job_switch(register struct process *pw,int bgflag)
 	else if(pw->p_flag&P_STOPPED)
 		job_unstop(pw);
 	job_unlock();
-	return(0);
+	return 0;
 }
 
 /*
  * Set the foreground group associated with a job
  */
-static void job_fgrp(register struct process *pw, int newgrp)
+static void job_fgrp(struct process *pw, int newgrp)
 {
 	for(; pw; pw=pw->p_nxtproc)
 		pw->p_fgrp = newgrp;
@@ -1585,10 +1585,10 @@ static void job_fgrp(register struct process *pw, int newgrp)
 /*
  * turn off STOP state of a process group and send CONT signals
  */
-static void job_unstop(register struct process *px)
+static void job_unstop(struct process *px)
 {
-	register struct process *pw;
-	register int num = 0;
+	struct process *pw;
+	int num = 0;
 	for(pw=px ;pw ;pw=pw->p_nxtproc)
 	{
 		if(pw->p_flag&P_STOPPED)
@@ -1612,9 +1612,9 @@ static void job_unstop(register struct process *px)
  * pwlist is reset if the first job is removed
  * if <notify> is non-zero, then jobs with pending notifications are unposted
  */
-static struct process *job_unpost(register struct process *pwtop,int notify)
+static struct process *job_unpost(struct process *pwtop,int notify)
 {
-	register struct process *pw;
+	struct process *pw;
 	/* make sure all processes are done */
 #ifdef DEBUG
 	sfprintf(sfstderr,"ksh: job line %4d: drop PID=%lld critical=%d PID=%d env=%u\n",__LINE__,(Sflong_t)sh.current_pid,job.in_critical,pwtop->p_pid,pwtop->p_env);
@@ -1622,16 +1622,16 @@ static struct process *job_unpost(register struct process *pwtop,int notify)
 #endif /* DEBUG */
 	pwtop = pw = job_byjid((int)pwtop->p_job);
 	if(!pw)
-		return(0);
+		return 0;
 #if SHOPT_BGX
 	if(pw->p_flag&P_BG) 
-		return(pw);
+		return pw;
 #endif /* SHOPT_BGX */
 	for(; pw && (pw->p_flag&P_DONE)&&(notify||!(pw->p_flag&P_NOTIFY)||pw->p_env); pw=pw->p_nxtproc);
 	if(pw)
-		return(pw);
+		return pw;
 	if(pwtop->p_job == job.curjobid)
-		return(0);
+		return 0;
 	/* all processes complete, unpost job */
 	job_unlink(pwtop);
 	for(pw=pwtop; pw; pw=pw->p_nxtproc)
@@ -1662,15 +1662,15 @@ static struct process *job_unpost(register struct process *pwtop,int notify)
 	sfsync(sfstderr);
 #endif /* DEBUG */
 	job_free((int)pwtop->p_job);
-	return((struct process*)0);
+	return NULL;
 }
 
 /*
  * unlink a job form the job list
  */
-static void job_unlink(register struct process *pw)
+static void job_unlink(struct process *pw)
 {
-	register struct process *px;
+	struct process *px;
 	if(pw==job.pwlist)
 	{
 		job.pwlist = pw->p_nxtjob;
@@ -1691,15 +1691,15 @@ static void job_unlink(register struct process *pw)
  */
 static int job_alloc(void)
 {
-	register int j=0;
-	register unsigned mask = 1;
-	register unsigned char *freeword;
-	register int jmax = BYTE(sh.lim.child_max);
+	int j=0;
+	unsigned mask = 1;
+	unsigned char *freeword;
+	int jmax = BYTE(sh.lim.child_max);
 	/* skip to first word with a free slot */
 	for(j=0;job.freejobs[j] == UCHAR_MAX; j++);
 	if(j >= jmax)
 	{
-		register struct process *pw;
+		struct process *pw;
 		for(j=1; j < sh.lim.child_max; j++)
 		{
 			if((pw=job_byjid(j))&& !job_unpost(pw,0))
@@ -1707,22 +1707,22 @@ static int job_alloc(void)
 		}
 		j /= CHAR_BIT;
 		if(j >= jmax)
-			return(-1);
+			return -1;
 	}
 	freeword = &job.freejobs[j];
 	j *= CHAR_BIT;
 	for(j++;mask&(*freeword);j++,mask <<=1);
 	*freeword  |= mask;
-	return(j);
+	return j;
 }
 
 /*
  * return a job number
  */
-static void job_free(register int n)
+static void job_free(int n)
 {
-	register int j = (--n)/CHAR_BIT;
-	register unsigned mask;
+	int j = (--n)/CHAR_BIT;
+	unsigned mask;
 	n -= j*CHAR_BIT;
 	mask = 1 << n;
 	job.freejobs[j]  &= ~mask;
@@ -1732,7 +1732,7 @@ static char *job_sigmsg(int sig)
 {
 	static char signo[40];
 	if(sig<=sh.sigmax && sh.sigmsg[sig])
-		return(sh.sigmsg[sig]);
+		return sh.sigmsg[sig];
 #if defined(SIGRTMIN) && defined(SIGRTMAX)
 	if(sig>=sh.sigruntime[SH_SIGRTMIN] && sig<=sh.sigruntime[SH_SIGRTMAX])
 	{
@@ -1741,11 +1741,11 @@ static char *job_sigmsg(int sig)
 			sfsprintf(sigrt,sizeof(sigrt),"SIGRTMAX-%d",sh.sigruntime[SH_SIGRTMAX]-sig);
 		else
 			sfsprintf(sigrt,sizeof(sigrt),"SIGRTMIN+%d",sig-sh.sigruntime[SH_SIGRTMIN]);
-		return(sigrt);
+		return sigrt;
 	}
 #endif
 	sfsprintf(signo,sizeof(signo),sh_translate(e_signo),sig);
-	return(signo);
+	return signo;
 }
 
 /*
@@ -1753,11 +1753,11 @@ static char *job_sigmsg(int sig)
  * if pid==0, then oldest saved process is deleted
  * If pid is not found a -1 is returned.
  */
-static int job_chksave(register pid_t pid)
+static int job_chksave(pid_t pid)
 {
-	register struct jobsave *jp = bck.list, *jpold=0;
-	register int r= -1;
-	register int count=bck.count;
+	struct jobsave *jp = bck.list, *jpold=0;
+	int r= -1;
+	int count=bck.count;
 	struct back_save *bp= &bck;
 again:
 	while(jp && count-->0)
@@ -1795,7 +1795,7 @@ again:
 		else
 			free((void*)jp);
 	}
-	return(r);
+	return r;
 }
 
 void *job_subsave(void)
@@ -1813,9 +1813,9 @@ void *job_subsave(void)
 
 void job_subrestore(void* ptr)
 {
-	register struct jobsave *jp;
-	register struct back_save *bp = (struct back_save*)ptr;
-	register struct process *pw, *px, *pwnext;
+	struct jobsave *jp;
+	struct back_save *bp = (struct back_save*)ptr;
+	struct process *pw, *px, *pwnext;
 	struct jobsave *end=NULL;
 	job_lock();
 	for(jp=bck.list; jp; jp=jp->next)

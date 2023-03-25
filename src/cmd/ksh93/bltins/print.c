@@ -108,7 +108,7 @@ static int	exitval;
 	/* This mess is because /bin/echo on BSD is different */
 	if(!sh.universe)
 	{
-		register char *universe;
+		char *universe;
 		if(universe=astconf("UNIVERSE",0,0))
 			bsd_univ = (strcmp(universe,"ucb")==0);
 		sh.universe = 1;
@@ -154,7 +154,7 @@ static int infof(Opt_t* op, Sfio_t* sp, const char* s, Optdisc_t* dp)
 	char c='%';
 	for(pm=Pmap;pm->size>0;pm++)
 		sfprintf(sp, "[+%c(%s)q?Equivalent to %s.]",c,pm->name,pm->equivalent);
-	return(1);
+	return 1;
 }
 
 /*
@@ -163,8 +163,8 @@ static int infof(Opt_t* op, Sfio_t* sp, const char* s, Optdisc_t* dp)
  */
 int    b_print(int argc, char *argv[], Shbltin_t *context)
 {
-	register Sfio_t *outfile;
-	register int n, fd = 1;
+	Sfio_t *outfile;
+	int n, fd = 1;
 	const char *options, *msg = e_file+4;
 	char *format = 0;
 #if !SHOPT_SCRIPTONLY
@@ -291,7 +291,7 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 	argv += opt_info.index;
 	if(error_info.errors || (argc<0 && !(format = *argv++)))
 	{
-		errormsg(SH_DICT,ERROR_usage(2),"%s",optusage((char*)0));
+		errormsg(SH_DICT,ERROR_usage(2),"%s",optusage(NULL));
 		UNREACHABLE();
 	}
 	if(vflag && format)
@@ -324,7 +324,7 @@ skip2:
 	{
 		/* don't print error message for stdout for compatibility */
 		if(fd==1)
-			return(1);
+			return 1;
 		errormsg(SH_DICT,ERROR_system(1),msg);
 		UNREACHABLE();
 	}
@@ -332,7 +332,7 @@ skip2:
 	{
 		sh_onstate(SH_NOTRACK);
 		n = SF_WRITE|((n&IOREAD)?SF_READ:0);
-		sh.sftable[fd] = outfile = sfnew(NIL(Sfio_t*),sh.outbuff,IOBSIZE,fd,n);
+		sh.sftable[fd] = outfile = sfnew(NULL,sh.outbuff,IOBSIZE,fd,n);
 		sh_offstate(SH_NOTRACK);
 		sfpool(outfile,sh.outpool,SF_WRITE);
 	}
@@ -349,7 +349,7 @@ printf_v:
 		pdata.hdr.extf = extend;
 		pdata.nextarg = argv;
 		sh_offstate(SH_STOPOK);
-		pool=sfpool(sfstderr,NIL(Sfio_t*),SF_WRITE);
+		pool=sfpool(sfstderr,NULL,SF_WRITE);
 		do
 		{
 			if(sh.trapnote&SH_SIGSET)
@@ -380,7 +380,7 @@ printf_v:
 		/* echo style print */
 		if(nflag && !argv[0])
 		{
-			if (sfsync((Sfio_t*)0) < 0)
+			if (sfsync(NULL) < 0)
 				exitval = 1;
 		}
 		else if(echolist(outfile,rflag,argv) && !nflag)
@@ -403,7 +403,7 @@ printf_v:
 		if (sfsync(outfile) < 0)
 			exitval = 1;
 	}
-	return(exitval);
+	return exitval;
 }
 
 /*
@@ -413,8 +413,8 @@ printf_v:
  */
 static int echolist(Sfio_t *outfile, int raw, char *argv[])
 {
-	register char	*cp;
-	register int	n;
+	char	*cp;
+	int	n;
 	struct printf pdata;
 	pdata.cescape = 0;
 	pdata.err = 0;
@@ -434,7 +434,7 @@ static int echolist(Sfio_t *outfile, int raw, char *argv[])
 				exitval = 1;
 		sh_sigcheck();
 	}
-	return(!pdata.cescape);
+	return !pdata.cescape;
 }
 
 /*
@@ -442,10 +442,10 @@ static int echolist(Sfio_t *outfile, int raw, char *argv[])
  */
 static char strformat(char *s)
 {
-        register char*  t;
-        register int    c;
-        char*           b;
-        char*           p;
+        char*		t;
+        int		c;
+        char*		b;
+        char*		p;
 #if SHOPT_MULTIBYTE && defined(FMT_EXP_WIDE)
 	int		w;
 #endif
@@ -488,7 +488,7 @@ static char strformat(char *s)
                         break;
                     case 0:
                         *t = 0;
-                        return(t - b);
+                        return t - b;
                 }
                 *t++ = c;
         }
@@ -496,18 +496,18 @@ static char strformat(char *s)
 
 static char *genformat(char *format)
 {
-	register char *fp;
+	char *fp;
 	stakseek(0);
 	stakputs(format);
 	fp = (char*)stakfreeze(1);
 	strformat(fp);
-	return(fp);
+	return fp;
 }
 
 static char *fmthtml(const char *string, int flags)
 {
-	register const char *cp = string, *op;
-	register int c, offset = staktell();
+	const char *cp = string, *op;
+	int c, offset = staktell();
 	/*
 	 * The only multibyte locale ksh currently supports is UTF-8, which is a superset of ASCII. So, if we're on an
 	 * EBCDIC system, below we attempt to convert EBCDIC to ASCII only if we're not in a multibyte locale (mbwide()).
@@ -572,7 +572,7 @@ static ssize_t fmtbase64(Sfio_t *iop, char *string, int alt)
 	char			*cp;
 	Sfdouble_t		d;
 	ssize_t			size;
-	Namval_t		*np = nv_open(string, NiL, NV_VARNAME|NV_NOADD);
+	Namval_t		*np = nv_open(string, NULL, NV_VARNAME|NV_NOADD);
 	Namarr_t		*ap;
 	static union types_t	number;
 	if(!np || nv_isnull(np))
@@ -582,7 +582,7 @@ static ssize_t fmtbase64(Sfio_t *iop, char *string, int alt)
 			errormsg(SH_DICT,ERROR_exit(1),e_notset,string);
 			UNREACHABLE();
 		}
-		return(0);
+		return 0;
 	}
 	if(nv_isattr(np,NV_INTEGER))
 	{
@@ -649,7 +649,7 @@ static ssize_t fmtbase64(Sfio_t *iop, char *string, int alt)
 			if((size = n)==0)
 				size = strlen(cp);
 			size = sfwrite(iop, cp, size);
-			return(n?n:size);
+			return n?n:size;
 		}
 	}
 	else if(nv_isarray(np) && (ap=nv_arrayptr(np)) && array_elem(ap) && (ap->nelem&(ARRAY_UNDEF|ARRAY_SCAN)))
@@ -669,7 +669,7 @@ static ssize_t fmtbase64(Sfio_t *iop, char *string, int alt)
 		if(alt)
 			nv_offattr(np,NV_EXPORT);
 		if(!cp)
-			return(0);
+			return 0;
 		size = strlen(cp);
 		return(sfwrite(iop,cp,size));
 	}
@@ -677,7 +677,7 @@ static ssize_t fmtbase64(Sfio_t *iop, char *string, int alt)
 
 static int varname(const char *str, int n)
 {
-	register int c,dot=1,len=1;
+	int c,dot=1,len=1;
 	if(n < 0)
 	{
 		if(*str=='.')
@@ -698,7 +698,7 @@ static int varname(const char *str, int n)
 			break;
 		dot = (c=='.');
 	}
-	return(n==0);
+	return n==0;
 }
 
 static const char *mapformat(Sffmt_t *fe)
@@ -707,10 +707,10 @@ static const char *mapformat(Sffmt_t *fe)
 	while(pm->size>0)
 	{
 		if(pm->size==fe->n_str && strncmp(pm->name,fe->t_str,fe->n_str)==0)
-			return(pm->map);
+			return pm->map;
 		pm++;
 	}
-	return(0);
+	return 0;
 }
 
 static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
@@ -724,7 +724,7 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 	int		fold = fe->base;
 	union types_t*	value = (union types_t*)v;
 	struct printf*	pp = (struct printf*)fe;
-	register char*	argp = *pp->nextarg;
+	char*	argp = *pp->nextarg;
 	char		*w,*s;
 	if(fe->n_str>0 && (format=='T'||format=='Q') && varname(fe->t_str,fe->n_str) && (!argp || varname(argp,-1)))
 	{
@@ -1068,7 +1068,7 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 			value->s = fmttmx(fe->t_str, value->ll);
 			fe->t_str[fe->n_str] = n;
 		}
-		else value->s = fmttmx(NIL(char*), value->ll);
+		else value->s = fmttmx(NULL, value->ll);
 		fe->fmt = 's';
 		fe->size = -1;
 		break;
@@ -1084,9 +1084,9 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
  */
 static int fmtvecho(const char *string, struct printf *pp)
 {
-	register const char *cp = string, *cpmax;
-	register int c;
-	register int offset = staktell();
+	const char *cp = string, *cpmax;
+	int c;
+	int offset = staktell();
 	int chlen;
 	if(mbwide())
 	{
@@ -1103,7 +1103,7 @@ static int fmtvecho(const char *string, struct printf *pp)
 		while((c= *cp++) && (c!='\\'))
 			;
 	if(c==0)
-		return(-1);
+		return -1;
 	c = --cp - string;
 	if(c>0)
 		stakwrite((void*)string,c);
@@ -1166,5 +1166,5 @@ done:
 	c = staktell()-offset;
 	stakputc(0);
 	stakseek(offset);
-	return(c);
+	return c;
 }

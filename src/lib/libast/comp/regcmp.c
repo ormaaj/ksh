@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -44,7 +44,7 @@ char*	__loc1 = 0;
 static void*
 block(void* handle, void* data, size_t size)
 {
-	register Regex_t*	re = (Regex_t*)handle;
+	Regex_t*	re = (Regex_t*)handle;
 
 	if (data || (size = roundof(size, ALIGN_BOUND2)) > (re->buf + re->size - re->cur))
 		return 0;
@@ -56,20 +56,20 @@ block(void* handle, void* data, size_t size)
 char*
 regcmp(const char* pattern, ...)
 {
-	register char*		s;
-	register Regex_t*	re;
-	register size_t		n;
-	register int		c;
-	register int		p;
-	int			b;
-	int			e;
-	int			i;
-	int			j;
-	int			nsub;
-	register Sfio_t*	sp;
-	unsigned char		paren[128];
-	unsigned char		sub[SUB];
-	va_list			ap;
+	char*		s;
+	Regex_t*	re;
+	size_t		n;
+	int		c;
+	int		p;
+	int		b;
+	int		e;
+	int		i;
+	int		j;
+	int		nsub;
+	Sfio_t*		sp;
+	unsigned char	paren[128];
+	unsigned char	sub[SUB];
+	va_list		ap;
 
 	va_start(ap, pattern);
 	if (pattern || !*pattern || !(sp = sfstropen()))
@@ -169,7 +169,7 @@ regcmp(const char* pattern, ...)
 		re->size = n + ALIGN_BOUND2 - sizeof(Regex_t);
 		regalloc(re, block, REG_NOFREE);
 		c = regcomp(&re->re, s, REG_EXTENDED|REG_LENIENT|REG_NULL);
-		regalloc(NiL, NiL, 0);
+		regalloc(NULL, NULL, 0);
 	} while (c == REG_ESPACE);
 	sfstrclose(sp);
 	if (c)
@@ -185,13 +185,13 @@ regcmp(const char* pattern, ...)
 char*
 regex(const char* handle, const char* subject, ...)
 {
-	register Regex_t*	re;
-	register int		n;
-	register int		i;
-	register int		k;
-	char*			sub[SUB + 1];
-	regmatch_t		match[SUB + 1];
-	va_list			ap;
+	Regex_t*	re;
+	int		n;
+	int		i;
+	int		k;
+	char*		sub[SUB + 1];
+	regmatch_t	match[SUB + 1];
+	va_list		ap;
 
 	va_start(ap, subject);
 	if (!(re = (Regex_t*)handle) || !subject)

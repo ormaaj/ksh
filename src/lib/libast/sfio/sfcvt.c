@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -114,9 +114,9 @@ char* _sfcvt(void*	vp,		/* pointer to value to convert	*/
 	     int*	len,		/* return string length		*/
 	     int	format)		/* conversion format		*/
 {
-	reg char		*sp;
-	reg long		n, v;
-	reg char		*ep, *b, *endsp, *t;
+	char			*sp;
+	long			n, v;
+	char			*ep, *b, *endsp, *t;
 	int			x;
 	_ast_flt_unsigned_max_t	m;
 
@@ -400,7 +400,7 @@ char* _sfcvt(void*	vp,		/* pointer to value to convert	*/
 		else
 		{
 			if((format&SFFMT_EFORMAT) && *decpt == 0 && f > 0.)
-			{	reg double	d;
+			{	double	d;
 				while((long)(d = f*10.) == 0)
 				{	f = d;
 					*decpt -= 1;

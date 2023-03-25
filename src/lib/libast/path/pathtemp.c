@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -132,19 +132,19 @@ static struct
 char*
 pathtemp(char* buf, size_t len, const char* dir, const char* pfx, int* fdp)
 {
-	register char*		d;
-	register char*		b;
-	register char*		s;
-	register char*		x;
-	uint32_t		key;
-	int			m;
-	int			n;
-	int			l;
-	int			r;
-	int			z;
-	int			attempt;
-	Tv_t			tv;
-	char			keybuf[16];
+	char*		d;
+	char*		b;
+	char*		s;
+	char*		x;
+	uint32_t	key;
+	int		m;
+	int		n;
+	int		l;
+	int		r;
+	int		z;
+	int		attempt;
+	Tv_t		tv;
+	char		keybuf[16];
 
 	if (pfx && *pfx == '/')
 	{
@@ -165,7 +165,7 @@ pathtemp(char* buf, size_t len, const char* dir, const char* pfx, int* fdp)
 		{
 			if (tmp.pfx)
 				free(tmp.pfx);
-			tmp.pfx = dir ? strdup(dir) : (char*)0;
+			tmp.pfx = dir ? strdup(dir) : NULL;
 			return (char*)pfx;
 		}
 		else if (streq(pfx, "private"))
@@ -180,7 +180,7 @@ pathtemp(char* buf, size_t len, const char* dir, const char* pfx, int* fdp)
 		}
 		else if (streq(pfx, "seed"))
 		{
-			tmp.key = (tmp.seed = (tmp.rng = dir ? (uint32_t)strtoul(dir, NiL, 0) : (uint32_t)1) != 0)? (uint32_t)0x63c63cd9L : 0;
+			tmp.key = (tmp.seed = (tmp.rng = dir ? (uint32_t)strtoul(dir, NULL, 0) : (uint32_t)1) != 0)? (uint32_t)0x63c63cd9L : 0;
 			return (char*)pfx;
 		}
 		else if (streq(pfx, TMP_ENV))
@@ -192,7 +192,7 @@ pathtemp(char* buf, size_t len, const char* dir, const char* pfx, int* fdp)
 			}
 			if (tmp.tmpdir)
 				free(tmp.tmpdir);
-			tmp.tmpdir = dir ? strdup(dir) : (char*)0;
+			tmp.tmpdir = dir ? strdup(dir) : NULL;
 			return (char*)pfx;
 		}
 		else if (streq(pfx, TMP_PATH_ENV))
@@ -204,7 +204,7 @@ pathtemp(char* buf, size_t len, const char* dir, const char* pfx, int* fdp)
 			}
 			if (tmp.tmppath)
 				free(tmp.tmppath);
-			tmp.tmppath = dir ? strdup(dir) : (char*)0;
+			tmp.tmppath = dir ? strdup(dir) : NULL;
 			return (char*)pfx;
 		}
 		return 0;
@@ -258,7 +258,7 @@ pathtemp(char* buf, size_t len, const char* dir, const char* pfx, int* fdp)
 			tmp.dir = tmp.vec;
 			d = *tmp.dir++;
 		}
-		if (!d && (!*(d = astconf("TMP", NiL, NiL)) || xaccess(d, W_OK|X_OK)) && xaccess(d = TMP1, W_OK|X_OK) && xaccess(d = TMP2, W_OK|X_OK))
+		if (!d && (!*(d = astconf("TMP", NULL, NULL)) || xaccess(d, W_OK|X_OK)) && xaccess(d = TMP1, W_OK|X_OK) && xaccess(d = TMP2, W_OK|X_OK))
 			return 0;
 	}
 	if (!len)
@@ -321,14 +321,14 @@ pathtemp(char* buf, size_t len, const char* dir, const char* pfx, int* fdp)
 	{
 		if (!tmp.rng || !tmp.seed && (attempt || tmp.pid != getpid()))
 		{	
-			register int	r;
+			int	r;
 
 			/*
 			 * get a quasi-random coefficient
 			 */
 
 			tmp.pid = getpid();
-			tmp.rng = (uint32_t)tmp.pid * ((uint32_t)time(NiL) ^ (((uint32_t)integralof(&attempt)) >> 3) ^ (((uint32_t)integralof(tmp.dir)) >> 3));
+			tmp.rng = (uint32_t)tmp.pid * ((uint32_t)time(NULL) ^ (((uint32_t)integralof(&attempt)) >> 3) ^ (((uint32_t)integralof(tmp.dir)) >> 3));
 			if (!tmp.key)
 				tmp.key = (tmp.rng >> 16) | ((tmp.rng & 0xffff) << 16);
 			tmp.rng ^= tmp.key;

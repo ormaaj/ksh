@@ -120,10 +120,10 @@ tst	lib_poll_notimer note{ poll with no fds ignores timeout }end execute{
 		unsigned long	start;
 		unsigned long	finish;
 		struct pollfd	fd;
-		start = time((time_t*)0);
+		start = time(NULL);
 		if (poll(&fd, 0, TIMEOUT * 1000) < 0)
 			return 0;
-		finish = time((time_t*)0);
+		finish = time(NULL);
 		return (finish - start) > (TIMEOUT / 2);
 	}
 }end
@@ -140,7 +140,7 @@ tst	lib_select sys/select.h note{ select() has standard 5 arg interface }end lin
 		FD_SET(0,&rd);
 		tmb.tv_sec = 0;
 		tmb.tv_usec = 0;
-		select(1,&rd,(fd_set*)0,(fd_set*)0,&tmb);
+		select(1,&rd,NULL,NULL,&tmb);
 		return 0;
 	}
 }end
@@ -155,7 +155,7 @@ tst	sys_select note{ select() requires <sys/select.h> }end link{
 		FD_SET(0,&rd);
 		tmb.tv_sec = 0;
 		tmb.tv_usec = 0;
-		select(1,&rd,(fd_set*)0,(fd_set*)0,&tmb);
+		select(1,&rd,NULL,NULL,&tmb);
 		return 0;
 	}
 }end
@@ -474,13 +474,13 @@ tst	lib_memccpy string.h unistd.h stdlib.h fcntl.h signal.h sys/types.h sys/stat
 				close(d);
 				return 1;
 			}
-		if (lseek(d, (off_t)0, SEEK_SET))
+		if (lseek(d, 0, SEEK_SET))
 		{
 			close(d);
 			return 1;
 		}
 		m = n * (sizeof(x)-1);
-		if ((b = mmap((void*)0, m, PROT_READ|PROT_WRITE, MAP_PRIVATE, d, (off_t)0)) == MAP_FAILED)
+		if ((b = mmap(NULL, m, PROT_READ|PROT_WRITE, MAP_PRIVATE, d, 0)) == MAP_FAILED)
 		{
 			close(d);
 			return 1;
@@ -568,7 +568,7 @@ tst	lib_utime_now note{ utime works with 0 time vector }end execute{
 	int
 	main()
 	{
-		return utime(".", (void*)0) == -1;
+		return utime(".", NULL) == -1;
 	}
 }end
 
@@ -629,7 +629,7 @@ std	strtold stdlib.h note{ stuck with standard strtold }end nostatic{
 std	strtol note{ stuck with standard strtol }end nostatic{
 	extern long atol(const char*);
 	long strtol(const char* s, char** e, int b) { return 0; }
-	int main() { printf(""); return (atol("1") + strtol("1",(char**)0,0)) != 0; }
+	int main() { printf(""); return (atol("1") + strtol("1",NULL,0)) != 0; }
 }end
 
 tst	- output{

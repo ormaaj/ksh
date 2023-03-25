@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -55,7 +55,7 @@ typedef struct
 
 static ssize_t moreread(Sfio_t* f, void* buf, size_t n, Sfdisc_t* dp)
 {
-	register More_t*	more = (More_t*)dp;
+	More_t*	more = (More_t*)dp;
 
 	more->match = 0;
 	more->row = 2;
@@ -70,7 +70,7 @@ static ssize_t moreread(Sfio_t* f, void* buf, size_t n, Sfdisc_t* dp)
 
 static int ttyquery(Sfio_t* rp, Sfio_t* wp, const char* label, Sfdisc_t* dp)
 {
-	register int	r;
+	int		r;
 	int		n;
 
 #ifdef TCSADRAIN
@@ -112,7 +112,7 @@ static int ttyquery(Sfio_t* rp, Sfio_t* wp, const char* label, Sfdisc_t* dp)
 		write(wfd, "\r", 1);
 	}
 #else
-	register char*	s;
+	char*	s;
 
 	if (label && (n = strlen(label)))
 		sfwr(wp, label, n, dp);
@@ -125,14 +125,14 @@ static int ttyquery(Sfio_t* rp, Sfio_t* wp, const char* label, Sfdisc_t* dp)
  * more write
  */
 
-static ssize_t morewrite(Sfio_t* f, const void* buf, register size_t n, Sfdisc_t* dp)
+static ssize_t morewrite(Sfio_t* f, const void* buf, size_t n, Sfdisc_t* dp)
 {
-	register More_t*	more = (More_t*)dp;
-	register char*		b;
-	register char*		s;
-	register char*		e;
-	register ssize_t	w;
-	register int		r;
+	More_t*	more = (More_t*)dp;
+	char*		b;
+	char*		s;
+	char*		e;
+	ssize_t		w;
+	int		r;
 
 	if (!more->row)
 		return n;
@@ -232,7 +232,7 @@ static ssize_t morewrite(Sfio_t* f, const void* buf, register size_t n, Sfdisc_t
 
 static int moreexcept(Sfio_t* f, int type, void* data, Sfdisc_t* dp)
 {
-	register More_t*	more = (More_t*)dp;
+	More_t*	more = (More_t*)dp;
 
 	if (type == SF_FINAL || type == SF_DPOP)
 	{
@@ -267,7 +267,7 @@ static int moreexcept(Sfio_t* f, int type, void* data, Sfdisc_t* dp)
 
 int sfdcmore(Sfio_t* f, const char* prompt, int rows, int cols)
 {
-	register More_t*	more;
+	More_t*	more;
 	size_t			n;
 
 	/*

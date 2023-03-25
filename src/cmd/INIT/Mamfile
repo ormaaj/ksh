@@ -372,7 +372,7 @@ make install
 	done ${INSTALLROOT}/bin/mamake generated
 	make __proto_stub
 		note *
-		note * proto(1) has been removed, but install a backwards compatibility stub
+		note * proto(1) has been removed, but install a backward compatibility stub
 		note * that allows old Mamfiles containing proto commands to keep working.
 		note *
 		exec - src=${PACKAGEROOT}/src/cmd/INIT/proto.sh

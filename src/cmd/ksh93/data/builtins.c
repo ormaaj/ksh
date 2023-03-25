@@ -881,7 +881,7 @@ const char sh_optgetopts[] =
   "index of the first non-option argument.]"
 "[+?The obsolete long option forms \aflag\a(\along-name\a) and "
   "\aflag\a:(\along-name\a) for options that take arguments is supported "
-  "for backwards compatibility.]"
+  "for backward compatibility.]"
 "a:[name?Use \aname\a instead of the command name in usage messages.]"
 "\n"
 "\noptstring name [args...]\n"

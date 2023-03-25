@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -248,7 +248,7 @@ static Vmalloc_t* regionof(void* addr)
 		for(k = 0; k < Regnum; ++k)
 			if(Region[k] && vmaddr(Region[k], addr) == 0 )
 				return Region[k];
-		return NIL(Vmalloc_t*);
+		return NULL;
 	}
 	else
 	{	/* fast, but susceptible to bad data */
@@ -258,7 +258,7 @@ static Vmalloc_t* regionof(void* addr)
 		for(k = 0; k < Regnum; ++k)
 			if(Region[k] && Region[k]->data == vd)
 				return Region[k];
-		return NIL(Vmalloc_t*);
+		return NULL;
 	}
 }
 
@@ -288,7 +288,7 @@ static void clrfreelist()
 	if(!(list = Regfree) )
 		return; /* nothing to do */
 
-	if(asocasptr(&Regfree, list, NIL(Regfree_t*)) != list )
+	if(asocasptr(&Regfree, list, NULL) != list )
 		return; /* somebody else is doing it */
 
 	for(; list; list = next)
@@ -368,12 +368,12 @@ static Vmalloc_t* getregion(int* local)
 			Regdisc.disc.exceptf = regexcept;
 		}
 
-		/**/ASSERT(Region[p] == NIL(Vmalloc_t*));
-		if((vm = vmopen(&Regdisc.disc, Vmbest, VM_SHARE)) != NIL(Vmalloc_t*) )
+		/**/ASSERT(Region[p] == NULL);
+		if((vm = vmopen(&Regdisc.disc, Vmbest, VM_SHARE)) != NULL )
 		{	vm->data->lock = 1; /* lock new region now */
 			*local = 1;
 			asoincint(&Regopen);
-			return (Region[p] = vm);
+			return Region[p] = vm;
 		}
 		else	Region[p] = Vmregion; /* better than nothing */
 	}
@@ -391,7 +391,7 @@ static Vmalloc_t* getregion(int* local)
 	return vm;
 }
 
-extern void* calloc(reg size_t n_obj, reg size_t s_obj)
+extern void* calloc(size_t n_obj, size_t s_obj)
 {
 	void		*addr;
 	Vmalloc_t	*vm;
@@ -399,7 +399,7 @@ extern void* calloc(reg size_t n_obj, reg size_t s_obj)
 	VMFLINIT();
 
 	vm = getregion(&local);
-	addr = (*vm->meth.resizef)(vm, NIL(void*), n_obj*s_obj, VM_RSZERO, local);
+	addr = (*vm->meth.resizef)(vm, NULL, n_obj*s_obj, VM_RSZERO, local);
 	if(local)
 	{	/**/ASSERT(vm->data->lock == 1);
 		vm->data->lock = 0;
@@ -407,7 +407,7 @@ extern void* calloc(reg size_t n_obj, reg size_t s_obj)
 	return VMRECORD(addr);
 }
 
-extern void* malloc(reg size_t size)
+extern void* malloc(size_t size)
 {
 	void		*addr;
 	Vmalloc_t	*vm;
@@ -423,8 +423,8 @@ extern void* malloc(reg size_t size)
 	return VMRECORD(addr);
 }
 
-extern void* realloc(reg void*	data,	/* block to be reallocated	*/
-		     reg size_t	size)	/* new size			*/
+extern void* realloc(void*	data,	/* block to be reallocated	*/
+		     size_t	size)	/* new size			*/
 {
 	ssize_t		copy;
 	void		*addr;
@@ -462,12 +462,12 @@ extern void* realloc(reg void*	data,	/* block to be reallocated	*/
 		extern void*	realloc(void*, size_t);
 		return realloc(data, size);
 #else 
-		return NIL(void*);
+		return NULL;
 #endif
 	}
 }
 
-extern void free(reg void* data)
+extern void free(void* data)
 {
 	Vmalloc_t	*vm;
 	VMFLINIT();
@@ -492,12 +492,12 @@ extern void free(reg void* data)
 	}
 }
 
-extern void cfree(reg void* data)
+extern void cfree(void* data)
 {
 	free(data);
 }
 
-extern void* memalign(reg size_t align, reg size_t size)
+extern void* memalign(size_t align, size_t size)
 {
 	void		*addr;
 	Vmalloc_t	*vm;
@@ -515,7 +515,7 @@ extern void* memalign(reg size_t align, reg size_t size)
 	return VMRECORD(addr);
 }
 
-extern int posix_memalign(reg void **memptr, reg size_t align, reg size_t size)
+extern int posix_memalign(void **memptr, size_t align, size_t size)
 {
 	void	*mem;
 
@@ -529,7 +529,7 @@ extern int posix_memalign(reg void **memptr, reg size_t align, reg size_t size)
 	return 0;
 }
 
-extern void* valloc(reg size_t size)
+extern void* valloc(size_t size)
 {
 	VMFLINIT();
 
@@ -537,7 +537,7 @@ extern void* valloc(reg size_t size)
 	return VMRECORD(memalign(_Vmpagesize, size));
 }
 
-extern void* pvalloc(reg size_t size)
+extern void* pvalloc(size_t size)
 {
 	VMFLINIT();
 
@@ -552,7 +552,7 @@ char* strdup(const char* s)
 	size_t	n;
 
 	if(!s)
-		return NIL(char*);
+		return NULL;
 	else
 	{	n = strlen(s);
 		if((ns = malloc(n+1)) )
@@ -901,12 +901,12 @@ static char* insertpid(char* begs, char* ends)
 	char*	s;
 
 	if((pid = getpid()) < 0)
-		return NIL(char*);
+		return NULL;
 
 	s = ends;
 	do
 	{	if(s == begs)
-			return NIL(char*);
+			return NULL;
 		*--s = '0' + pid%10;
 	} while((pid /= 10) > 0);
 	while(s < ends)

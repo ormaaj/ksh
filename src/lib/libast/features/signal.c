@@ -17,7 +17,6 @@
 *            Johnothan King <johnothanking@protonmail.com>             *
 *                                                                      *
 ***********************************************************************/
-#pragma clang diagnostic ignored "-Wdeprecated-register"
 #pragma clang diagnostic ignored "-Wparentheses"
 /*
  * Glenn Fowler
@@ -292,13 +291,13 @@ extern char*		strsignal(int);
 int
 main()
 {
-	register int	i;
-	register int	j;
-	register int	k;
-	int		m;
-	int		n;
+	int	i;
+	int	j;
+	int	k;
+	int	m;
+	int	n;
 #if _lib_strsignal
-	char*		s;
+	char*	s;
 #endif
 
 	k = 0;

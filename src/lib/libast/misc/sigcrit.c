@@ -77,7 +77,7 @@ interrupt(int sig)
 int
 sigcritical(int op)
 {
-	register int		i;
+	int			i;
 	static int		region;
 	static int		level;
 #if _lib_sigprocmask
@@ -155,7 +155,7 @@ sigcritical(int op)
 		{
 			level = 0;
 #if _lib_sigprocmask
-			sigprocmask(SIG_SETMASK, &mask, NiL);
+			sigprocmask(SIG_SETMASK, &mask, NULL);
 #else
 #if _lib_sigsetmask
 			sigsetmask(mask);

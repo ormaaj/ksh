@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -388,7 +388,7 @@ State_t		state =
  */
 
 void*
-alloc(register regdisc_t* disc, void* p, size_t n)
+alloc(regdisc_t* disc, void* p, size_t n)
 {
 	if (disc->re_resizef)
 	{

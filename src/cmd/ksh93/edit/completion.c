@@ -37,9 +37,9 @@ NoN(completion)
 
 static char *fmtx(const char *string)
 {
-	register const char	*cp = string;
-	register int	 	n,c;
-	unsigned char 		*state = (unsigned char*)sh_lexstates[2]; 
+	const char	*cp = string;
+	int	 	n,c;
+	unsigned char 	*state = (unsigned char*)sh_lexstates[2]; 
 	int offset = staktell();
 	if(*cp=='#' || *cp=='~')
 		stakputc('\\');
@@ -83,7 +83,7 @@ static int charcmp(int a, int b, int nocase)
 			b = tolower(b);
 		}
 	}
-	return(a==b);
+	return a==b;
 }
 #endif /* !SHOPT_GLOBCASEDET */
 
@@ -92,9 +92,9 @@ static int charcmp(int a, int b, int nocase)
  *  if <str> is equal to <newstr> returns  <str>+strlen(<str>)+1
  *  otherwise returns <str>+strlen(<str>)
  */
-static char *overlaid(register char *str,register const char *newstr,int nocase)
+static char *overlaid(char *str,const char *newstr,int nocase)
 {
-	register int c,d;
+	int c,d;
 	char *strnext;
 	mbinit();
 	while((strnext = str, c = mbchar(strnext)) && (d = mbchar(newstr), charcmp(c,d,nocase)))
@@ -103,7 +103,7 @@ static char *overlaid(register char *str,register const char *newstr,int nocase)
 		*str = 0;
 	else if(*newstr==0)
 		str++;
-	return(str);
+	return str;
 }
 
 
@@ -117,9 +117,9 @@ static char *overlaid(register char *str,register const char *newstr,int nocase)
  */
 static char *find_begin(char outbuff[], char *last, int endchar, int *type)
 {
-	register char	*cp=outbuff, *bp, *xp;
-	char		inquote = 0, dollarquote = 0, inassign = 0;
-	int		mode=*type, c;
+	char	*cp=outbuff, *bp, *xp;
+	char	inquote = 0, dollarquote = 0, inassign = 0;
+	int	mode=*type, c;
 	bp = outbuff;
 	*type = 0;
 	mbinit();
@@ -173,7 +173,7 @@ static char *find_begin(char outbuff[], char *last, int endchar, int *type)
 					if(c==dot || isaname(c))
 					{
 						*type='$';
-						return(++xp);
+						return ++xp;
 					}
 					if(c!='}')
 						bp = cp;
@@ -215,7 +215,7 @@ static char *find_begin(char outbuff[], char *last, int endchar, int *type)
 			/* FALLTHROUGH */
 		    default:
 			if(c && c==endchar)
-				return(xp);
+				return xp;
 			if(!inquote && ismeta(c))
 			{
 				bp = cp;
@@ -230,7 +230,7 @@ static char *find_begin(char outbuff[], char *last, int endchar, int *type)
 		*type = dollarquote ? -1 : inquote;
 		bp++;
 	}
-	return(bp);
+	return bp;
 }
 
 /*
@@ -246,7 +246,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 {
 	struct comnod	*comptr;
 	struct argnod	*ap;
-	register char	*out;
+	char		*out;
 	char 		*av[2], *begin , *dir=0;
 	int		addstar=0, rval=0, var=0, strip=1;
 	int 		nomarkdirs = !sh_isoption(SH_MARKDIRS);
@@ -256,7 +256,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 		if(mode=='=' && count>0)
 		{
 			if(count> ep->e_nlist)
-				return(-1);
+				return -1;
 			mode = '?';
 			av[0] = ep->e_clist[count-1];
 			av[1] = 0;
@@ -271,8 +271,8 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 	ap = (struct argnod*)stakseek(ARGVAL);
 #if SHOPT_MULTIBYTE
 	{
-		register int c = *cur;
-		register genchar *cp;
+		int c = *cur;
+		genchar *cp;
 		/* adjust cur */
 		cp = (genchar *)outbuff + *cur;
 		c = *cp;
@@ -306,7 +306,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 	ap->argnxt.ap = 0;
 	ap->argchn.cp = 0;
 	{
-		register int c;
+		int c;
 		char *last = out;
 		c =  *(unsigned char*)out;
 		var = mode;
@@ -356,10 +356,10 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 	if(mode!='*')
 		sh_onoption(SH_MARKDIRS);
 	{
-		register char	**com;
-		char		*cp=begin, *left=0, *saveout=(char*)e_dot;
-		int	 	nocase=0,narg,cmd_completion=0;
-		register 	int size='x';
+		char	**com;
+		char	*cp=begin, *left=0, *saveout=(char*)e_dot;
+		int	nocase=0, narg, cmd_completion=0;
+		int	size='x';
 		while(cp>outbuff && ((size=cp[-1])==' ' || size=='\t'))
 			cp--;
 		if(!var && !strchr(ap->argval,'/') && (((cp==outbuff&&sh.nextprompt==1) || (strchr(";&|(",size)) && (cp==outbuff+1||size=='('||cp[-2]!='>') && *begin!='~' )))
@@ -406,7 +406,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 		{
 			if (strip && !cmd_completion)
 			{
-				register char **ptrcom;
+				char **ptrcom;
 				for(ptrcom=com;*ptrcom;ptrcom++)
 					/* trim directory prefix */
 					*ptrcom = path_basename(*ptrcom);
@@ -555,7 +555,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 		sh_offoption(SH_MARKDIRS);
 #if SHOPT_MULTIBYTE
 	{
-		register int c,n=0;
+		int c,n=0;
 		/* first re-adjust cur */
 		c = outbuff[*cur];
 		outbuff[*cur] = 0;
@@ -568,16 +568,16 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 		*eol = ed_internal(outbuff,(genchar*)outbuff);
 	}
 #endif /* SHOPT_MULTIBYTE */
-	return(rval);
+	return rval;
 }
 
 /*
  * look for edit macro named _i
  * if found, puts the macro definition into lookahead buffer and returns 1
  */
-int ed_macro(Edit_t *ep, register int i)
+int ed_macro(Edit_t *ep, int i)
 {
-	register char *out;
+	char *out;
 	Namval_t *np;
 	genchar buff[LOOKAHEAD+1];
 	if(i != '@')
@@ -607,9 +607,9 @@ int ed_macro(Edit_t *ep, register int i)
 #endif /* SHOPT_MULTIBYTE */
 		while(i-- > 0)
 			ed_ungetchar(ep,buff[i]);
-		return(1);
+		return 1;
 	} 
-	return(0);
+	return 0;
 }
 
 /*
@@ -617,14 +617,14 @@ int ed_macro(Edit_t *ep, register int i)
  */
 int ed_fulledit(Edit_t *ep)
 {
-	register char *cp;
+	char *cp;
 	if(!sh.hist_ptr)
-		return(-1);
+		return -1;
 	/* use EDITOR on current command */
 	if(ep->e_hline == ep->e_hismax)
 	{
 		if(ep->e_eol<0)
-			return(-1);
+			return -1;
 #if SHOPT_MULTIBYTE
 		ep->e_inbuf[ep->e_eol+1] = 0;
 		ed_external(ep->e_inbuf, (char *)ep->e_inbuf);
@@ -640,7 +640,7 @@ int ed_fulledit(Edit_t *ep)
 #else
 	ep->e_eol = ((unsigned char*)cp - (unsigned char*)ep->e_inbuf);
 #endif
-	return(0);
+	return 0;
 }
 
 #endif /* SHOPT_SCRIPTONLY */

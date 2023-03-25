@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -89,10 +89,10 @@ struct dirlist				/* long path chdir(2) component	*/
  */
 
 static int
-popdir(register struct dirlist* d, register char* end)
+popdir(struct dirlist* d, char* end)
 {
-	register struct dirlist*	dp;
-	int				v;
+	struct dirlist*	dp;
+	int		v;
 
 	v = 0;
 	while (dp = d)
@@ -114,9 +114,9 @@ popdir(register struct dirlist* d, register char* end)
  */
 
 static struct dirlist*
-pushdir(register struct dirlist* d, char* dots, char* path, char* end)
+pushdir(struct dirlist* d, char* dots, char* path, char* end)
 {
-	register struct dirlist*	p;
+	struct dirlist*	p;
 
 	if (!(p = newof(0, struct dirlist, 1, 0)) || chdir(dots))
 	{
@@ -143,9 +143,9 @@ pushdir(register struct dirlist* d, char* dots, char* path, char* end)
 char*
 getcwd(char* buf, size_t len)
 {
-	register char*	d;
-	register char*	p;
-	register char*	s;
+	char*		d;
+	char*		p;
+	char*		s;
 	DIR*		dirp = 0;
 	int		n;
 	int		x;

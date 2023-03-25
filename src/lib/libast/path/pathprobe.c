@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -94,10 +94,10 @@ char*
 pathprobe_20100601(const char* lang, const char* tool, const char* aproc, int op, char* path, size_t pathsize, char* attr, size_t attrsize)
 {
 	char*		proc = (char*)aproc;
-	register char*	p;
-	register char*	k;
-	register char*	x;
-	register char**	ap;
+	char*		p;
+	char*		k;
+	char*		x;
+	char**		ap;
 	int		n;
 	int		v;
 	int		force;
@@ -129,7 +129,7 @@ pathprobe_20100601(const char* lang, const char* tool, const char* aproc, int op
 			strncopy(buf, proc, p - proc + 1);
 			proc = buf;
 		}
-		if (!(proc = pathpath(proc, NiL, PATH_ABSOLUTE|PATH_REGULAR|PATH_EXECUTE, cmd, sizeof(cmd))))
+		if (!(proc = pathpath(proc, NULL, PATH_ABSOLUTE|PATH_REGULAR|PATH_EXECUTE, cmd, sizeof(cmd))))
 			proc = (char*)aproc;
 		else if (p)
 		{
@@ -217,7 +217,7 @@ pathprobe_20100601(const char* lang, const char* tool, const char* aproc, int op
 			 * verify (<sep><name><sep><option><sep><value>)* header
 			 */
 
-			if (sp = sfopen(NiL, path, "r"))
+			if (sp = sfopen(NULL, path, "r"))
 			{
 				if (x = sfgetr(sp, '\n', 1))
 				{
@@ -248,7 +248,7 @@ pathprobe_20100601(const char* lang, const char* tool, const char* aproc, int op
 								*ap = 0;
 								ops[0] =  PROC_FD_DUP(1, 2, 0);
 								ops[1] = 0;
-								if (pp = procopen(proc, arg, NiL, ops, PROC_READ))
+								if (pp = procopen(proc, arg, NULL, ops, PROC_READ))
 								{
 									if ((v = x - e) >= sizeof(ver))
 										v = sizeof(ver) - 1;

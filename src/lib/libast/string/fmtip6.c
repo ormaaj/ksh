@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -75,15 +75,15 @@ dec(char* s, char* p, int n)
 char*
 fmtip6(const unsigned char* addr, int bits)
 {
-	register const unsigned char*	a = addr;
-	register int			n = IP6ADDR;
-	register int			i;
-	register int			z;
-	register int			k;
-	register int			m;
-	unsigned char			r[IP6ADDR];
-	char*				b;
-	char*				s;
+	const unsigned char*	a = addr;
+	int			n = IP6ADDR;
+	int			i;
+	int			z;
+	int			k;
+	int			m;
+	unsigned char		r[IP6ADDR];
+	char*			b;
+	char*			s;
 
 	static const char	dig[] = "0123456789ABCDEF";
 

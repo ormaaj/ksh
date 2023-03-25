@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -175,15 +175,15 @@ int sfvprintf(Sfio_t*		f,		/* file to print to	*/
 	}
 	SFINIT(f);
 
-	tls[1] = NIL(char*);
+	tls[1] = NULL;
 
-	fmstk = NIL(Fmt_t*);
-	ft = NIL(Sffmt_t*);
+	fmstk = NULL;
+	ft = NULL;
 
 	oform = (char*)form;
 	va_copy(oargs,args);
 	argn = -1;
-	fp = NIL(Fmtpos_t*);
+	fp = NULL;
 
 loop_fmt :
 	SFMBCLR(&fmbs); /* clear multibyte states to parse the format string */
@@ -209,9 +209,9 @@ loop_fmt :
 #endif
 		size = width = precis = base = n_s = argp = -1;
 		ssp = _Sfdigits;
-		endep = ep = NIL(char*);
+		endep = ep = NULL;
 		endsp = sp = buf+(sizeof(buf)-1);
-		t_str = NIL(char*);
+		t_str = NULL;
 		n_str = dot = 0;
 
 	loop_flags:	/* LOOP FOR \0, %, FLAGS, WIDTH, PRECISION, BASE, TYPE */
@@ -231,7 +231,7 @@ loop_fmt :
 				{
 				case 0 :	/* not balanceable, retract */
 					form = t_str;
-					t_str = NIL(char*);
+					t_str = NULL;
 					n_str = 0;
 					goto loop_flags;
 				case LEFTP :	/* increasing nested level */
@@ -259,7 +259,7 @@ loop_fmt :
 						else if(ft && ft->extf )
 						{	FMTSET(ft, form,args,
 								LEFTP, 0, 0, 0,0,0,
-								NIL(char*),0);
+								NULL,0);
 							n = (*ft->extf)
 							      (f,(void*)&argv,ft);
 							if(n < 0)
@@ -365,7 +365,7 @@ loop_fmt :
 			if(fp)
 				v = fp[n].argv.i;
 			else if(ft && ft->extf)
-			{	FMTSET(ft, form,args, '.',dot, 0, 0,0,0, NIL(char*), 0);
+			{	FMTSET(ft, form,args, '.',dot, 0, 0,0,0, NULL, 0);
 				if((*ft->extf)(f, (void*)(&argv), ft) < 0)
 					goto pop_fmt;
 				fmt = ft->fmt;
@@ -423,7 +423,7 @@ loop_fmt :
 					size = fp[n].argv.i;
 				else if(ft && ft->extf)
 				{	FMTSET(ft, form,args, 'I',sizeof(int), 0, 0,0,0,
-						NIL(char*), 0);
+						NULL, 0);
 					if((*ft->extf)(f, (void*)(&argv), ft) < 0)
 						goto pop_fmt;
 					if(ft->flags&SFFMT_VALUE)
@@ -643,11 +643,11 @@ loop_fmt :
 					form = ft->form; SFMBCLR(ft->mbs);
 					va_copy(args,ft->args);
 					argn = -1;
-					fp = NIL(Fmtpos_t*);
+					fp = NULL;
 					oform = (char*)form;
 					va_copy(oargs,args);
 				}
-				else	fm->form = NIL(char*);
+				else	fm->form = NULL;
 
 				fm->eventf = ft->eventf;
 				fm->next = fmstk;
@@ -1374,12 +1374,12 @@ loop_fmt :
 pop_fmt:
 	if(fp)
 	{	free(fp);
-		fp = NIL(Fmtpos_t*);
+		fp = NULL;
 	}
 	while((fm = fmstk) ) /* pop the format stack and continue */
 	{	if(fm->eventf)
 		{	if(!form || !form[0])
-				(*fm->eventf)(f,SF_FINAL,NIL(void*),ft);
+				(*fm->eventf)(f,SF_FINAL,NULL,ft);
 			else if((*fm->eventf)(f,SF_DPOP,(void*)form,ft) < 0)
 				goto loop_fmt;
 		}
@@ -1404,7 +1404,7 @@ done:
 		free(fp);
 	while((fm = fmstk) )
 	{	if(fm->eventf)
-			(*fm->eventf)(f,SF_FINAL,NIL(void*),fm->ft);
+			(*fm->eventf)(f,SF_FINAL,NULL,fm->ft);
 		fmstk = fm->next;
 		free(fm);
 	}
@@ -1413,7 +1413,7 @@ done:
 
 	n = f->next - f->data;
 	if((sp = (char*)f->data) == data)
-		f->endw = f->endr = f->endb = f->data = NIL(uchar*);
+		f->endw = f->endr = f->endb = f->data = NULL;
 	f->next = f->data;
 
 	if((((flags = f->flags)&SF_SHARE) && !(flags&SF_PUBLIC) ) ||

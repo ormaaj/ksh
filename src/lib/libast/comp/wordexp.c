@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -37,15 +37,15 @@ struct list
  */
 static int	sh_unquote(char* string)
 {
-	register char *sp=string, *dp;
-	register int c;
+	char *sp=string, *dp;
+	int c;
 	while((c= *sp) && c!='\'')
 		sp++;
 	if(c==0)
-		return(sp-string);
+		return sp-string;
 	if((dp=sp) > string && sp[-1]=='$')
 	{
-		register int n=stresc(sp+1);
+		int n=stresc(sp+1);
 		/* copy all but trailing ' */
 		while(--n>0)
 			*dp++ = *++sp;
@@ -56,14 +56,14 @@ static int	sh_unquote(char* string)
 			*dp++ = c;
 	}
 	*dp=0;
-	return(dp-string);
+	return dp-string;
 }
 
-int	wordexp(const char *string, wordexp_t *wdarg, register int flags)
+int	wordexp(const char *string, wordexp_t *wdarg, int flags)
 {
-	register Sfio_t *iop;
-	register char *cp=(char*)string;
-	register int c,quoted=0,literal=0,ac=0;
+	Sfio_t *iop;
+	char *cp=(char*)string;
+	int c,quoted=0,literal=0,ac=0;
 	int offset;
 	char *savebase,**av;
 	if(offset=staktell())
@@ -120,7 +120,7 @@ int	wordexp(const char *string, wordexp_t *wdarg, register int flags)
 		stakputc(c);
 	}
 	stakputc(0);
-	if(!(iop = sfpopen((Sfio_t*)0,stakptr(0),"r")))
+	if(!(iop = sfpopen(NULL,stakptr(0),"r")))
 	{
 		c = WRDE_NOSHELL;
 		goto err;
@@ -159,7 +159,7 @@ int	wordexp(const char *string, wordexp_t *wdarg, register int flags)
 			av[0] = 0;
 	}
 	if(!av)
-		return(WRDE_NOSPACE);
+		return WRDE_NOSPACE;
 	c = staktell();
 	if(!(cp = (char*)malloc(sizeof(char*)+c)))
 	{
@@ -189,13 +189,13 @@ err:
 		stakset(savebase,offset);
 	else
 		stakseek(0);
-	return(c);
+	return c;
 }
 
 /*
  * free fields in <wdarg>
  */
-int wordfree(register wordexp_t *wdarg)
+int wordfree(wordexp_t *wdarg)
 {
 	struct list *arg, *argnext;
 	if(wdarg->we_wordv)
@@ -210,5 +210,5 @@ int wordfree(register wordexp_t *wdarg)
 		wdarg->we_wordv = 0;
 	}
 	wdarg->we_wordc=0;
-	return(0);
+	return 0;
 }

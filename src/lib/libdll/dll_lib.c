@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1997-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -131,12 +131,12 @@ dll_lib(Dllnames_t* names, unsigned long version, Dllerror_f dllerrorf, void* di
 	 * load
 	 */
 
-	if (!(dll = dllplugin(names->id, names->name, NiL, version, NiL, RTLD_LAZY, names->path, names->data + sizeof(names->data) - names->path)) && (streq(names->name, names->base) || !(dll = dllplugin(names->id, names->base, NiL, version, NiL, RTLD_LAZY, names->path, names->data + sizeof(names->data) - names->path))))
+	if (!(dll = dllplugin(names->id, names->name, NULL, version, NULL, RTLD_LAZY, names->path, names->data + sizeof(names->data) - names->path)) && (streq(names->name, names->base) || !(dll = dllplugin(names->id, names->base, NULL, version, NULL, RTLD_LAZY, names->path, names->data + sizeof(names->data) - names->path))))
 	{
 		if (dllerrorf)
-			(*dllerrorf)(NiL, disc, 2, "%s: library not found", names->name);
+			(*dllerrorf)(NULL, disc, 2, "%s: library not found", names->name);
 		else
-			errorf("dll", NiL, -1, "dll_lib: %s version %lu library not found", names->name, version);
+			errorf("dll", NULL, -1, "dll_lib: %s version %lu library not found", names->name, version);
 		return 0;
 	}
 
@@ -148,9 +148,9 @@ dll_lib(Dllnames_t* names, unsigned long version, Dllerror_f dllerrorf, void* di
 	if (!(libf = (Dll_lib_f)dlllook(dll, sym)))
 	{
 		if (dllerrorf)
-			(*dllerrorf)(NiL, disc, 2, "%s: %s: initialization function not found in library", names->path, sym);
+			(*dllerrorf)(NULL, disc, 2, "%s: %s: initialization function not found in library", names->path, sym);
 		else
-			errorf("dll", NiL, -1, "dll_lib: %s version %lu initialization function %s not found in library", names->name, version, sym);
+			errorf("dll", NULL, -1, "dll_lib: %s version %lu initialization function %s not found in library", names->name, version, sym);
 		return 0;
 	}
 
@@ -165,7 +165,7 @@ dll_lib(Dllnames_t* names, unsigned long version, Dllerror_f dllerrorf, void* di
 		strcpy(lib->path = lib->base + n + 1, names->path);
 		lib->next = loaded;
 		loaded = lib;
-		errorf("dll", NiL, -1, "dll_lib: %s version %lu loaded from %s", names->name, version, lib->path);
+		errorf("dll", NULL, -1, "dll_lib: %s version %lu loaded from %s", names->name, version, lib->path);
 	}
  init:
 	return (*libf)(names->path, disc, names->type);

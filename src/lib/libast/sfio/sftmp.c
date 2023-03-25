@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -60,7 +60,7 @@ static File_t*	File;		/* list pf temp files	*/
 
 static int _tmprmfile(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 {
-	reg File_t	*ff, *last;
+	File_t	*ff, *last;
 
 	NOT_USED(val);
 
@@ -69,7 +69,7 @@ static int _tmprmfile(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 
 	if(type == SF_CLOSING)
 	{
-		for(last = NIL(File_t*), ff = File; ff; last = ff, ff = ff->next)
+		for(last = NULL, ff = File; ff; last = ff, ff = ff->next)
 			if(ff->f == f)
 				break;
 		if(ff)
@@ -92,23 +92,23 @@ static int _tmprmfile(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 }
 
 static void _rmfiles(void)
-{	reg File_t	*ff, *next;
+{	File_t	*ff, *next;
 
 	for(ff = File; ff; ff = next)
 	{	next = ff->next;
-		_tmprmfile(ff->f, SF_CLOSING, NIL(void*), ff->f->disc);
+		_tmprmfile(ff->f, SF_CLOSING, NULL, ff->f->disc);
 	}
 }
 
 static Sfdisc_t	Rmdisc =
-	{ NIL(Sfread_f), NIL(Sfwrite_f), NIL(Sfseek_f), _tmprmfile, NIL(Sfdisc_t*) };
+	{ NULL, NULL, NULL, _tmprmfile, NULL };
 
 #endif /*_tmp_rmfail*/
 
 static int _rmtmp(Sfio_t* f, char* file)
 {
 #if _tmp_rmfail	/* remove only when stream is closed */
-	reg File_t*	ff;
+	File_t*	ff;
 
 	if(!File)
 		atexit(_rmfiles);
@@ -133,11 +133,11 @@ static int _rmtmp(Sfio_t* f, char* file)
 static char	**Tmppath, **Tmpcur;
 
 char** _sfgetpath(char* path)
-{	reg char	*p, **dirs;
-	reg int		n;
+{	char	*p, **dirs;
+	int	n;
 
 	if(!(path = getenv(path)) )
-		return NIL(char**);
+		return NULL;
 
 	for(p = path, n = 0;;)	/* count number of directories */
 	{	while(*p == ':')
@@ -149,10 +149,10 @@ char** _sfgetpath(char* path)
 			++p;
 	}
 	if(n == 0 || !(dirs = (char**)malloc((n+1)*sizeof(char*))) )
-		return NIL(char**);
+		return NULL;
 	if(!(p = strdup(path)) )
 	{	free(dirs);
-		return NIL(char**);
+		return NULL;
 	}
 	for(n = 0;; ++n)
 	{	while(*p == ':')
@@ -165,7 +165,7 @@ char** _sfgetpath(char* path)
 		if(*p == ':')
 			*p++ = 0;
 	}
-	dirs[n] = NIL(char*);
+	dirs[n] = NULL;
 
 	return dirs;
 }
@@ -174,8 +174,8 @@ char** _sfgetpath(char* path)
 
 static int _tmpfd(Sfio_t* f)
 {
-	reg char*	file;
-	int		fd;
+	char*	file;
+	int	fd;
 
 #if _PACKAGE_ast
 # if defined(__linux__) && _lib_statfs
@@ -189,18 +189,18 @@ static int _tmpfd(Sfio_t* f)
 	{
 		struct statfs fs;
 		if (statfs(shm, &fs) < 0 || fs.f_type != TMPFS_MAGIC || eaccess(shm, W_OK|X_OK))
-			shm = NiL;
+			shm = NULL;
 		doshm++;
 	}
-	if(!(file = pathtemp(NiL,PATH_MAX,shm,"sf",&fd)))
+	if(!(file = pathtemp(NULL,PATH_MAX,shm,"sf",&fd)))
 # else
-	if(!(file = pathtemp(NiL,PATH_MAX,NiL,"sf",&fd)))
+	if(!(file = pathtemp(NULL,PATH_MAX,NULL,"sf",&fd)))
 # endif
 		return -1;
 	_rmtmp(f, file);
 	free(file);
 #else
-	int		t;
+	int	t;
 
 	/* set up path of dirs to create temp files */
 	if(!Tmppath && !(Tmppath = _sfgetpath("TMPPATH")) )
@@ -210,10 +210,10 @@ static int _tmpfd(Sfio_t* f)
 			file = TMPDFLT;
 		if(!(Tmppath[0] = strdup(file)) )
 		{	free(Tmppath);
-			Tmppath = NIL(char**);
+			Tmppath = NULL;
 			return -1;
 		}
-		Tmppath[1] = NIL(char*);
+		Tmppath[1] = NULL;
 	}
 
 	/* set current directory to create this temp file */
@@ -227,8 +227,8 @@ static int _tmpfd(Sfio_t* f)
 	{	/* compute a random name */
 		static ulong	Key, A;
 		if(A == 0 || t > 0)	/* get a quasi-random coefficient */
-		{	reg int	r;
-			A = (ulong)time(NIL(time_t*)) ^ (((ulong)(&t)) >> 3);
+		{	int	r;
+			A = (ulong)time(NULL) ^ (((ulong)(&t)) >> 3);
 			if(Key == 0)
 				Key = (A >> 16) | ((A&0xffff)<<16);
 			A ^= Key;
@@ -270,8 +270,8 @@ static int _tmpfd(Sfio_t* f)
 
 static int _tmpexcept(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 {
-	reg int		fd, m;
-	reg Sfio_t*	sf;
+	int		fd, m;
+	Sfio_t*		sf;
 	Sfio_t		newf, savf;
 	Sfnotify_f	notify = _Sfnotify;
 
@@ -293,7 +293,7 @@ static int _tmpexcept(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 	/* make sure that the notify function won't be called here since
 	   we are only interested in creating the file, not the stream */
 	_Sfnotify = 0;
-	sf = sfnew(&newf,NIL(void*),(size_t)SF_UNBOUND,fd,SF_READ|SF_WRITE);
+	sf = sfnew(&newf,NULL,(size_t)SF_UNBOUND,fd,SF_READ|SF_WRITE);
 	_Sfnotify = notify;
 	if(!sf)
 		return -1;
@@ -328,12 +328,12 @@ static int _tmpexcept(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 	}
 
 	/* announce change of status */
-	f->disc = NIL(Sfdisc_t*);
+	f->disc = NULL;
 	if(_Sfnotify)
 		(*_Sfnotify)(f, SF_SETFD, (void*)((long)f->file));
 
 	/* erase all traces of newf */
-	newf.data = newf.endb = newf.endr = newf.endw = NIL(uchar*);
+	newf.data = newf.endb = newf.endr = newf.endw = NULL;
 	newf.file = -1;
 	_Sfnotify = 0;
 	sfclose(&newf);
@@ -348,31 +348,31 @@ Sfio_t* sftmp(size_t s)
 	int		rv;
 	Sfnotify_f	notify = _Sfnotify;
 	static Sfdisc_t	Tmpdisc = 
-			{ NIL(Sfread_f), NIL(Sfwrite_f), NIL(Sfseek_f), _tmpexcept,
+			{ NULL, NULL, NULL, _tmpexcept,
 #if _tmp_rmfail	
 			  &Rmdisc
 #else
-			NIL(Sfdisc_t*)
+			NULL
 #endif
 			};
 
 	/* start with a memory resident stream */
 	_Sfnotify = 0; /* local computation so no notification */
-	f = sfnew(NIL(Sfio_t*),NIL(char*),s,-1,SF_STRING|SF_READ|SF_WRITE);
+	f = sfnew(NULL,NULL,s,-1,SF_STRING|SF_READ|SF_WRITE);
 	_Sfnotify = notify;
 	if(!f)
-		return NIL(Sfio_t*);
+		return NULL;
 
 	if(s != (size_t)SF_UNBOUND)	/* set up a discipline for out-of-bound, etc. */
 		f->disc = &Tmpdisc;
 
 	if(s == 0) /* make the file now */
 	{	_Sfnotify = 0; /* local computation so no notification */
-		rv =  _tmpexcept(f,SF_DPOP,NIL(void*),f->disc);
+		rv =  _tmpexcept(f,SF_DPOP,NULL,f->disc);
 		_Sfnotify = notify;
 		if(rv < 0)
 		{	sfclose(f);
-			return NIL(Sfio_t*);
+			return NULL;
 		}
 	}
 

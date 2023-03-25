@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -42,10 +42,10 @@ strchr(const char* s, int c)
 #else
 
 char*
-strchr(register const char* s, register int c)
+strchr(const char* s, int c)
 {
 	do if (*s == c) return((char*)s); while(*s++);
-	return(0);
+	return 0;
 }
 
 #endif

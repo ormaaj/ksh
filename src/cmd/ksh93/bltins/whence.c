@@ -49,9 +49,9 @@ static int whence(char**, int);
  * In this case return 0 when -v or -V or unknown option, otherwise
  *   the shift count to the command is returned
  */
-int	b_command(register int argc,char *argv[],Shbltin_t *context)
+int	b_command(int argc,char *argv[],Shbltin_t *context)
 {
-	register int n, flags=0;
+	int n, flags=0;
 	opt_info.index = opt_info.offset = 0;
 	while((n = optget(argv,sh_optcommand))) switch(n)
 	{
@@ -74,12 +74,12 @@ int	b_command(register int argc,char *argv[],Shbltin_t *context)
 		break;
 	    case ':':
 		if(argc==0)
-			return(0);
+			return 0;
 		errormsg(SH_DICT,2, "%s", opt_info.arg);
 		break;
 	    case '?':
 		if(argc==0)
-			return(0);
+			return 0;
 		errormsg(SH_DICT,ERROR_usage(2), "%s", opt_info.arg);
 		UNREACHABLE();
 	}
@@ -87,14 +87,14 @@ int	b_command(register int argc,char *argv[],Shbltin_t *context)
 	if(argc==0)
 	{
 		if((flags & (X_FLAG|V_FLAG)) || !*argv)
-			return(0);	/* return no offset now; sh_exec() will treat command -v/-V/(null) as normal builtin */
+			return 0;	/* return no offset now; sh_exec() will treat command -v/-V/(null) as normal builtin */
 		if(flags & P_FLAG)
 			sh_onstate(SH_XARG);
-		return(opt_info.index); /* offset for sh_exec() to remove 'command' prefix + options */
+		return opt_info.index; /* offset for sh_exec() to remove 'command' prefix + options */
 	}
 	if(error_info.errors)
 	{
-		errormsg(SH_DICT,ERROR_usage(2),"%s", optusage((char*)0));
+		errormsg(SH_DICT,ERROR_usage(2),"%s", optusage(NULL));
 		UNREACHABLE();
 	}
 	if(!*argv)
@@ -109,7 +109,7 @@ int	b_command(register int argc,char *argv[],Shbltin_t *context)
  */
 int	b_whence(int argc,char *argv[],Shbltin_t *context)
 {
-	register int flags=0, n;
+	int flags=0, n;
 	NOT_USED(argc);
 	if(*argv[0]=='t')
 		flags = V_FLAG;  /* <t>ype == whence -v */
@@ -145,19 +145,19 @@ int	b_whence(int argc,char *argv[],Shbltin_t *context)
 	argv += opt_info.index;
 	if(error_info.errors || !*argv)
 	{
-		errormsg(SH_DICT,ERROR_usage(2),optusage((char*)0));
+		errormsg(SH_DICT,ERROR_usage(2),optusage(NULL));
 		UNREACHABLE();
 	}
 	return(whence(argv, flags));
 }
 
-static int whence(char **argv, register int flags)
+static int whence(char **argv, int flags)
 {
-	register const char *name;
-	register Namval_t *np;
-	register const char *cp;
-	register int aflag, ret = 0;
-	register const char *msg;
+	const char *name;
+	Namval_t *np;
+	const char *cp;
+	int aflag, ret = 0;
+	const char *msg;
 	Namval_t *nq;
 	char *notused;
 	Pathcomp_t *pp;
@@ -280,7 +280,7 @@ static int whence(char **argv, register int flags)
 			{
 				/* Since -q ignores -a, return on the first non-match */
 				if(!cp)
-					return(1);
+					return 1;
 			}
 			else if(maybe_undef_fn)
 			{
@@ -347,5 +347,5 @@ static int whence(char **argv, register int flags)
 				pp = 0;
 		} while(pp);
 	}
-	return(ret);
+	return ret;
 }

@@ -27,7 +27,7 @@
 #include "proclib.h"
 
 int
-procclose(register Proc_t* p)
+procclose(Proc_t* p)
 {
 	int	pid;
 	int	flags = 0;
@@ -68,7 +68,7 @@ procclose(register Proc_t* p)
 				if (p->sigquit != SIG_IGN)
 					signal(SIGQUIT, p->sigquit);
 #if _lib_sigprocmask
-				sigprocmask(SIG_SETMASK, &p->mask, NiL);
+				sigprocmask(SIG_SETMASK, &p->mask, NULL);
 #elif _lib_sigsetmask
 				sigsetmask(p->mask);
 #else

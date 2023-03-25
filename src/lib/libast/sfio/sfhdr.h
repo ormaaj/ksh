@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -204,7 +204,7 @@
 #define SFMBCLR(mb)		memset((mb), 0,  sizeof(mbstate_t))
 #define SFMBSET(lhs,v)		(lhs = (v))
 #define SFMBDCL(mb)		mbstate_t mb;
-#define SFMBLEN(s,mb)		mbrtowc(NIL(wchar_t*), (s), SFMBMAX, (mb) )
+#define SFMBLEN(s,mb)		mbrtowc(NULL, (s), SFMBMAX, (mb) )
 #endif /*_hdr_wchar && _typ_mbstate_t && _lib_wcrtomb && _lib_mbrtowc*/
 
 #if !_has_multibyte && _hdr_wchar && _lib_mbtowc && _lib_wctomb
@@ -218,7 +218,7 @@
 #define SFMBCLR(mb)
 #define SFMBSET(lhs,v)
 #define SFMBDCL(mb)
-#define SFMBLEN(s,mb)		mbrtowc(NIL(wchar_t*), (s), SFMBMAX, (mb) )
+#define SFMBLEN(s,mb)		mbrtowc(NULL, (s), SFMBMAX, (mb) )
 #endif /*!_has_multibyte && _hdr_wchar && _lib_mbtowc && _lib_wctomb*/
 
 #ifdef MB_CUR_MAX
@@ -344,8 +344,8 @@
 #endif
 
 /* shorthands */
-#define NIL(t)		((t)0)
-#define reg		register
+#define NIL(t)		NULL		/* for backward compatibility */
+#define reg		/* empty */	/* for backward compatibility (was 'register') */
 #ifndef uchar
 #define uchar		unsigned char
 #endif
@@ -654,7 +654,7 @@ typedef struct _sfextern_s
 
 #define SFMUNMAP(f,a,s)		(munmap((caddr_t)(a),(size_t)(s)), \
 				 ((f)->endb = (f)->endr = (f)->endw = (f)->next = \
-				  (f)->data = NIL(uchar*)) )
+				  (f)->data = NULL) )
 
 /* safe closing function */
 #define CLOSE(f)	{ while(close(f) < 0 && errno == EINTR) errno = 0; }

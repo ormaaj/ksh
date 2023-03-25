@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -24,11 +24,11 @@
 **	Written by Kiem-Phong Vo (06/27/90).
 */
 
-extern ssize_t sfpeek(reg Sfio_t*	f,	/* file to peek */
+extern ssize_t sfpeek(Sfio_t*	f,	/* file to peek */
 		      void**		bp,	/* start of data area */
-		      reg size_t	size)	/* size of peek */
-{	reg ssize_t	n, sz;
-	reg int		mode;
+		      size_t	size)	/* size of peek */
+{	ssize_t	n, sz;
+	int	mode;
 
 	/* query for the extent of the remainder of the buffer */
 	if((sz = size) == 0 || !bp)

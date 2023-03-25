@@ -114,10 +114,10 @@ static char*		findnames[] =
  */
 
 char*
-typefix(char* buf, size_t n, register const char* t)
+typefix(char* buf, size_t n, const char* t)
 {
-	register int	c;
-	register char*	b = buf;
+	int	c;
+	char*	b = buf;
 
 	if ((*t == 'x' || *t == 'X') && *(t + 1) == '-')
 		t += 2;
@@ -139,22 +139,22 @@ typefix(char* buf, size_t n, register const char* t)
 Find_t*
 findopen(const char* file, const char* pattern, const char* type, Finddisc_t* disc)
 {
-	register Find_t*	fp;
-	register char*		p;
-	register char*		s;
-	register char*		b;
-	register int		i; 
-	register int		j;
-	char*			path;
-	int			brace = 0;
-	int			paren = 0;
-	int			k;
-	int			q;
-	int			fd;
-	int			uid;
-	Vmalloc_t*		vm;
-	Type_t*			tp;
-	struct stat		st;
+	Find_t*		fp;
+	char*		p;
+	char*		s;
+	char*		b;
+	int		i; 
+	int		j;
+	char*		path;
+	int		brace = 0;
+	int		paren = 0;
+	int		k;
+	int		q;
+	int		fd;
+	int		uid;
+	Vmalloc_t*	vm;
+	Type_t*		tp;
+	struct stat	st;
 
 
 	if (!(vm = vmopen(Vmdcheap, Vmbest, 0)))
@@ -301,7 +301,7 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 			}
 			if (s)
 				*s = '/';
-			if (!(fp->fp = sfnew(NiL, NiL, (size_t)SF_UNBOUND, fd, SF_WRITE)))
+			if (!(fp->fp = sfnew(NULL, NULL, (size_t)SF_UNBOUND, fd, SF_WRITE)))
 			{
 				if (fp->disc->errorf)
 					(*fp->disc->errorf)(fp, fp->disc, ERROR_SYSTEM|2, "%s: cannot open tmp file", fp->encode.temp);
@@ -378,7 +378,7 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 							for (k = 0; k < elementsof(findnames); k++)
 							{
 								sfsprintf(fp->decode.path, sizeof(fp->decode.path), "%s/%s", path, findnames[k]);
-								if (fp->fp = sfopen(NiL, fp->decode.path, "r"))
+								if (fp->fp = sfopen(NULL, fp->decode.path, "r"))
 								{
 									path = fp->decode.path;
 									break;
@@ -387,11 +387,11 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 							if (fp->fp)
 								break;
 						}
-						else if (fp->fp = sfopen(NiL, path, "r"))
+						else if (fp->fp = sfopen(NULL, path, "r"))
 							break;
 					}
 				}
-				else if ((path = pathpath(path, "", PATH_REGULAR|PATH_READ, fp->decode.path, sizeof(fp->decode.path))) && (fp->fp = sfopen(NiL, path, "r")))
+				else if ((path = pathpath(path, "", PATH_REGULAR|PATH_READ, fp->decode.path, sizeof(fp->decode.path))) && (fp->fp = sfopen(NULL, path, "r")))
 					break;
 			}
 		if (!fp->fp)
@@ -675,20 +675,20 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
  */
 
 char*
-findread(register Find_t* fp)
+findread(Find_t* fp)
 {
-	register char*		p;
-	register char*		q;
-	register char*		s;
-	register char*		b;
-	register char*		e;
-	register int		c;
-	register int		n;
-	register int		m;
-	int			ignorecase;
-	int			t;
-	unsigned char		w[4];
-	struct stat		st;
+	char*		p;
+	char*		q;
+	char*		s;
+	char*		b;
+	char*		e;
+	int		c;
+	int		n;
+	int		m;
+	int		ignorecase;
+	int		t;
+	unsigned char	w[4];
+	struct stat	st;
 
 	if (fp->generate)
 		return 0;
@@ -884,7 +884,7 @@ findread(register Find_t* fp)
 						if (!*e)
 						{
 							fp->decode.found = 1;
-							if (!fp->decode.match || strgrpmatch(fp->decode.path, fp->decode.pattern, NiL, 0, STR_MAXIMAL|STR_LEFT|STR_RIGHT|ignorecase))
+							if (!fp->decode.match || strgrpmatch(fp->decode.path, fp->decode.pattern, NULL, 0, STR_MAXIMAL|STR_LEFT|STR_RIGHT|ignorecase))
 							{
 								fp->decode.peek = c;
 								if (*p == '/')
@@ -896,7 +896,7 @@ findread(register Find_t* fp)
 						}
 					}
 			}
-			else if (!fp->decode.match || !(n = regexec(&fp->decode.re, fp->decode.path, 0, NiL, 0)))
+			else if (!fp->decode.match || !(n = regexec(&fp->decode.re, fp->decode.path, 0, NULL, 0)))
 			{
 				fp->decode.peek = c;
 				if (*p == '/' && p > fp->decode.path)
@@ -923,15 +923,15 @@ findread(register Find_t* fp)
  */
 
 int
-findwrite(register Find_t* fp, const char* path, size_t len, const char* type)
+findwrite(Find_t* fp, const char* path, size_t len, const char* type)
 {
-	register unsigned char*	s;
-	register unsigned char*	e;
-	register unsigned char*	p;
-	register int		n;
-	register int		d;
-	register Type_t*	x;
-	register unsigned long	u;
+	unsigned char*	s;
+	unsigned char*	e;
+	unsigned char*	p;
+	int		n;
+	int		d;
+	Type_t*		x;
+	unsigned long	u;
 
 	if (!fp->generate)
 		return -1;
@@ -1029,7 +1029,7 @@ findwrite(register Find_t* fp, const char* path, size_t len, const char* type)
  */
 
 static int
-finddone(register Find_t* fp)
+finddone(Find_t* fp)
 {
 	int	r;
 
@@ -1061,17 +1061,17 @@ finddone(register Find_t* fp)
  */
 
 static int
-findsync(register Find_t* fp)
+findsync(Find_t* fp)
 {
-	register char*		s;
-	register int		n;
-	register int		m;
-	register int		d;
-	register Type_t*	x;
-	char*			t;
-	int			b;
-	long			z;
-	Sfio_t*			sp;
+	char*		s;
+	int		n;
+	int		m;
+	int		d;
+	Type_t*		x;
+	char*		t;
+	int		b;
+	long		z;
+	Sfio_t*		sp;
 
 	switch (fp->method)
 	{
@@ -1130,13 +1130,13 @@ findsync(register Find_t* fp)
 		 * commit the real file 
 		 */
 
-		if (sfseek(fp->fp, (Sfoff_t)0, SEEK_SET))
+		if (sfseek(fp->fp, 0, SEEK_SET))
 		{
 			if (fp->disc->errorf)
 				(*fp->disc->errorf)(fp, fp->disc, ERROR_SYSTEM|2, "cannot rewind tmp file");
 			return -1;
 		}
-		if (!(sp = sfopen(NiL, fp->encode.file, "w")))
+		if (!(sp = sfopen(NULL, fp->encode.file, "w")))
 			goto badcreate;
 
 		/*
@@ -1187,7 +1187,7 @@ findsync(register Find_t* fp)
 	case FF_typ:
 		if (finddone(fp))
 			goto bad;
-		if (!(fp->fp = sfopen(NiL, fp->encode.temp, "r")))
+		if (!(fp->fp = sfopen(NULL, fp->encode.temp, "r")))
 		{
 			if (fp->disc->errorf)
 				(*fp->disc->errorf)(fp, fp->disc, ERROR_SYSTEM|2, "%s: cannot read tmp file", fp->encode.temp);
@@ -1199,7 +1199,7 @@ findsync(register Find_t* fp)
 		 * commit the output file
 		 */
 
-		if (!(sp = sfopen(NiL, fp->encode.file, "w")))
+		if (!(sp = sfopen(NULL, fp->encode.file, "w")))
 			goto badcreate;
 
 		/*
@@ -1254,7 +1254,7 @@ findsync(register Find_t* fp)
  */
 
 int
-findclose(register Find_t* fp)
+findclose(Find_t* fp)
 {
 	int	n = 0;
 

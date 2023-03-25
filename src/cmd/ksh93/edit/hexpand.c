@@ -756,7 +756,7 @@ done:
 	if(tmp2)
 		sfclose(tmp2);
 
-	return (flag & HIST_ERROR ? HIST_ERROR : flag & HIST_FLAG_RETURN_MASK);
+	return flag & HIST_ERROR ? HIST_ERROR : flag & HIST_FLAG_RETURN_MASK;
 }
 
 #endif /* !SHOPT_HISTEXPAND */

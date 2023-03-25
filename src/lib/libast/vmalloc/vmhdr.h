@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -82,10 +82,6 @@ typedef struct _block_s	Block_t;
 typedef struct _seg_s	Seg_t;
 typedef struct _pfobj_s	Pfobj_t;
 
-#define NIL(t)		((t)0)
-#define reg		register
-
-
 /* convert an address to an integral value */
 #define VLONG(addr)	((Vmulong_t)((Vmuchar_t*)((Vmulong_t)addr) - (Vmuchar_t*)0) )
 
@@ -159,7 +155,7 @@ extern void		_vmmessage(const char*, long, const char*, long);
 #define SETJUNK(w)	((w) |= JUNK)
 #define CLRJUNK(w)	((w) &= ~JUNK)
 
-#define OFFSET(t,e)	((size_t)(&(((t*)0)->e)) )
+#define OFFSET(t,e)	((size_t)(&((NULL)->e)) )
 
 #define VMETHOD(vd)	((vd)->mode&VM_METHODS)
 
@@ -334,7 +330,7 @@ struct _seg_s
 #define SETLINK(b)	(RIGHT(b) =  (b) )
 #define ISLINK(b)	(RIGHT(b) == (b) )
 #define UNLINK(vd,b,i,t) \
-		((((t) = LINK(b)) ? (LEFT(t) = LEFT(b)) : NIL(Block_t*) ), \
+		((((t) = LINK(b)) ? (LEFT(t) = LEFT(b)) : NULL ), \
 		 (((t) = LEFT(b)) ? (LINK(t) = LINK(b)) : (TINY(vd)[i] = LINK(b)) ) )
 
 /* delete a block from a link list or the free tree.
@@ -354,9 +350,9 @@ struct _seg_s
 #define SEGWILD(b)	(((b)->body.data+SIZE(b)+sizeof(Head_t)) >= SEG(b)->baddr)
 #define VMWILD(vd,b)	(((b)->body.data+SIZE(b)+sizeof(Head_t)) >= vd->seg->baddr)
 
-#define VMFLF(vm,fi,ln,fn)	((fi) = (vm)->file, (vm)->file = NIL(char*), \
+#define VMFLF(vm,fi,ln,fn)	((fi) = (vm)->file, (vm)->file = NULL, \
 		 		 (ln) = (vm)->line, (vm)->line = 0 , \
-		 		 (fn) = (vm)->func, (vm)->func = NIL(void*) )
+		 		 (fn) = (vm)->func, (vm)->func = NULL )
 
 /* The lay-out of a Vmprofile block is this:
 **	seg_ size ----data---- _pf_ size

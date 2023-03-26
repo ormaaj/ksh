@@ -905,9 +905,9 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 				if(sh.bltinfun==b_printf && sh_isoption(SH_POSIX))
 				{
 					/* POSIX requires evaluating a number here, not an arithmetic expression */
-					d = (Sfdouble_t)strtoll(*pp->nextarg,&lastchar,0);
+					d = (Sfdouble_t)strtoll(argp,&lastchar,0);
 					if(*lastchar)
-						errormsg(SH_DICT,ERROR_exit(0),e_number,*pp->nextarg);
+						errormsg(SH_DICT,ERROR_exit(0),e_number,argp);
 				}
 				else
 					d = sh_strnum(argp,&lastchar,0);
@@ -924,7 +924,7 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 					d = longmax;
 				}
 				value->ll = (Sflong_t)d;
-				if(lastchar == *pp->nextarg)
+				if(lastchar == argp)
 				{
 					value->ll = *argp;
 					lastchar = "";
@@ -956,12 +956,12 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 				if(sh.bltinfun==b_printf && sh_isoption(SH_POSIX))
 				{
 					/* POSIX requires evaluating a number here, not an arithmetic expression */
-					d = strtold(*pp->nextarg,&lastchar);
+					d = strtold(argp,&lastchar);
 					if(*lastchar)
-						errormsg(SH_DICT,ERROR_exit(0),e_number,*pp->nextarg);
+						errormsg(SH_DICT,ERROR_exit(0),e_number,argp);
 				}
 				else
-					d = sh_strnum(*pp->nextarg,&lastchar,0);
+					d = sh_strnum(argp,&lastchar,0);
 				break;
 			}
                         if(SFFMT_LDOUBLE)
@@ -976,10 +976,10 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 			}
 			break;
 		case 'Q':
-			value->ll = (Sflong_t)strelapsed(*pp->nextarg,&lastchar,1);
+			value->ll = (Sflong_t)strelapsed(argp,&lastchar,1);
 			break;
 		case 'T':
-			value->ll = (Sflong_t)tmxdate(*pp->nextarg,&lastchar,TMX_NOW);
+			value->ll = (Sflong_t)tmxdate(argp,&lastchar,TMX_NOW);
 			break;
 		default:
 			value->ll = 0;

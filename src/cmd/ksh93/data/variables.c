@@ -19,7 +19,6 @@
 
 #include	"shopt.h"
 #include	<ast.h>
-#include	"FEATURE/options"
 #include	"FEATURE/dynamic"
 #include	<shell.h>
 #include	"shtable.h"

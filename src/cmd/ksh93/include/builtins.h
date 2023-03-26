@@ -20,7 +20,6 @@
 #define __builtins_h_defined
 
 #include	<option.h>
-#include	"FEATURE/options"
 #include	"FEATURE/dynamic"
 #include	"shtable.h"
 

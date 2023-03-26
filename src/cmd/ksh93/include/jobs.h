@@ -30,7 +30,6 @@
 #ifndef SIGINT
 #   include	<signal.h>
 #endif /* !SIGINT */
-#include	"FEATURE/options"
 #include	<aso.h>
 #include	"terminal.h"
 

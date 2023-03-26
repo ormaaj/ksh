@@ -20,42 +20,78 @@ setv LDFLAGS
 setv SH_DICT \"libshell\"
 make install
 	make ksh
+		bind -ldll
+		bind -lcmd
+		bind -last
+		bind -lm dontcare
+		bind -lnsl dontcare
 		make shopt.h implicit
-			make SHOPT.sh implicit
+			make FEATURE/options implicit
+				make features/options
+				done features/options
+				exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/options
+			done FEATURE/options dontcare generated
+			make SHOPT.sh
 			done SHOPT.sh
 			note * the SHOPT.sh file calls the SHOPT function once for each option
 			exec -	set +v +x
+			exec -
+			exec -	writedef()
+			exec -	{
+			exec -		echo "${3:-#ifndef SHOPT_$1}"
+			exec -		echo "#   define SHOPT_$1	$2"
+			exec -		echo "#endif"
+			exec -		echo
+			exec -	}
+			exec -
 			exec -	SHOPT()
 			exec -	{
 			exec -		n=${1%%=*}	# name
 			exec -		v=${1#*=}	# value
+			exec -		# probe certain options if they don't have a value configured
 			exec -		case $1 in
 			exec -		'MULTIBYTE=')
-			exec -			echo
-			exec -			echo '#if !defined(SHOPT_MULTIBYTE) && !AST_NOMULTIBYTE'
-			exec -			echo '#define SHOPT_MULTIBYTE	1'
-			exec -			echo '#endif'
-			exec -			;;
-			exec -		*=?*)	echo
-			exec -			echo "#ifndef SHOPT_$n"
-			exec -			echo "#define SHOPT_$n	$v"
-			exec -			echo "#endif"
-			exec -			;;
+			exec -			# by default, SHOPT_MULTIBYTE is the opposite of AST_NOMULTIBYE
+			exec -			writedef MULTIBYTE 1 '#if !defined(SHOPT_MULTIBYTE) && !AST_NOMULTIBYTE' ;;
+			exec -		'DEVFD=')
+			exec -			# if /dev/fd/n exposes file descriptor n, make SHOPT_DEVFD use this for
+			exec -			# process substitutions instead of FIFOs, which are not as secure
+			exec -			test -e /dev/fd/9 9<&0 && test ! -e /dev/fd/9 9<&- && writedef DEVFD 1 ;;
+			exec -		'TEST_L=')
+			exec -			# if external 'test' supports lowercase -l as equivalent to -L, enable
+			exec -			# SHOPT_TEST_L so ksh supports it for compatibility with local scripts
+			exec -			ln -s /dev/null "$EXECROOT/link$$"
+			exec -			if	env test -l "$EXECROOT/link$$" && env test ! -l .
+			exec -			then	writedef TEST_L 1
+			exec -			fi 2>/dev/null
+			exec -			rm -f "$EXECROOT/link$$" ;;
+			exec -		'SYSRC=')
+			exec -			# if one of these exists, make SHOPT_SYSRC load /etc/ksh.kshrc by default
+			exec -			if	test -f /etc/ksh.kshrc || test -f /etc/bash.bashrc
+			exec -			then	writedef SYSRC 1
+			exec -			fi ;;
+			exec -		# some other SHOPTs may be probed for using feature tests in features/options
+			exec -		*=?*)
+			exec -			writedef "$n" "$v" ;;
 			exec -		esac
 			exec -		echo "* SHOPT_$n = ${v:-(probe)}" >&2  # show in make.out
 			exec -	}
+			exec -
 			exec -	exec >shopt.h
 			exec -	echo '/* Generated from ksh93/SHOPT.sh by ksh93/Mamfile */'
+			exec -	echo
+			exec -	echo '#include "FEATURE/options"'
+			exec -	echo
 			exec -	. "$PACKAGEROOT/src/cmd/ksh93/SHOPT.sh"
 			exec -	cat <<-EOF
 			exec -		/* overrides */
 			exec -		#if SHOPT_SCRIPTONLY
-			exec -		#undef SHOPT_ACCT
-			exec -		#undef SHOPT_AUDIT
-			exec -		#undef SHOPT_ESH
-			exec -		#undef SHOPT_HISTEXPAND
-			exec -		#undef SHOPT_SYSRC
-			exec -		#undef SHOPT_VSH
+			exec -		#   undef SHOPT_ACCT
+			exec -		#   undef SHOPT_AUDIT
+			exec -		#   undef SHOPT_ESH
+			exec -		#   undef SHOPT_HISTEXPAND
+			exec -		#   undef SHOPT_SYSRC
+			exec -		#   undef SHOPT_VSH
 			exec -		#endif
 			exec -	EOF
 		done shopt.h generated
@@ -96,11 +132,6 @@ make install
 					exec - done
 					exec - } > shell.req
 					exec - rm -f 1.${COTEMP}.*
-					bind -ldll
-					bind -lcmd
-					bind -last
-					bind -lm dontcare
-					bind -lnsl dontcare
 					exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/externs
 				done FEATURE/externs generated
 				make include/shell.h implicit
@@ -251,12 +282,10 @@ make install
 								prev ${PACKAGE_ast_INCLUDE}/stak.h implicit
 							done include/argnod.h dontcare
 							prev ${PACKAGE_ast_INCLUDE}/cdt.h implicit
-							prev FEATURE/options implicit
 							prev ${PACKAGE_ast_INCLUDE}/error.h implicit
 							prev ${PACKAGE_ast_INCLUDE}/sfio.h implicit
 							prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
 						done include/defs.h
-						prev FEATURE/options implicit
 					done include/test.h
 					make ${PACKAGE_ast_INCLUDE}/ls.h implicit
 						make ${PACKAGE_ast_INCLUDE}/ast_mode.h implicit
@@ -273,11 +302,6 @@ make install
 							exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/dynamic
 							prev ${PACKAGE_ast_INCLUDE}/dlldefs.h implicit
 						done FEATURE/dynamic dontcare generated
-						make FEATURE/options implicit
-							make features/options
-							done features/options
-							exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/options
-						done FEATURE/options dontcare generated
 						prev ${PACKAGE_ast_INCLUDE}/option.h implicit
 					done include/builtins.h
 					prev include/name.h implicit
@@ -287,11 +311,9 @@ make install
 						done FEATURE/acct dontcare generated
 						prev include/defs.h implicit
 						prev include/nval.h implicit
-						prev FEATURE/options implicit
 					done include/path.h
 					make include/variables.h implicit
 						prev FEATURE/dynamic implicit
-						prev FEATURE/options implicit
 						prev ${PACKAGE_ast_INCLUDE}/option.h implicit
 						prev include/nval.h implicit
 					done include/variables.h
@@ -357,7 +379,6 @@ make install
 							done features/locale
 							exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/locale
 						done FEATURE/locale dontcare generated
-						prev FEATURE/options implicit
 					done include/edit.h dontcare
 					prev include/builtins.h implicit
 					prev include/history.h implicit
@@ -396,7 +417,6 @@ make install
 						make ${PACKAGE_ast_INCLUDE}/aso.h implicit
 							prev ${PACKAGE_ast_INCLUDE}/ast_common.h implicit
 						done ${PACKAGE_ast_INCLUDE}/aso.h implicit
-						prev FEATURE/options implicit
 						prev ${PACKAGE_ast_INCLUDE}/sfio.h implicit
 						prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
 					done include/jobs.h
@@ -584,7 +604,6 @@ make install
 						prev include/lexstates.h implicit
 						prev include/shtable.h implicit
 						prev include/shnodes.h implicit
-						prev FEATURE/options implicit
 						prev ${PACKAGE_ast_INCLUDE}/cdt.h implicit
 					done include/shlex.h
 					prev include/path.h implicit
@@ -740,7 +759,6 @@ make install
 						exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/cmds
 					done FEATURE/cmds generated
 					prev FEATURE/time implicit
-					prev FEATURE/options implicit
 					prev include/fault.h implicit
 					prev ${PACKAGE_ast_INCLUDE}/ccode.h implicit
 					prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
@@ -917,7 +935,6 @@ make install
 					prev include/argnod.h implicit
 					prev include/shell.h implicit
 					prev include/defs.h implicit
-					prev FEATURE/options implicit
 					prev include/nval.h implicit
 					prev include/fcin.h implicit
 					prev ${PACKAGE_ast_INCLUDE}/stak.h implicit
@@ -999,7 +1016,6 @@ make install
 					done ${PACKAGE_ast_INCLUDE}/ast_vfork.h dontcare
 					make exec_attr.h implicit
 					done exec_attr.h dontcare virtual
-					prev FEATURE/externs implicit
 					prev FEATURE/dynamic implicit
 					prev include/test.h implicit
 					prev include/history.h implicit
@@ -1172,7 +1188,6 @@ make install
 						done ${INSTALLROOT}/src/lib/libast/FEATURE/float dontcare
 					done FEATURE/math generated
 					prev include/streval.h implicit
-					prev FEATURE/options implicit
 					prev ${PACKAGE_ast_INCLUDE}/ast_standards.h implicit
 					prev shopt.h implicit
 				done data/strdata.c
@@ -1191,7 +1206,6 @@ make install
 			done testops.o generated
 			make keywords.o
 				make data/keywords.c
-					prev FEATURE/options implicit
 					prev include/shlex.h implicit
 					prev include/shell.h implicit
 					prev shopt.h implicit
@@ -1221,7 +1235,6 @@ make install
 			make aliases.o
 				make data/aliases.c
 					prev FEATURE/dynamic implicit
-					prev FEATURE/options implicit
 					prev include/defs.h implicit
 					prev shopt.h implicit
 				done data/aliases.c
@@ -1253,7 +1266,6 @@ make install
 					prev include/shtable.h implicit
 					prev include/shell.h implicit
 					prev FEATURE/dynamic implicit
-					prev FEATURE/options implicit
 					prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
 					prev shopt.h implicit
 				done data/variables.c
@@ -1263,7 +1275,6 @@ make install
 			make lexstates.o
 				make data/lexstates.c
 					prev include/lexstates.h implicit
-					prev FEATURE/options implicit
 					prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
 					prev shopt.h implicit
 				done data/lexstates.c
@@ -1293,7 +1304,6 @@ make install
 					prev include/edit.h implicit
 					prev include/history.h implicit
 					prev include/io.h implicit
-					prev FEATURE/options implicit
 					prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
 					prev include/defs.h implicit
 					prev shopt.h implicit

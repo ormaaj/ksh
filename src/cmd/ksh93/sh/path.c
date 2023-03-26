@@ -34,7 +34,6 @@
 #include	"history.h"
 #include	"test.h"
 #include	"FEATURE/dynamic"
-#include	"FEATURE/externs"
 
 #define RW_ALL	(S_IRUSR|S_IRGRP|S_IROTH|S_IWUSR|S_IWGRP|S_IWOTH)
 #define LIBCMD	"cmd"

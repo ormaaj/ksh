@@ -18,7 +18,6 @@
 #include	"shopt.h"
 #include	"defs.h"
 #include	<signal.h>
-#include	"FEATURE/options"
 #include	"FEATURE/dynamic"
 
 /*

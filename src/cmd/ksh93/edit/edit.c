@@ -31,7 +31,6 @@
 #include	<errno.h>
 #include	<ccode.h>
 #include	<fault.h>
-#include	"FEATURE/options"
 #include	"FEATURE/time"
 #include	"FEATURE/cmds"
 #ifdef _hdr_utime

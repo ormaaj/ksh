@@ -31,7 +31,6 @@
 #include	<stak.h>
 #include	<fcin.h>
 #include	<nval.h>
-#include	"FEATURE/options"
 #include	"defs.h"
 #include	"argnod.h"
 #include	"test.h"

@@ -44,7 +44,6 @@
 #include	<sfio.h>
 #include	<error.h>
 #include	"FEATURE/externs"
-#include	"FEATURE/options"
 #include	<cdt.h>
 #include	"argnod.h"
 #include	"name.h"

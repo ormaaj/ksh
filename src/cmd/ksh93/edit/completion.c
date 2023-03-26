@@ -493,11 +493,10 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 			{
 				if(cmd_completion)
 				{
-					Namval_t *np;
 					/* add as tracked alias */
 					Pathcomp_t *pp;
-					if(*cp=='/' && (pp=path_dirfind(sh.pathlist,cp,'/')) && (np=nv_search(begin,sh.track_tree,NV_ADD)))
-						path_alias(np,pp);
+					if(*cp=='/' && (pp=path_dirfind(sh.pathlist,cp,'/')))
+						path_settrackedalias(begin,pp);
 					out = strcopy(begin,cp);
 				}
 				/* add quotes if necessary */

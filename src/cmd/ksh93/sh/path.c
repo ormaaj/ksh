@@ -635,7 +635,6 @@ static void funload(int fno, const char *name)
  */
 int	path_search(const char *name,Pathcomp_t **oldpp, int flag)
 {
-	Namval_t *np;
 	int fno;
 	Pathcomp_t *pp=0;
 	if(name && strchr(name,'/'))
@@ -663,6 +662,7 @@ int	path_search(const char *name,Pathcomp_t **oldpp, int flag)
 		pathinit();
 	if(flag)
 	{
+		Namval_t *np;
 		if(!(flag & 1) && (np = path_gettrackedalias(name)))
 		{
 			pp = (Pathcomp_t*)np->nvalue.cp;
@@ -698,11 +698,8 @@ int	path_search(const char *name,Pathcomp_t **oldpp, int flag)
 		*stakptr(PATH_OFFSET) = 0;
 		return 0;
 	}
-	else if(pp && !sh_isstate(SH_DEFPATH) && !sh_isstate(SH_XARG) && *name!='/' && flag<3)
-	{
-		if(np=nv_search(name,sh_subtracktree(1),NV_ADD|NV_NOSCOPE))
-			path_alias(np,pp);
-	}
+	else if(pp && *name!='/' && flag<3)
+		path_settrackedalias(name,pp);
 	return 0;
 }
 
@@ -1759,10 +1756,15 @@ static const Namdisc_t talias_disc   = { 0, talias_put, talias_get   };
 static Namfun_t  talias_init = { &talias_disc, 1 };
 
 /*
- *  set tracked alias node <np> to value <pp>
+ * find or create tracked alias node named <name> and set it to value <pp>
  */
-void path_alias(Namval_t *np,Pathcomp_t *pp)
+void path_settrackedalias(const char *name, Pathcomp_t *pp)
 {
+	Namval_t *np;
+	if(sh_isstate(SH_DEFPATH) || sh_isstate(SH_XARG))
+		return;
+	if(!(np = nv_search(name,sh_subtracktree(1),NV_ADD|NV_NOSCOPE)))
+		return;
 	if(pp)
 	{
 		struct stat statb;
@@ -1776,7 +1778,7 @@ void path_alias(Namval_t *np,Pathcomp_t *pp)
 		np->nvalue.cp = (char*)pp;
 		pp->refcount++;
 		nv_setattr(np,NV_TAGGED|NV_NOFREE);
-		path_nextcomp(pp,nv_name(np),pp);
+		path_nextcomp(pp,name,pp);
 		sp = stakptr(PATH_OFFSET);
 		if(sp && lstat(sp,&statb)>=0 && S_ISLNK(statb.st_mode))
 			nv_setsize(np,statb.st_size+1);

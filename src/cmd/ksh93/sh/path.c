@@ -121,8 +121,8 @@ static pid_t command_xargs(const char *path, char *argv[],char *const envp[], in
 	/* leave fairly generous space for the environment */
 	for(ev=envp; cp= *ev; ev++)
 	{
-		n = strlen(cp);
-		size -= n + n / 2 + arg_extra;
+		n = strlen(cp) + 1 + arg_extra;
+		size -= n + n / 2;
 	}
 	/* subtract lengths of leading and trailing static arguments */
 	for(av=argv; (cp= *av) && av< &argv[sh.xargmin]; av++)

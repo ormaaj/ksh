@@ -207,7 +207,6 @@ typedef struct _init_
 	Namfun_t	SH_VERSION_init;
 	struct match	SH_MATCH_init;
 	Namfun_t	SH_MATH_init;
-#ifdef _hdr_locale
 	Namfun_t	LC_TYPE_init;
 	Namfun_t	LC_TIME_init;
 	Namfun_t	LC_NUM_init;
@@ -215,7 +214,6 @@ typedef struct _init_
 	Namfun_t	LC_MSG_init;
 	Namfun_t	LC_ALL_init;
 	Namfun_t	LANG_init;
-#endif /* _hdr_locale */
 } Init_t;
 
 static int		lctype;
@@ -428,10 +426,9 @@ static void put_cdpath(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	sh.cdpathlist = (void*)path_addpath((Pathcomp_t*)sh.cdpathlist,val,PATH_CDPATH);
 }
 
-#ifdef _hdr_locale
-    /* Trap for the LC_* and LANG variables */
-    static void put_lang(Namval_t* np,const char *val,int flags,Namfun_t *fp)
-    {
+/* Trap for the LC_* and LANG variables */
+static void put_lang(Namval_t* np,const char *val,int flags,Namfun_t *fp)
+{
 	int type;
 	char *name = nv_name(np);
 	if(name==(LCALLNOD)->nvname)
@@ -531,8 +528,7 @@ static void put_cdpath(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 			sh_lexstates[ST_BRACE]=(char*)sh_lexrstates[ST_BRACE];
 		}
 	}
-    }
-#endif /* _hdr_locale */
+}
 
 /* Trap for IFS assignment and invalidates state table */
 static void put_ifs(Namval_t* np,const char *val,int flags,Namfun_t *fp)
@@ -1132,9 +1128,7 @@ static char *setdisc_any(Namval_t *np, const char *event, Namval_t *action, Namf
 
 static const Namdisc_t SH_MATH_disc  = { 0, 0, get_math, 0, setdisc_any, create_math, };
 
-#ifdef _hdr_locale
-    static const Namdisc_t LC_disc	= {  sizeof(Namfun_t), put_lang };
-#endif /* _hdr_locale */
+static const Namdisc_t LC_disc = {  sizeof(Namfun_t), put_lang };
 
 /*
  * This function will get called whenever a configuration parameter changes
@@ -1704,10 +1698,8 @@ Namfun_t *nv_cover(Namval_t *np)
 {
 	if(np==IFSNOD || np==PATHNOD || np==SHELLNOD || np==FPATHNOD || np==CDPNOD || np==SECONDS || np==ENVNOD)
 		return np->nvfun;
-#ifdef _hdr_locale
 	if(np==LCALLNOD || np==LCTYPENOD || np==LCMSGNOD || np==LCCOLLNOD || np==LCNUMNOD || np==LCTIMENOD || np==LANGNOD)
 		return np->nvfun;
-#endif
 	 return 0;
 }
 
@@ -1861,7 +1853,6 @@ static Init_t *nv_init(void)
 	ip->LINENO_init.nofree = 1;
 	ip->L_ARG_init.disc = &L_ARG_disc;
 	ip->L_ARG_init.nofree = 1;
-#ifdef _hdr_locale
 	ip->LC_TYPE_init.disc = &LC_disc;
 	ip->LC_TYPE_init.nofree = 1;
 	ip->LC_TIME_init.disc = &LC_disc;
@@ -1876,7 +1867,6 @@ static Init_t *nv_init(void)
 	ip->LC_ALL_init.nofree = 1;
 	ip->LANG_init.disc = &LC_disc;
 	ip->LANG_init.nofree = 1;
-#endif /* _hdr_locale */
 	nv_stack(IFSNOD, &ip->IFS_init.hdr);
 	ip->IFS_init.hdr.nofree = 1;
 	nv_stack(PATHNOD, &ip->PATH_init);
@@ -1902,7 +1892,6 @@ static Init_t *nv_init(void)
 	nv_putsub(SH_MATCHNOD,NULL,10);
 	nv_stack(SH_MATHNOD, &ip->SH_MATH_init);
 	nv_stack(SH_VERSIONNOD, &ip->SH_VERSION_init);
-#ifdef _hdr_locale
 	nv_stack(LCTYPENOD, &ip->LC_TYPE_init);
 	nv_stack(LCALLNOD, &ip->LC_ALL_init);
 	nv_stack(LCMSGNOD, &ip->LC_MSG_init);
@@ -1910,7 +1899,6 @@ static Init_t *nv_init(void)
 	nv_stack(LCNUMNOD, &ip->LC_NUM_init);
 	nv_stack(LCTIMENOD, &ip->LC_TIME_init);
 	nv_stack(LANGNOD, &ip->LANG_init);
-#endif /* _hdr_locale */
 	(PPIDNOD)->nvalue.pidp = (&sh.ppid);
 	(SH_PIDNOD)->nvalue.pidp = (&sh.current_pid);
 	(SH_PPIDNOD)->nvalue.pidp = (&sh.current_ppid);

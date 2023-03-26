@@ -17,12 +17,7 @@
 *                                                                      *
 ***********************************************************************/
 
-#if _PACKAGE_ast
 #include <ast.h>
-#else
-#include <stdint.h>
-#endif
-
 #include <ctype.h>
 #include <ip6.h>
 

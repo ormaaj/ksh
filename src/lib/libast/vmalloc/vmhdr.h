@@ -28,8 +28,6 @@
 **	Written by Kiem-Phong Vo, kpv@research.att.com, 01/16/94.
 */
 
-#if _PACKAGE_ast
-
 #define getpagesize		______getpagesize
 #define _npt_getpagesize	1
 #define brk			______brk
@@ -45,19 +43,6 @@
 #undef				brk
 #undef				sbrk
 #endif
-
-#else
-
-#include	<ast_common.h>
-
-#define _npt_getpagesize	1
-#define _npt_sbrk		1
-
-#undef free
-#undef malloc
-#undef realloc
-
-#endif /*_PACKAGE_ast*/
 
 #include	"FEATURE/vmalloc"
 
@@ -289,13 +274,6 @@ struct _vmdata_s /* core region data - could be in shared/persistent memory	*/
 
 #include	"vmalloc.h"
 
-#if !_PACKAGE_ast
-/* we don't use these here and they interfere with some local names */
-#undef malloc
-#undef free
-#undef realloc
-#endif
-
 /* segment structure */
 struct _seg_s
 {	Vmdata_t*	vmdt;	/* the data region holding this	*/
@@ -450,8 +428,6 @@ extern void		_vmoptions(void);
 
 extern Vmextern_t	_Vmextern;
 
-#if _PACKAGE_ast
-
 #if _npt_getpagesize
 extern int		getpagesize(void);
 #endif
@@ -459,19 +435,6 @@ extern int		getpagesize(void);
 extern int		brk( void* );
 extern void*		sbrk( ssize_t );
 #endif
-
-#else
-
-#include	<unistd.h>
-#include	<stdlib.h>
-#include	<string.h>
-
-/* for vmexit.c */
-extern int		onexit( void(*)(void) );
-extern void		_exit( int );
-extern void		_cleanup( void );
-
-#endif /*_PACKAGE_ast*/
 
 /* for vmdcsbrk.c */
 #if !_typ_ssize_t

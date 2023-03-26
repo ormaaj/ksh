@@ -26,11 +26,7 @@
 
 #define VMALLOC_VERSION	20110808L
 
-#if _PACKAGE_ast
 #include	<ast_std.h>
-#else
-#include	<ast_common.h>
-#endif
 
 typedef struct _vmalloc_s	Vmalloc_t;
 typedef struct _vmstat_s	Vmstat_t;

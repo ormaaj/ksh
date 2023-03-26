@@ -57,8 +57,6 @@
 
 /*** SHA-256/384/512 Machine Architecture Definitions *****************/
 
-#if _PACKAGE_ast
-
 #ifndef __USE_BSD
 #define __undef__USE_BSD
 #define __USE_BSD
@@ -78,71 +76,6 @@ typedef uint64_t sha2_word64;	/* Exactly 8 bytes */
 #undef	R
 #undef	S32
 #undef	S64
-
-#else /* _PACKAGE_ast */
-
-/*
- * BYTE_ORDER NOTE:
- *
- * Please make sure that your system defines BYTE_ORDER.  If your
- * architecture is little-endian, make sure it also defines
- * LITTLE_ENDIAN and that the two (BYTE_ORDER and LITTLE_ENDIAN) are
- * equivalent.
- *
- * If your system does not define the above, then you can do so by
- * hand like this:
- *
- *   #define LITTLE_ENDIAN 1234
- *   #define BIG_ENDIAN    4321
- *
- * And for little-endian machines, add:
- *
- *   #define BYTE_ORDER LITTLE_ENDIAN 
- *
- * Or for big-endian machines:
- *
- *   #define BYTE_ORDER BIG_ENDIAN
- *
- * The FreeBSD machine this was written on defines BYTE_ORDER
- * appropriately by including <sys/types.h> (which in turn includes
- * <machine/endian.h> where the appropriate definitions are actually
- * made).
- */
-
-#if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
-#error Define BYTE_ORDER to be equal to either LITTLE_ENDIAN or BIG_ENDIAN
-#endif
-
-/*
- * Define the following sha2_* types to types of the correct length on
- * the native architecture.   Most BSD systems and Linux define u_intXX_t
- * types.  Machines with very recent ANSI C headers, can use the
- * uintXX_t definitions from inttypes.h by defining SHA2_USE_INTTYPES_H
- * during compile or in the sha.h header file.
- *
- * Machines that support neither u_intXX_t nor inttypes.h's uintXX_t
- * will need to define these three typedefs below (and the appropriate
- * ones in sha.h too) by hand according to their system architecture.
- *
- * Thank you, Jun-ichiro itojun Hagino, for suggesting using u_intXX_t
- * types and pointing out recent ANSI C support for uintXX_t in inttypes.h.
- */
-
-#ifdef SHA2_USE_INTTYPES_H
-
-typedef uint8_t  sha2_byte;	/* Exactly 1 byte */
-typedef uint32_t sha2_word32;	/* Exactly 4 bytes */
-typedef uint64_t sha2_word64;	/* Exactly 8 bytes */
-
-#else /* SHA2_USE_INTTYPES_H */
-
-typedef u_int8_t  sha2_byte;	/* Exactly 1 byte */
-typedef u_int32_t sha2_word32;	/* Exactly 4 bytes */
-typedef u_int64_t sha2_word64;	/* Exactly 8 bytes */
-
-#endif /* SHA2_USE_INTTYPES_H */
-
-#endif /* _PACKAGE_ast */
 
 /*** SHA-256/384/512 Various Length Definitions ***********************/
 

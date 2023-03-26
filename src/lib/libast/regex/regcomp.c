@@ -24,10 +24,7 @@
  */
 
 #include "reglib.h"
-
-#if _PACKAGE_ast
 #include "lclib.h"
-#endif
 
 #define serialize		re_serialize	/* hp.ia64 <unistd.h>! */
 
@@ -51,16 +48,12 @@ static unsigned long	debug_flag;
 
 #endif
 
-#if _PACKAGE_ast
-
 typedef struct Cchr_s
 {
 	Dtlink_t	lnk;
 	unsigned char	nam[2];
 	Ckey_t		key;
 } Cchr_t;
-
-#endif
 
 #define eat(p)		do{if ((p)->token.push)(p)->token.push=0;else (p)->cursor+=(p)->token.len;}while (0)
 
@@ -1187,10 +1180,8 @@ bra(Cenv_t* env)
 	unsigned char*	s;
 	regclass_t	f;
 	unsigned char	buf[4 * (COLL_KEY_MAX + 1)];
-#if _PACKAGE_ast
 	int		ic;
 	char		mbc[COLL_KEY_MAX + 1];
-#endif
 
 	if (!(e = node(env, REX_CLASS, 1, 1, sizeof(Set_t))))
 		return 0;
@@ -1424,7 +1415,6 @@ bra(Cenv_t* env)
 			inrange = 1;
 		last = c;
 	}
-#if _PACKAGE_ast
 	if (complicated && mbcoll())
 	{
 		Dt_t*			dt;
@@ -1720,7 +1710,6 @@ bra(Cenv_t* env)
 			return e;
 		}
 	}
-#endif
 	if (collate)
 		goto ecollate;
 	if (env->flags & REG_ICASE)

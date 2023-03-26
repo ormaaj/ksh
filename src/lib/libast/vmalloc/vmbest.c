@@ -1005,14 +1005,6 @@ done:
 #endif
 #if _mem_mmap_anon
 #undef	_mem_mmap_zero
-#if !_PACKAGE_ast
-#undef	_mem_sbrk
-#endif
-#endif
-#if _mem_mmap_zero
-#if !_PACKAGE_ast
-#undef	_mem_sbrk
-#endif
 #endif
 
 #if __linux__
@@ -1053,11 +1045,7 @@ static int chkaddr(Vmuchar_t* addr, size_t nsize)
 #endif /*__linux__*/
 
 #if _mem_win32 /* getting memory on a window system */
-#if _PACKAGE_ast
 #include	<ast_windows.h>
-#else
-#include	<windows.h>
-#endif
 
 static void* win32mem(void* caddr, size_t csize, size_t nsize)
 {	/**/ ASSERT(csize > 0 || nsize > 0)

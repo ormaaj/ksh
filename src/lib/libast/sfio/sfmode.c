@@ -48,14 +48,9 @@ static char*	Version = "\n@(#)$Id: sfio (AT&T Labs - Research) 2009-09-15 $\0\n"
 */
 
 /* the below is for protecting the application from SIGPIPE */
-#if _PACKAGE_ast
 #include		<sig.h>
 #include		<wait.h>
 #define Sfsignal_f	Sig_handler_t
-#else
-#include		<signal.h>
-typedef void(*		Sfsignal_f)(int);
-#endif
 static int		_Sfsigp = 0; /* # of streams needing SIGPIPE protection */ 
 
 /* done at exiting time */
@@ -226,20 +221,16 @@ int _sfpclose(Sfio_t* f)
 			CLOSE(p->file);
 
 		/* wait for process termination */
-#if _PACKAGE_ast
 		sigcritical(SIG_REG_EXEC|SIG_REG_PROC);
-#endif
 		status = -1;
 		while (waitpid(p->pid,&status,0) == -1 && errno == EINTR)
 			;
-#if _PACKAGE_ast
 		status = status == -1 ?
 			 EXIT_QUIT :
 			 WIFSIGNALED(status) ?
 			 EXIT_TERM(WTERMSIG(status)) :
 			 EXIT_CODE(WEXITSTATUS(status));
 		sigcritical(0);
-#endif
 		if(p->sigp && (_Sfsigp -= 1) <= 0)
 		{	Sfsignal_f	handler;
 			if((handler = signal(SIGPIPE,SIG_DFL)) != SIG_DFL && handler != SIG_IGN)

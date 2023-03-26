@@ -169,7 +169,7 @@ make install
 					done sum-crc.c
 				done sumlib.c
 				prev sumlib.c
-				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -I${PACKAGE_ast_INCLUDE} -D_PACKAGE_ast -c sumlib.c
+				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -I${PACKAGE_ast_INCLUDE} -c sumlib.c
 			done sumlib.o generated
 			exec - ${AR} rc libsum.a sumlib.o
 			exec - (ranlib libsum.a) >/dev/null 2>&1 || true

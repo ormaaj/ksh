@@ -44,7 +44,7 @@ struct stat
 #define fstat(fd,st)	(-1)
 #endif /*_sys_stat*/
 
-#if _PACKAGE_ast && !defined(SFSETLINEMODE)
+#if !defined(SFSETLINEMODE)
 #define SFSETLINEMODE		1
 #endif
 
@@ -73,11 +73,7 @@ static int sfsetlinemode()
 					modes |= SF_LINE;
 				else if((endw-astsfio) > (sizeof(sf_maxr)-1) &&
 				   strncmp(astsfio,sf_maxr,sizeof(sf_maxr)-1) == 0)
-#if _PACKAGE_ast
 					_Sfmaxr = (ssize_t)strtonll(astsfio+sizeof(sf_maxr)-1,NULL,NULL,0);
-#else
-					_Sfmaxr = (ssize_t)strtol(astsfio+sizeof(sf_maxr)-1,NULL,0);
-#endif
 				else if((endw-astsfio) > (sizeof(sf_wcwidth)-1) &&
 				   strncmp(astsfio,sf_wcwidth,sizeof(sf_wcwidth)-1) == 0)
 					modes |= SF_WCWIDTH;

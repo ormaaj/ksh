@@ -79,30 +79,20 @@ static int neg0d(double f)
 }
 #endif
 
-#if ULONG_DIG && ULONG_DIG < (DBL_DIG-1)
-#define CVT_LDBL_INT	long
-#define CVT_LDBL_MAXINT	LONG_MAX
-#else
-#if UINT_DIG && UINT_DIG < (DBL_DIG-1)
+#if UINT_DIG && UINT_DIG < (DBL_DIG-1) && !(ULONG_DIG && ULONG_DIG < (DBL_DIG-1))
 #define CVT_LDBL_INT	int
 #define CVT_LDBL_MAXINT	INT_MAX
 #else
 #define CVT_LDBL_INT	long
-#define CVT_LDBL_MAXINT	SF_MAXLONG
-#endif
+#define CVT_LDBL_MAXINT	LONG_MAX
 #endif
 
-#if ULONG_DIG && ULONG_DIG < (DBL_DIG-1)
-#define CVT_DBL_INT	long
-#define CVT_DBL_MAXINT	LONG_MAX
-#else
-#if UINT_DIG && UINT_DIG < (DBL_DIG-1)
+#if UINT_DIG && UINT_DIG < (DBL_DIG-1) && !(ULONG_DIG && ULONG_DIG < (DBL_DIG-1))
 #define CVT_DBL_INT	int
 #define CVT_DBL_MAXINT	INT_MAX
 #else
 #define CVT_DBL_INT	long
-#define CVT_DBL_MAXINT	SF_MAXLONG
-#endif
+#define CVT_DBL_MAXINT	LONG_MAX
 #endif
 
 char* _sfcvt(void*	vp,		/* pointer to value to convert	*/

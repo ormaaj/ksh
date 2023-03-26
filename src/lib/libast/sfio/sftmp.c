@@ -18,13 +18,11 @@
 *                                                                      *
 ***********************************************************************/
 #include	"sfhdr.h"
-#if _PACKAGE_ast
-# if defined(__linux__) && _lib_statfs
+#if defined(__linux__) && _lib_statfs
 #  include <sys/statfs.h>
 #  ifndef  TMPFS_MAGIC
 #   define TMPFS_MAGIC	0x01021994
 #  endif
-# endif
 #endif
 
 /*	Create a temporary stream for read/write.
@@ -128,57 +126,12 @@ static int _rmtmp(Sfio_t* f, char* file)
 	return 0;
 }
 
-#if !_PACKAGE_ast
-#define		TMPDFLT		"/tmp"
-static char	**Tmppath, **Tmpcur;
-
-char** _sfgetpath(char* path)
-{	char	*p, **dirs;
-	int	n;
-
-	if(!(path = getenv(path)) )
-		return NULL;
-
-	for(p = path, n = 0;;)	/* count number of directories */
-	{	while(*p == ':')
-			++p;
-		if(*p == 0)
-			break;
-		n += 1;
-		while(*p && *p != ':')	/* skip dir name */
-			++p;
-	}
-	if(n == 0 || !(dirs = (char**)malloc((n+1)*sizeof(char*))) )
-		return NULL;
-	if(!(p = strdup(path)) )
-	{	free(dirs);
-		return NULL;
-	}
-	for(n = 0;; ++n)
-	{	while(*p == ':')
-			++p;
-		if(*p == 0)
-			break;
-		dirs[n] = p;
-		while(*p && *p != ':')
-			++p;
-		if(*p == ':')
-			*p++ = 0;
-	}
-	dirs[n] = NULL;
-
-	return dirs;
-}
-
-#endif /*!_PACKAGE_ast*/
-
 static int _tmpfd(Sfio_t* f)
 {
 	char*	file;
 	int	fd;
 
-#if _PACKAGE_ast
-# if defined(__linux__) && _lib_statfs
+#if defined(__linux__) && _lib_statfs
 	/*
 	 * Use the area of POSIX shared memory objects for the new temporary file descriptor
 	 * that is do not access the HDD or SSD but only the memory based tmpfs of the POSIX SHM
@@ -193,78 +146,12 @@ static int _tmpfd(Sfio_t* f)
 		doshm++;
 	}
 	if(!(file = pathtemp(NULL,PATH_MAX,shm,"sf",&fd)))
-# else
+#else
 	if(!(file = pathtemp(NULL,PATH_MAX,NULL,"sf",&fd)))
-# endif
+#endif
 		return -1;
 	_rmtmp(f, file);
 	free(file);
-#else
-	int	t;
-
-	/* set up path of dirs to create temp files */
-	if(!Tmppath && !(Tmppath = _sfgetpath("TMPPATH")) )
-	{	if(!(Tmppath = (char**)malloc(2*sizeof(char*))) )
-			return -1;
-		if(!(file = getenv("TMPDIR")) )
-			file = TMPDFLT;
-		if(!(Tmppath[0] = strdup(file)) )
-		{	free(Tmppath);
-			Tmppath = NULL;
-			return -1;
-		}
-		Tmppath[1] = NULL;
-	}
-
-	/* set current directory to create this temp file */
-	if(Tmpcur)
-		Tmpcur += 1;
-	if(!Tmpcur || !Tmpcur[0])
-		Tmpcur = Tmppath;
-
-	fd = -1;
-	for(t = 0; t < 10; ++t)
-	{	/* compute a random name */
-		static ulong	Key, A;
-		if(A == 0 || t > 0)	/* get a quasi-random coefficient */
-		{	int	r;
-			A = (ulong)time(NULL) ^ (((ulong)(&t)) >> 3);
-			if(Key == 0)
-				Key = (A >> 16) | ((A&0xffff)<<16);
-			A ^= Key;
-			if((r = (A-1) & 03) != 0) /* Knuth vol.2, page.16, Thm.A */
-				A += 4-r;
-		}
-
-		Key = A*Key + 987654321;
-		file = sfprints("%s/sf%3.3.32lu.%3.3.32lu",
-				Tmpcur[0], (Key>>15)&0x7fff, Key&0x7fff);
-		if(!file)
-			return -1;
-#if _has_oflags
-		if((fd = open(file,O_RDWR|O_CREAT|O_EXCL|O_TEMPORARY,SF_CREATMODE)) >= 0)
-			break;
-#else
-		if((fd = open(file,O_RDONLY)) >= 0)
-		{	/* file already exists */
-			CLOSE(fd);
-			fd = -1;
-		}
-		else if((fd = creat(file,SF_CREATMODE)) >= 0)
-		{	/* reopen for read and write */
-			CLOSE(fd);
-			if((fd = open(file,O_RDWR)) >= 0)
-				break;
-
-			/* don't know what happened but must remove file */
-			while(remove(file) < 0 && errno == EINTR)
-				errno = 0;
-		}
-#endif /* _has_oflags */
-	}
-	if(fd >= 0)
-		_rmtmp(f, file);
-#endif /* _PACKAGE_ast */
 	return fd;
 }
 

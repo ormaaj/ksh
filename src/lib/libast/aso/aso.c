@@ -35,14 +35,6 @@
  * hopefully stable by 2012-12-12
  */
 
-#if !_PACKAGE_ast
-
-#include <stdio.h>
-
-#define sfsprintf	snprintf
-
-#endif
-
 #if defined(_aso_casptr) && (defined(_aso_cas32) || defined(_aso_cas64))
 #define ASO_METHOD		(&_aso_meth_intrinsic)
 #define ASO_LOCKF		0

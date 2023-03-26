@@ -19,10 +19,8 @@
 ***********************************************************************/
 #include "sfdchdr.h"
 
-#if _PACKAGE_ast
 #include <ast_tty.h>
 #include <signal.h>
-#endif
 
 /*
  * a simple but fast more style pager discipline
@@ -289,9 +287,7 @@ int sfdcmore(Sfio_t* f, const char* prompt, int rows, int cols)
 	memcpy(more->prompt, prompt, n);
 	if (!rows || !cols)
 	{
-#if _PACKAGE_ast
 		astwinsize(sffileno(sfstdin), &rows, &cols);
-#endif
 		if (!rows)
 			rows = 24;
 		if (!cols)

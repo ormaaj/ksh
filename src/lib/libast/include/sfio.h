@@ -30,11 +30,7 @@
 typedef struct _sfio_s		Sfio_t;
 typedef struct _sfdisc_s	Sfdisc_t;
 
-#if defined(_AST_STD_H) || defined(_PACKAGE_ast) && defined(_SFIO_PRIVATE)
 #include	<ast_std.h>
-#else
-#include	<ast_common.h>
-#endif /* _PACKAGE_ast */
 
 /* Sfoff_t should be large enough for largest file address */
 #define Sfoff_t		intmax_t

@@ -545,23 +545,6 @@ extern void* pvalloc(size_t size)
 	return VMRECORD(memalign(_Vmpagesize, ROUND(size,_Vmpagesize)) );
 }
 
-#if !_PACKAGE_ast
-char* strdup(const char* s)
-{
-	char	*ns;
-	size_t	n;
-
-	if(!s)
-		return NULL;
-	else
-	{	n = strlen(s);
-		if((ns = malloc(n+1)) )
-			memcpy(ns,s,n+1);
-		return ns;
-	}
-}
-#endif /* _PACKAGE_ast */
-
 #if !_lib_alloca || _mal_alloca
 #ifndef _stk_down
 #define _stk_down	0
@@ -978,20 +961,14 @@ static int createfile(char* file)
 		fd = dup((int)atou(&file));
 	else if (*file)
 	{
-#if _PACKAGE_ast
 		fd = open(file, O_WRONLY|O_CREAT|O_TRUNC, CREAT_MODE);
-#else
-		fd = creat(file, CREAT_MODE);
-#endif
 		fd = _vmfd(fd);
 	}
 	else
 		return -1;
-#if _PACKAGE_ast
 #ifdef FD_CLOEXEC
 	if (fd >= 0)
 		fcntl(fd, F_SETFD, FD_CLOEXEC);
-#endif
 #endif
 	return fd;
 }

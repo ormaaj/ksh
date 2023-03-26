@@ -33,7 +33,7 @@ esac
 set -o noglob
 
 command=iffe
-version=2023-02-21
+version=2023-03-26
 
 compile() # $cc ...
 {
@@ -2171,8 +2171,7 @@ int x;
 			t=$1
 			shift
 			is npt $x
-			copy $tmp.c "
-$std
+			copy $tmp.c "$std
 #include <sys/types.h>
 $usr
 struct _iffe_struct { int _iffe_member; };
@@ -3290,10 +3289,9 @@ $src
 				dat|lib|mth|run)
 					case $statictest in
 					"")	statictest=FoobaR
-						copy $tmp.c "
+						copy $tmp.c "$std
 $tst
 $ext
-$std
 $usr
 extern int $statictest;
 int main(){char* i = (char*)&$statictest; return ((unsigned int)i)^0xaaaa;}
@@ -3302,7 +3300,7 @@ int main(){char* i = (char*)&$statictest; return ((unsigned int)i)^0xaaaa;}
 						if	compile $cc -o $tmp.exe $tmp.c <&$nullin >&$nullout && $executable $tmp.exe
 						then	case $static in
 							.)	static=
-								copy $tmp.c "
+								copy $tmp.c "$std
 $tst
 $ext
 int main(){printf("hello");return(0);}
@@ -3394,10 +3392,9 @@ int main(){printf("hello");return(0);}
 					?*)	continue ;;
 					esac
 					{
-					copy - "
+					copy - "$std
 $tst
 $ext
-$std
 $usr
 $pre
 "
@@ -3426,7 +3423,8 @@ int main(){char* i = (char*) _REF_ $v; return ((unsigned int)i)^0xaaaa;}"
 					?*)	continue ;;
 					esac
 					is dfn $v
-					echo "$pre
+					echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3535,7 +3533,8 @@ $inc
 						esac
 						eval _$m=1
 						is $o $f
-						echo "$pre
+						echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3550,7 +3549,8 @@ $inc
 							[abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ]:[\\/]*)
 								;;
 							*/*/*)	k=$(echo "$i" | sed 's,.*/\([^/]*/[^/]*\)$,../\1,')
-								echo "$pre
+								echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3564,7 +3564,8 @@ $inc
 									esac
 								fi
 								;;
-							*)	echo "$pre
+							*)	echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3636,7 +3637,7 @@ $inc
 						*" + $x "*)
 							success +
 							;;
-						*)	echo "
+						*)	echo "$std
 $tst
 $ext
 $allinc
@@ -3687,7 +3688,8 @@ $inc
 					w=$v
 					while	:
 					do	is $o $w
-						echo "$pre
+						echo "$std
+$pre
 $tst
 $ext
 int f(){int $w = 1;return($w);}" > $tmp.c
@@ -3761,10 +3763,9 @@ int f(){int $w = 1;return($w);}" > $tmp.c
 					-)	continue ;;
 					esac
 					is $o $v
-					copy $tmp.c "
+					copy $tmp.c "$std
 $tst
 $ext
-$std
 $usr
 $pre
 $inc
@@ -3807,10 +3808,9 @@ static _IFFE_fun i=(_IFFE_fun)$v;int main(){return ((unsigned int)i)^0xaaaa;}
 					else	if	compile $cc -D_IFFE_type -c $tmp.c <&$nullin >&$nullout
 						then	c=1
 						else	case $intrinsic in
-							'')	copy $tmp.c "
+							'')	copy $tmp.c "$std
 $tst
 $ext
-$std
 $usr
 $pre
 $inc
@@ -3833,7 +3833,7 @@ static int ((*i)())=foo;int main(){return(i==0);}
 					?*)	continue ;;
 					esac
 					is mac $v
-					echo "
+					echo "$std
 $tst
 $ext
 $pre
@@ -3848,7 +3848,8 @@ $inc
 					?*)	eval i='$'_iffe_typedef_$p
 						case $i in
 						0|1)	;;
-						*)	echo "$pre
+						*)	echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3870,7 +3871,8 @@ int n = sizeof(i);" > $tmp.c
 						*)	i=- ;;
 						esac
 						is mem $v "$p"
-						echo "$pre
+						echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3883,7 +3885,8 @@ int n = sizeof(i.$v);" > $tmp.c
 						eval i='$'_iffe_typedef_$p
 						case $i in
 						0|1)	;;
-						*)	echo "$pre
+						*)	echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3905,14 +3908,16 @@ int n = sizeof(i);" > $tmp.c
 						*)	i=- ;;
 						esac
 						is nos "$p"
-						echo "$pre
+						echo "$std
+$pre
 $tst
 $ext
 $inc
 static $p i;
 int n = sizeof(i);" > $tmp.c
 						if	compile $cc -c $tmp.c <&$nullin >&$nullout
-						then	echo "$pre
+						then	echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -3929,10 +3934,9 @@ unsigned long f() { return (unsigned long)i; }" > $tmp.c
 					;;
 				nop)	;;
 				npt)	is npt $v
-					copy $tmp.c "
+					copy $tmp.c "$std
 $tst
 $ext
-$std
 $usr
 $pre
 $inc
@@ -3948,10 +3952,9 @@ extern struct _iffe_struct* $v(struct _iffe_struct*);
 					report -$config $? 1 "$v() needs a prototype" "$v() does not need a prototype"
 					;;
 				num)	is num $v
-					copy $tmp.c "
+					copy $tmp.c "$std
 $tst
 $ext
-$std
 $usr
 $pre
 $inc
@@ -4080,9 +4083,9 @@ int _iffe_int = $v / 2;
 					case $a in
 					*.c)	rm -f $tmp.exe
 						{
-						echo "$tst
+						echo "$std
+$tst
 $ext
-$std
 $usr
 $inc"
 						cat $a
@@ -4121,7 +4124,8 @@ set \"cc='$cc' executable='$executable' id='$m' static='$static' tmp='$tmp'\" $o
 					{
 					case $p:$v in
 					long:*|*:*[_0123456789]int[_0123456789]*)
-						echo "$pre
+						echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -4135,7 +4139,8 @@ $x$v v; i = 1; v = i;"
 						esac
 						echo "return v; }"
 						;;
-					*)	echo "$pre
+					*)	echo "$std
+$pre
 $inc
 struct xxx { $x$v mem; };
 static struct xxx v;
@@ -4171,7 +4176,8 @@ int main() {
 					"")	x=$v ;;
 					*)	x=$test ;;
 					esac
-					echo "$pre
+					echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -4213,7 +4219,8 @@ nam &/g' \
 					{
 					case $p:$v in
 					long:*|*:*[_0123456789]int[_0123456789]*)
-						echo "$pre
+						echo "$std
+$pre
 $tst
 $ext
 $inc
@@ -4227,7 +4234,8 @@ $x$v v; i = 1; v = i;"
 						esac
 						echo "return v; }"
 						;;
-					*)	echo "$pre
+					*)	echo "$std
+$pre
 $tst
 $ext
 $inc

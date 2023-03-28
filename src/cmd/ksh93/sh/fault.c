@@ -492,6 +492,7 @@ int sh_trap(const char *trap, int mode)
 	int	jmpval, savxit = sh.exitval, savxit_return;
 	int	was_history = sh_isstate(SH_HISTORY);
 	int	was_verbose = sh_isstate(SH_VERBOSE);
+	char	was_no_trapdontexec = !sh.st.trapdontexec;
 	char	save_chldexitsig = sh.chldexitsig;
 	int	staktop = staktell();
 	char	*savptr = stakfreeze(0);
@@ -501,6 +502,9 @@ int sh_trap(const char *trap, int mode)
 	sh_offstate(SH_HISTORY);
 	sh_offstate(SH_VERBOSE);
 	sh.intrap++;
+	/* disable last-command exec optimisation so the caller gets to complete execution */
+	if(was_no_trapdontexec)
+		sh.st.trapdontexec = 's';  /* special value for direct sh_trap() call */
 	sh_pushcontext(&buff,SH_JMPTRAP);
 	jmpval = sigsetjmp(buff.buff,0);
 	if(jmpval == 0)
@@ -529,6 +533,9 @@ int sh_trap(const char *trap, int mode)
 		}
 	}
 	sh_popcontext(&buff);
+	/* re-allow last-command exec optimisation unless the command we executed set a trap */
+	if(was_no_trapdontexec && sh.st.trapdontexec=='s')
+		sh.st.trapdontexec = 0;
 	sh.intrap--;
 	sfsync(sh.outpool);
 	savxit_return = sh.exitval;

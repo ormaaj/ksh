@@ -422,8 +422,8 @@ void	sh_sigclear(int sig)
  */
 void	sh_chktrap(void)
 {
-	int 	sig=sh.st.trapmax;
-	char *trap;
+	int	sig=sh.st.trapmax;
+	char	*trap;
 	if(!sh.trapnote)
 		sig=0;
 	sh.trapnote &= ~SH_SIGTRAP;

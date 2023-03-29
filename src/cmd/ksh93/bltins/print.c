@@ -307,9 +307,10 @@ skip:
 		argv++;
 	if(vname)
 	{
-		if(!sh.strbuf2)
-			sh.strbuf2 = sfstropen();
-		outfile = sh.strbuf2;
+		static Sfio_t *vbuf;
+		if(!vbuf)
+			vbuf = sfstropen();
+		outfile = vbuf;
 		goto printf_v;
 	}
 skip2:

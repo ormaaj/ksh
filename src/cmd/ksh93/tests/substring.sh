@@ -745,6 +745,19 @@ exp='<a><>'
 [[ $got == "$exp" ]] || err_exit "back-reference (got $(printf %q "$got"), expected $(printf %q "$exp"))"
 
 # ======
+# Anchored empty pattern should match in replacement, e.g. "${@/#/replacement}"
+# https://github.com/ksh93/ksh/issues/558
+set one two three
+exp=Xone/Xtwo/Xthree
+got=$(IFS=/; echo "${*/#/X}")
+[[ $got == "$exp" ]] || err_exit "#-anchored empty pattern vector replacement" \
+	"(got $(printf %q "$got"), expected $(printf %q "$exp"))"
+exp=oneX/twoX/threeX
+got=$(IFS=/; echo "${*/%/X}")
+[[ $got == "$exp" ]] || err_exit "%-anchored empty pattern vector replacement" \
+	"(got $(printf %q "$got"), expected $(printf %q "$exp"))"
+
+# ======
 # In ${expression:offset[:length]}, the arithmetic expressions (offset and length) could not
 # contain ( ) & | as these were internally backslash-escaped, causing a spurious syntax error.
 exp=cde

@@ -10,6 +10,13 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   will now produce the correct output, which is the same as GNU date:
 	date '+%Y-%m-%d %H:%M' '9 weeks ago'
 
+- In the ${parameter/pattern/string} search-and-replace expansion, an
+  anchored empty pattern will now match the beginning or the end of the
+  string, so that ${parameter/#/string} will prefix the string to the
+  parameter value and ${parameter/%/string} will append it. Previously,
+  these operations were no-ops (equivalent to ${parameter}). This change
+  brings ksh 93u+m into line with mksh, zsh and bash.
+
 2023-05-17:
 
 - Fixed buggy behaviour of printf with mix and match of % and %x$.

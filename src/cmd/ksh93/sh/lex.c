@@ -480,6 +480,11 @@ int sh_lex(Lex_t* lp)
 							lp->lexd.docword=1;
 						else if(n==LPAREN)
 						{
+							/* Workaround for a flaw in the comsub() skipping hack: avoid switching
+							 * to ST_NESTED and recognizing ((...)) commands if we encounter '(('
+							 * within a compound assignment in a new-form command substitution */
+							if(lp->lexd.dolparen && (fcpeek(-2)=='=' || lp->lexd.dolparen_eqparen))
+								return c;
 							if(lp->lex.intest)
 								return c;
 							/* '((' arithmetic command */
@@ -1509,7 +1514,8 @@ breakloop:
 
 /*
  * read to end of command substitution
- * of the form $(...)
+ * of the form $(...) or ${ ...;}
+ * or arithmetic expansion $((...))
  */
 static int comsub(Lex_t *lp, int endtok)
 {
@@ -1601,10 +1607,15 @@ static int comsub(Lex_t *lp, int endtok)
 				break;
 			    case IPROCSYM:	case OPROCSYM:
 			    case LPAREN:
+				/* flag up "=(": array/compound assignment */
+				if(!lp->lexd.dolparen_eqparen && fcpeek(-2)=='=')
+					lp->lexd.dolparen_eqparen = count;
 				if(endtok==LPAREN && !lp->lex.incase)
 					count++;
 				break;
 			    case RPAREN:
+				if(lp->lexd.dolparen_eqparen >= count)
+					lp->lexd.dolparen_eqparen = 0;
 				if(lp->lex.incase)
 					lp->lex.incase=0;
 				else if(endtok==LPAREN && --count<=0)

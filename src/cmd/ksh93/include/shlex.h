@@ -46,6 +46,7 @@ struct _shlex_pvt_lexdata_
 	char		nocopy;
 	char		paren;
 	char		dolparen;
+	unsigned short	dolparen_eqparen;
 	char		nest;
 	char		docword;
 	char		nested_tilde;

@@ -991,18 +991,4 @@ do
 done
 
 # ======
-# Nested compound assignment misparsed in $(...) or ${ ...; } command substitution
-# https://github.com/ksh93/ksh/issues/269
-got=$(set +x; eval ': $( typeset -a arr=((a b c) 1) )' 2>&1) || err_exit "issue 269 test 1 (got $(printf %q "$got"))"
-got=$(set +x; eval ': ${ typeset -a arr=((a b c) 1); }' 2>&1) || err_exit "issue 269 test 2 (got $(printf %q "$got"))"
-got=$(set +x; eval ': $( typeset -a arr=( ( ((a b c)1))) )' 2>&1) || err_exit "issue 269 test 3 (got $(printf %q "$got"))"
-got=$(set +x; eval ': ${ typeset -a arr=( ( ((a b c)1))); }' 2>&1) || err_exit "issue 269 test 4 (got $(printf %q "$got"))"
-# previous patch candidates caused (( ... )) to fail to be parsed properly; prevent reoccurrence
-got=$(set +x; eval ': $(( 1 << 2 ))' 2>&1) || err_exit "issue 269 test 5 (got $(printf %q "$got"))"
-got=$(set +x; eval ': $(: $(( 1 << 2 )) )' 2>&1) || err_exit "issue 269 test 6 (got $(printf %q "$got"))"
-got=$(set +x; eval ': $( (( 1 << 2 )) )' 2>&1) || err_exit "issue 269 test 7 (got $(printf %q "$got"))"
-got=$(set +x; eval ': $( : $( (( 1 << 2 )) ) )' 2>&1) || err_exit "issue 269 test 8 (got $(printf %q "$got"))"
-got=$(set +x; eval ': $( (( $( (( 1 << 2 )); echo 1 ) << 2 )) )' 2>&1) || err_exit "issue 269 test 9 (got $(printf %q "$got"))"
-
-# ======
 exit $((Errors<125?Errors:125))

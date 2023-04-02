@@ -1716,7 +1716,9 @@ retry1:
 	if(c==':')
 	{
 		char *lastchar;
-		int sliceoffset = (int)sh_strnum(argp,&lastchar,1);
+		int sliceoffset;
+		sh_trim(argp);  /* remove internal backslash escapes */
+		sliceoffset = (int)sh_strnum(argp,&lastchar,1);
 		if(isastchar(mode))
 		{
 			if(id==idbuff)  /* ${@} or ${*} */

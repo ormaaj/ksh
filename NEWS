@@ -7,6 +7,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Corrected the 2022-07-05 fix for the detection of a syntax error in
   compound assignments to associative arrays.
 
+- Fixed spurious syntax error in ${parameter:offset:length}: the arithmetic
+  expressions 'offset' and 'length' may now contain the operators ( ) & |.
+
 2023-03-29:
 
 - Fixed a bug in 'printf -v' (added on 2021-11-18) where using the %B format

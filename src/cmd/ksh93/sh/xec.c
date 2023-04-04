@@ -44,12 +44,6 @@
 #   include	<vmalloc.h>
 #endif
 
-#if     _lib_vfork
-#   include     <ast_vfork.h>
-#else
-#   define vfork()      fork()
-#endif
-
 #if _lib_getrusage && !defined(RUSAGE_SELF)
 #   include <sys/resource.h>
 #endif
@@ -1633,7 +1627,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				if(rewrite)
 				{
 					job_lock();
-					while((parent = vfork()) < 0)
+					while((parent = fork()) < 0)
 						_sh_fork(parent, 0, NULL);
 					if(parent)
 					{

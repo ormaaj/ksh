@@ -1049,7 +1049,7 @@ int sh_exec(const Shnode_t *t, int flags)
 						/* avoid exit on error from nv_setlist, e.g. read-only variable */
 						struct checkpt *chkp = (struct checkpt*)stakalloc(sizeof(struct checkpt));
 						sh_pushcontext(chkp,SH_JMPCMD);
-						jmpval = sigsetjmp(chkp->buff,1);
+						jmpval = sigsetjmp(chkp->buff,0);
 						if(!jmpval)
 							nv_setlist(argp,flgs,tp);
 						sh_popcontext(chkp);
@@ -2395,7 +2395,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				oldnspace = enter_namespace(np);
 				/* make sure to restore oldnspace if a special builtin throws an error */
 				sh_pushcontext(chkp,SH_JMPCMD);
-				jmpval = sigsetjmp(chkp->buff,1);
+				jmpval = sigsetjmp(chkp->buff,0);
 				if(!jmpval)
 					sh_exec(t->for_.fortre,flags|sh_state(SH_ERREXIT));
 				sh_popcontext(chkp);

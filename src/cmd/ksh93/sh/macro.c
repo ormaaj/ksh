@@ -2110,6 +2110,7 @@ nosub:
 
 /*
  * This routine handles command substitution
+ * and arithmetic expansion.
  * <type> is 0 for older `...` version
  * 1 for $(...) or 2 for ${ subshare; }
  */

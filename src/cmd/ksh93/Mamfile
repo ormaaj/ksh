@@ -1006,8 +1006,6 @@ make install
 				make sh/path.c
 					prev FEATURE/time implicit
 					prev ${PACKAGE_ast_INCLUDE}/endian.h implicit
-					make ${PACKAGE_ast_INCLUDE}/ast_vfork.h implicit
-					done ${PACKAGE_ast_INCLUDE}/ast_vfork.h dontcare
 					make exec_attr.h implicit
 					done exec_attr.h dontcare virtual
 					prev FEATURE/dynamic implicit
@@ -1117,7 +1115,6 @@ make install
 			done waitevent.o generated
 			make xec.o
 				make sh/xec.c
-					prev ${PACKAGE_ast_INCLUDE}/ast_vfork.h implicit
 					prev ${PACKAGE_ast_INCLUDE}/vmalloc.h implicit
 					prev include/streval.h implicit
 					prev FEATURE/locale implicit

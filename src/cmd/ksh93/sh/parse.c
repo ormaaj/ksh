@@ -13,6 +13,7 @@
 *                  David Korn <dgk@research.att.com>                   *
 *                  Martijn Dekker <martijn@inlv.org>                   *
 *            Johnothan King <johnothanking@protonmail.com>             *
+*                      Phi <phi.debian@gmail.com>                      *
 *                                                                      *
 ***********************************************************************/
 /*
@@ -938,6 +939,7 @@ static Shnode_t *funct(Lex_t *lexp)
 			memcpy(ap,lexp->arg,sz);
 			lexp->arg = ap;
 		}
+		lexp->assignok = 1;
 		t->funct.functtre = item(lexp,SH_NOIO);
 	}
 	else if(sh.shcomp)

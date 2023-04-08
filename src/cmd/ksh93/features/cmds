@@ -7,8 +7,7 @@ pth	ed fail{
 pth	tput
 
 tput_terminfo note{ does tput support terminfo codes }end run{
-	TERM=vt520
-	export TERM
+	export TERM=xterm
 	case ${_pth_tput-} in
 	\"/*/tput\")
 		tput=`echo "${_pth_tput}" | sed 's/^"//; s/"$//'`
@@ -23,8 +22,7 @@ tput_terminfo note{ does tput support terminfo codes }end run{
 }end
 
 tput_termcap note{ does tput support termcap codes }end run{
-	TERM=vt520
-	export TERM
+	export TERM=xterm
 	case ${_pth_tput-} in
 	\"/*/tput\")
 		tput=`echo "${_pth_tput}" | sed 's/^"//; s/"$//'`

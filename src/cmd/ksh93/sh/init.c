@@ -1962,7 +1962,7 @@ Dt_t *sh_inittree(const struct shtable2 *name_vals)
 		}
 		np->nvenv = 0;
 		if(name_vals==(const struct shtable2*)shtab_builtins)
-			np->nvalue.bfp = ((struct shtable3*)tp)->sh_value;
+			np->nvalue.bfp = (void*)((struct shtable3*)tp)->sh_value;
 		else
 		{
 			if(name_vals == shtab_variables)
@@ -2169,7 +2169,7 @@ Namfun_t	*nv_mapchar(Namval_t *np,const char *name)
 	if(!trans)
 		return NULL;
 	if(!np)
-		return NULL + 1;
+		return ((Namfun_t*)0) + 1;
 	if((low=strcmp(name,e_tolower)) && strcmp(name,e_toupper))
 		n += strlen(name)+1;
 	if(mp)

@@ -138,6 +138,15 @@ elif tst note{ SunOS (Solaris, illumos) }end compile{
 		#define __EXTENSIONS__	1
 		#define	_XOPEN_SOURCE	9900
 		#undef _POSIX_C_SOURCE
+		/*
+		 * Though POSIX says it must be allowed, Solaris Studio cc dislikes NULL, a.k.a.
+		 * (void*)0, being used for function pointers. It warns, or in some cases it even
+		 * throws an error. Just use 0 for NULL, as that is always acceptable in C.
+		 */
+		#if __SUNPRO_C
+		#undef 	NULL
+		#define	NULL	0
+		#endif /* __SUNPRO_C */
 	}
 elif tst note{ GNU (glibc) or Cygwin }end compile{
 		/*

@@ -804,7 +804,8 @@ w :\E_
 r ^:test-2: : One\\ "Two Three"\$'Four Five'\.mp3\r\n$
 !
 
-((SHOPT_VSH)) && tst $LINENO <<"!"
+# needs non-dumb terminal for multiline editing
+((SHOPT_VSH)) && TERM=vt100 tst $LINENO <<"!"
 L crash when entering comment into history file (vi mode)
 # https://github.com/att/ast/issues/798
 
@@ -857,7 +858,8 @@ w $'`/dev\t
 r ^:test-5: \$'`/dev[[:blank:]]*\r\n$
 !
 
-((SHOPT_ESH)) && VISUAL=emacs tst $LINENO <<"!"
+# needs non-dumb terminal for multiline editing
+((SHOPT_ESH)) && VISUAL=emacs TERM=vt100 tst $LINENO <<"!"
 L emacs: keys with repeat parameters repeat extra steps
 # https://github.com/ksh93/ksh/issues/292
 
@@ -1083,7 +1085,8 @@ w p\E[AT
 u CORRECT
 !
 
-((SHOPT_ESH)) && mkdir -p fullcomplete/foe && VISUAL=emacs tst $LINENO <<"!"
+# needs non-dumb terminal for multiline editing
+((SHOPT_ESH)) && mkdir -p fullcomplete/foe && VISUAL=emacs TERM=vt100 tst $LINENO <<"!"
 L full-word completion in emacs mode
 # https://github.com/ksh93/ksh/pull/580
 
@@ -1099,7 +1102,8 @@ w true fullcomplete/foi\cb*
 r ^:test-3: true fullcomplete/foi\r\n
 !
 
-((SHOPT_VSH)) && mkdir -p fullcomplete/fov && VISUAL=vi tst $LINENO <<"!"
+# needs non-dumb terminal for multiline editing
+((SHOPT_VSH)) && mkdir -p fullcomplete/fov && VISUAL=vi TERM=vt100 tst $LINENO <<"!"
 L full-word completion in vi mode
 # https://github.com/ksh93/ksh/pull/580
 

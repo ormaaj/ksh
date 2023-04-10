@@ -7779,11 +7779,23 @@ Same as
 .B multiline
 The built-in editors will use multiple lines on the screen for lines
 that are longer than the width of the screen.  This may not work
-for all terminals. The option is forced off on systems with neither
-.B terminfo (5)
+for all terminals.
+The shell uses the system's
+.BR tput (1)
+command to obtain the terminal escape codes for the necessary operations.
+Multi-line editing is disabled if this fails.
+On most systems, setting the
+.B TERM
+variable to your terminal's type and exporting it corrects this situation.
+The
+.B multiline
+option is permanently forced off on systems whose
+.BR tput (1)
+command supports neither
+.BR terminfo (5)
 nor
-.B termcap (5)
-support.
+.BR termcap (5)
+capability names.
 .TP 8
 .B noclobber
 Same as

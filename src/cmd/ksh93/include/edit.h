@@ -141,8 +141,6 @@ typedef struct edit
 	int	e_winsz;	/* columns in window */ 
 	Edpos_t	e_curpos;	/* cursor line and column */
 	Namval_t *e_default;	/* variable containing default value */
-	Namval_t *e_term;	/* TERM variable */
-	char 	e_termname[80];	/* terminal name */
 #if SHOPT_EDPREDICT
 	Histmatch_t	**hlist;
 	Histmatch_t	*hfirst;

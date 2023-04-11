@@ -66,14 +66,10 @@ make install
 								prev ${PACKAGE_ast_INCLUDE}/ast_common.h implicit
 							done ${PACKAGE_ast_INCLUDE}/ast_wchar.h
 							prev ${PACKAGE_ast_INCLUDE}/ast_common.h implicit
-							make ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
-							done ${PACKAGE_ast_INCLUDE}/prototyped.h
 						done ${PACKAGE_ast_INCLUDE}/regex.h
 						make ${PACKAGE_ast_INCLUDE}/getopt.h implicit
 							make ${PACKAGE_ast_INCLUDE}/ast_getopt.h implicit
-								prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 							done ${PACKAGE_ast_INCLUDE}/ast_getopt.h
-							prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 						done ${PACKAGE_ast_INCLUDE}/getopt.h
 						prev ${PACKAGE_ast_INCLUDE}/ast_map.h implicit
 						make ${PACKAGE_ast_INCLUDE}/ast_botch.h implicit
@@ -93,7 +89,6 @@ make install
 						make ${PACKAGE_ast_INCLUDE}/ast_lib.h implicit
 						done ${PACKAGE_ast_INCLUDE}/ast_lib.h
 						prev ${PACKAGE_ast_INCLUDE}/ast_common.h implicit
-						prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 					done ${PACKAGE_ast_INCLUDE}/ast_std.h
 				done ${PACKAGE_ast_INCLUDE}/vmalloc.h
 				prev ${PACKAGE_ast_INCLUDE}/regex.h implicit
@@ -107,37 +102,29 @@ make install
 							prev ${PACKAGE_ast_INCLUDE}/ast_std.h implicit
 						done ${PACKAGE_ast_INCLUDE}/sfio.h
 						prev ${PACKAGE_ast_INCLUDE}/ast_std.h implicit
-						prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 					done ${PACKAGE_ast_INCLUDE}/ast.h
 				done ${PACKAGE_ast_INCLUDE}/proc.h
 				make ${PACKAGE_ast_INCLUDE}/error.h implicit
 					make ${PACKAGE_ast_INCLUDE}/option.h implicit
 						prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
-						prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 					done ${PACKAGE_ast_INCLUDE}/option.h
 					prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
-					prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 				done ${PACKAGE_ast_INCLUDE}/error.h
 				make ${PACKAGE_ast_INCLUDE}/cmd.h implicit
 					make ${PACKAGE_ast_INCLUDE}/dlldefs.h implicit
 					done ${PACKAGE_ast_INCLUDE}/dlldefs.h
 					make ${PACKAGE_ast_INCLUDE}/cmdext.h implicit
 						make ${PACKAGE_ast_INCLUDE}/shcmd.h implicit
-							prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 						done ${PACKAGE_ast_INCLUDE}/shcmd.h
-						prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 					done ${PACKAGE_ast_INCLUDE}/cmdext.h
 					prev ${PACKAGE_ast_INCLUDE}/shcmd.h implicit
 					make ${PACKAGE_ast_INCLUDE}/stak.h implicit
 						make ${PACKAGE_ast_INCLUDE}/stk.h implicit
 							prev ${PACKAGE_ast_INCLUDE}/sfio.h implicit
-							prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 						done ${PACKAGE_ast_INCLUDE}/stk.h
-						prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 					done ${PACKAGE_ast_INCLUDE}/stak.h
 					prev ${PACKAGE_ast_INCLUDE}/error.h implicit
 					prev ${PACKAGE_ast_INCLUDE}/ast.h implicit
-					prev ${PACKAGE_ast_INCLUDE}/prototyped.h implicit
 				done ${PACKAGE_ast_INCLUDE}/cmd.h
 			done pty.c
 			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -I${PACKAGE_ast_INCLUDE} -DERROR_CATALOG=\""builtin"\" -DCMD_STANDALONE=b_pty -c pty.c

@@ -1228,11 +1228,6 @@ make install
 			exec - (ranlib libshell.a) >/dev/null 2>&1 || true
 		done libshell.a generated
 		bind -lshell
-		prev +ljobs
-		prev +li
-		prev ${mam_libsocket}
-		prev ${mam_libsecdb}
-		prev ${mam_libnetwork}
 		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -o ksh pmain.o ${mam_libshell} ${mam_libnsl} ${mam_libast} -lm
 	done ksh generated
 	make shcomp
@@ -1249,11 +1244,6 @@ make install
 			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Iinclude -I${PACKAGE_ast_INCLUDE} -DSH_DICT=${SH_DICT} -D_API_ast=20100309 -DERROR_CONTEXT_T=Error_context_t -c sh/shcomp.c
 		done shcomp.o generated
 		prev ksh
-		prev +ljobs
-		prev +li
-		prev ${mam_libsocket}
-		prev ${mam_libsecdb}
-		prev ${mam_libnetwork}
 		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -o shcomp shcomp.o ${mam_libshell} ${mam_libnsl} ${mam_libast} -lm
 	done shcomp generated
 	make shell

@@ -23,7 +23,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2023-04-12"
+#define RELEASE_DATE "2023-04-16"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -355,8 +355,8 @@ dont(Rule_t* r, int code, int keepgoing)
 			return;
 		if (!keepgoing)
 			exit(1);
+		state.errors = 1;
 	}
-	state.errors++;
 	r->flags |= RULE_error;
 }
 

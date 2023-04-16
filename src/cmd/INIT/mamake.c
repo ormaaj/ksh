@@ -23,7 +23,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2023-04-06"
+#define RELEASE_DATE "2023-04-12"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -566,6 +566,16 @@ search(Dict_t* dict, char* name, void* value)
 		dict->root = rroot;
 	}
 	return NULL;
+}
+
+/*
+ * return true if in strict mode
+ */
+
+static int
+strict(void)
+{
+	return search(state.vars, "MAMAKE_STRICT", NULL) != NULL;
 }
 
 /*
@@ -1745,7 +1755,23 @@ make(Rule_t* r)
 			}
 			continue;
 		case KEY('p','r','e','v'):
-			q = rule(expand(buf, t));
+		{
+			char *name = expand(buf, t);
+			if (!(q = (Rule_t*)search(state.rules, name, NULL)))
+			{	/*
+				 * 'prev' on a nonexistent rule, i.e., without a preceding 'make'...'done':
+				 * special-case this as a way to declare a simple source file prerequisite
+				 */
+				attributes(q = rule(name), v);
+				if(!(q->flags & RULE_virtual))
+				{
+					bindfile(q);
+					if (!(q->flags & (RULE_dontcare | RULE_exists)))
+						dont(q, 0, strict() ? state.keepgoing : 1);
+				}
+			}
+			else if (*v && strict())
+				report(3, v, "superfluous attributes", 0);
 			if (!q->making)
 			{
 				if (!(q->flags & RULE_ignore) && z < q->time)
@@ -1757,6 +1783,7 @@ make(Rule_t* r)
 				state.indent--;
 			}
 			continue;
+		}
 		case KEY('s','e','t','v'):
 			if (!search(state.vars, t, NULL))
 			{

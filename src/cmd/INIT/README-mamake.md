@@ -31,7 +31,8 @@ ksh 93u+m made a few minor changes to `mamake` that make it easier to maintain M
 * Indentation and word separators may use any whitespace (e.g. tabs), not only spaces.
 * Unrecognized commands and rule attributes throw an error instead of being silently ignored.
 * Fixed some crashing bugs and memory leaks.
-* The `prev` command may now be used without a prior `make`...`done` to declare a simple prerequisite.
+* The `prev` command may now be used without a prior `make`...`done` to declare a simple
+  prerequisite, provided the `MAMAKE_STRICT` variable is set.
 
 ## Commands ##
 
@@ -107,11 +108,14 @@ The `prev` command is used in two ways:
    No attributes should be given for this use of `prev`, because the attributes of the referenced rule are used.
    Superfluous attributes are an error if the `MAMAKE_STRICT` variable has been set, otherwise they are ignored.
 
-2. If *rule* is not a previously defined rule, `prev` creates a dependency on a prerequisite named by *rule*
-   in a manner equivalent to an empty `make`...`done` block. Any *attribute*s named are applied to it.
-   Unless the `virtual` attribute is given, *rule* names a file whose timestamp is checked in the file sysstem.
-   If neither the `virtual` nor the `dontcare` attribute is given, then if the file is not found,
-   then an error is thrown if the `MAMAKE_STRICT` variable has been set, a warning otherwise.
+2. If *rule* is not a previously defined rule, the following applies.
+   If the `MAMAKE_STRICT` variable is not set, `prev` creates an empty dummy
+   *rule* and ignores the *attribute*s; this is for backward compatibility.
+   If the `MAMAKE_STRICT` variable is set,
+   `prev` creates a rule that declares a dependency on a prerequisite file named by *rule*
+   in a manner equivalent to an empty `make`...`done` block,
+   with any *attribute*s given applied to the new rule, and
+   a nonexistent prerequisite is an error unless a `virtual` or `dontcare` attribute is given.
 
 ### MAM variables ###
 

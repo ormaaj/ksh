@@ -1757,7 +1757,9 @@ make(Rule_t* r)
 		case KEY('p','r','e','v'):
 		{
 			char *name = expand(buf, t);
-			if (!(q = (Rule_t*)search(state.rules, name, NULL)))
+			if (!strict())
+				q = rule(name); /* for backward compat */
+			else if (!(q = (Rule_t*)search(state.rules, name, NULL)))
 			{	/*
 				 * 'prev' on a nonexistent rule, i.e., without a preceding 'make'...'done':
 				 * special-case this as a way to declare a simple source file prerequisite
@@ -1770,7 +1772,7 @@ make(Rule_t* r)
 						dont(q, 0, strict() ? state.keepgoing : 1);
 				}
 			}
-			else if (*v && strict())
+			else if (*v)
 				report(3, v, "superfluous attributes", 0);
 			if (!q->making)
 			{

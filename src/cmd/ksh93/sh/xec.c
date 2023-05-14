@@ -529,45 +529,43 @@ static Namfun_t level_disc_fun = { &level_disc, 1 };
  */
 int sh_debug(const char *trap, const char *name, const char *subscript, char *const argv[], int flags)
 {
-	Stk_t			*stkp=sh.stk;
 	struct sh_scoped	savst;
 	Namval_t		*np = SH_COMMANDNOD;
-	int			n=4, offset=stktell(stkp);
-	char			*sav = stkfreeze(stkp,0);
+	int			n=4, offset=stktell(sh.stk);
+	char			*sav = stkfreeze(sh.stk,0);
 	const char		*cp = "+=( ";
-	Sfio_t			*iop = stkstd;
 	if(sh.indebug)
 		return 0;
 	sh.indebug = 1;
 	if(name)
 	{
-		sfputr(iop,name,-1);
+		sfputr(sh.stk,name,-1);
 		if(subscript)
 		{
-			sfputc(iop,'[');
-			out_string(iop,subscript,']',1);
+			sfputc(sh.stk,'[');
+			out_string(sh.stk,subscript,']',1);
 		}
 		if(!(flags&ARG_APPEND))
 			cp+=1, n-=1;
 		if(!(flags&ARG_ASSIGN))
 			n -= 2;
-		sfwrite(iop,cp,n);
+		sfwrite(sh.stk,cp,n);
 	}
 	if(*argv && !(flags&ARG_RAW))
-		out_string(iop, *argv++,' ', 0);
+		out_string(sh.stk, *argv++,' ', 0);
 	n = (flags&ARG_ARITH);
 	while(cp = *argv++)
 	{
 		if((flags&ARG_EXP) && argv[1]==0)
-			out_pattern(iop, cp,' ');
+			out_pattern(sh.stk, cp,' ');
 		else
-			out_string(iop, cp,' ',n?0: (flags&(ARG_RAW|ARG_NOGLOB))||*argv);
+			out_string(sh.stk, cp,' ',n?0: (flags&(ARG_RAW|ARG_NOGLOB))||*argv);
 	}
 	if(flags&ARG_ASSIGN)
-		sfputc(iop,')');
-	else if(iop==stkstd)
-		*stkptr(stkp,stktell(stkp)-1) = 0;
-	np->nvalue.cp = stkfreeze(stkp,1);
+		sfputc(sh.stk,')');
+	else
+		*stkptr(sh.stk,stktell(sh.stk)-1) = 0;
+	np->nvalue.cp = stkfreeze(sh.stk,1);
 	sh.st.lineno = error_info.line;
 	savst = sh.st;
 	sh.st.trap[SH_DEBUGTRAP] = 0;
@@ -585,10 +583,10 @@ int sh_debug(const char *trap, const char *name, const char *subscript, char *co
 	/* restore scope */
 	update_sh_level();
 	sh.st = savst;
-	if(sav != stkptr(stkp,0))
-		stkset(stkp,sav,offset);
+	if(sav != stkptr(sh.stk,0))
+		stkset(sh.stk,sav,offset);
 	else
-		stkseek(stkp,offset);
+		stkseek(sh.stk,offset);
 	return n;
 }
 

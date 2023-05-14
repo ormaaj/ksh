@@ -1011,10 +1011,9 @@ int sh_exec(const Shnode_t *t, int flags)
 #if SHOPT_NAMESPACE
 							if(sh.namespace)
 							{
-								if(!sh.strbuf2)
-									sh.strbuf2 = sfstropen();
-								sfprintf(sh.strbuf2,"%s%s%c",NV_CLASS,nv_name(sh.namespace),0);
-								sh.prefix = sh_strdup(sfstruse(sh.strbuf2));
+								sfputr(sh.strbuf,NV_CLASS,-1);
+								sfputr(sh.strbuf,nv_name(sh.namespace),-1);
+								sh.prefix = sh_strdup(sfstruse(sh.strbuf));
 								nv_open(sh.prefix,sh.var_base,NV_VARNAME);
 							}
 							else

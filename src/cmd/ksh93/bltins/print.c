@@ -735,7 +735,7 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 			argp = pp->lastarg;
 		if(argp)
 		{
-			sfprintf(sh.strbuf,"%s.%.*s%c",argp,fe->n_str,fe->t_str,0);
+			sfprintf(sh.strbuf,"%s.%.*s",argp,fe->n_str,fe->t_str);
 			argp = sfstruse(sh.strbuf);
 		}
 	}

@@ -16,6 +16,7 @@
 *         hyenias <58673227+hyenias@users.noreply.github.com>          *
 *                   Marc Wilson <posguy99@gmail.com>                   *
 *                      Phi <phi.debian@gmail.com>                      *
+*               K. Eugene Carlson <kvngncrlsn@gmail.com>               *
 *                                                                      *
 ***********************************************************************/
 /*

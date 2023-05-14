@@ -248,20 +248,13 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 		Namval_t *mp;
 		if(val= strchr(name,'?'))
 			*val = 0;
-		if(flags&C_FLAG)
-		{
+		/*
+		 * For -C to work, we need not only NV_ARRAY but also NV_ASSIGN. But an actual 'variable=value'
+		 * assignment-argument would be nonsense and crashes the shell if allowed, so avoid setting
+		 * NV_ASSIGN in that case, which lets nv_open issue the 'invalid variable name' error message.
+		 */
+		if(flags&C_FLAG && !strchr(name,'='))
 			oflags |= NV_ARRAY|NV_ASSIGN;
-			/*
-			 * For some reason, so far known only to the AT&T deities, we need not only
-			 * NV_ARRAY but also NV_ASSIGN to make -C work. But an actual assignment-argument
-			 * would be nonsense and also crashes the shell if allowed, so block that here.
-			 */
-			if(strchr(name,'='))
-			{
-				errormsg(SH_DICT, ERROR_exit(1), e_varname, name);
-				UNREACHABLE();
-			}
-		}
 		np = nv_open(name,sh.var_tree,oflags);
 		if(!np)
 		{

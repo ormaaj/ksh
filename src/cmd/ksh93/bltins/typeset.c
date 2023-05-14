@@ -712,7 +712,7 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 				{
 					if(sh.prefix)
 					{
-						sfprintf(sh.strbuf,"%s.%s%c",sh.prefix,name,0);
+						sfprintf(sh.strbuf,"%s.%s",sh.prefix,name);
 						name = sfstruse(sh.strbuf);
 					}
 #if SHOPT_NAMESPACE

@@ -155,7 +155,8 @@ static Namval_t *scope(Namval_t *np,struct lval *lvalue,int assign)
 			*cp = 0;
 			if(c || hasdot)
 			{
-				sfprintf(sh.strbuf,"%s%s%c",nv_name(np),sub,0);
+				sfputr(sh.strbuf,nv_name(np),-1);
+				sfputr(sh.strbuf,sub,-1);
 				sub = sfstruse(sh.strbuf);
 			}
 			*cp = flag;

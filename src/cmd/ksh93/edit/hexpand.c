@@ -13,6 +13,7 @@
 *                  David Korn <dgk@research.att.com>                   *
 *                  Martijn Dekker <martijn@inlv.org>                   *
 *            Johnothan King <johnothanking@protonmail.com>             *
+*               K. Eugene Carlson <kvngncrlsn@gmail.com>               *
 *                                                                      *
 ***********************************************************************/
 /*
@@ -205,7 +206,7 @@ int hist_expand(const char *ln, char **xp)
 			else if(*cp == '\'') /* skip quoted designators */
 			{
 				do
-					stakputc(*cp);				
+					stakputc(*cp);
 				while(*++cp && *cp != '\'');
 			}
 			stakputc(*cp++);
@@ -220,11 +221,8 @@ int hist_expand(const char *ln, char **xp)
 				stakputs(cp);
 				DONE;
 			}
-			else
-			{
-				stakputc(*cp++);
-				continue;
-			}
+			stakputc(*cp++);
+			continue;
 		}
 
 		n = -1;

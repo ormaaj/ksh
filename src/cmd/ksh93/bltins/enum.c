@@ -203,18 +203,9 @@ static char* get_enum(Namval_t* np, Namfun_t *fp)
 	return buff;
 }
 
-static Sfdouble_t get_nenum(Namval_t* np, Namfun_t *fp)
-{
-	return nv_getn(np,fp);
-}
+const Namdisc_t ENUM_disc = { 0, put_enum, get_enum, nv_getn, 0, 0, clone_enum };
 
-const Namdisc_t ENUM_disc        = {  0, put_enum, get_enum, get_nenum, 0,0,clone_enum };
-
-#ifdef STANDALONE
-static int enum_create(int argc, char** argv, Shbltin_t *context)
-#else
 int b_enum(int argc, char** argv, Shbltin_t *context)
-#endif
 {
 	int			sz,i,n,iflag = 0;
 	Namval_t		*np, *tp;
@@ -249,10 +240,8 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 		error(ERROR_USAGE|2, "%s", optusage(NULL));
 		return 1;
 	}
-#ifndef STANDALONE
 	if(sh.subshell && !sh.subshare)
 		sh_subfork();
-#endif
 	while(cp = *argv++)
 	{
 		/* Do not allow 'enum' to override special built-ins -- however, exclude
@@ -310,16 +299,3 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 	}
 	return error_info.errors != 0;
 }
-
-#ifdef STANDALONE
-void lib_init(int flag, void* context)
-{
-	Namval_t	*mp,*bp;
-	NOT_USED(context);
-	if(flag)
-		return;
-	bp = sh_addbuiltin("Enum", enum_create, NULL); 
-	mp = nv_search("typeset",sh.bltin_tree,0);
-	nv_onattr(bp,nv_isattr(mp,NV_PUBLIC));
-}
-#endif

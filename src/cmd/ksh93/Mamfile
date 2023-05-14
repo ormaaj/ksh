@@ -596,6 +596,7 @@ make install
 			done nvdisc.o generated
 			make nvtype.o
 				make sh/nvtype.c
+					prev include/builtins.h
 					prev include/variables.h
 					prev include/io.h
 					prev include/defs.h

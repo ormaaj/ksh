@@ -24,6 +24,7 @@
 #include        "defs.h"
 #include        "io.h"
 #include        "variables.h"
+#include	"builtins.h"
 
 static const char sh_opttype[] =
 "[-1c?\n@(#)$Id: type (ksh 93u+m) 2021-12-17 $\n]"
@@ -765,7 +766,7 @@ void nv_addtype(Namval_t *np, const char *optstr, Optdisc_t *op, size_t optsz)
 {
 	Namdecl_t	*cp = sh_newof(NULL,Namdecl_t,1,optsz);
 	Optdisc_t	*dp = (Optdisc_t*)(cp+1);
-	Namval_t	*mp,*bp;
+	Namval_t	*bp;
 	char		*name;
 	if(optstr)
 		cp->optstring = optstr;
@@ -774,7 +775,6 @@ void nv_addtype(Namval_t *np, const char *optstr, Optdisc_t *op, size_t optsz)
 	memcpy(dp,op, optsz);
 	cp->optinfof = dp;
 	cp->tp = np;
-	mp = nv_search("typeset",sh.bltin_tree,0);
 	if(name=strrchr(np->nvname,'.'))
 		name++;
 	else
@@ -787,14 +787,14 @@ void nv_addtype(Namval_t *np, const char *optstr, Optdisc_t *op, size_t optsz)
 			tp->nsp = bp;
 		if(!sh.strbuf2)
 			sh.strbuf2 = sfstropen();
-		sfprintf(sh.strbuf2,".%s.%s%c\n",nv_name(bp)+1,name,0);
+		sfprintf(sh.strbuf2,".%s.%s",nv_name(bp)+1,name);
 		name = sfstruse(sh.strbuf2);
 	}
 #endif /* SHOPT_NAMESPACE */
 	if((bp=nv_search(name,sh.fun_tree,NV_NOSCOPE)) && !bp->nvalue.ip)
 		nv_delete(bp,sh.fun_tree,0);
-	bp = sh_addbuiltin(name, funptr(mp), cp);
-	nv_onattr(bp,nv_isattr(mp,NV_PUBLIC));
+	bp = sh_addbuiltin(name, funptr(SYSTYPESET), cp);
+	nv_onattr(bp,nv_isattr(SYSTYPESET,NV_PUBLIC));
 	nv_onattr(np, NV_RDONLY);
 }
 

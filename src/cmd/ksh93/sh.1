@@ -933,8 +933,8 @@ and which (unlike a subshell) starts from scratch in terms of
 variables and functions and may be interactive.
 Beware of shell tutorials on the Internet that confuse these.
 .PP
-Subshells are not themselves invoked as commands.
-Instead, the following are automatically run in or from a subshell:
+Subshells cannot be created or invoked using any command.
+Instead, the following are automatically run in a subshell:
 .RS 8
 .IP \[bu] 3
 any command or group of commands enclosed in parentheses;
@@ -959,7 +959,9 @@ Subshells are virtual unless or until something (such as asynchronous
 execution, or an attempt to set a process limit using the
 .B ulimit
 built-in command, or other implementation- or system-defined requirements)
-makes it necessary to fork it into a separate process.
+makes it necessary to
+.IR fork (2)
+it into a separate process.
 Barring any bugs in the shell, virtual subshells should be indistinguishable
 from real subshells except by their execution speed and their process ID.
 See the description of the

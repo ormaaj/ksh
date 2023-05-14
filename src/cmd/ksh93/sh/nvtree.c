@@ -51,15 +51,13 @@ static char *walk_tree(Namval_t*, Namval_t*, int);
 static int read_tree(Namval_t* np, Sfio_t *iop, int n, Namfun_t *dp)
 {
 	Sfio_t	*sp;
-	char	*cp;
 	int	c;
 	if(n>=0)
 		return -1;
 	while((c = sfgetc(iop)) &&  isblank(c));
 	sfungetc(iop,c);
-	sfprintf(sh.strbuf,"%s=%c",nv_name(np),0);
-	cp = sfstruse(sh.strbuf);
-	sp = sfopen(NULL,cp,"s");
+	sfputr(sh.strbuf,nv_name(np),'=');
+	sp = sfopen(NULL,sfstruse(sh.strbuf),"s");
 	sfstack(iop,sp);
 	c=sh_eval(iop,SH_READEVAL);
 	return c;

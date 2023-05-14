@@ -1877,7 +1877,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 			up->cp = NULL;
 		else
 		{
-			char	*cp = NULL;	/* pointer to new string */
+			char *cp = NULL;		/* pointer to new string */
 			unsigned int dot;		/* attribute or type length; defaults to string length */
 			unsigned int append = 0;	/* offset for appending */
 			if(sp==up->cp && !(flags&NV_APPEND))
@@ -3223,7 +3223,7 @@ int nv_rename(Namval_t *np, int flags)
 	}
 	if(!mp && index>=0 && nv_isvtree(nr))
 	{
-		sfprintf(sh.strbuf,"%s[%d]%c",nv_name(np),index,0);
+		sfprintf(sh.strbuf,"%s[%d]",nv_name(np),index);
 		/* create a virtual node */
 		if(mp = nv_open(sfstruse(sh.strbuf),sh.var_tree,NV_VARNAME|NV_ADD|NV_ARRAY))
 		{

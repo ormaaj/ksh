@@ -208,7 +208,7 @@ static void p_time(Sfio_t *out, const char *format, struct timeval tm[3])
 static void p_time(Sfio_t *out, const char *format, clock_t *tm)
 #endif
 {
-	int		c,n,offset = staktell();
+	int		c,n,offset = stktell(sh.stk);
 	const char	*first;
 #ifdef timeofday
 	struct timeval	tv_cpu_sum;
@@ -1036,7 +1036,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					else
 					{
 						/* avoid exit on error from nv_setlist, e.g. read-only variable */
-						struct checkpt *chkp = (struct checkpt*)stakalloc(sizeof(struct checkpt));
+						struct checkpt *chkp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
 						sh_pushcontext(chkp,SH_JMPCMD);
 						jmpval = sigsetjmp(chkp->buff,0);
 						if(!jmpval)
@@ -1353,7 +1353,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					slp = (struct slnod*)np->nvenv;
 					sh_funstaks(slp->slchild,1);
 					if(slp->slptr)
-						staklink(slp->slptr);
+						stklink(slp->slptr);
 					if(nq)
 					{
 						Namval_t *mp=0;
@@ -1413,7 +1413,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					{
 						Stak_t *sp = slp->slptr;
 						slp->slptr = NULL;
-						stakdelete(sp);
+						stkclose(sp);
 					}
 					if(jmpval > SH_JMPFUN || (io && jmpval > SH_JMPIO))
 						siglongjmp(*sh.jmplist,jmpval);
@@ -1828,7 +1828,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				job.curpgid = 0;
 				while((tn=tn->lst.lstrit) && tn->tre.tretyp==TFIL)
 					job.waitall++;
-				exitval = job.exitval = (int*)stakalloc(job.waitall*sizeof(int));
+				exitval = job.exitval = (int*)stkalloc(sh.stk,job.waitall*sizeof(int));
 				memset(exitval,0,job.waitall*sizeof(int));
 			}
 			else
@@ -2357,7 +2357,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				Namval_t *oldnspace = sh.namespace;
 				int offset = stktell(sh.stk);
 				int	flags=NV_NOARRAY|NV_VARNAME;
-				struct checkpt *chkp = (struct checkpt*)stakalloc(sizeof(struct checkpt));
+				struct checkpt *chkp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
 				int jmpval;
 				if(cp)
 				{
@@ -2449,7 +2449,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				{
 					Stak_t *sp = slp->slptr;
 					slp->slptr = NULL;
-					stakdelete(sp);
+					stkclose(sp);
 				}
 				if(rp->sdict)
 				{
@@ -2487,7 +2487,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				slp = t->funct.functstak;
 				sh_funstaks(slp->slchild,1);
 				if(slp->slptr)
-					staklink(slp->slptr);
+					stklink(slp->slptr);
 				np->nvenv = (char*)slp;
 				nv_funtree(np) = (int*)(t->funct.functtre);
 				np->nvalue.rp->hoffset = t->funct.functloc;
@@ -2665,15 +2665,15 @@ int sh_exec(const Shnode_t *t, int flags)
 int sh_run(int argn, char *argv[])
 {
 	struct dolnod	*dp;
-	struct comnod	*t = (struct comnod*)stakalloc(sizeof(struct comnod));
-	int		savtop = staktell();
-	char		*savptr = stakfreeze(0);
+	struct comnod	*t = (struct comnod*)stkalloc(sh.stk,sizeof(struct comnod));
+	int		savtop = stktell(sh.stk);
+	char		*savptr = stkfreeze(sh.stk,0);
 	Opt_t		*op, *np = optctx(0, 0);
 	Shbltin_t	bltindata;
 	bltindata = sh.bltindata;
 	op = optctx(np, 0);
 	memset(t, 0, sizeof(struct comnod));
-	dp = (struct dolnod*)stakalloc((unsigned)sizeof(struct dolnod) + ARG_SPARE*sizeof(char*) + argn*sizeof(char*));
+	dp = (struct dolnod*)stkalloc(sh.stk, (unsigned)sizeof(struct dolnod) + ARG_SPARE*sizeof(char*) + argn*sizeof(char*));
 	dp->dolnum = argn;
 	dp->dolbot = ARG_SPARE;
 	memcpy(dp->dolval+ARG_SPARE, argv, (argn+1)*sizeof(char*));
@@ -2683,10 +2683,10 @@ int sh_run(int argn, char *argv[])
 	argn=sh_exec((Shnode_t*)t,sh_isstate(SH_ERREXIT));
 	optctx(op,np);
 	sh.bltindata = bltindata;
-	if(savptr!=stakptr(0))
-		stakset(savptr,savtop);
+	if(savptr!=stkptr(sh.stk,0))
+		stkset(sh.stk,savptr,savtop);
 	else
-		stakseek(savtop);
+		stkseek(sh.stk,savtop);
 	return argn;
 }
 

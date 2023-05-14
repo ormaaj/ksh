@@ -39,12 +39,23 @@ static char *fmtx(const char *string)
 {
 	const char	*cp = string;
 	int	 	n,c;
-	unsigned char 	*state = (unsigned char*)sh_lexstates[2]; 
-	int offset = staktell();
-	if(*cp=='#' || *cp=='~')
+	int		pos = 0;
+	unsigned char 	*state = (unsigned char*)sh_lexstates[2];
+	int		offset = staktell();
+	char		hc[3];
+#if SHOPT_HISTEXPAND
+	const char	hexp = sh_isoption(SH_HISTEXPAND)!=0;
+	if(hexp)
+		hist_setchars(hc);
+#else
+	const char	hexp = 0;
+#endif /* SHOPT_HISTEXPAND */
+	if((!hexp || (*cp!=hc[0] && *cp!=hc[2])) && (*cp=='#' || *cp=='~'))
 		stakputc('\\');
 	mbinit();
-	while((c=mbchar(cp)),(c>UCHAR_MAX)||(n=state[c])==0 || n==S_EPAT);
+	while((c=mbchar(cp)),((c>UCHAR_MAX)||(n=state[c])==0 || n==S_EPAT)
+	&& (!hexp || ((c!=hc[0]) && (c!=hc[2] || string[0]!=hc[2]))) && c!='~')
+		;
 	if(n==S_EOF && *string!='#')
 		return (char*)string;
 	stakwrite(string,--cp-string);
@@ -52,12 +63,13 @@ static char *fmtx(const char *string)
 	{
 		if((n=cp-string)==1)
 		{
-			if((n=state[c]) && n!=S_EPAT)
+			if(((n=state[c]) && n!=S_EPAT) || (hexp && ((c==hc[0]) || (c==hc[2] && !pos))))
 				stakputc('\\');
 			stakputc(c);
 		}
 		else
 			stakwrite(string,n);
+		pos++;
 	}
 	stakputc(0);
 	return stakptr(offset);
@@ -348,8 +360,14 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 			mode = '*';
 		if(var!='$' && mode=='\\' && out[-1]!='*')
 			addstar = '*';
-		if(*begin=='~' && !strchr(begin,'/'))
-			addstar = 0;
+		if(*begin=='~')
+		{
+			/* do not perform tilde expansion while completing a quoted string */
+			if(begin>outbuff && (begin[-1]=='"' || begin[-1]=='\''))
+				sh_onstate(SH_NOTILDEXP);
+			else if(!strchr(begin,'/'))
+				addstar = 0;
+		}
 		stakputc(addstar);
 		ap = (struct argnod*)stakfreeze(1);
 	}
@@ -548,6 +566,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 	}
  done:
 	sh_offstate(SH_FCOMPLETE);
+	sh_offstate(SH_NOTILDEXP);
 	if(!ep->e_nlist)
 		stakset(ep->e_stkptr,ep->e_stkoff);
 	if(nomarkdirs)

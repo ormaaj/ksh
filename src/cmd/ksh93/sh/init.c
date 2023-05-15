@@ -29,7 +29,6 @@
 
 #include	"shopt.h"
 #include        "defs.h"
-#include        <stak.h>
 #include        <ccode.h>
 #include        <pwd.h>
 #include        <tmx.h>
@@ -229,7 +228,7 @@ static int		shlvl;
 static int		rand_shift;
 
 /*
- * Exception callback routine for stk(3)/stak(3) and sh_*alloc wrappers.
+ * Exception callback routine for stk(3) and sh_*alloc wrappers.
  */
 static noreturn char *nomemory(size_t s)
 {
@@ -1102,7 +1101,7 @@ static char *setdisc_any(Namval_t *np, const char *event, Namval_t *action, Namf
 {
 	Namval_t	*mp,fake;
 	char		*name;
-	int		getname=0, off=staktell();
+	int		getname=0, off=stktell(sh.stk);
 	fake.nvname = nv_name(np);
 	if(!event)
 	{
@@ -1113,13 +1112,11 @@ static char *setdisc_any(Namval_t *np, const char *event, Namval_t *action, Namf
 		}
 		getname = 1;
 	}
-	stakputs(fake.nvname);
-	stakputc('.');
-	stakputs(event);
-	stakputc(0);
-	name  = stakptr(off);
+	sfputr(sh.stk,fake.nvname,'.');
+	sfputr(sh.stk,event,0);
+	name = stkptr(sh.stk,off);
 	mp = nv_search(name, sh.fun_tree, action?NV_ADD:0);
-	stakseek(off);
+	stkseek(sh.stk,off);
 	if(getname)
 		return mp ? (char*)dtnext(sh.fun_tree,mp) : 0;
 	if(action==np)
@@ -1146,10 +1143,9 @@ static int newconf(const char *name, const char *path, const char *value)
 		if(*(arg = path_pwd())=='/')
 			chdir(arg);
 		/* clear out old tracked alias */
-		stakseek(0);
-		stakputs(nv_getval(PATHNOD));
-		stakputc(0);
-		nv_putval(PATHNOD,stakseek(0),NV_RDONLY);
+		stkseek(sh.stk,0);
+		sfputr(sh.stk,nv_getval(PATHNOD),0);
+		nv_putval(PATHNOD,stkseek(sh.stk,0),NV_RDONLY);
 	}
 	return 1;
 }
@@ -1336,7 +1332,7 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	sh_ioinit();
 	/* initialize signal handling */
 	sh_siginit();
-	stakinstall(NULL,nomemory);
+	stkinstall(NULL,nomemory);
 	/* set up memory for name-value pairs */
 	sh.init_context = nv_init();
 	/* initialize shell type */
@@ -1377,13 +1373,12 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 				sh.shpath = sh_strdup(cp);
 			else if(cp = nv_getval(PWDNOD))
 			{
-				int offset = staktell();
-				stakputs(cp);
-				stakputc('/');
-				stakputs(argv[0]);
-				pathcanon(stakptr(offset),PATH_DOTDOT);
-				sh.shpath = sh_strdup(stakptr(offset));
-				stakseek(offset);
+				int offset = stktell(sh.stk);
+				sfputr(sh.stk,cp,'/');
+				sfputr(sh.stk,argv[0],-1);
+				pathcanon(stkptr(sh.stk,offset),PATH_DOTDOT);
+				sh.shpath = sh_strdup(stkptr(sh.stk,offset));
+				stkseek(sh.stk,offset);
 			}
 		}
 	}
@@ -2119,7 +2114,7 @@ struct Mapchar
 static void put_trans(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
 	struct Mapchar *mp = (struct Mapchar*)fp;
-	int	c,offset = staktell(),off=offset;
+	int c, offset = stktell(sh.stk), off = offset;
 	if(val)
 	{
 		if(mp->lctype!=lctype)
@@ -2132,14 +2127,14 @@ static void put_trans(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		while(c = mbchar(val))
 		{
 			c = towctrans(c,mp->trans);
-			stakseek(off+c);
-			stakseek(off);
-			c  = mbconv(stakptr(off),c);
+			stkseek(sh.stk,off+c);
+			stkseek(sh.stk,off);
+			c  = mbconv(stkptr(sh.stk,off),c);
 			off += c;
-			stakseek(off);
+			stkseek(sh.stk,off);
 		}
-		stakputc(0);
-		val = stakptr(offset);
+		sfputc(sh.stk,0);
+		val = stkptr(sh.stk,offset);
 	}
 	else
 	{
@@ -2147,12 +2142,12 @@ static void put_trans(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		nv_disc(np,fp,NV_POP);
 		if(!(fp->nofree&1))
 			free(fp);
-		stakseek(offset);
+		stkseek(sh.stk,offset);
 		return;
 	}
 skip:
 	nv_putv(np,val,flags,fp);
-	stakseek(offset);
+	stkseek(sh.stk,offset);
 }
 
 static const Namdisc_t TRANS_disc      = {  sizeof(struct Mapchar), put_trans };

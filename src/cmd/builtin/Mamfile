@@ -106,11 +106,9 @@ make install
 						prev ${PACKAGE_ast_INCLUDE}/shcmd.h implicit
 					done ${PACKAGE_ast_INCLUDE}/cmdext.h
 					prev ${PACKAGE_ast_INCLUDE}/shcmd.h
-					make ${PACKAGE_ast_INCLUDE}/stak.h implicit
-						make ${PACKAGE_ast_INCLUDE}/stk.h implicit
-							prev ${PACKAGE_ast_INCLUDE}/sfio.h
-						done ${PACKAGE_ast_INCLUDE}/stk.h
-					done ${PACKAGE_ast_INCLUDE}/stak.h
+					make ${PACKAGE_ast_INCLUDE}/stk.h implicit
+						prev ${PACKAGE_ast_INCLUDE}/sfio.h
+					done ${PACKAGE_ast_INCLUDE}/stk.h
 					prev ${PACKAGE_ast_INCLUDE}/error.h
 					prev ${PACKAGE_ast_INCLUDE}/ast.h
 				done ${PACKAGE_ast_INCLUDE}/cmd.h

@@ -1411,7 +1411,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					sh_funstaks(slp->slchild,-1);
 					if(slp->slptr)
 					{
-						Stak_t *sp = slp->slptr;
+						Stk_t *sp = slp->slptr;
 						slp->slptr = NULL;
 						stkclose(sp);
 					}
@@ -2447,7 +2447,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				sh_funstaks(slp->slchild,-1);
 				if(slp->slptr)
 				{
-					Stak_t *sp = slp->slptr;
+					Stk_t *sp = slp->slptr;
 					slp->slptr = NULL;
 					stkclose(sp);
 				}

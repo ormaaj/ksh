@@ -570,7 +570,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 	else
 		c = S_NL;
 	sh.nextprompt = 2;
-	rel= staktell();
+	rel = stktell(sh.stk);
 	mbinit();
 	/* val==0 at the start of a field */
 	val = 0;
@@ -605,13 +605,13 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 				inquote = !inquote;
 			if(val)
 			{
-				stakputs(val);
+				sfputr(sh.stk,val,-1);
 				use_stak = 1;
 				*val = 0;
 			}
 			if(c==-1)
 			{
-				stakputc('"');
+				sfputc(sh.stk,'"');
 				c = sh.ifstable[*cp++];
 			}
 			continue;
@@ -623,7 +623,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 				c = 0;
 			if(val)
 			{
-				stakputs(val);
+				sfputr(sh.stk,val,-1);
 				use_stak = 1;
 				was_escape = 1;
 				*val = 0;
@@ -637,7 +637,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 			/* check for end of buffer */
 			if(val && *val)
 			{
-				stakputs(val);
+				sfputr(sh.stk,val,-1);
 				use_stak = 1;
 			}
 			val = 0;
@@ -737,7 +737,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 						{
 							if(val)
 							{
-								stakwrite(val,cp-(unsigned char*)val);
+								sfwrite(sh.stk,val,cp-(unsigned char*)val);
 								use_stak = 1;
 							}
 							val = (char*)++cp;
@@ -751,7 +751,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 						{
 							if(val)
 							{
-								stakwrite(val,cp-(unsigned char*)val);
+								sfwrite(sh.stk,val,cp-(unsigned char*)val);
 								use_stak=1;
 							}
 							if(cp = (unsigned char*)sfgetr(iop,delim,0))
@@ -781,9 +781,8 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 			val = "";
 		if(use_stak)
 		{
-			stakputs(val);
-			stakputc(0);
-			val = stakptr(rel);
+			sfputr(sh.stk,val,0);
+			val = stkptr(sh.stk,rel);
 		}
 		if(!name && *val)
 		{
@@ -810,7 +809,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, long tim
 		del = 0;
 		if(use_stak)
 		{
-			stakseek(rel);
+			stkseek(sh.stk,rel);
 			use_stak = 0;
 		}
 		if(array_index)

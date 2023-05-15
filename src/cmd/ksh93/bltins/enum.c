@@ -256,10 +256,8 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 			error(ERROR_exit(1), "%s must name an array containing at least two elements",cp);
 			UNREACHABLE();
 		}
-		n = staktell();
-		sfprintf(stkstd,"%s.%s%c",NV_CLASS,np->nvname,0);
-		tp = nv_open(stakptr(n), sh.var_tree, NV_VARNAME);
-		stakseek(n);
+		sfprintf(sh.strbuf,"%s.%s",NV_CLASS,np->nvname);
+		tp = nv_open(sfstruse(sh.strbuf), sh.var_tree, NV_VARNAME);
 		n = sz;
 		i = 0;
 		nv_onattr(tp, NV_UINT16);

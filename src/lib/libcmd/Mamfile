@@ -377,9 +377,7 @@ make install
 							prev ${PACKAGE_ast_INCLUDE}/shcmd.h
 						done cmdext.h dontcare generated
 						prev ${PACKAGE_ast_INCLUDE}/shcmd.h
-						make ${PACKAGE_ast_INCLUDE}/stak.h implicit
-							prev ${PACKAGE_ast_INCLUDE}/stk.h
-						done ${PACKAGE_ast_INCLUDE}/stak.h
+						prev ${PACKAGE_ast_INCLUDE}/stk.h
 						prev ${PACKAGE_ast_INCLUDE}/error.h
 						prev ${PACKAGE_ast_INCLUDE}/ast.h
 					done cmd.h

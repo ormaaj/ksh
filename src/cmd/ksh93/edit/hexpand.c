@@ -43,7 +43,7 @@ NoN(hexpand)
 static char *modifiers = "htrepqxs&";
 static int mod_flags[] = { 0, 0, 0, 0, HIST_PRINT, HIST_QUOTE, HIST_QUOTE|HIST_QUOTE_BR, 0, 0 };
 
-#define DONE		{ stakseek(0); goto done; }
+#define DONE		{ stkseek(sh.stk,0); goto done; }
 #define ERROROUT	{ flag |= HIST_ERROR; DONE; }
 
 struct subst
@@ -68,7 +68,7 @@ static char *parse_subst(const char *s, struct subst *sb)
 	int	off,n = 0;
 
 	/* build the strings on the stack, mainly for '&' substitution in "new" */
-	off = staktell();
+	off = stktell(sh.stk);
 
 	/* init "new" with empty string */
 	if(sb->str[1])
@@ -85,14 +85,14 @@ static char *parse_subst(const char *s, struct subst *sb)
 		if(*cp == del || *cp == '\n' || *cp == '\0')
 		{
 			/* delimiter or EOL */
-			if(staktell() != off)
+			if(stktell(sh.stk) != off)
 			{
 				/* dupe string on stack and rewind stack */
-				stakputc('\0');
+				sfputc(sh.stk,'\0');
 				if(sb->str[n])
 					free(sb->str[n]);
-				sb->str[n] = sh_strdup(stakptr(off));
-				stakseek(off);
+				sb->str[n] = sh_strdup(stkptr(sh.stk,off));
+				stkseek(sh.stk,off);
 			}
 			n++;
 
@@ -104,27 +104,27 @@ static char *parse_subst(const char *s, struct subst *sb)
 		{
 			if(*(cp+1) == del)	/* quote delimiter */
 			{
-				stakputc(del);
+				sfputc(sh.stk,del);
 				cp++;
 			}
 			else if(*(cp+1) == '&' && n == 1)
 			{		/* quote '&' only in "new" */
-				stakputc('&');
+				sfputc(sh.stk,'&');
 				cp++;
 			}
 			else
-				stakputc('\\');
+				sfputc(sh.stk,'\\');
 		}
 		else if(*cp == '&' && n == 1 && sb->str[0])
 			/* substitute '&' with "old" in "new" */
-			stakputs(sb->str[0]);
+			sfputr(sh.stk,sb->str[0],-1);
 		else
-			stakputc(*cp);
+			sfputc(sh.stk,*cp);
 		cp++;
 	}
 
 	/* rewind stack */
-	stakseek(off);
+	stkseek(sh.stk,off);
 
 	return cp;
 }
@@ -190,8 +190,8 @@ int hist_expand(const char *ln, char **xp)
 	hist_setchars(hc);
 
 	/* save shell stack */
-	if(off = staktell())
-		sp = stakfreeze(0);
+	if(off = stktell(sh.stk))
+		sp = stkfreeze(sh.stk,0);
 
 	cp = (char*)ln;
 
@@ -202,14 +202,14 @@ int hist_expand(const char *ln, char **xp)
 		   || (*cp == hc[1] && cp != ln))
 		{
 			if(*cp == '\\')	/* skip escaped designators */
-				stakputc(*cp++);
+				sfputc(sh.stk,*cp++);
 			else if(*cp == '\'') /* skip quoted designators */
 			{
 				do
-					stakputc(*cp);
+					sfputc(sh.stk,*cp);
 				while(*++cp && *cp != '\'');
 			}
-			stakputc(*cp++);
+			sfputc(sh.stk,*cp++);
 			continue;
 		}
 
@@ -218,10 +218,10 @@ int hist_expand(const char *ln, char **xp)
 			if(cp == ln || is_wordboundary(cp[-1]))
 			{
 				/* word begins with history comment character; skip rest of line */
-				stakputs(cp);
+				sfputr(sh.stk,cp,0);
 				DONE;
 			}
-			stakputc(*cp++);
+			sfputc(sh.stk,*cp++);
 			continue;
 		}
 
@@ -250,15 +250,15 @@ int hist_expand(const char *ln, char **xp)
 		case '\0':
 		case '=':
 		case '(':
-			stakputc(hc[0]);
+			sfputc(sh.stk,hc[0]);
 			continue;
 		case '#': /* the line up to current position */
 			flag |= HIST_HASH;
 			cp++;
-			n = staktell(); /* terminate string and dup */
-			stakputc('\0');
-			cc = sh_strdup(stakptr(0));
-			stakseek(n); /* remove null byte again */
+			n = stktell(sh.stk); /* terminate string and dup */
+			sfputc(sh.stk,'\0');
+			cc = sh_strdup(stkptr(sh.stk,0));
+			stkseek(sh.stk,n); /* remove null byte again */
 			ref = sfopen(ref, cc, "s"); /* open as file */
 			n = 0; /* skip history file referencing */
 			break;
@@ -685,7 +685,7 @@ getsel:
 			sfseek(tmp, 0, SEEK_SET);
 
 			if(flag & HIST_QUOTE)
-				stakputc('\'');
+				sfputc(sh.stk,'\'');
 
 			while((c = sfgetc(tmp)) > 0)
 			{
@@ -704,30 +704,21 @@ getsel:
 					c = (flag & HIST_NEWLINE) ? '\n' : ' ';
 
 					if(flag & HIST_QUOTE_BR)
-					{
-						stakputc('\'');
-						stakputc(c);
-						stakputc('\'');
-					}
+						sfprintf(sh.stk,"'%c'",c);
 					else
-						stakputc(c);
+						sfputc(sh.stk,c);
 				}
 				else if((c == '\'') && (flag & HIST_QUOTE))
-				{
-					stakputc('\'');
-					stakputc('\\');
-					stakputc(c);
-					stakputc('\'');
-				}
+					sfprintf(sh.stk,"'\\%c'",c);
 				else
-					stakputc(c);
+					sfputc(sh.stk,c);
 			}
 			if(flag & HIST_QUOTE)
-				stakputc('\'');
+				sfputc(sh.stk,'\'');
 		}
 	}
 
-	stakputc('\0');
+	sfputc(sh.stk,'\0');
 
 done:
 	if(cc && (flag&HIST_HASH))
@@ -739,14 +730,14 @@ done:
 	}
 
 	/* error? */
-	if(staktell() && !(flag & HIST_ERROR))
-		*xp = sh_strdup(stakfreeze(1));
+	if(stktell(sh.stk) && !(flag & HIST_ERROR))
+		*xp = sh_strdup(stkfreeze(sh.stk,1));
 
 	/* restore shell stack */
 	if(off)
-		stakset(sp,off);
+		stkset(sh.stk,sp,off);
 	else
-		stakseek(0);
+		stkseek(sh.stk,0);
 
 	/* drop temporary files */
 

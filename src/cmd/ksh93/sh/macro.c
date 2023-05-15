@@ -1506,7 +1506,7 @@ retry1:
 					v = nv_getval(np);
 				mp->atmode = (v && mp->quoted && mode=='@');
 			}
-			if(savptr==stakptr(0))
+			if(savptr==stkptr(sh.stk,0))
 				stkseek(stkp,offset);
 			else
 				stkset(stkp,savptr,offset);
@@ -2669,38 +2669,38 @@ static int	charlen(const char *string,int len)
 static void tilde_expand2(int offset)
 {
 	char		*cp = NULL;			/* character pointer for tilde expansion result */
-	char		*stakp = stakptr(0);		/* current stack object (&stakp[offset] is tilde string) */
-	int		curoff = staktell();		/* current offset of current stack object */
+	char		*stakp = stkptr(sh.stk,0);	/* current stack object (&stakp[offset] is tilde string) */
+	int		curoff = stktell(sh.stk);	/* current offset of current stack object */
 	static char	block;				/* for disallowing tilde expansion in .get/.set to change ${.sh.tilde} */
 	/*
 	 * Allow overriding tilde expansion with a .sh.tilde.set or .get discipline function.
 	 */
 	if(!block && SH_TILDENOD->nvfun && SH_TILDENOD->nvfun->disc)
 	{
-		stakfreeze(1);				/* terminate current stack object to avoid data corruption */
+		stkfreeze(sh.stk,1);			/* terminate current stack object to avoid data corruption */
 		block++;
 		nv_putval(SH_TILDENOD, &stakp[offset], 0);
 		cp = nv_getval(SH_TILDENOD);
 		block--;
 		if(cp[0]=='\0' || cp[0]=='~')
 			cp = NULL;			/* do not use empty or unexpanded result */
-		stakset(stakp,curoff);			/* restore stack to state on function entry */
+		stkset(sh.stk,stakp,curoff);		/* restore stack to state on function entry */
 	}
 	/*
 	 * Perform default tilde expansion unless overridden.
 	 * Write the result to the stack, if any.
 	 */
-	stakputc(0);
+	sfputc(sh.stk,0);
 	if(!cp)
 		cp = sh_tilde(&stakp[offset]);
 	if(cp)
 	{
-		stakseek(offset);
+		stkseek(sh.stk,offset);
 		if(!(cp[0]=='/' && !cp[1] && fcpeek(0)=='/'))
-			stakputs(cp);			/* for ~ == /, avoid ~/foo -> //foo */
+			sfputr(sh.stk,cp,-1);		/* for ~ == /, avoid ~/foo -> //foo */
 	}
 	else
-		stakseek(curoff);
+		stkseek(sh.stk,curoff);
 }
 
 /*
@@ -2743,18 +2743,18 @@ static char *sh_tilde(const char *string)
 	if(fcgetc(c)=='/')
 	{
 		char	*str;
-		int	n=0,offset=staktell();
-		stakputs(string);
+		int	n=0,offset=stktell(sh.stk);
+		sfputr(sh.stk,string,-1);
 		do
 		{
-			stakputc(c);
+			sfputc(sh.stk,c);
 			n++;
 		}
 		while (fcgetc(c) && c!='/');
-		stakputc(0);
+		sfputc(sh.stk,0);
 		if(c)
 			fcseek(-1);
-		str = stakseek(offset);
+		str = stkseek(sh.stk,offset);
 		Skip = n;
 		if(logins_tree && (np=nv_search(str,logins_tree,0)))
 			return nv_getval(np);

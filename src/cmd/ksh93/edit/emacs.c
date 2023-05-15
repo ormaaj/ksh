@@ -735,7 +735,7 @@ process:
 	tty_cooked(ERRIO);
 	if(ed->e_nlist)
 		ed->e_nlist = 0;
-	stakset(ed->e_stkptr,ed->e_stkoff);
+	stkset(sh.stk,ed->e_stkptr,ed->e_stkoff);
 	if(c == '\n')
 	{
 		out[eol++] = '\n';

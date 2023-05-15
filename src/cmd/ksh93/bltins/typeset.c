@@ -233,7 +233,7 @@ int    b_typeset(int argc,char *argv[],Shbltin_t *context)
 	}
 	else if(argv[0][0] != 't')		/* not <t>ypeset */
 	{
-		char **new_argv = (char **)stakalloc((argc + 2) * sizeof(char*));
+		char **new_argv = (char **)stkalloc(sh.stk, (argc + 2) * sizeof(char*));
 		error_info.id = new_argv[0] = SYSTYPESET->nvname;
 		if(argv[0][0] == 'a')		/* <a>utoload == typeset -fu */
 			new_argv[1] = "-fu";

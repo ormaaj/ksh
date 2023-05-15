@@ -2798,9 +2798,7 @@ make install
 					prev include/regex.h
 					prev include/error.h
 					prev include/ast_dir.h
-					make include/stak.h implicit
-						prev include/stk.h
-					done include/stak.h
+					prev include/stk.h
 					prev include/ls.h
 					prev include/ast.h
 				done misc/glob.c
@@ -2913,7 +2911,7 @@ make install
 			done tempnam.o generated
 			make wordexp.o
 				make comp/wordexp.c
-					prev include/stak.h
+					prev include/stk.h
 					make comp/wordexp.h implicit
 						prev ast_common.h
 					done comp/wordexp.h
@@ -4593,10 +4591,6 @@ make install
 		prev man/spawnveg.3
 		exec - ${STDCMP} 2>/dev/null -s man/spawnveg.3 ${INSTALLROOT}/man/man3/spawnveg.3 || { ${STDMV} ${INSTALLROOT}/man/man3/spawnveg.3 ${INSTALLROOT}/man/man3/spawnveg.3.old 2>/dev/null || true; ${STDCP} man/spawnveg.3 ${INSTALLROOT}/man/man3/spawnveg.3 ;}
 	done ${INSTALLROOT}/man/man3/spawnveg.3 generated
-	make ${INSTALLROOT}/man/man3/stak.3
-		prev man/stak.3
-		exec - ${STDCMP} 2>/dev/null -s man/stak.3 ${INSTALLROOT}/man/man3/stak.3 || { ${STDMV} ${INSTALLROOT}/man/man3/stak.3 ${INSTALLROOT}/man/man3/stak.3.old 2>/dev/null || true; ${STDCP} man/stak.3 ${INSTALLROOT}/man/man3/stak.3 ;}
-	done ${INSTALLROOT}/man/man3/stak.3 generated
 	make ${INSTALLROOT}/man/man3/stk.3
 		prev man/stk.3
 		exec - ${STDCMP} 2>/dev/null -s man/stk.3 ${INSTALLROOT}/man/man3/stk.3 || { ${STDMV} ${INSTALLROOT}/man/man3/stk.3 ${INSTALLROOT}/man/man3/stk.3.old 2>/dev/null || true; ${STDCP} man/stk.3 ${INSTALLROOT}/man/man3/stk.3 ;}
@@ -4983,12 +4977,6 @@ make install
 		exec - then ${STDCP} include/stack.h ${INSTALLROOT}/include/ast/stack.h
 		exec - fi
 	done ${INSTALLROOT}/include/ast/stack.h generated
-	make ${INSTALLROOT}/include/ast/stak.h
-		prev include/stak.h
-		exec - if ! cmp -s include/stak.h ${INSTALLROOT}/include/ast/stak.h
-		exec - then ${STDCP} include/stak.h ${INSTALLROOT}/include/ast/stak.h
-		exec - fi
-	done ${INSTALLROOT}/include/ast/stak.h generated
 	make ${INSTALLROOT}/include/ast/stk.h
 		prev include/stk.h
 		exec - if ! cmp -s include/stk.h ${INSTALLROOT}/include/ast/stk.h

@@ -68,7 +68,7 @@ static unsigned	dcl_recursion;
 
 static int		opt_get;
 
-#define getnode(type)	((Shnode_t*)stakalloc(sizeof(struct type)))
+#define getnode(type)	((Shnode_t*)stkalloc(sh.stk,sizeof(struct type)))
 
 #if SHOPT_KIA
 /*
@@ -523,17 +523,17 @@ void sh_funstaks(struct slnod *slp,int flag)
 			{
 				/*
 				 * Since we're dealing with a linked list of stacks, slpold may be inside the allocated region
-				 * pointed to by slpold->slptr, meaning the stakdelete() call may invalidate slpold as well as
-				 * slpold->slptr. So if we do 'stakdelete(slpold->slptr); slpold->slptr = NULL' as may
+				 * pointed to by slpold->slptr, meaning the stkclose() call may invalidate slpold as well as
+				 * slpold->slptr. So if we do 'stkclose(slpold->slptr); slpold->slptr = NULL' as may
 				 * seem obvious, the assignment may be a use-after-free of slpold. Therefore, save the pointer
 				 * value and reset the pointer before closing/freeing the stack.
 				 */
-				Stak_t *sp = slpold->slptr;
+				Stk_t *sp = slpold->slptr;
 				slpold->slptr = NULL;
-				stakdelete(sp);
+				stkclose(sp);
 			}
 			else
-				staklink(slpold->slptr);
+				stklink(slpold->slptr);
 		}
 	}
 }
@@ -668,7 +668,7 @@ static struct regnod*	syncase(Lex_t *lexp,int esym)
 	struct regnod	*r;
 	if(tok==esym)
 		return NULL;
-	r = (struct regnod*)stakalloc(sizeof(struct regnod));
+	r = (struct regnod*)stkalloc(sh.stk,sizeof(struct regnod));
 	r->regptr=0;
 	r->regflag=0;
 	if(tok==LPAREN)
@@ -718,7 +718,6 @@ static Shnode_t	*arithfor(Lex_t *lexp,Shnode_t *tf)
 	int		offset;
 	struct argnod	*argp;
 	int		n;
-	Stk_t		*stkp = sh.stk;
 	int		argflag = lexp->arg->argflag;
 	Fcin_t		sav_input;
 	/* save current input */
@@ -728,7 +727,7 @@ static Shnode_t	*arithfor(Lex_t *lexp,Shnode_t *tf)
 	for(n=0; ; n++)
 	{
 		int c;
-		argp = (struct argnod*)stkseek(stkp,ARGVAL);
+		argp = (struct argnod*)stkseek(sh.stk,ARGVAL);
 		argp->argnxt.ap = 0;
 		argp->argchn.cp = 0;
 		argp->argflag = argflag;
@@ -736,20 +735,20 @@ static Shnode_t	*arithfor(Lex_t *lexp,Shnode_t *tf)
 			break;
 		/* copy up to ; onto the stack */
 		sh_lexskip(lexp,';',1,ST_NESTED);
-		offset = stktell(stkp)-1;
+		offset = stktell(sh.stk)-1;
 		if((c=fcpeek(-1))!=';')
 			break;
 		/* remove trailing white space */
-		while(offset>ARGVAL && ((c= *stkptr(stkp,offset-1)),isspace(c)))
+		while(offset>ARGVAL && ((c= *stkptr(sh.stk,offset-1)),isspace(c)))
 			offset--;
 		/* check for empty initialization expression */
 		if(offset==ARGVAL && n==0)
 			continue;
-		stkseek(stkp,offset);
+		stkseek(sh.stk,offset);
 		/* check for empty condition and treat as while((1)) */
 		if(offset==ARGVAL)
-			sfputc(stkp,'1');
-		argp = (struct argnod*)stkfreeze(stkp,1);
+			sfputc(sh.stk,'1');
+		argp = (struct argnod*)stkfreeze(sh.stk,1);
 		t = getanode(lexp,argp);
 		if(n==0)
 			tf = makelist(lexp,TLST,t,tw);
@@ -758,8 +757,8 @@ static Shnode_t	*arithfor(Lex_t *lexp,Shnode_t *tf)
 	}
 	while((offset=fcpeek(0)) && isspace(offset))
 		fcseek(1);
-	stakputs(fcseek(0));
-	argp = (struct argnod*)stakfreeze(1);
+	sfputr(sh.stk,fcseek(0),-1);
+	argp = (struct argnod*)stkfreeze(sh.stk,1);
 	fcrestore(&sav_input);
 	if(n<2)
 	{
@@ -791,7 +790,7 @@ static Shnode_t *funct(Lex_t *lexp)
 	Shnode_t *t;
 	int flag;
 	struct slnod *volatile slp=0;
-	Stak_t *volatile savstak=0;
+	Stk_t *volatile savstak=0;
 	Sfoff_t	first, last;
 	struct functnod *volatile fp;
 	Sfio_t *iop;
@@ -890,10 +889,10 @@ static Shnode_t *funct(Lex_t *lexp)
 	jmpval = sigsetjmp(buff.buff,0);
 	if(jmpval == 0)
 	{
-		/* create a new stak frame to compile the command */
-		savstak = stakcreate(STAK_SMALL);
-		savstak = stakinstall(savstak, 0);
-		slp = (struct slnod*)stakalloc(sizeof(struct slnod)+sizeof(struct functnod));
+		/* create a new stack frame to compile the command */
+		savstak = stkopen(STK_SMALL);
+		savstak = stkinstall(savstak, 0);
+		slp = (struct slnod*)stkalloc(sh.stk,sizeof(struct slnod)+sizeof(struct functnod));
 		slp->slchild = 0;
 		slp->slnext = sh.st.staklist;
 		sh.st.staklist = 0;
@@ -908,10 +907,10 @@ static Shnode_t *funct(Lex_t *lexp)
 		fp->functargs = 0;
 		fp->functline = t->funct.functline;
 		if(sh.st.filename)
-			fp->functnam = stakcopy(sh.st.filename);
+			fp->functnam = stkcopy(sh.stk,sh.st.filename);
 		if(size)
 		{
-			struct dolnod *dp = (struct dolnod*)stakalloc(size);
+			struct dolnod *dp = (struct dolnod*)stkalloc(sh.stk,size);
 			char *cp, *sp, **argv, **old = ((struct dolnod*)t->funct.functargs->comarg)->dolval+1;
 			argv = ((char**)(dp->dolval))+1;
 			dp->dolnum = ((struct dolnod*)t->funct.functargs->comarg)->dolnum;
@@ -927,7 +926,7 @@ static Shnode_t *funct(Lex_t *lexp)
 		{
 			/* functname() simple_command: copy current word token to current stack frame */
 			size_t sz = ARGVAL + strlen(lexp->arg->argval) + 1;  /* include terminating 0 */
-			struct argnod *ap = (struct argnod*)stakalloc(sz);
+			struct argnod *ap = (struct argnod*)stkalloc(sh.stk,sz);
 			memcpy(ap,lexp->arg,sz);
 			lexp->arg = ap;
 		}
@@ -940,7 +939,7 @@ static Shnode_t *funct(Lex_t *lexp)
 	/* restore the old stack */
 	if(slp)
 	{
-		slp->slptr =  stakinstall(savstak,0);
+		slp->slptr = stkinstall(savstak,0);
 		slp->slchild = sh.st.staklist;
 	}
 #if SHOPT_KIA
@@ -950,10 +949,10 @@ static Shnode_t *funct(Lex_t *lexp)
 	{
 		if(slp && slp->slptr)
 		{
-			Stak_t *slptr_save = slp->slptr;
+			Stk_t *slptr_save = slp->slptr;
 			sh.st.staklist = slp->slnext;
 			slp->slptr = NULL;
-			stakdelete(slptr_save);
+			stkclose(slptr_save);
 		}
 		siglongjmp(*sh.jmplist,jmpval);
 	}
@@ -1009,7 +1008,6 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 	int n;
 	Shnode_t *t, **tp;
 	struct comnod *ac;
-	Stk_t	*stkp = sh.stk;
 	int array=0, index=0;
 	Namval_t *np;
 	lexp->assignlevel++;
@@ -1055,16 +1053,16 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 		ac->comline = sh_getlineno(lexp);
 		while(n==LPAREN)
 		{
-			ar = (struct argnod*)stkseek(stkp,ARGVAL);
+			ar = (struct argnod*)stkseek(sh.stk,ARGVAL);
 			ar->argflag= ARG_ASSIGN;
-			sfprintf(stkp,"[%d]=",index++);
+			sfprintf(sh.stk,"[%d]=",index++);
 			if(aq=ac->comarg)
 			{
 				ac->comarg = aq->argnxt.ap;
-				sfprintf(stkp,"%s",aq->argval);
+				sfprintf(sh.stk,"%s",aq->argval);
 				ar->argflag |= aq->argflag;
 			}
-			ar = (struct argnod*)stkfreeze(stkp,1);
+			ar = (struct argnod*)stkfreeze(sh.stk,1);
 			ar->argnxt.ap = 0;
 			if(!aq)
 				ar = assign(lexp,ar,0);
@@ -1075,11 +1073,11 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 				continue;
 			while((n = skipnl(lexp,0))==0)
 			{
-				ar = (struct argnod*)stkseek(stkp,ARGVAL);
+				ar = (struct argnod*)stkseek(sh.stk,ARGVAL);
 				ar->argflag= ARG_ASSIGN;
-				sfprintf(stkp,"[%d]=",index++);
-				stakputs(lexp->arg->argval);
-				ar = (struct argnod*)stkfreeze(stkp,1);
+				sfprintf(sh.stk,"[%d]=",index++);
+				sfputr(sh.stk,lexp->arg->argval,-1);
+				ar = (struct argnod*)stkfreeze(sh.stk,1);
 				ar->argnxt.ap = 0;
 				ar->argflag = lexp->arg->argflag;
 				*settail = ar;
@@ -1433,7 +1431,6 @@ static Shnode_t *simple(Lex_t *lexp,int flag, struct ionod *io)
 	struct comnod	*t;
 	struct argnod	*argp;
 	int		tok;
-	Stk_t		*stkp = sh.stk;
 	struct argnod	**argtail;
 	struct argnod	**settail;
 	int		cmdarg = 0;
@@ -1486,9 +1483,9 @@ static Shnode_t *simple(Lex_t *lexp,int flag, struct ionod *io)
 					last = strchr(argp->argval,'=');
 					if(last && (last[-1]==']'|| (last[-1]=='+' && last[-2]==']')) && (cp=strchr(argp->argval,'[')) && (cp < last) && cp[-1]!='.')
 						last = cp;
-					stkseek(stkp,ARGVAL);
-					sfwrite(stkp,argp->argval,last-argp->argval);
-					ap=(struct argnod*)stkfreeze(stkp,1);
+					stkseek(sh.stk,ARGVAL);
+					sfwrite(sh.stk,argp->argval,last-argp->argval);
+					ap=(struct argnod*)stkfreeze(sh.stk,1);
 					ap->argflag = ARG_RAW;
 					ap->argchn.ap = 0;
 				}
@@ -1684,7 +1681,6 @@ static struct ionod	*inout(Lex_t *lexp,struct ionod *lastio,int flag)
 {
 	int 		iof = lexp->digits, token=lexp->token;
 	struct ionod	*iop;
-	Stk_t		*stkp = sh.stk;
 	char		*iovname=0;
 	int		errout=0;
 	/* return if a process substitution is found without a redirection */
@@ -1741,13 +1737,13 @@ static struct ionod	*inout(Lex_t *lexp,struct ionod *lastio,int flag)
 		return lastio;
 	}
 	lexp->digits=0;
-	iop=(struct ionod*) stkalloc(stkp,sizeof(struct ionod));
+	iop=(struct ionod*) stkalloc(sh.stk,sizeof(struct ionod));
 	iop->iodelim = 0;
 	if(token=sh_lex(lexp))
 	{
 		if(token==RPAREN && (iof&IOLSEEK) && lexp->comsub) 
 		{
-			lexp->arg = (struct argnod*)stkalloc(stkp,sizeof(struct argnod)+3);
+			lexp->arg = (struct argnod*)stkalloc(sh.stk,sizeof(struct argnod)+3);
 			strcpy(lexp->arg->argval,"CUR");
 			lexp->arg->argflag = ARG_RAW;
 			iof |= IOARITH;
@@ -1818,7 +1814,7 @@ static struct ionod	*inout(Lex_t *lexp,struct ionod *lastio,int flag)
 		if(errout)
 		{
 			/* redirect standard output to standard error */
-			ioq = (struct ionod*)stkalloc(stkp,sizeof(struct ionod));
+			ioq = (struct ionod*)stkalloc(sh.stk,sizeof(struct ionod));
 			memset(ioq,0,sizeof(*ioq));
 			ioq->ioname = "1";
 			ioq->iolst = 0;
@@ -1879,7 +1875,7 @@ static struct argnod *qscan(struct comnod *ac,int argn)
 			errormsg(SH_DICT,ERROR_warn(0),message,ac->comline);
 	}
 	/* leave space for an extra argument at the front */
-	dp = (struct dolnod*)stakalloc((unsigned)sizeof(struct dolnod) + ARG_SPARE*sizeof(char*) + argn*sizeof(char*));
+	dp = (struct dolnod*)stkalloc(sh.stk,(unsigned)sizeof(struct dolnod) + ARG_SPARE*sizeof(char*) + argn*sizeof(char*));
 	cp = dp->dolval+ARG_SPARE;
 	dp->dolnum = argn;
 	dp->dolbot = ARG_SPARE;
@@ -2056,22 +2052,21 @@ static Shnode_t *test_primary(Lex_t *lexp)
  */
 unsigned long kiaentity(Lex_t *lexp,const char *name,int len,int type,int first,int last,unsigned long parent, int pkind, int width, const char *attr)
 {
-	Stk_t	*stkp = sh.stk;
 	Namval_t *np;
-	long offset = stktell(stkp);
-	sfputc(stkp,type);
+	long offset = stktell(sh.stk);
+	sfputc(sh.stk,type);
 	if(len>0)
-		sfwrite(stkp,name,len);
+		sfwrite(sh.stk,name,len);
 	else
 	{
 		if(type=='p')
-			sfputr(stkp,path_basename(name),0);
+			sfputr(sh.stk,path_basename(name),0);
 		else
-			sfputr(stkp,name,0);
+			sfputr(sh.stk,name,0);
 	}
-	sfputc(stkp,'\0');  /* terminate name while writing database output */
-	np = nv_search(stakptr(offset),lexp->entity_tree,NV_ADD);
-	stkseek(stkp,offset);
+	sfputc(sh.stk,'\0');  /* terminate name while writing database output */
+	np = nv_search(stkptr(sh.stk,offset),lexp->entity_tree,NV_ADD);
+	stkseek(sh.stk,offset);
 	np->nvalue.i = pkind;
 	nv_setsize(np,width);
 	if(!nv_isattr(np,NV_TAGGED) && first>=0)

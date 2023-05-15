@@ -121,13 +121,13 @@ static char *getbuf(size_t len)
 void nv_outname(Sfio_t *out, char *name, int len)
 {
 	const char *cp=name, *sp;
-	int c, offset = staktell();
+	int c, offset = stktell(sh.stk);
 	while(sp= strchr(cp,'['))
 	{
 		if(len>0 && cp+len <= sp)
 			break;
 		sfwrite(out,cp,++sp-cp);
-		stakseek(offset);
+		stkseek(sh.stk,offset);
 		while(c= *sp++)
 		{
 			if(c==']')
@@ -137,10 +137,10 @@ void nv_outname(Sfio_t *out, char *name, int len)
 				if(*sp=='[' || *sp==']' || *sp=='\\')
 					c = *sp++;
 			}
-			stakputc(c);
+			sfputc(sh.stk,c);
 		}
-		stakputc(0);
-		sfputr(out,sh_fmtq(stakptr(offset)),-1);
+		sfputc(sh.stk,0);
+		sfputr(out,sh_fmtq(stkptr(sh.stk,offset)),-1);
 		if(len>0)
 		{
 			sfputc(out,']');
@@ -155,7 +155,7 @@ void nv_outname(Sfio_t *out, char *name, int len)
 		else
 			sfputr(out,cp,-1);
 	}
-	stakseek(offset);
+	stkseek(sh.stk,offset);
 }
 
 /*
@@ -283,7 +283,7 @@ void nv_setlist(struct argnod *arg,int flags, Namval_t *typ)
 		}
 		else
 		{
-			stakseek(0);
+			stkseek(sh.stk,0);
 			if(*arg->argval==0 && arg->argchn.ap && !(arg->argflag&~(ARG_APPEND|ARG_QUOTED|ARG_MESSAGE|ARG_ARRAY)))
 			{
 				int flag = (NV_VARNAME|NV_ARRAY|NV_ASSIGN);
@@ -316,9 +316,9 @@ void nv_setlist(struct argnod *arg,int flags, Namval_t *typ)
 					{
 						if(nv_isvtree(np) && !nv_isarray(np))
 						{
-							stakputc('.');
-							stakputs(cp);
-							cp = stakfreeze(1);
+							sfputc(sh.stk,'.');
+							sfputr(sh.stk,cp,-1);
+							cp = stkfreeze(sh.stk,1);
 						}
 					}
 				}
@@ -439,7 +439,7 @@ void nv_setlist(struct argnod *arg,int flags, Namval_t *typ)
 					if(tp->tre.tretyp!=TLST && !tp->com.comnamp && tp->com.comset && tp->com.comset->argval[0]==0 && tp->com.comset->argchn.ap)
 					{
 						if(prefix || np)
-							cp = stakcopy(nv_name(np));
+							cp = stkcopy(sh.stk,nv_name(np));
 						sh.prefix = cp;
 						if(tp->com.comset->argval[1]=='[')
 						{
@@ -456,7 +456,7 @@ void nv_setlist(struct argnod *arg,int flags, Namval_t *typ)
 					}
 					if(*cp!='.' && *cp!='[' && strchr(cp,'['))
 					{
-						cp = stakcopy(nv_name(np));
+						cp = stkcopy(sh.stk,nv_name(np));
 						if(!(arg->argflag&ARG_APPEND))
 							flag &= ~NV_ARRAY;
 						if(sh.prefix_root = sh.first_root)
@@ -496,12 +496,12 @@ void nv_setlist(struct argnod *arg,int flags, Namval_t *typ)
 			skip:
 				if(sub>0)
 				{
-					sfprintf(stkstd,"%s[%d]",prefix?nv_name(np):cp,sub);
-					sh.prefix = stakfreeze(1);
+					sfprintf(sh.stk,"%s[%d]",prefix?nv_name(np):cp,sub);
+					sh.prefix = stkfreeze(sh.stk,1);
 					nv_putsub(np,NULL,ARRAY_ADD|ARRAY_FILL|sub);
 				}
 				else if(prefix)
-					sh.prefix = stakcopy(nv_name(np));
+					sh.prefix = stkcopy(sh.stk,nv_name(np));
 				else
 					sh.prefix = cp;
 				sh.last_table = 0;
@@ -509,8 +509,8 @@ void nv_setlist(struct argnod *arg,int flags, Namval_t *typ)
 				{
 					if(*sh.prefix=='_' && sh.prefix[1]=='.' && nv_isref(L_ARGNOD))
 					{
-						sfprintf(stkstd,"%s%s",nv_name(L_ARGNOD->nvalue.nrp->np),sh.prefix+1);
-						sh.prefix = stkfreeze(stkstd,1);
+						sfprintf(sh.stk,"%s%s",nv_name(L_ARGNOD->nvalue.nrp->np),sh.prefix+1);
+						sh.prefix = stkfreeze(sh.stk,1);
 					}
 					memset(&nr,0,sizeof(nr));
 					memcpy(&node,L_ARGNOD,sizeof(node));
@@ -648,14 +648,14 @@ void nv_setlist(struct argnod *arg,int flags, Namval_t *typ)
 static void stak_subscript(const char *sub, int last)
 {
 	int c;
-	stakputc('[');
+	sfputc(sh.stk,'[');
 	while(c= *sub++)
 	{
 		if(c=='[' || c==']' || c=='\\')
-			stakputc('\\');
-		stakputc(c);
+			sfputc(sh.stk,'\\');
+		sfputc(sh.stk,c);
 	}
-	stakputc(last);
+	sfputc(sh.stk,last);
 }
 
 /*
@@ -663,31 +663,31 @@ static void stak_subscript(const char *sub, int last)
  */
 static char *copystack(const char *prefix, const char *name, const char *sub)
 {
-	int last=0,offset = staktell();
+	int last=0,offset = stktell(sh.stk);
 	if(prefix)
 	{
-		stakputs(prefix);
-		if(*stakptr(staktell()-1)=='.')
-			stakseek(staktell()-1);
+		sfputr(sh.stk,prefix,-1);
+		if(*stkptr(sh.stk,stktell(sh.stk)-1)=='.')
+			stkseek(sh.stk,stktell(sh.stk)-1);
 		if(*name=='.' && name[1]=='[')
-			last = staktell()+2;
+			last = stktell(sh.stk)+2;
 		if(*name!='['  && *name!='.' && *name!='=' && *name!='+')
-			stakputc('.');
+			sfputc(sh.stk,'.');
 		if(*name=='.' && (name[1]=='=' || name[1]==0))
-			stakputc('.');
+			sfputc(sh.stk,'.');
 	}
 	if(last)
 	{
-		stakputs(name);
-		if(sh_checkid(stakptr(last),NULL))
-			stakseek(staktell()-2);
+		sfputr(sh.stk,name,-1);
+		if(sh_checkid(stkptr(sh.stk,last),NULL))
+			stkseek(sh.stk,stktell(sh.stk)-2);
 	}
 	if(sub)
 		stak_subscript(sub,']');
 	if(!last)
-		stakputs(name);
-	stakputc(0);
-	return stakptr(offset);
+		sfputr(sh.stk,name,-1);
+	sfputc(sh.stk,0);
+	return stkptr(sh.stk,offset);
 }
 
 /*
@@ -697,10 +697,10 @@ static char *copystack(const char *prefix, const char *name, const char *sub)
 static char *stack_extend(const char *cname, char *cp, int n)
 {
 	char *name = (char*)cname;
-	int offset = name - stakptr(0);
+	int offset = name - stkptr(sh.stk,0);
 	int m = cp-name;
-	stakseek(offset + strlen(name)+n+1);
-	name = stakptr(offset);
+	stkseek(sh.stk,offset + strlen(name)+n+1);
+	name = stkptr(sh.stk,offset);
 	cp =  name + m;
 	m = strlen(cp)+1;
 	while(m-->0)
@@ -1310,7 +1310,7 @@ Namval_t *nv_open(const char *name, Dt_t *root, int flags)
 	int			append=0;
 	const char		*msg = e_varname;
 	char			*fname = 0;
-	int			offset = staktell();
+	int			offset = stktell(sh.stk);
 	Dt_t			*funroot = NULL;
 #if NVCACHE
 	struct Cache_entry	*xp;
@@ -1543,7 +1543,7 @@ skip:
 		UNREACHABLE();
 	}
 	if(fun.nofree&1)
-		stakseek(offset);
+		stkseek(sh.stk,offset);
 	return np;
 }
 
@@ -1935,11 +1935,10 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 					append = strlen(up->cp);
 					if(!tofree || size)
 					{
-						offset = staktell();
-						stakputs(up->cp);
-						stakputs(sp);
-						stakputc(0);
-						sp = stakptr(offset);
+						offset = stktell(sh.stk);
+						sfputr(sh.stk,up->cp,-1);
+						sfputr(sh.stk,sp,0);
+						sp = stkptr(sh.stk,offset);
 						dot += append;
 						append = 0;
 					}
@@ -1992,7 +1991,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				ja_restore();
 		}
 		if(flags&NV_APPEND)
-			stakseek(offset);
+			stkseek(sh.stk,offset);
 		if(tofree && tofree!=Empty && tofree!=AltEmpty)
 			free((void*)tofree);
 	}
@@ -2109,7 +2108,7 @@ static void ja_restore(void)
 static char *staknam(Namval_t *np, char *value)
 {
 	char *p,*q;
-	q = stakalloc(strlen(nv_name(np))+(value?strlen(value):0)+2);
+	q = stkalloc(sh.stk,strlen(nv_name(np))+(value?strlen(value):0)+2);
 	p=strcopy(q,nv_name(np));
 	if(value)
 	{
@@ -2188,12 +2187,12 @@ char **sh_envgen(void)
 	data.attsize = 6;
 	namec = nv_scan(sh.var_tree,nullscan,NULL,NV_EXPORT,NV_EXPORT);
 	namec += sh.nenv;
-	er = (char**)stakalloc((namec+4)*sizeof(char*));
+	er = (char**)stkalloc(sh.stk,(namec+4)*sizeof(char*));
 	data.argnam = (er+=2) + sh.nenv;
 	if(sh.nenv)
 		memcpy(er,environ,sh.nenv*sizeof(char*));
 	nv_scan(sh.var_tree, pushnam,&data,NV_EXPORT, NV_EXPORT);
-	*data.argnam = (char*)stakalloc(data.attsize);
+	*data.argnam = (char*)stkalloc(sh.stk,data.attsize);
 	/* Export variable attributes into env var named by e_envmarker, unless POSIX mode is on */
 	cp = data.attval = strcopy(*data.argnam,e_envmarker);
 	if(!sh_isoption(SH_POSIX))
@@ -2481,9 +2480,9 @@ void	_nv_unset(Namval_t *np,int flags)
 			}
 			if(slp->slptr)
 			{
-				Stak_t *sp = slp->slptr;
+				Stk_t *sp = slp->slptr;
 				slp->slptr = NULL;
-				stakdelete(sp);
+				stkclose(sp);
 			}
 			free(np->nvalue.ip);
 			np->nvalue.ip = 0;

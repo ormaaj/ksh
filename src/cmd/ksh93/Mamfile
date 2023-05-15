@@ -190,9 +190,7 @@ make install
 							prev ${PACKAGE_ast_INCLUDE}/shcmd.h implicit
 						done ${PACKAGE_ast_INCLUDE}/cmdext.h
 						prev ${PACKAGE_ast_INCLUDE}/shcmd.h
-						make ${PACKAGE_ast_INCLUDE}/stak.h implicit
-							prev ${PACKAGE_ast_INCLUDE}/stk.h
-						done ${PACKAGE_ast_INCLUDE}/stak.h
+						prev ${PACKAGE_ast_INCLUDE}/stk.h
 						prev ${PACKAGE_ast_INCLUDE}/error.h
 						prev ${PACKAGE_ast_INCLUDE}/ast.h
 					done ${PACKAGE_ast_INCLUDE}/cmd.h
@@ -229,9 +227,7 @@ make install
 							prev include/shell.h
 							prev ${PACKAGE_ast_INCLUDE}/endian.h
 							prev include/name.h
-							make include/argnod.h implicit
-								prev ${PACKAGE_ast_INCLUDE}/stak.h
-							done include/argnod.h dontcare
+							prev include/argnod.h implicit
 							prev ${PACKAGE_ast_INCLUDE}/cdt.h
 							prev ${PACKAGE_ast_INCLUDE}/error.h
 							prev ${PACKAGE_ast_INCLUDE}/sfio.h
@@ -267,7 +263,6 @@ make install
 						prev include/nval.h
 					done include/variables.h
 					prev ${PACKAGE_ast_INCLUDE}/error.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev include/defs.h
 					prev shopt.h
 				done bltins/cd_pwd.c
@@ -335,7 +330,6 @@ make install
 					prev include/variables.h
 					prev ${PACKAGE_ast_INCLUDE}/error.h
 					prev ${PACKAGE_ast_INCLUDE}/ls.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev include/defs.h
 					prev shopt.h
 				done bltins/hist.c
@@ -412,7 +406,6 @@ make install
 					prev include/history.h
 					prev include/name.h
 					prev include/io.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev ${PACKAGE_ast_INCLUDE}/error.h
 					prev include/defs.h
 					prev shopt.h
@@ -575,7 +568,6 @@ make install
 						prev ${PACKAGE_ast_INCLUDE}/sfio.h
 					done include/fcin.h
 					prev ${PACKAGE_ast_INCLUDE}/ls.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev ${PACKAGE_ast_INCLUDE}/sfio.h
 					prev ${PACKAGE_ast_INCLUDE}/ast.h
 					prev shopt.h
@@ -634,7 +626,6 @@ make install
 			make array.o
 				make sh/array.c
 					prev include/name.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev include/defs.h
 					prev shopt.h
 				done sh/array.c
@@ -695,7 +686,6 @@ make install
 						prev dirlib.h implicit dontcare virtual
 						prev ${PACKAGE_ast_INCLUDE}/ast_lib.h
 					done ${PACKAGE_ast_INCLUDE}/ast_dir.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev ${PACKAGE_ast_INCLUDE}/ls.h
 					prev ${PACKAGE_ast_INCLUDE}/glob.h implicit
 					prev ${PACKAGE_ast_INCLUDE}/ast.h
@@ -786,7 +776,6 @@ make install
 					prev ${PACKAGE_ast_INCLUDE}/regex.h
 					prev ${PACKAGE_ast_INCLUDE}/tmx.h
 					prev ${PACKAGE_ast_INCLUDE}/ccode.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev include/defs.h
 					prev shopt.h
 				done sh/init.c
@@ -840,7 +829,6 @@ make install
 					prev include/defs.h
 					prev include/nval.h
 					prev include/fcin.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev ${PACKAGE_ast_INCLUDE}/releaseflags.h
 					prev ${PACKAGE_ast_INCLUDE}/ast.h
 					prev shopt.h
@@ -933,7 +921,6 @@ make install
 					prev include/lexstates.h
 					prev include/shtable.h
 					prev ${PACKAGE_ast_INCLUDE}/ccode.h
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev include/defs.h
 					prev ${PACKAGE_ast_INCLUDE}/ast_wchar.h
 					prev ${PACKAGE_ast_INCLUDE}/ast.h
@@ -944,7 +931,6 @@ make install
 			make streval.o
 				make sh/streval.c
 					prev FEATURE/externs
-					prev ${PACKAGE_ast_INCLUDE}/stak.h
 					prev ${PACKAGE_ast_INCLUDE}/error.h
 					prev include/streval.h
 					prev shopt.h

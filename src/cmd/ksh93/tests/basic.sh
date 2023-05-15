@@ -993,7 +993,7 @@ done
 # ======
 # Nested compound assignment misparsed in $(...) or ${ ...; } command substitution
 # https://github.com/ksh93/ksh/issues/269
-# TODO: a few tests below crash when actually executed; test lexing only by using noexec. https://github.com/ksh93/ksh/issues/621
+# TODO: one of the tests below crashes when actually executed; test lexing only by using noexec.
 for testcode in \
 	': $( typeset -a arr=((a b c) 1) )' \
 	': ${ typeset -a arr=((a b c) 1); }' \
@@ -1009,7 +1009,7 @@ for testcode in \
 	': $( typeset -Ca arr=((a=ah b=beh c=si)) )' \
 	'r=${ typeset -Ca arr=((a=ah b=beh c=si)); }' \
 	'set --noexec; : $( typeset -a arr=((a $(( $( typeset -a barr=((a $(( 1 << 2 )) c) 1); echo 1 ) << $( typeset -a bazz=((a $(( 1 << 2 )) c) 1); echo 2 ) )) c) 1) )' \
-	'set --noexec; r=$(typeset -C arr=( (a=ah b=beh c=si) 1 (e f g)));'
+	'r=$(typeset -C arr=( (a=ah b=beh c=si) 1 (e f g)));'
 do
 	# fork comsub with 'ulimit' on old ksh to avoid a fixed lexer bug crashing the entire test script
 	got=$(let ".sh.version >= 20211209" || ulimit -c 0

@@ -754,8 +754,7 @@ static void array_putval(Namval_t *np, const char *string, int flags, Namfun_t *
 		}
 		if(!nv_isnull(np))
 		{
-			if(!np->nvfun)
-				nv_onattr(np,NV_NOFREE);
+			nv_onattr(np,NV_NOFREE);
 			_nv_unset(np,flags);
 		}
 		else

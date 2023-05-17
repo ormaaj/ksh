@@ -13,6 +13,7 @@
 *                  David Korn <dgk@research.att.com>                   *
 *                  Martijn Dekker <martijn@inlv.org>                   *
 *            Johnothan King <johnothanking@protonmail.com>             *
+*                      Phi <phi.debian@gmail.com>                      *
 *                                                                      *
 ***********************************************************************/
 /*
@@ -55,6 +56,7 @@ struct printf
 	Sffmt_t		hdr;
 	int		argsize;
 	int		intvar;
+	char		**argv0; /* see reload() below */
 	char		**nextarg;
 	char		*lastarg;
 	char		cescape;
@@ -82,6 +84,7 @@ static const struct printmap  Pmap[] =
 
 static int		echolist(Sfio_t*, int, char**);
 static int		extend(Sfio_t*,void*, Sffmt_t*);
+static int		reload(int argn, char fmt, void* v, Sffmt_t* fe);
 static char		*genformat(char*);
 static int		fmtvecho(const char*, struct printf*);
 static ssize_t		fmtbase64(Sfio_t*, char*, int);
@@ -347,11 +350,13 @@ printf_v:
 		memset(&pdata, 0, sizeof(pdata));
 		pdata.hdr.version = SFIO_VERSION;
 		pdata.hdr.extf = extend;
+		pdata.hdr.reloadf = reload;
 		pdata.nextarg = argv;
 		sh_offstate(SH_STOPOK);
 		pool=sfpool(sfstderr,NULL,SF_WRITE);
 		do
 		{
+			pdata.argv0 = pdata.nextarg;
 			if(sh.trapnote&SH_SIGSET)
 				break;
 			pdata.hdr.form = format;
@@ -788,6 +793,10 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 			fe->fmt = 'd';
 			value->ll = tmxgettime();
 			break;
+		case '.':
+			fe->fmt = 'd';
+			value->ll = 0;
+			break;
 		default:
 			if(!strchr("DdXxoUu",format))
 			{
@@ -1074,6 +1083,52 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 		break;
 	}
 	return 0;
+}
+
+/*
+ * reload() is called when the caller wants to solve a fp[x] cache miss, i.e.,
+ * a type mismatch between the cached type/value and the desired new type.
+ * This keeps the fp[x] cache intact, it just fills up the new value (v)
+ * with a conversion of the fp[x] type/value to the new type/value.
+ * This is a single-use value; the conversion is not cached.
+ * The conversion is handled by the extend() function that uses the current
+ * nextarg (argv[]) and pushes it, i.e., *nextarg++.
+ * To trick extend(), we back up nextarg, set nextarg to argn, do extend()
+ * and restore nextarg.
+ *
+ * fmt==0 is a special case to handle indexed jumps like '%s $5s'.
+ * In that case, argv[0] and argv[4] are consumed and nextarg push
+ * to &argv[5] argv[1..3] is ignored.
+ */
+static int reload(int argn, char fmt, void* v, Sffmt_t* fe)
+{
+	union types_t*	value = (union types_t*)v;
+	struct printf*	pp = (struct printf*)fe;
+	int		r;
+	int		n;
+	if(fmt == 0)
+	{
+		/* Set nextarg */
+		n = 0;
+		if(pp->nextarg != nullarg)
+		{
+			n = pp->nextarg - pp->argv0;
+			pp->nextarg = pp->argv0;
+			while(argn && *pp->nextarg)
+				argn--, pp->nextarg++;
+		}
+		return n;
+	}
+	/*
+	 * fmt!=0 ==> Late conversion on type mismatch on fp[x], i.e., %1$s %1$d
+	 * fp[1-1].fmt='s' ==> %1$d wants an int, go convert.
+	 */
+	n = pp->nextarg - pp->argv0;
+	pp->nextarg = pp->argv0 + argn;
+	fe->fmt = fmt;
+	r = extend(0,v,fe);
+	pp->nextarg = pp->argv0 + n;
+	return r;
 }
 
 /*

@@ -780,9 +780,8 @@ static void copyto(Mac_t *mp,int endch, int newquote)
 			if(!(mp->quote || mp->lit))
 			{
 #if SHOPT_BRACEPAT
-				mp->patfound = mp->split && sh_isoption(SH_BRACEEXPAND);
-#else
-				mp->patfound = 0;
+				if(mp->split && sh_isoption(SH_BRACEEXPAND))
+					mp->patfound = 1;
 #endif
 				brace++;
 			}
@@ -2552,6 +2551,8 @@ static void endfield(Mac_t *mp,int split)
 		if(mp->patfound)
 		{
 			sh.argaddr = 0;
+			if(argp->argval[0]=='~' && argp->argval[1]=='\\' && argp->argval[2]=='(')
+				sh_trim(argp->argval);
 #if SHOPT_BRACEPAT
 			/* in POSIX mode, disallow brace expansion for unquoted expansions */
 			if(sh_isoption(SH_BRACEEXPAND) && !(sh_isoption(SH_POSIX) && mp->pattern==1))

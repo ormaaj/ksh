@@ -154,12 +154,54 @@ static int checkfmt(Sfio_t* sp, void* vp, Sffmt_t* fp)
 	return -1;
 }
 
+/*
+ * Return true if ~(...) pattern options indicate a pattern type that is
+ * syntactically incompatible with brace expansion because it uses braces
+ * for its own purposes (e.g., bounds in regular expressions).
+ * Do the minimum parsing of the option syntax necessary to determine this.
+ */
+static int must_disallow_bracepat(char *pat)
+{
+	int32_t incompat = 0;
+	char shellpat = 0, minus = 0, c;
+	if (*pat++ != '~' || *pat++ != '(')
+		return 0;
+	while ((c = *pat++) && c != ':' && c != ')') switch (c)
+	{
+		case 'E':  /* extended regular expression */
+		case 'F':  /* fixed pattern */
+		case 'G':  /* basic regular expression */
+		case 'P':  /* Perl regular expression */
+		case 'V':  /* System V regular expression */
+		case 'X':  /* augmented regular expression (AST) */
+			if (!minus)
+			{
+				incompat |= 1 << c - 'A';
+				shellpat = 0;
+			}
+			else
+				incompat &= ~(1 << c - 'A');
+			break;
+		case 'K':  /* shell pattern */
+			shellpat = !minus;
+			break;
+		case '-':  /* disable the following options */
+			minus = 1;
+			break;
+		case '+':  /* enable the following options */
+			minus = 0;
+			break;
+	}
+	return c && incompat && !shellpat;
+}
+
 int path_generate(struct argnod *todo, struct argnod **arghead)
 /*@
 	assume todo!=0;
 	return count satisfying count>=1;
 @*/
 {
+	const int nobracepat = must_disallow_bracepat(todo->argval);
 	char *cp;
 	int brace;
 	struct argnod *ap;
@@ -180,11 +222,11 @@ again:
 	while(1) switch(*cp++)
 	{
 		case '{':
-			if(brace++==0)
+			if(!nobracepat && brace++==0)
 				pat = cp;
 			break;
 		case '}':
-			if(--brace>0)
+			if(!nobracepat && --brace>0)
 				break;
 			if(brace==0 && comma && *cp!='(')
 				goto endloop1;

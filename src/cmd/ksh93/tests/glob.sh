@@ -2,7 +2,7 @@
 #                                                                      #
 #               This software is part of the ast package               #
 #          Copyright (c) 1982-2012 AT&T Intellectual Property          #
-#          Copyright (c) 2020-2022 Contributors to ksh 93u+m           #
+#          Copyright (c) 2020-2023 Contributors to ksh 93u+m           #
 #                      and is licensed under the                       #
 #                 Eclipse Public License, Version 2.0                  #
 #                                                                      #
@@ -434,6 +434,45 @@ test_glob '<[]-z]>' [\]\-z]
 test_glob '<[]-z]>' [']-z']
 test_glob '<[]-z]>' ["]-z"]
 cd ..
+
+# ======
+# https://www.reddit.com/r/ksh/comments/13k9af3/globbing_eres/jkjpk5a/
+touch 'ef{' 'o1_mf_1_13962_l5p4ts16_.arc'
+unquoted_patvar='*f{'
+((SHOPT_BRACEPAT)) && set +B
+test_glob '<ef{>' *f{
+test_glob '<ef{>' $unquoted_patvar
+if	((SHOPT_BRACEPAT))
+then	set -B
+	test_glob '<ef{>' *f{
+	test_glob '<ef{>' $unquoted_patvar
+fi
+unquoted_patvar='~(K)*f{'
+((SHOPT_BRACEPAT)) && set +B
+test_glob '<ef{>' ~(K)*f{
+test_glob '<ef{>' $unquoted_patvar
+if	((SHOPT_BRACEPAT))
+then	set -B
+	test_glob '<ef{>' ~(K)*f{
+	test_glob '<ef{>' $unquoted_patvar
+fi
+unquoted_patvar='~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$'
+((SHOPT_BRACEPAT)) && set +B
+test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' ~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' $unquoted_patvar
+if	((SHOPT_BRACEPAT))
+then	set -B
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' ~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' $unquoted_patvar
+fi
+# not all ~(...) should disallow brace expansion
+if	((SHOPT_BRACEPAT))
+then	set -B
+	touch ANNOUNCE aSan_CCFLAGS.sav
+	unquoted_patvar='~(i:A){N,S}*'
+	test_glob '<ANNOUNCE> <aSan_CCFLAGS.sav>' ~(i:A){N,S}*
+	test_glob '<ANNOUNCE> <aSan_CCFLAGS.sav>' $unquoted_patvar
+fi
 
 # ======
 exit $((Errors<125?Errors:125))

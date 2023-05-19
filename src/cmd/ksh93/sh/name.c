@@ -2593,6 +2593,19 @@ static void optimize_clear(Namval_t* np, Namfun_t *fp)
 	}
 }
 
+void nv_optimize_clear(Namval_t *np)
+{
+	Namfun_t *fp;
+	for(fp = np->nvfun; fp; fp = fp->next)
+	{
+		if(fp->disc == &OPTIMIZE_disc)
+		{
+			optimize_clear(np,fp);
+			return;
+		}
+	}
+}
+
 static void put_optimize(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
 	nv_putv(np,val,flags,fp);
@@ -2609,7 +2622,7 @@ const Namdisc_t OPTIMIZE_disc  = {sizeof(struct optimize),put_optimize,0,0,0,0,c
 void nv_optimize(Namval_t *np)
 {
 	Namfun_t *fp;
-	struct optimize *op, *xp;
+	struct optimize *op, *xp = 0;
 	if(sh.argaddr)
 	{
 		if(np==SH_LINENO)
@@ -2625,9 +2638,9 @@ void nv_optimize(Namval_t *np)
 				return;
 			}
 			if(fp->disc == &OPTIMIZE_disc)
-				break;
+				xp = (struct optimize*)fp;
 		}
-		if((xp= (struct optimize*)fp) && xp->ptr==sh.argaddr)
+		if(xp && xp->ptr==sh.argaddr)
 			return;
 		if(xp && xp->next)
 		{
@@ -2675,8 +2688,6 @@ void sh_optclear(void *old)
 	sh.optlist = old;
 }
 
-#else
-#   define	optimize_clear(np,fp)
 #endif /* SHOPT_OPTIMIZE */
 
 /*
@@ -3537,17 +3548,7 @@ void nv_unref(Namval_t *np)
 	free(np->nvalue.nrp);
 	np->nvalue.cp = sh_strdup(nv_name(nq));
 #if SHOPT_OPTIMIZE
-	{
-		Namfun_t *fp;
-		for(fp=nq->nvfun; fp; fp = fp->next)
-		{
-			if(fp->disc == &OPTIMIZE_disc)
-			{
-				optimize_clear(nq,fp);
-				return;
-			}
-		}
-	}
+	nv_optimize_clear(nq);
 #endif
 }
 

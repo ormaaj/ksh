@@ -184,7 +184,10 @@ extern int		nv_arraysettype(Namval_t*, Namval_t*,const char*,int);
 extern int		nv_aimax(Namval_t*);
 extern int		nv_atypeindex(Namval_t*, const char*);
 extern void		nv_setlist(struct argnod*, int, Namval_t*);
-extern void 		nv_optimize(Namval_t*);
+#if SHOPT_OPTIMIZE
+    extern void		nv_optimize(Namval_t*);
+    extern void		nv_optimize_clear(Namval_t*);
+#endif /* SHOPT_OPTIMIZE */
 extern void		nv_outname(Sfio_t*,char*, int);
 extern void 		nv_unref(Namval_t*);
 extern void		_nv_unset(Namval_t*,int);

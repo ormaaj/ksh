@@ -935,6 +935,18 @@ actual=$(_test_isset var)
 actual=$(_test_isset IFS)
 [[ "$actual" = "$expect" ]] || err_exit "\${IFS+s} expansion fails in loops (expected '$expect', got '$actual')"
 
+got=$(
+	unset -v var
+	for i in 1 2 3 4 5; do
+		case ${var+s} in
+		( s )   print -n S; unset -v var;;
+		( '' )  print -n U; var.get() { : ; };;
+		esac
+	done
+)
+exp='USUSU'
+[[ $got == "$exp" ]] || err_exit "loop variants optimizer vs. discipline function (expected '$exp', got '$got')"
+
 # [[ -v var ]] within a loop.
 _test_v() { eval "
 	$1=initial_value

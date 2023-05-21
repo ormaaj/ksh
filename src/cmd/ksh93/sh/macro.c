@@ -2551,8 +2551,6 @@ static void endfield(Mac_t *mp,int split)
 		if(mp->patfound)
 		{
 			sh.argaddr = 0;
-			if(argp->argval[0]=='~' && argp->argval[1]=='\\' && argp->argval[2]=='(')
-				sh_trim(argp->argval);
 #if SHOPT_BRACEPAT
 			/* in POSIX mode, disallow brace expansion for unquoted expansions */
 			if(sh_isoption(SH_BRACEEXPAND) && !(sh_isoption(SH_POSIX) && mp->pattern==1))

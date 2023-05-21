@@ -2492,9 +2492,12 @@ are removed.
 If the
 .B braceexpand
 .RB ( \-B )
-option is set then each of the fields resulting from
+option is set then each
+.IR word ,
+as well as any fields resulting from
 .SM
-.B IFS
+.I "field splitting"
+(see above),
 are checked to see if they contain one or more of the brace patterns
 .BR {*,*} ,
 .BI { l1 .. l2 }
@@ -2611,19 +2614,38 @@ and
 .SS Pathname Expansion.
 This is also known as \f2globbing\fP
 or sometimes \f2filename generation\fP.
-Following splitting, each field is scanned for the characters
+Pathname expansion is disabled if the
+.B -f
+a.k.a.
+.B --noglob
+shell option is on.
+Otherwise, if certain special characters are found in a
+.I word
+or in a field resulting from
+.I "field splitting"
+(see above),
+then the word or field is regarded as a
+.IR pattern .
+Each literal
+.I word
+is scanned for the characters
 .BR * ,
 .BR ? ,
+.BR \*(OK\^ ,
+and
 .BR ( ,
+but fields resulting from
+.I "field splitting"
+are scanned only for the characters
+.BR * ,
+.BR ? ,
 and
 .B \*(OK\^
-unless the
-.B \-f
-option has been set.
-If one of these characters appears,
-then the word is regarded as a
-.IR pattern .
-Each file name component that contains any pattern character
+(in which case the
+.B (
+character is not special and any pattern syntax described below
+that involves parentheses does not apply).
+Each file name component that contains a recognized pattern character
 is replaced with a lexicographically sorted set of names
 that matches the pattern
 from

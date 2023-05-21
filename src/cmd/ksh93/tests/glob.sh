@@ -445,25 +445,27 @@ test_glob '<ef{>' $unquoted_patvar
 if	((SHOPT_BRACEPAT))
 then	set -B
 	test_glob '<ef{>' *f{
-	test_glob '<ef{>' $unquoted_patvar
+	test_glob '<ef{>' $unquoted_patvar	# basic shell patterns should be expanded from unquoted vars
 fi
 unquoted_patvar='~(K)*f{'
 ((SHOPT_BRACEPAT)) && set +B
 test_glob '<ef{>' ~(K)*f{
-test_glob '<ef{>' $unquoted_patvar
+test_glob '<~(K)*f{>' $unquoted_patvar  	# extended patterns should *not* be expanded from unquoted vars (Bourne/POSIX compat)
 if	((SHOPT_BRACEPAT))
 then	set -B
 	test_glob '<ef{>' ~(K)*f{
-	test_glob '<ef{>' $unquoted_patvar
+	test_glob '<~(K)*f{>' $unquoted_patvar
 fi
 unquoted_patvar='~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$'
 ((SHOPT_BRACEPAT)) && set +B
 test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' ~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
-test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' $unquoted_patvar
+test_glob '<~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$>' $unquoted_patvar
 if	((SHOPT_BRACEPAT))
 then	set -B
 	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' ~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
-	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' $unquoted_patvar
+	# in non-POSIX mode, brace expansion *is* expanded from unquoted var, though extended patterns are not.
+	# TODO: consider fixing this insanity as of ksh 93u+m/1.1 (incompatible change)
+	test_glob '<~(E)^o1_mf_1_\d1_[[:alnum:]]{8}_.arc$> <~(E)^o1_mf_1_\d6_[[:alnum:]]{8}_.arc$>' $unquoted_patvar
 fi
 # not all ~(...) should disallow brace expansion
 if	((SHOPT_BRACEPAT))
@@ -471,7 +473,7 @@ then	set -B
 	touch ANNOUNCE aSan_CCFLAGS.sav
 	unquoted_patvar='~(i:A){N,S}*'
 	test_glob '<ANNOUNCE> <aSan_CCFLAGS.sav>' ~(i:A){N,S}*
-	test_glob '<ANNOUNCE> <aSan_CCFLAGS.sav>' $unquoted_patvar
+	test_glob '<~(i:A)N*> <~(i:A)S*>' $unquoted_patvar
 fi
 
 # ======

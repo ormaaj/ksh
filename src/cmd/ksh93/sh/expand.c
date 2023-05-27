@@ -61,7 +61,7 @@ static char *nextdir(glob_t *gp, char *dir)
 	return NULL;
 }
 
-int path_expand(const char *pattern, struct argnod **arghead)
+int path_expand(const char *pattern, struct argnod **arghead, int musttrim)
 {
 	glob_t gdata;
 	struct argnod *ap;
@@ -93,9 +93,34 @@ int path_expand(const char *pattern, struct argnod **arghead)
 		gp->gl_suffix = sufstr;
 	gp->gl_intr = &sh.trapnote;
 	suflen = 0;
-	if(strncmp(pattern,"~(N",3)==0)
-		flags &= ~GLOB_NOCHECK;
-	glob(pattern, flags, 0, gp);
+	/*
+	 * If we expanded an unquoted variable/comsub containing a pattern, that pattern
+	 * will have shell-special characters backslash-escaped for correct expansion of
+	 * the value. However, the pattern must be trimmed of those escapes before
+	 * resolving it, while keeping the escapes if the pattern doesn't resolve.
+	 */
+	if(musttrim)
+	{
+		char *trimmedpat;
+		sfputr(sh.strbuf,pattern,-1);
+		trimmedpat = sfstruse(sh.strbuf);
+		sh_trim(trimmedpat);
+		glob(trimmedpat,flags,0,gp);
+		/*
+		 * If there is only one result and it is identical to the trimmed pattern, then the pattern didn't
+		 * resolve, and we now need to replace it with the untrimmed pattern to avoid regressions with the
+		 * expansion of unquoted variables. (Note: globlist_t (glob.h) is binary compatible with struct
+		 * argnod (argnod.h); thus, gl_path and argval have the same offset (ARGVAL) in the struct.)
+		 */
+		if((ap = (struct argnod*)gp->gl_list) && !ap->argnxt.ap && strcmp(ap->argval,trimmedpat)==0)
+		{
+			gp->gl_list = (globlist_t*)stkalloc(sh.stk,ARGVAL+strlen(pattern)+1);
+			memcpy(gp->gl_list,ap,ARGVAL);  /* copy fields *before* argval/gl_path */
+			strcpy(gp->gl_list->gl_path,pattern);
+		}
+	}
+	else
+		glob(pattern,flags,0,gp);
 	sh_sigcheck();
 	for(ap= (struct argnod*)gp->gl_list; ap; ap = ap->argnxt.ap)
 	{
@@ -144,7 +169,7 @@ int path_complete(const char *name,const char *suffix, struct argnod **arghead)
 {
 	sufstr = suffix;
 	suflen = strlen(suffix);
-	return path_expand(name,arghead);
+	return path_expand(name,arghead,0);
 }
 
 #if SHOPT_BRACEPAT
@@ -155,18 +180,22 @@ static int checkfmt(Sfio_t* sp, void* vp, Sffmt_t* fp)
 }
 
 /*
- * Return true if ~(...) pattern options indicate a pattern type that is
+ * Return 1 if ~(...) pattern options indicate a pattern type that is
  * syntactically incompatible with brace expansion because it uses braces
  * for its own purposes (e.g., bounds in regular expressions).
+ * Return 0 if not.
+ * Return -1 if pat is not a ~(...) pattern or no relevant options are given.
  * Do the minimum parsing of the option syntax necessary to determine this.
+ *
+ * NOTE: cp is expected to point to the character *after* the '~'.
  */
-static int must_disallow_bracepat(char *pat)
+static int must_disallow_bracepat(char *cp, int withbackslash)
 {
 	int32_t incompat = 0;
-	char shellpat = 0, minus = 0, c;
-	if (*pat++ != '~' || *pat++ != '(')
-		return 0;
-	while ((c = *pat++) && c != ':' && c != ')') switch (c)
+	char change = 0, shellpat = 0, minus = 0, c;
+	if ((withbackslash && *cp++ != '\\') || *cp++ != '(')
+		return -1;
+	while ((c = *cp++) && c != ':' && c != ')') switch (c)
 	{
 		case 'E':  /* extended regular expression */
 		case 'F':  /* fixed pattern */
@@ -181,9 +210,11 @@ static int must_disallow_bracepat(char *pat)
 			}
 			else
 				incompat &= ~(1 << c - 'A');
+			change = 1;
 			break;
 		case 'K':  /* shell pattern */
 			shellpat = !minus;
+			change = 1;
 			break;
 		case '-':  /* disable the following options */
 			minus = 1;
@@ -192,18 +223,18 @@ static int must_disallow_bracepat(char *pat)
 			minus = 0;
 			break;
 	}
-	return c && incompat && !shellpat;
+	return change ? (c && incompat && !shellpat) : -1;
 }
 
-int path_generate(struct argnod *todo, struct argnod **arghead)
+int path_generate(struct argnod *todo, struct argnod **arghead, int musttrim)
 /*@
 	assume todo!=0;
 	return count satisfying count>=1;
 @*/
 {
-	const int nobracepat = must_disallow_bracepat(todo->argval);
 	char *cp;
 	int brace;
+	int nobracepat = 0;
 	struct argnod *ap;
 	struct argnod *top = 0;
 	struct argnod *apin;
@@ -312,6 +343,14 @@ again:
 		case '\\':
 			cp++;
 			break;
+		case '~':
+			if(!brace)
+			{
+				int r = must_disallow_bracepat(cp,musttrim);
+				if(r>=0)
+					nobracepat = r;
+			}
+			break;
 		case 0:
 			/* insert on stack */
 			ap->argchn.ap = top;
@@ -322,7 +361,7 @@ again:
 			{
 				apin = ap->argchn.ap;
 				if(!sh_isoption(SH_NOGLOB) || sh_isstate(SH_COMPLETE) || sh_isstate(SH_FCOMPLETE))
-					brace=path_expand(ap->argval,arghead);
+					brace = path_expand(ap->argval,arghead,musttrim);
 				else
 				{
 					ap->argchn.ap = *arghead;

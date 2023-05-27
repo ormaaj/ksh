@@ -2,13 +2,24 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-05-27:
+
+- Fixed a bug in the handling of backslashes in pathname expansion patterns
+  resulting from field splitting. For example, the following:
+	$ mkdir testdir; cd testdir; touch b; p='[a\-c]'; echo $p
+  now correctly recognises the backslash escape and no longer outputs 'b'.
+
+- The 2023-05-19 fix for brace expansion interfering with extended patterns has
+  been improved to also recognise and handle extended patterns that are parts
+  of larger patterns, e.g., 'ls file~(E)[[:digit:]]{3,6}\.txt$' now works.
+
 2023-05-19:
 
 - Fixed a bug in the loop invariants optimizer where a variable for which
   a .get or .getn discipline function is set within a loop is incorrectly
   treated as invariant.
 
-- Fixed three bugs in pathname expansion:
+- Fixed two bugs in pathname expansion:
   1. Brace expansion interfered with EREs and other extended pattern
      types used with ~(...) pattern option prefixes, e.g. the {3,6} in
      'ls ~(E)^file[[:digit:]]{3,6}\.txt$' was incorrectly parsed as a
@@ -17,9 +28,6 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   2. With brace expansion disabled (set +B), any '{' character in a file
      name pattern stopped it from being resolved unless a wildcard followed
      it. Now, 'set +B; ls *{' will list files with names ending in '{'.
-  3. Patterns with options such as ~(E)foo failed to match files if the
-     pattern resulted from an unquoted variable expansion. With this fix,
-     'var="~(E)foo", ls $var' will list files with names containing 'foo'.
 
 2023-05-18:
 

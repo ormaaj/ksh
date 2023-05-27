@@ -2615,9 +2615,9 @@ and
 This is also known as \f2globbing\fP
 or sometimes \f2filename generation\fP.
 Pathname expansion is disabled if the
-.B -f
+.B \-f
 a.k.a.
-.B --noglob
+.B \-\-noglob
 shell option is on.
 Otherwise, if certain special characters are found in a
 .I word
@@ -2641,10 +2641,12 @@ are scanned only for the characters
 .BR ? ,
 and
 .B \*(OK\^
+for compatibility reasons
 (in which case the
 .B (
 character is not special and any pattern syntax described below
 that involves parentheses does not apply).
+.PP
 Each file name component that contains a recognized pattern character
 is replaced with a lexicographically sorted set of names
 that matches the pattern

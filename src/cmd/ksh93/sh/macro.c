@@ -67,6 +67,8 @@ typedef struct  _mac_
 	char		split;		/* set when word splitting is possible */
 	char		pattern;	/* set when glob pattern expansion or matching follows */
 	char		patfound;	/* set if pattern character found */
+	char		noextpat;	/* set to disallow extended patterns */
+	char		wasexpan;	/* set when word resulted from a $ or ` expansion */
 	char		assign;		/* set for assignments */
 	char		arith;		/* set for ((...)) */
 	char		arrayok;	/* $x[] ok for arrays */
@@ -175,7 +177,7 @@ char *sh_mactrim(char *str, int mode)
 	{
 		/* expand only if unique */
 		struct argnod *arglist=0;
-		if((mode=path_expand(str,&arglist))==1)
+		if((mode=path_expand(str,&arglist,0))==1)
 			str = arglist->argval;
 		else if(mode>1)
 		{
@@ -1129,6 +1131,7 @@ static int varsub(Mac_t *mp)
 	char		*idx = 0;
 	int		var=1,addsub=0,oldpat=mp->pattern,idnum=0,flag=0,d;
 	Stk_t		*stkp = sh.stk;
+	mp->wasexpan = 1;
 retry1:
 	idbuff[0] = 0;
 	idbuff[1] = 0;
@@ -2112,6 +2115,7 @@ nosub:
 	if(type)
 		mac_error();
 	fcseek(-1);
+	mp->wasexpan = 0;
 	return 0;
 }
 
@@ -2130,7 +2134,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 	Stk_t			*stkp = sh.stk;
 	Fcin_t			save;
 	struct slnod            *saveslp = sh.st.staklist;
-	struct _mac_		savemac = *mp;
+	Mac_t			savemac = *mp;
 	int			savtop = stktell(stkp);
 	char			lastc=0, *savptr = stkfreeze(stkp,0);
 	int			was_history = sh_isstate(SH_HISTORY);
@@ -2139,6 +2143,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 	int			newlines,bufsize,nextnewlines;
 	Sfoff_t			foff;
 	Namval_t		*np;
+	savemac.wasexpan = 1;
 	sh.argaddr = 0;
 	sh.st.staklist=0;
 	if(type)
@@ -2451,11 +2456,14 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 				size -= len;
 				continue;
 			}
-			if(n==S_ESC || n==S_EPAT)
+			if(n==S_ESC)
+				sfputc(stkp,ESCAPE);
+			else if(n==S_EPAT)
 			{
 				/* don't allow extended patterns in this case */
 				mp->patfound = mp->pattern;
 				sfputc(stkp,ESCAPE);
+				mp->noextpat = 1;
 			}
 			else if(n==S_PAT)
 				mp->patfound = mp->pattern;
@@ -2550,14 +2558,15 @@ static void endfield(Mac_t *mp,int split)
 		mp->atmode = 0;
 		if(mp->patfound)
 		{
+			int musttrim = mp->wasexpan && !mp->noextpat && strchr(argp->argval,'\\');
 			sh.argaddr = 0;
 #if SHOPT_BRACEPAT
 			/* in POSIX mode, disallow brace expansion for unquoted expansions */
 			if(sh_isoption(SH_BRACEEXPAND) && !(sh_isoption(SH_POSIX) && mp->pattern==1))
-				count = path_generate(argp,mp->arghead);
+				count = path_generate(argp,mp->arghead,musttrim);
 			else
 #endif /* SHOPT_BRACEPAT */
-				count = path_expand(argp->argval,mp->arghead);
+				count = path_expand(argp->argval,mp->arghead,musttrim);
 			if(count)
 				mp->fields += count;
 			else if(split)	/* pattern is null string */

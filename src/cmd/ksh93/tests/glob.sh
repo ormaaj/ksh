@@ -433,11 +433,20 @@ test_glob '<[^N]>' [\^N]
 test_glob '<[]-z]>' [\]\-z]
 test_glob '<[]-z]>' [']-z']
 test_glob '<[]-z]>' ["]-z"]
+# check internal escaping of bracket expression in glob pattern resulting from field splitting
+# https://github.com/ksh93/ksh/issues/549
+unquoted_patvar='[\!N]'; test_glob '<[\!N]>' $unquoted_patvar
+unquoted_patvar='[\^N]'; test_glob '<[\^N]>' $unquoted_patvar
+unquoted_patvar='[a\-c]'; test_glob '<[a\-c]>' $unquoted_patvar
+: > -; test_glob '<->' $unquoted_patvar
+: > a > c; test_glob '<-> <a> <c>' $unquoted_patvar
+: > !; unquoted_patvar='[\!N]'; test_glob '<!>' $unquoted_patvar
+: > ^; unquoted_patvar='[\^N]'; test_glob '<^>' $unquoted_patvar
 cd ..
 
 # ======
 # https://www.reddit.com/r/ksh/comments/13k9af3/globbing_eres/jkjpk5a/
-touch 'ef{' 'o1_mf_1_13962_l5p4ts16_.arc'
+: > 'ef{' > 'o1_mf_1_13962_l5p4ts16_.arc'
 unquoted_patvar='*f{'
 ((SHOPT_BRACEPAT)) && set +B
 test_glob '<ef{>' *f{
@@ -463,6 +472,14 @@ test_glob '<~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$>' $unquoted_patvar
 if	((SHOPT_BRACEPAT))
 then	set -B
 	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' ~(E)^o1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o~(E)1_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o1~(E)_mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o1_~(E)mf_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o1_m~(E)f_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o1_mf~(E)_1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o1_mf_~(E)1_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o1_mf_1~(E)_\d{1,6}_[[:alnum:]]{8}_.arc$
+	test_glob '<o1_mf_1_13962_l5p4ts16_.arc>' o1_mf_1_~(E)\d{1,6}_[[:alnum:]]{8}_.arc$
 	# in non-POSIX mode, brace expansion *is* expanded from unquoted var, though extended patterns are not.
 	# TODO: consider fixing this insanity as of ksh 93u+m/1.1 (incompatible change)
 	test_glob '<~(E)^o1_mf_1_\d1_[[:alnum:]]{8}_.arc$> <~(E)^o1_mf_1_\d6_[[:alnum:]]{8}_.arc$>' $unquoted_patvar
@@ -475,6 +492,12 @@ then	set -B
 	test_glob '<ANNOUNCE> <aSan_CCFLAGS.sav>' ~(i:A){N,S}*
 	test_glob '<~(i:A)N*> <~(i:A)S*>' $unquoted_patvar
 fi
+
+# ======
+: > 'a\\b.txt'
+unquoted_patvar='a\\\\b.*'
+test_glob '<a\\b.txt>' a\\\\b.*
+test_glob '<a\\b.txt>' $unquoted_patvar
 
 # ======
 exit $((Errors<125?Errors:125))

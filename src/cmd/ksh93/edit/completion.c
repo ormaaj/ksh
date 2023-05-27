@@ -385,6 +385,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 		{
 			cmd_completion=1;
 			sh_onstate(SH_COMPLETE);
+			sh_offstate(SH_DEFPATH);
 		}
 		if(ep->e_nlist)
 		{

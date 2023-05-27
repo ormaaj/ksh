@@ -1599,9 +1599,12 @@ is replaced by the given
 The third form restricts the pattern match to the beginning of the string
 while the fourth form restricts the pattern match to the end of
 the string.
-An empty
+In the first and second forms, an empty
 .I pattern\^
 never matches.
+In the third and fourth forms, an empty
+.I pattern\^
+matches the beginning or the end of the string, respectively.
 When
 .I string\^
 is empty, the
@@ -7655,7 +7658,7 @@ This mode is disabled while reading profiles.
 Disables pathname expansion.
 .TP 8
 .B \-h
-Obsolete; has no effect.
+Obsolete; no effect.
 .TP 8
 .B \-k
 All variable assignment arguments are placed in the environment for a command,
@@ -7875,8 +7878,8 @@ In addition, while on, the \fBposix\fR option
 disables exporting variable type attributes to the environment for other ksh
 processes to import;
 .IP \[bu]
-if the \fB\-B\fR/\fBbraceexpand\fR option is turned back on,
-disallows brace expansion on the results of unquoted expansions;
+disallows brace expansion on the results of unquoted expansions
+(if the \fB\-B\fR/\fBbraceexpand\fR option is turned back on);
 .IP \[bu]
 disables the special handling of repeated
 .I isspace

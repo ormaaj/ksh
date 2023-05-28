@@ -48,6 +48,10 @@ readonly min_posix	# use for checksh()
 # Set standards compliance mode
 (command set -o posix) 2>/dev/null && set -o posix
 
+# As this code heavily uses field splitting of unquoted variable expansions,
+# turn off global pathname expansion for safety (turn on locally in subshells)
+set -o noglob
+
 # Sanitize 'cd'
 unset CDPATH
 
@@ -97,7 +101,7 @@ lib="" # need /usr/local/lib /usr/local/shlib
 ccs="/usr/kvm /usr/ccs/bin"
 org="gnu GNU"
 makefiles="Mamfile"  # ksh 93u+m no longer uses these: Nmakefile nmakefile Makefile makefile
-env="HOSTTYPE PACKAGEROOT INSTALLROOT PATH"
+env="HOSTTYPE PACKAGEROOT INSTALLROOT PATH FPATH MANPATH"
 
 package_use='=$HOSTTYPE=$PACKAGEROOT=$INSTALLROOT=$EXECROOT=$CC='
 
@@ -111,7 +115,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2023-03-11 $
+@(#)$Id: '$command$' (ksh 93u+m) 2023-05-28 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -435,7 +439,8 @@ DESCRIPTION
     export [ variable ...]
           List name=value for variable, one per line. If the only attribute is
           specified then only the variable values are listed. If no variables
-          are specified then HOSTTYPE PACKAGEROOT INSTALLROOT PATH are assumed.
+          are specified then HOSTTYPE PACKAGEROOT INSTALLROOT PATH FPATH
+          MANPATH are assumed.
     help [ action ]
           Display help text on the standard error (standard output for action).
     host [ attribute ... ]
@@ -538,7 +543,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2023-03-11
+  version         package (ksh 93u+m) 2023-03-29
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -909,7 +914,7 @@ hostinfo() # attribute ...
 		0|1)	cpu=$(
 			cd "$TMPDIR"
 			tmp=hi$$
-			trap 'rm -f $tmp.*' 0 1 2
+			trap 'set +o noglob; exec rm -f $tmp.*' 0 1 2
 			cat > $tmp.c <<!
 #include <stdio.h>
 #include <pthread.h>
@@ -1477,7 +1482,7 @@ int main()
 			*)	pwd=$PWD
 				cd "$TMPDIR"
 				tmp=hi$$
-				trap 'rm -f $tmp.*' 0 1 2
+				trap 'set +o noglob; rm -rf $tmp.*' 0 1 2
 				cat > $tmp.a.c <<!
 extern int b();
 int main() { return b(); }
@@ -1507,7 +1512,7 @@ int b() { return 0; }
 						fi
 					done
 				fi </dev/null >/dev/null 2>&1
-				rm -f $tmp.*
+				(set +o noglob; rm -rf $tmp.*)
 				trap - 0 1 2
 				cd $pwd
 				;;
@@ -1533,7 +1538,7 @@ int b() { return 0; }
 			'')	bits=$(	set -e
 					cd "$TMPDIR"
 					tmp=hi$$
-					trap 'rm -rf "$tmp".*' 0 1 2
+					trap 'set +o noglob; exec rm -rf "$tmp".*' 0 1 2
 					echo 'int main() { return 0; }' > $tmp.a.c
 					checkcc
 					$cc $CCFLAGS -o $tmp.a.exe $tmp.a.c </dev/null >/dev/null 2>&1
@@ -1875,7 +1880,7 @@ case $x in
 				then	code=0
 				else	code=1
 				fi
-				rm -f pkg$$.*
+				(set +o noglob; rm -f pkg$$.*)
 				exit $code
 			)
 			code=$?
@@ -2040,11 +2045,23 @@ case $x in
 		$INSTALLROOT/bin:*)
 			;;
 		*)	PATH=$INSTALLROOT/bin:$PATH
+			test -n "${MANPATH+s}" && MANPATH=$INSTALLROOT/man:$MANPATH
 			;;
 		esac
-		$show PATH=$PATH
-		$show export PATH
+		case $FPATH: in
+		$INSTALLROOT/fun:*)
+			;;
+		*)	FPATH=$INSTALLROOT/fun${FPATH:+:$FPATH}
+			;;
+		esac
+		$show "export PATH=$PATH"
 		export PATH
+		$show "export FPATH=$FPATH"
+		export FPATH
+		if	test -n "${MANPATH+s}"
+		then	export MANPATH
+			$show "export MANPATH=$PATH"
+		fi
 		;;
 	*)	for i in package
 		do	if	onpath $i
@@ -2389,17 +2406,6 @@ checkaout()	# cmd ...
 	return 0
 }
 
-# list main environment values
-
-showenv()
-{
-	case $1 in
-	''|make)for __i__ in CC SHELL $env
-		do	eval echo $__i__='$'$__i__
-		done
-		;;
-	esac
-}
 
 # capture command output
 
@@ -2434,7 +2440,7 @@ capture() # file command ...
 				then	mv $o.out $o.out.2
 				fi
 			elif	test -f $o.out
-			then	for i in $(ls -t $o.out.? 2>/dev/null)
+			then	for i in $(set +o noglob; ls -t $o.out.? 2>/dev/null)
 				do	break
 				done
 				case $i in
@@ -2484,7 +2490,18 @@ capture() # file command ...
 			case $s in
 			?*)	echo "$s"  ;;
 			esac
-			showenv $action
+			case $action in
+			'' | make)
+				# list main environment values
+				for i in CC SHELL $env
+				do	case $i in
+					FPATH | MANPATH)
+						continue ;;  # not relevant for building
+					esac
+					eval "echo \"$i=\$$i\""
+				done
+				;;
+			esac
 			"$@"
 		} < /dev/null > $o 2>&1
 		;;
@@ -2532,14 +2549,17 @@ do_install() # dir [ command ... ]
 	# set install directories
 	bindir=$dd/bin
 	man1dir=${dd:-/usr}/share/man/man1
+	fundir=${dd:-/usr}/share/fun
 	# and off we go
 	trace mkdir -p "$bindir" "$man1dir" || exit
 	for f
 	do	# install executable
 		trace cp "bin/$f" "$bindir/" || exit
-		# install manual
+		# install manual and autoloadable functions
 		case $f in
 		ksh)	trace cp "$PACKAGEROOT/src/cmd/ksh93/sh.1" "$man1dir/ksh.1" || exit
+			trace mkdir -p "$fundir" || exit
+			(set +o noglob; trace cp "$PACKAGEROOT"/src/cmd/ksh93/fun/* "$fundir/") || exit
 			;;
 		*)	# AT&T --man, etc. is a glorified error message: writes to stderr and exits with status 2 :-/
 			# So we cannot reliably check for success; must check the result, too.
@@ -2600,7 +2620,7 @@ export)	case $INSTALLROOT in
 	test "$#" -eq 0 && set -- $env
 	while	test "$#" -gt 0
 	do	i=$1
-		eval echo ${v}'$'${i}
+		eval "echo \"$v\$$i\""
 		shift
 	done
 	;;
@@ -2744,7 +2764,7 @@ make|view)
 							;;
 						esac
 					fi
-					$exec rm -f $tmp.*
+					(set +o noglob; $exec rm -rf $tmp.*)
 					$exec touch "$t"
 					cd $PACKAGEROOT
 					;;
@@ -2813,10 +2833,10 @@ make|view)
 			then	cat $tmp.err >&2
 			else	note "$CC: not a C compiler"
 			fi
-			rm -f $tmp.*
+			(set +o noglob; rm -rf $tmp.*)
 			exit 1
 		fi
-		rm -f $tmp.*
+		(set +o noglob; rm -rf $tmp.*)
 		cd $PACKAGEROOT
 		;;
 	esac
@@ -3010,7 +3030,9 @@ make|view)
 			esac
 			case $p in
 			'')	p="PLUGIN_LIB=cmd"
-				if	grep '^setv mam_cc_DIALECT .* EXPORT=[AD]LL' $INSTALLROOT/lib/probe/C/mam/* >/dev/null 2>&1
+				if	(	set +o noglob
+						grep '^setv mam_cc_DIALECT .* EXPORT=[AD]LL' "$INSTALLROOT"/lib/probe/C/mam/*
+					) >/dev/null 2>&1
 				then	p=no$p
 				fi
 				m=1
@@ -3282,7 +3304,7 @@ use)	# finalize the environment
 	then	SHELL=$INSTALLROOT/bin/ksh
 	fi
 	x=:..
-	for d in $( cd $PACKAGEROOT; ls src/*/Mamfile 2>/dev/null | sed 's,/[^/]*$,,' | sort -u )
+	for d in $(set +o noglob; cd $PACKAGEROOT; ls src/*/Mamfile 2>/dev/null | sed 's,/[^/]*$,,' | sort -u)
 	do	x=$x:$INSTALLROOT/$d
 	done
 	x=$x:$INSTALLROOT

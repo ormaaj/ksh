@@ -1518,6 +1518,7 @@ int sh_reinit(char *argv[])
 	Namval_t *np,*npnext;
 	Dt_t	*dp;
 	int	nofree;
+	char	*savfpath = NULL;
 	sh_onstate(SH_INIT);
 	sh.subshell = sh.realsubshell = sh.comsub = sh.curenv = sh.jobenv = sh.inuse_bits = sh.fn_depth = sh.dot_depth = 0;
 	sh.envlist = NULL;
@@ -1527,6 +1528,10 @@ int sh_reinit(char *argv[])
 		sfclose(sh.heredocs);
 		sh.heredocs = 0;
 	}
+	/* save FPATH and treat specially */
+	if(nv_isattr(FPATHNOD,NV_EXPORT))
+		savfpath = sh_strdup(nv_getval(FPATHNOD));
+	_nv_unset(FPATHNOD,NV_RDONLY);
 	/* Remove non-exported variables, first pass (see sh_envnolocal() in name.c) */
 	nv_scan(sh.var_tree,sh_envnolocal,NULL,NV_EXPORT,0);
 	nv_scan(sh.var_tree,sh_envnolocal,NULL,NV_ARRAY,NV_ARRAY);
@@ -1680,6 +1685,13 @@ int sh_reinit(char *argv[])
 	/* update $$, $PPID */
 	sh.ppid = sh.current_ppid;
 	sh.pid = sh.current_pid;
+	/* restore an exported FPATH */
+	if(savfpath)
+	{
+		nv_setattr(FPATHNOD,NV_EXPORT);
+		nv_putval(FPATHNOD,savfpath,0);
+		free(savfpath);
+	}
 	/* call user init function, if any */
 	if(sh.userinit)
 		(*sh.userinit)(&sh, 1);

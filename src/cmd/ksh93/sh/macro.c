@@ -436,7 +436,7 @@ static void copyto(Mac_t *mp,int endch, int newquote)
 	int		brace = 0;		/* level of {braces} */
 	char		oldquote = mp->quote;	/* save "double quoted" state */
 	char		ansi_c = 0;		/* set when processing ANSI C escape codes */
-	char		ere = 0;		/* set when processing an extended regular expression */
+	int32_t		ere = 0;		/* bitmask of pattern options indicating an extended regular expression */
 	char		bracketexpr = 0; 	/* set when in [brackets] within a non-ERE glob pattern */
 	Sfio_t		*sp = mp->sp;
 	Stk_t		*stkp = sh.stk;
@@ -449,6 +449,7 @@ static void copyto(Mac_t *mp,int endch, int newquote)
 	/* handle // operator specially */
 	if(mp->pattern==2 && *cp=='/')
 		cp++;
+	mbinit();
 	while(1)
 	{
 		if(mbwide())
@@ -539,7 +540,7 @@ static void copyto(Mac_t *mp,int endch, int newquote)
 				if(!mp->lit && !mp->quote)
 				{
 					int nc = *(unsigned char*)cp;
-					if((n==S_DIG || ((paren+ere) && (sh_lexstates[ST_DOL][nc]==S_ALP) || nc=='<' || nc=='>')))
+					if(n==S_DIG || ((paren || ere) && sh_lexstates[ST_DOL][nc]==S_ALP || nc=='<' || nc=='>'))
 						break;
 					if(ere && mp->pattern==1 && strchr(".[()*+?{|^$&!",*cp))
 						break;
@@ -754,13 +755,36 @@ static void copyto(Mac_t *mp,int endch, int newquote)
 					paren++;
 					if((cp-first)>1 && cp[-2]=='~')
 					{
-						char *p = cp;
-						while((c=mbchar(p)) && c!=RPAREN)
-							if(c=='A'||c=='E'||c=='K'||c=='P'||c=='X')
-							{
-								ere = 1;
+						char *p = cp, minus = 0;
+						/* Parse expression options to know if the expression is an ERE */
+						while((c=mbchar(p)) && c!=RPAREN && c!=':') switch(c)
+						{
+							case 'A':  /* augmented regular expression (AST) */
+							case 'E':  /* extended regular expression */
+							case 'P':  /* Perl regular expression */
+							case 'X':  /* augmented regular expression (AST) */
+								if(minus)
+									ere &= ~(1 << c - 'A');
+								else
+									ere |= 1 << c - 'A';
 								break;
-							}
+							case 'B':  /* basic regular expression */
+							case 'F':  /* fixed pattern */
+							case 'G':  /* basic regular expression */
+							case 'K':  /* ksh glob pattern */
+							case 'L':  /* fixed pattern */
+							case 'S':  /* sh glob pattern */
+							case 'V':  /* System V regular expression */
+								if(!minus)
+									ere = 0;
+								break;
+							case '-':  /* disable the following options */
+								minus = 1;
+								break;
+							case '+':  /* enable the following options */
+								minus = 0;
+								break;
+						}
 					}
 				}
 				else if(n==RPAREN)

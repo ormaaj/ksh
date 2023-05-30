@@ -1292,6 +1292,11 @@ make install
 		prev fun/autocd
 		exec - ${STDCMP} 2>/dev/null -s fun/autocd ${INSTALLROOT}/fun/autocd || { ${STDMV} ${INSTALLROOT}/fun/autocd ${INSTALLROOT}/fun/autocd.old 2>/dev/null || true; ${STDCP} fun/autocd ${INSTALLROOT}/fun/autocd && chmod ugo+x ${INSTALLROOT}/fun/autocd ;}
 	done ${INSTALLROOT}/fun/autocd generated
+	make ${INSTALLROOT}/fun/cd
+		prev ${INSTALLROOT}/fun
+		prev fun/cd
+		exec - ${STDCMP} 2>/dev/null -s fun/cd ${INSTALLROOT}/fun/cd || { ${STDMV} ${INSTALLROOT}/fun/cd ${INSTALLROOT}/fun/cd.old 2>/dev/null || true; ${STDCP} fun/cd ${INSTALLROOT}/fun/cd && chmod ugo+x ${INSTALLROOT}/fun/cd ;}
+	done ${INSTALLROOT}/fun/cd generated
 	make ${INSTALLROOT}/fun/dirs
 		prev ${INSTALLROOT}/fun
 		prev fun/dirs
@@ -1302,6 +1307,11 @@ make install
 		prev fun/man
 		exec - ${STDCMP} 2>/dev/null -s fun/man ${INSTALLROOT}/fun/man || { ${STDMV} ${INSTALLROOT}/fun/man ${INSTALLROOT}/fun/man.old 2>/dev/null || true; ${STDCP} fun/man ${INSTALLROOT}/fun/man && chmod ugo+x ${INSTALLROOT}/fun/man ;}
 	done ${INSTALLROOT}/fun/man generated
+	make ${INSTALLROOT}/fun/mcd
+		prev ${INSTALLROOT}/fun
+		prev fun/mcd
+		exec - ${STDCMP} 2>/dev/null -s fun/mcd ${INSTALLROOT}/fun/mcd || { ${STDMV} ${INSTALLROOT}/fun/mcd ${INSTALLROOT}/fun/mcd.old 2>/dev/null || true; ${STDCP} fun/mcd ${INSTALLROOT}/fun/mcd && chmod ugo+x ${INSTALLROOT}/fun/mcd ;}
+	done ${INSTALLROOT}/fun/mcd generated
 	make ${INSTALLROOT}/fun/popd
 		prev fun/popd
 		exec - ${STDCMP} 2>/dev/null -s fun/popd ${INSTALLROOT}/fun/popd || { ${STDMV} ${INSTALLROOT}/fun/popd ${INSTALLROOT}/fun/popd.old 2>/dev/null || true; ${STDCP} fun/popd ${INSTALLROOT}/fun/popd && chmod ugo+x ${INSTALLROOT}/fun/popd ;}

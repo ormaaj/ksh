@@ -12,31 +12,39 @@
 #                                                                      #
 #                  David Korn <dgk@research.att.com>                   #
 #                  Martijn Dekker <martijn@inlv.org>                   #
+#               K. Eugene Carlson <kvngncrlsn@gmail.com>               #
 #                                                                      #
 ########################################################################
 #
-# dirs: Display directory stack, with $HOME displayed as ~.
-# For use in conjunction with 'cd', 'mcd', 'pushd', 'popd'.
+# mcd: menu-driven command for changing the directory.
+# For use in conjunction with 'cd', 'dirs', 'pushd', 'popd'.
 
 # Use cd wrapper from .../fun/cd
 autoload cd
 
+# Non-destructively initialize global parameters for directory stack.
+# Default stack size is 32, or $CDSTACK if set before init.
+integer _push_max=${_push_max:-${CDSTACK:-32}}
+integer _push_top=${_push_top:-${CDSTACK:-32}}
 typeset -a _push_stack
 
-function dirs
+# Menu driven change directory command
+function mcd
 {
-	typeset dir=${PWD#"$HOME/"} PS3=''
-	# change $HOME to ~
+	typeset dir=${PWD#"$HOME/"} PS3='Select by number or enter a name: '
+	# display $HOME as ~
 	case $dir in
 	"$HOME")dir=\~ ;;
 	/*)	;;
-	*) 	dir=\~/$dir ;;
+	*)	dir=\~/$dir ;;
 	esac
-	# Display numbered directory list using a dummy 'select' loop;
-	# redirecting standard input to /dev/null prevents user input
-	# and setting PS3 to empty (above) prevents showing a prompt.
-	# The numbers shown are usable with 'mcd' and the 'cd' wrapper.
-	select i in "$dir" "${_push_stack[@]}"
-	do	:
-	done < /dev/null
+	select dir in "$dir" "${_push_stack[@]}"
+	do	# change ~ back to $HOME
+		case $REPLY in
+		\~*)	REPLY=$HOME${REPLY#\~} ;;
+		esac
+		# change directory using autoloaded cd wrapper function;
+		# if it fails, redisplay menu
+		cd "$REPLY" && return
+	done
 }

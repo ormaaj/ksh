@@ -1002,4 +1002,13 @@ then	got=$(PATH=/opt/ast/bin:$PATH "$SHELL" -c 'command -x cat /dev/null; whence
 fi
 
 # ======
+: >whence_t_test
+exp='function'
+FPATH=$PWD
+got=${ whence -t whence_t_test 2>&1; }
+[[ $got == "$exp" ]] || err_exit "incorrect 'whence -t' output for undefined function (expected '$exp', got '$got')"
+got=${ type -t whence_t_test 2>&1; }
+[[ $got == "$exp" ]] || err_exit "incorrect 'type -t' output for undefined function (expected '$exp', got '$got')"
+
+# ======
 exit $((Errors<125?Errors:125))

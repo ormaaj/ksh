@@ -288,10 +288,8 @@ static int whence(char **argv, int flags)
 				if(!nv_search(cp,sh.fun_tree,0))
 				{
 					/* Undefined/autoloadable function on FPATH */
-					sfputr(sfstdout,sh_fmtq(cp),-1);
-					if(flags&T_FLAG)
-						sfprintf(sfstdout,"function");
-					else if(flags&V_FLAG)
+					sfputr(sfstdout, flags&T_FLAG?"function":sh_fmtq(cp), -1);
+					if(flags&V_FLAG)
 					{
 						sfprintf(sfstdout,sh_translate(is_ufunction));
 						sfprintf(sfstdout,sh_translate(e_autoloadfrom),sh_fmtq(stkptr(sh.stk,PATH_OFFSET)));

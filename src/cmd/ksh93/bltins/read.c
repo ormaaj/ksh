@@ -63,6 +63,7 @@ int	b_read(int argc,char *argv[], Shbltin_t *context)
 {
 	Sfdouble_t sec;
 	char *prompt;
+	const char *msg = e_file+4;
 	int r, flags=0, fd=0;
 	ssize_t	len=0;
 	long timeout = 1000*sh.st.tmout;
@@ -108,11 +109,8 @@ int	b_read(int argc,char *argv[], Shbltin_t *context)
 		break;
 	    case 'p':
 	    coprocess:
-		if((fd = sh.cpipe[0])<=0)
-		{
-			errormsg(SH_DICT,ERROR_exit(1),e_query);
-			UNREACHABLE();
-		}
+		fd = sh.cpipe[0];
+		msg = e_query;
 		break;
 	    case 'n': case 'N':
 		flags &= ((1<<D_FLAG)-1);
@@ -158,7 +156,7 @@ int	b_read(int argc,char *argv[], Shbltin_t *context)
 		r = sh_iocheckfd(fd);
 	if(fd<0 || !(r&IOREAD))
 	{
-		errormsg(SH_DICT,ERROR_system(1),e_file+4);
+		errormsg(SH_DICT,ERROR_system(1),msg);
 		UNREACHABLE();
 	}
 	/* look for prompt */

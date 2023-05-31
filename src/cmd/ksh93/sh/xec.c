@@ -1446,7 +1446,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			if(sh.subshell)
 				sh_subtmpfile();
 			if(no_fork = check_exec_optimization(type,execflg,execflg2,t->fork.forkio))
-				job.parent=parent=0;
+				parent = 0;
 			else
 			{
 #if SHOPT_BGX

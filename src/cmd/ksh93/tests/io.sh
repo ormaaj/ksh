@@ -857,8 +857,15 @@ fi
 # file descriptor inside of the command substitution.
 exp='Foo bar'
 { got=$(echo 'Foo bar' 2>/dev/null); } >&-
-[[ $exp == $got ]] || err_exit "BUG_CSUBSTDO: Closing stdout outside of command substitution breaks stdout inside of command substitution" \
+[[ $got == "$exp" ]] || err_exit "\$(Comsub) with closed stdout doesn't reopen stdout" \
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+{ got=${ print 'Foo bar' 2>/dev/null; }; } >&-
+[[ $got == "$exp" ]] || err_exit "\${ Comsub; } with closed stdout doesn't reopen stdout" \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+{ got=`print 'Foo bar' 2>/dev/null`; } >&-
+[[ $got == "$exp" ]] || err_exit "\`Comsub\` with closed stdout doesn't reopen stdout" \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+
 
 # ======
 # In shcomp, process substitution did not work when used as the file name to a redirection.

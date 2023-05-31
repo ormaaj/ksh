@@ -208,8 +208,7 @@ static int whence(char **argv, int flags)
 		{
 			if(flags&Q_FLAG)
 				continue;
-			if(!(flags&T_FLAG))
-				sfputr(sfstdout,name,-1);
+			sfputr(sfstdout, flags&T_FLAG?"function":name, -1);
 			if(flags&V_FLAG)
 			{
 				if(nv_isnull(np))
@@ -224,8 +223,6 @@ static int whence(char **argv, int flags)
 				else
 					sfprintf(sfstdout,sh_translate(is_function));
 			}
-			else if(flags&T_FLAG)
-				sfprintf(sfstdout,"function");
 			sfputc(sfstdout,'\n');
 			if(!aflag)
 				continue;

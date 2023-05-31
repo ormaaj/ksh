@@ -16,6 +16,7 @@
 *                  Martijn Dekker <martijn@inlv.org>                   *
 *            Johnothan King <johnothanking@protonmail.com>             *
 *                      Phi <phi.debian@gmail.com>                      *
+*         hyenias <58673227+hyenias@users.noreply.github.com>          *
 *                                                                      *
 ***********************************************************************/
 #include	"sfhdr.h"

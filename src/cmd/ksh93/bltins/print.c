@@ -203,6 +203,7 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 			nflag++;
 			break;
 		case 'p':
+		coprocess:
 			fd = sh.coutpipe;
 			msg = e_query;
 			break;
@@ -230,11 +231,7 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 			break;
 		case 'u':
 			if(opt_info.arg[0]=='p' && opt_info.arg[1]==0)
-			{
-				fd = sh.coutpipe;
-				msg = e_query;
-				break;
-			}
+				goto coprocess;
 			fd = (int)strtol(opt_info.arg,&opt_info.arg,10);
 			if(*opt_info.arg)
 				fd = -1;

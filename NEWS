@@ -57,7 +57,7 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
 - Fixed multiple bugs causing incorrect output for relative date specifications
   given as arguments to printf %(dateformat)T. For example, something like
-	printf '%(%Y-%m-%d %H:%M)' 'exact 9 weeks ago'
+	printf '%(%Y-%m-%d %H:%M)T\n' 'exact 9 weeks ago'
   will now produce the correct output, which is the same as GNU date:
 	date '+%Y-%m-%d %H:%M' '9 weeks ago'
 

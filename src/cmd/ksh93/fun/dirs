@@ -12,6 +12,7 @@
 #                                                                      #
 #                  David Korn <dgk@research.att.com>                   #
 #                  Martijn Dekker <martijn@inlv.org>                   #
+#               K. Eugene Carlson <kvngncrlsn@gmail.com>               #
 #                                                                      #
 ########################################################################
 #
@@ -39,4 +40,7 @@ function dirs
 	select i in "$dir" "${_push_stack[@]}"
 	do	:
 	done < /dev/null
+	# The select loop will exit with status 1 as there is no input
+	# to read, but 'dirs' should not pass down that exit status.
+	return 0
 }

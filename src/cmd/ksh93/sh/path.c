@@ -451,7 +451,6 @@ static int	opentype(const char *name, Pathcomp_t *pp, int fun)
 	int fd= -1;
 	struct stat statb;
 	Pathcomp_t *nextpp;
-
 	if(!pp && !sh.pathlist)
 		pathinit();
 	if(!fun && strchr(name,'/'))
@@ -462,7 +461,6 @@ static int	opentype(const char *name, Pathcomp_t *pp, int fun)
 			UNREACHABLE();
 		}
 	}
-
 	nextpp = pp;
 	do
 	{
@@ -483,7 +481,6 @@ static int	opentype(const char *name, Pathcomp_t *pp, int fun)
 		}
 	}
 	while(fd<0 && nextpp);
-
 	if(fd>=0 && (fd = sh_iomovefd(fd)) > 0)
 	{
 		fcntl(fd,F_SETFD,FD_CLOEXEC);

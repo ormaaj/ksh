@@ -15,6 +15,7 @@
 *                   Phong Vo <kpv@research.att.com>                    *
 *                  Martijn Dekker <martijn@inlv.org>                   *
 *            Johnothan King <johnothanking@protonmail.com>             *
+*                      Phi <phi.debian@gmail.com>                      *
 *                                                                      *
 ***********************************************************************/
 #ifndef _SFIO_H

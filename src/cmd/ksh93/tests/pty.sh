@@ -15,6 +15,7 @@
 #            Johnothan King <johnothanking@protonmail.com>             #
 #                Govind Kamat <govind_kamat@yahoo.com>                 #
 #               K. Eugene Carlson <kvngncrlsn@gmail.com>               #
+#                      Phi <phi.debian@gmail.com>                      #
 #                                                                      #
 ########################################################################
 
@@ -1192,6 +1193,24 @@ r ^:test-4: ls \\~ab/\r\n$
 p :test-5:
 w ls $'~\t
 r ^:test-5: ls \\~ab/\r\n$
+!
+
+((SHOPT_VSH || SHOPT_ESH)) &&
+chmod +x cmd_complete_me >cmd_complete_me &&
+PATH=.:$PATH tst $LINENO <<"!"
+L command completion after init and after TERM change
+# https://github.com/ksh93/ksh/issues/642
+
+d 40
+p :test-1:
+w cmd_complet\t
+r cmd_complete_me \r\n$
+# also try after TERM change
+p :test-2:
+w TERM=ansi
+p :test-3:
+w cmd_complet\t
+r cmd_complete_me \r\n$
 !
 
 # ======

@@ -1255,7 +1255,7 @@ actual=$(
 	print 'function cd { echo "Func cd called with |$*|"; command cd "$@"; }' >"$prefix/functions/cd"
 	typeset -fu cd
 
-	PATH=$tmp/arglebargle:$PATH:$tmp/usr/bin:$tmp/bin
+	PATH=$tmp/arglebargle:$tmp/usr/bin:$tmp/bin
 	cd "$tmp/usr"
 	pwd
 )

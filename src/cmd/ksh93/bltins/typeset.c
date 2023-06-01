@@ -1402,7 +1402,7 @@ static int unall(int argc, char **argv, Dt_t *troot)
 			else if(isfun)
 			{
 				if(troot!=sh.fun_base)
-					nv_offattr(np,NV_FUNCTION);	/* invalidate */
+					np->nvflag = 0;	/* invalidate */
 				else if(!(np->nvalue.rp && np->nvalue.rp->running))
 					nv_delete(np,troot,0);
 			}
@@ -1417,7 +1417,7 @@ static int unall(int argc, char **argv, Dt_t *troot)
 		}
 		else if(troot==sh.alias_tree)
 			r = 1;
-		else if(troot==sh.fun_tree && troot!=sh.fun_base && nv_search(name,sh.fun_tree,0))
+		else if(troot==sh.fun_tree && troot!=sh.fun_base && (np=nv_search(name,sh.fun_tree,0)) && is_afunction(np))
 			nv_open(name,troot,NV_NOSCOPE);	/* create dummy virtual subshell node without NV_FUNCTION attribute */
 	}
 	return r;

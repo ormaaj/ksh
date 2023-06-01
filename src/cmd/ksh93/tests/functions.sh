@@ -1538,4 +1538,17 @@ unset -f f
 unset -v "${!v2@}"
 
 # ======
+# https://github.com/ksh93/ksh/issues/646
+for b in cd disown fc fg getopts printf pwd read ulimit umask whence
+do	got=$(unset -f "$b"; PATH=/dev/null; "$b" --version 2>/dev/null)
+	[[ e=$? -eq 2 && -z $got ]] || err_exit "'unset -f $b' fails in subshell (1)" \
+		"(expected status 2 and '', got status $e and $(printf %q "$got"))"
+	eval "$b() { command echo BAD; }"
+	got=$(unset -f "$b"; PATH=/dev/null; "$b" --version 2>/dev/null)
+	[[ e=$? -eq 2 && -z $got ]] || err_exit "'unset -f $b' fails in subshell (2)" \
+		"(expected status 2 and '', got status $e and $(printf %q "$got"))"
+	unset -f "$b"
+done
+
+# ======
 exit $((Errors<125?Errors:125))

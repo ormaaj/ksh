@@ -1061,7 +1061,17 @@ Namval_t *nv_bfsearch(const char *name, Dt_t *root, Namval_t **var, char **last)
 			cp = sp; 
 	}
 	if(!cp)
-		return var ? nv_search(name,root,0) : 0;
+	{
+		if(!var)
+			return 0;
+		np = nv_search(name,root,0);
+		/* If 'unset -f' set a dummy null node in a subshell function tree, then
+		 * we must ignore this, but without searching in the parent function tree;
+		 * search again, directly in the builtins tree. */
+		if(np && !np->nvflag && !np->nvalue.rp && root==sh.fun_tree && root!=sh.fun_base)
+			np = nv_search(name,sh.bltin_tree,0);
+		return np;
+	}
 	sfputr(sh.stk,name,0);
 	dname = cp+1;
 	cp = stkptr(sh.stk,offset) + (cp-name); 

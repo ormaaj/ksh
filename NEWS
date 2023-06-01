@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-05-31:
+
+- Fixed a bug introduced on 2021-04-24 where unsetting a function in a
+  subshell hides any built-in command by the same name for the duration
+  of that subshell.
+
 2023-05-30:
 
 - Fixed a bug in the 'type -t'/'whence -t' output for an undefined function.

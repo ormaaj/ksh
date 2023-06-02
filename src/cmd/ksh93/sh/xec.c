@@ -957,7 +957,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			}
 			if(com0)
 			{
-				if(!np && !strchr(com0,'/'))
+				if((!np || !np->nvflag) && !strchr(com0,'/'))
 				{
 					Dt_t *root = command?sh.bltin_tree:sh.fun_tree;
 					np = nv_bfsearch(com0, root, &nq, &cp);

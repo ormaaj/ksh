@@ -1007,6 +1007,9 @@ Namval_t *nv_search(const char *name, Dt_t *root, int mode)
 			root = sh.var_base;
 		np = dtmatch(root,name);
 	}
+	/* skip dummy shell function node (function unset in virtual subshell) */
+	if(np && !np->nvflag && root==sh.fun_tree)
+		np = mode&NV_NOSCOPE ? NULL : dtmatch(sh.bltin_tree,name);
 	if(!np && (mode&NV_ADD))
 	{
 		if(sh.namespace && !(mode&NV_NOSCOPE) && root==sh.var_tree)
@@ -1017,7 +1020,7 @@ Namval_t *nv_search(const char *name, Dt_t *root, int mode)
 			while(next=dtvnext(root))
 				root = next;
 		}
-		np = (Namval_t*)dtinsert(root,newnode(name));
+		np = (Namval_t*)dtinstall(root,newnode(name));
 	}
 	if(dp)
 		dtview(root,dp);
@@ -1061,17 +1064,7 @@ Namval_t *nv_bfsearch(const char *name, Dt_t *root, Namval_t **var, char **last)
 			cp = sp; 
 	}
 	if(!cp)
-	{
-		if(!var)
-			return 0;
-		np = nv_search(name,root,0);
-		/* If 'unset -f' set a dummy null node in a subshell function tree, then
-		 * we must ignore this, but without searching in the parent function tree;
-		 * search again, directly in the builtins tree. */
-		if(np && !np->nvflag && !np->nvalue.rp && root==sh.fun_tree && root!=sh.fun_base)
-			np = nv_search(name,sh.bltin_tree,0);
-		return np;
-	}
+		return var ? nv_search(name,root,0) : NULL;
 	sfputr(sh.stk,name,0);
 	dname = cp+1;
 	cp = stkptr(sh.stk,offset) + (cp-name); 
@@ -1437,10 +1430,13 @@ int nv_hasget(Namval_t *np)
 #if SHOPT_NAMESPACE
 Namval_t *sh_fsearch(const char *fname, int add)
 {
-	int	offset = stktell(sh.stk);
-	sfputr(sh.stk,nv_name(sh.namespace),'.');
-	sfputr(sh.stk,fname,0);
-	fname = stkptr(sh.stk,offset);
+	if(*fname!='.')
+	{
+		int	offset = stktell(sh.stk);
+		sfputr(sh.stk,nv_name(sh.namespace),'.');
+		sfputr(sh.stk,fname,0);
+		fname = stkptr(sh.stk,offset);
+	}
 	return nv_search(fname,sh_subfuntree(add&NV_ADD),add);
 }
 #endif /* SHOPT_NAMESPACE */

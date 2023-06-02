@@ -182,4 +182,14 @@ else
 fi
 
 # ======
+# https://github.com/ksh93/ksh/issues/646
+# TODO: 'unset -f whence' within namespace does not work in subshell; need 'unset -f .ns.whence'
+#got=$(namespace ns { whence() { echo BAD; }; (unset -f whence; whence --version 2>/dev/null); exit; })
+#[[ e=$? -eq 2 && -z $got ]] || err_exit "'unset -f whence' fails in subshell" \
+#	"(expected status 2 and '', got status $e and $(printf %q "$got"))"
+got=$(namespace ns { whence() { echo BAD; }; (unset -f .ns.whence; whence --version 2>/dev/null); exit; })
+[[ e=$? -eq 2 && -z $got ]] || err_exit "'unset -f .ns.whence' fails in subshell" \
+	"(expected status 2 and '', got status $e and $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

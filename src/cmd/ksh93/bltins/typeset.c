@@ -1352,9 +1352,13 @@ static int unall(int argc, char **argv, Dt_t *troot)
 		if(jmpval==0)
 		{
 #if SHOPT_NAMESPACE
-			if(sh.namespace && troot!=sh.var_tree)
-				np = sh_fsearch(name,nflag);
-			if(!np)
+			if(sh.namespace && troot==sh.fun_tree && *name!='.')
+			{
+				/* prefix the namespace name */
+				sfputr(sh.stk,nv_name(sh.namespace),'.');
+				sfputr(sh.stk,name,'\0');
+				name = stkfreeze(sh.stk,0);
+			}
 #endif /* SHOPT_NAMESPACE */
 			np=nv_open(name,troot,NV_NOADD|nflag);
 		}

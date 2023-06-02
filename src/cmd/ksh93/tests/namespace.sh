@@ -199,7 +199,8 @@ do
 	[[ e=$? -eq 2 && $got =~ $exp ]] || err_exit "'unset -f $b' fails in subshell (1a)" \
 		"(expected status 2 and ERE match of $(printf %q "$exp"), got status $e and $(printf %q "$got"))"
 
-	namespace ns {
+	namespace ns
+	{
 		got=$(
 			eval "$b() { echo BAD; }"
 			(unset -f "$b"; PATH=/dev/null; "$b" --version 2>&1)

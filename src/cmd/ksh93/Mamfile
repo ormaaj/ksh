@@ -64,11 +64,11 @@ make install
 			exec -		'TEST_L=')
 			exec -			# if external 'test' supports lowercase -l as equivalent to -L, enable
 			exec -			# SHOPT_TEST_L so ksh supports it for compatibility with local scripts
-			exec -			ln -s /dev/null "$EXECROOT/link$$"
+			exec -			${STDLN} -s /dev/null "$EXECROOT/link$$"
 			exec -			if	env test -l "$EXECROOT/link$$" && env test ! -l .
 			exec -			then	writedef TEST_L 1
 			exec -			fi 2>/dev/null
-			exec -			rm -f "$EXECROOT/link$$" ;;
+			exec -			${STDRM} -f "$EXECROOT/link$$" ;;
 			exec -		'SYSRC=')
 			exec -			# if one of these exists, make SHOPT_SYSRC load /etc/ksh.kshrc by default
 			exec -			if	test -f /etc/ksh.kshrc || test -f /etc/bash.bashrc
@@ -87,7 +87,7 @@ make install
 			exec -	echo '#include "FEATURE/options"'
 			exec -	echo
 			exec -	. "$PACKAGEROOT/src/cmd/ksh93/SHOPT.sh"
-			exec -	cat <<-EOF
+			exec -	${STDCAT} <<-EOF
 			exec -		/* overrides */
 			exec -		#if SHOPT_SCRIPTONLY
 			exec -		#   undef SHOPT_ACCT
@@ -1262,19 +1262,19 @@ make install
 	make ${PACKAGE_ast_INCLUDE}/nval.h
 		prev ${PACKAGE_ast_INCLUDE}
 		prev include/nval.h
-		exec - if ! cmp -s include/nval.h ${PACKAGE_ast_INCLUDE}/nval.h
+		exec - if ! ${STDCMP} -s include/nval.h ${PACKAGE_ast_INCLUDE}/nval.h
 		exec - then ${STDCP} include/nval.h ${PACKAGE_ast_INCLUDE}/nval.h
 		exec - fi
 	done ${PACKAGE_ast_INCLUDE}/nval.h generated
 	make ${PACKAGE_ast_INCLUDE}/shell.h
 		prev include/shell.h
-		exec - if ! cmp -s include/shell.h ${PACKAGE_ast_INCLUDE}/shell.h
+		exec - if ! ${STDCMP} -s include/shell.h ${PACKAGE_ast_INCLUDE}/shell.h
 		exec - then ${STDCP} include/shell.h ${PACKAGE_ast_INCLUDE}/shell.h
 		exec - fi
 	done ${PACKAGE_ast_INCLUDE}/shell.h generated
 	make ${PACKAGE_ast_INCLUDE}/history.h
 		prev include/history.h
-		exec - if ! cmp -s include/history.h ${PACKAGE_ast_INCLUDE}/history.h
+		exec - if ! ${STDCMP} -s include/history.h ${PACKAGE_ast_INCLUDE}/history.h
 		exec - then ${STDCP} include/history.h ${PACKAGE_ast_INCLUDE}/history.h
 		exec - fi
 	done ${PACKAGE_ast_INCLUDE}/history.h generated
@@ -1290,35 +1290,35 @@ make install
 	make ${INSTALLROOT}/fun/autocd
 		prev ${INSTALLROOT}/fun
 		prev fun/autocd
-		exec - ${STDCMP} 2>/dev/null -s fun/autocd ${INSTALLROOT}/fun/autocd || { ${STDMV} ${INSTALLROOT}/fun/autocd ${INSTALLROOT}/fun/autocd.old 2>/dev/null || true; ${STDCP} fun/autocd ${INSTALLROOT}/fun/autocd && chmod ugo+x ${INSTALLROOT}/fun/autocd ;}
+		exec - ${STDCMP} 2>/dev/null -s fun/autocd ${INSTALLROOT}/fun/autocd || { ${STDMV} ${INSTALLROOT}/fun/autocd ${INSTALLROOT}/fun/autocd.old 2>/dev/null || true; ${STDCP} fun/autocd ${INSTALLROOT}/fun/autocd && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/autocd ;}
 	done ${INSTALLROOT}/fun/autocd generated
 	make ${INSTALLROOT}/fun/cd
 		prev ${INSTALLROOT}/fun
 		prev fun/cd
-		exec - ${STDCMP} 2>/dev/null -s fun/cd ${INSTALLROOT}/fun/cd || { ${STDMV} ${INSTALLROOT}/fun/cd ${INSTALLROOT}/fun/cd.old 2>/dev/null || true; ${STDCP} fun/cd ${INSTALLROOT}/fun/cd && chmod ugo+x ${INSTALLROOT}/fun/cd ;}
+		exec - ${STDCMP} 2>/dev/null -s fun/cd ${INSTALLROOT}/fun/cd || { ${STDMV} ${INSTALLROOT}/fun/cd ${INSTALLROOT}/fun/cd.old 2>/dev/null || true; ${STDCP} fun/cd ${INSTALLROOT}/fun/cd && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/cd ;}
 	done ${INSTALLROOT}/fun/cd generated
 	make ${INSTALLROOT}/fun/dirs
 		prev ${INSTALLROOT}/fun
 		prev fun/dirs
-		exec - ${STDCMP} 2>/dev/null -s fun/dirs ${INSTALLROOT}/fun/dirs || { ${STDMV} ${INSTALLROOT}/fun/dirs ${INSTALLROOT}/fun/dirs.old 2>/dev/null || true; ${STDCP} fun/dirs ${INSTALLROOT}/fun/dirs && chmod ugo+x ${INSTALLROOT}/fun/dirs ;}
+		exec - ${STDCMP} 2>/dev/null -s fun/dirs ${INSTALLROOT}/fun/dirs || { ${STDMV} ${INSTALLROOT}/fun/dirs ${INSTALLROOT}/fun/dirs.old 2>/dev/null || true; ${STDCP} fun/dirs ${INSTALLROOT}/fun/dirs && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/dirs ;}
 	done ${INSTALLROOT}/fun/dirs generated
 	make ${INSTALLROOT}/fun/man
 		prev ${INSTALLROOT}/fun
 		prev fun/man
-		exec - ${STDCMP} 2>/dev/null -s fun/man ${INSTALLROOT}/fun/man || { ${STDMV} ${INSTALLROOT}/fun/man ${INSTALLROOT}/fun/man.old 2>/dev/null || true; ${STDCP} fun/man ${INSTALLROOT}/fun/man && chmod ugo+x ${INSTALLROOT}/fun/man ;}
+		exec - ${STDCMP} 2>/dev/null -s fun/man ${INSTALLROOT}/fun/man || { ${STDMV} ${INSTALLROOT}/fun/man ${INSTALLROOT}/fun/man.old 2>/dev/null || true; ${STDCP} fun/man ${INSTALLROOT}/fun/man && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/man ;}
 	done ${INSTALLROOT}/fun/man generated
 	make ${INSTALLROOT}/fun/mcd
 		prev ${INSTALLROOT}/fun
 		prev fun/mcd
-		exec - ${STDCMP} 2>/dev/null -s fun/mcd ${INSTALLROOT}/fun/mcd || { ${STDMV} ${INSTALLROOT}/fun/mcd ${INSTALLROOT}/fun/mcd.old 2>/dev/null || true; ${STDCP} fun/mcd ${INSTALLROOT}/fun/mcd && chmod ugo+x ${INSTALLROOT}/fun/mcd ;}
+		exec - ${STDCMP} 2>/dev/null -s fun/mcd ${INSTALLROOT}/fun/mcd || { ${STDMV} ${INSTALLROOT}/fun/mcd ${INSTALLROOT}/fun/mcd.old 2>/dev/null || true; ${STDCP} fun/mcd ${INSTALLROOT}/fun/mcd && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/mcd ;}
 	done ${INSTALLROOT}/fun/mcd generated
 	make ${INSTALLROOT}/fun/popd
 		prev fun/popd
-		exec - ${STDCMP} 2>/dev/null -s fun/popd ${INSTALLROOT}/fun/popd || { ${STDMV} ${INSTALLROOT}/fun/popd ${INSTALLROOT}/fun/popd.old 2>/dev/null || true; ${STDCP} fun/popd ${INSTALLROOT}/fun/popd && chmod ugo+x ${INSTALLROOT}/fun/popd ;}
+		exec - ${STDCMP} 2>/dev/null -s fun/popd ${INSTALLROOT}/fun/popd || { ${STDMV} ${INSTALLROOT}/fun/popd ${INSTALLROOT}/fun/popd.old 2>/dev/null || true; ${STDCP} fun/popd ${INSTALLROOT}/fun/popd && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/popd ;}
 	done ${INSTALLROOT}/fun/popd generated
 	make ${INSTALLROOT}/fun/pushd
 		prev fun/pushd
-		exec - ${STDCMP} 2>/dev/null -s fun/pushd ${INSTALLROOT}/fun/pushd || { ${STDMV} ${INSTALLROOT}/fun/pushd ${INSTALLROOT}/fun/pushd.old 2>/dev/null || true; ${STDCP} fun/pushd ${INSTALLROOT}/fun/pushd && chmod ugo+x ${INSTALLROOT}/fun/pushd ;}
+		exec - ${STDCMP} 2>/dev/null -s fun/pushd ${INSTALLROOT}/fun/pushd || { ${STDMV} ${INSTALLROOT}/fun/pushd ${INSTALLROOT}/fun/pushd.old 2>/dev/null || true; ${STDCP} fun/pushd ${INSTALLROOT}/fun/pushd && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/pushd ;}
 	done ${INSTALLROOT}/fun/pushd generated
 done install virtual
 make test

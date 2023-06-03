@@ -354,7 +354,7 @@ make install
 								prev cmd.h
 							done lib.c
 							exec - {
-							exec - cat <<!
+							exec - ${STDCAT} <<!
 							exec - /*
 							exec -  * -lcmd extern function prototypes
 							exec -  */
@@ -370,9 +370,9 @@ make install
 							exec - ${PACKAGEROOT}/src/lib/libcmd/cmdinit.c ${PACKAGEROOT}/src/lib/libcmd/basename.c ${PACKAGEROOT}/src/lib/libcmd/cat.c ${PACKAGEROOT}/src/lib/libcmd/chgrp.c ${PACKAGEROOT}/src/lib/libcmd/chmod.c ${PACKAGEROOT}/src/lib/libcmd/chown.c ${PACKAGEROOT}/src/lib/libcmd/cksum.c ${PACKAGEROOT}/src/lib/libcmd/cmp.c ${PACKAGEROOT}/src/lib/libcmd/comm.c ${PACKAGEROOT}/src/lib/libcmd/cp.c ${PACKAGEROOT}/src/lib/libcmd/cut.c ${PACKAGEROOT}/src/lib/libcmd/dirname.c ${PACKAGEROOT}/src/lib/libcmd/date.c ${PACKAGEROOT}/src/lib/libcmd/expr.c ${PACKAGEROOT}/src/lib/libcmd/fds.c ${PACKAGEROOT}/src/lib/libcmd/fmt.c ${PACKAGEROOT}/src/lib/libcmd/fold.c ${PACKAGEROOT}/src/lib/libcmd/getconf.c ${PACKAGEROOT}/src/lib/libcmd/head.c ${PACKAGEROOT}/src/lib/libcmd/id.c ${PACKAGEROOT}/src/lib/libcmd/join.c ${PACKAGEROOT}/src/lib/libcmd/ln.c ${PACKAGEROOT}/src/lib/libcmd/logname.c ${PACKAGEROOT}/src/lib/libcmd/md5sum.c ${PACKAGEROOT}/src/lib/libcmd/mkdir.c ${PACKAGEROOT}/src/lib/libcmd/mkfifo.c ${PACKAGEROOT}/src/lib/libcmd/mktemp.c ${PACKAGEROOT}/src/lib/libcmd/mv.c ${PACKAGEROOT}/src/lib/libcmd/paste.c ${PACKAGEROOT}/src/lib/libcmd/pathchk.c ${PACKAGEROOT}/src/lib/libcmd/pids.c ${PACKAGEROOT}/src/lib/libcmd/rev.c ${PACKAGEROOT}/src/lib/libcmd/rm.c ${PACKAGEROOT}/src/lib/libcmd/rmdir.c ${PACKAGEROOT}/src/lib/libcmd/stty.c ${PACKAGEROOT}/src/lib/libcmd/sum.c ${PACKAGEROOT}/src/lib/libcmd/sync.c ${PACKAGEROOT}/src/lib/libcmd/tail.c ${PACKAGEROOT}/src/lib/libcmd/tee.c ${PACKAGEROOT}/src/lib/libcmd/tty.c ${PACKAGEROOT}/src/lib/libcmd/uname.c ${PACKAGEROOT}/src/lib/libcmd/uniq.c ${PACKAGEROOT}/src/lib/libcmd/vmstate.c ${PACKAGEROOT}/src/lib/libcmd/wc.c ${PACKAGEROOT}/src/lib/libcmd/revlib.c ${PACKAGEROOT}/src/lib/libcmd/wclib.c ${PACKAGEROOT}/src/lib/libcmd/lib.c |
 							exec - sort -u
 							exec - } > 1.${COTEMP}.h
-							exec - if cmp -s 1.${COTEMP}.h cmdext.h
-							exec - then rm -f 1.${COTEMP}.h
-							exec - else mv 1.${COTEMP}.h cmdext.h
+							exec - if ${STDCMP} -s 1.${COTEMP}.h cmdext.h
+							exec - then ${STDRM} -f 1.${COTEMP}.h
+							exec - else ${STDMV} 1.${COTEMP}.h cmdext.h
 							exec - fi
 							prev ${PACKAGE_ast_INCLUDE}/shcmd.h
 						done cmdext.h dontcare generated
@@ -653,13 +653,13 @@ make install
 	make ${PACKAGE_ast_INCLUDE}/cmd.h
 		prev ${PACKAGE_ast_INCLUDE}
 		prev cmd.h
-		exec - if ! cmp -s cmd.h ${PACKAGE_ast_INCLUDE}/cmd.h
+		exec - if ! ${STDCMP} -s cmd.h ${PACKAGE_ast_INCLUDE}/cmd.h
 		exec - then ${STDCP} cmd.h ${PACKAGE_ast_INCLUDE}/cmd.h
 		exec - fi
 	done ${PACKAGE_ast_INCLUDE}/cmd.h generated
 	make ${PACKAGE_ast_INCLUDE}/cmdext.h
 		prev cmdext.h
-		exec - if ! cmp -s cmdext.h ${PACKAGE_ast_INCLUDE}/cmdext.h
+		exec - if ! ${STDCMP} -s cmdext.h ${PACKAGE_ast_INCLUDE}/cmdext.h
 		exec - then ${STDCP} cmdext.h ${PACKAGE_ast_INCLUDE}/cmdext.h
 		exec - fi
 	done ${PACKAGE_ast_INCLUDE}/cmdext.h generated
@@ -713,7 +713,7 @@ make install
 			prev wclib.c
 			prev lib.c
 			exec - {
-			exec - cat <<!
+			exec - ${STDCAT} <<!
 			exec - /*
 			exec -  * -lcmd function list -- define your own CMDLIST()
 			exec -  */
@@ -727,12 +727,12 @@ make install
 			exec - |
 			exec - sort -u
 			exec - } > 1.${COTEMP}.h
-			exec - if cmp -s 1.${COTEMP}.h cmdlist.h
-			exec - then rm -f 1.${COTEMP}.h
-			exec - else mv 1.${COTEMP}.h cmdlist.h
+			exec - if ${STDCMP} -s 1.${COTEMP}.h cmdlist.h
+			exec - then ${STDRM} -f 1.${COTEMP}.h
+			exec - else ${STDMV} 1.${COTEMP}.h cmdlist.h
 			exec - fi
 		done cmdlist.h generated
-		exec - if ! cmp -s cmdlist.h ${PACKAGE_ast_INCLUDE}/cmdlist.h
+		exec - if ! ${STDCMP} -s cmdlist.h ${PACKAGE_ast_INCLUDE}/cmdlist.h
 		exec - then ${STDCP} cmdlist.h ${PACKAGE_ast_INCLUDE}/cmdlist.h
 		exec - fi
 	done ${PACKAGE_ast_INCLUDE}/cmdlist.h generated

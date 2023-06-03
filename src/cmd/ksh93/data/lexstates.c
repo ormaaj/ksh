@@ -653,8 +653,10 @@ static const char sh_lexstate9[256] =
   /*	h	i	j	k	l	m	n	o	*/
 	0,	0,	0,	0,	0,	0,	0,	0,
 
-  /*	x	y	z	{	|	}	~	del	*/
+  /*	p	q	r	s	t	u	v	w	*/
 	0,	0,	0,	0,	0,	0,	0,	0,
+
+  /*	x	y	z	{	|	}	~	del	*/
 	0,	0,	0,	S_BRACE,S_PAT,	S_ENDCH,0,	0
 };
 

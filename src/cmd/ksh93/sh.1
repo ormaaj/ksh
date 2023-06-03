@@ -5198,7 +5198,7 @@ Interchange the cursor and mark.
 by the
 .IR stty (1)
 command, usually
-.B ^H .)
+.BR ^H .)
 Delete previous character.
 .TP 10
 .I lnext
@@ -5271,8 +5271,10 @@ Push the region from the cursor to the mark on the stack.
 .TP 10
 .I kill
 (User defined kill character as defined
-by the stty command, usually
-.B ^U .)
+by the
+.IR stty (1)
+command, usually
+.BR ^U .)
 Kill the entire current line.
 If two
 .I kill
@@ -5552,7 +5554,9 @@ By default the editor is in input mode.
 .TP 10
 .I erase
 (User defined erase character as defined
-by the stty command, usually
+by the
+.IR stty (1)
+command, usually
 .B ^H
 or
 .BR # .)

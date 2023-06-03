@@ -306,42 +306,13 @@ make install
 				done ast_nl_types.h generated
 				prev ast_wchar.h
 				prev ast_wctype.h
-				exec - : clean up obsolete headers :
+				note * clean up obsolete headers
 				exec - ${STDRM} -rf dirent.h iconv.h nl_types.h stdio.h wchar.h wctype.h ast_hdr.h ast_types.h ast_unistd.h iffeio.h \
 				exec - ${INSTALLROOT}/include/ast/limits.h ${INSTALLROOT}/include/ast/unistd.h \
 				exec - ${PACKAGEROOT}/src/lib/libast/std/limits.h
-				exec - set +v +x
-				exec - echo 'int main(){return 0;}' > 1.${COTEMP}.c
-				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -c 1.${COTEMP}.c &&
-				exec - x=`${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} -o 1.${COTEMP}.x 1.${COTEMP}.o -l'*' 2>&1 | sed -e 's/[][()+@?]/#/g' || :` &&
-				exec - {
-				exec - case "" in
-				exec - *?) echo " " ;;
-				exec - esac
-				exec - for i in ast iconv w
-				exec - do case $i in
-				exec - "ast"|ast)
-				exec - ;;
-				exec - *) if test -f ${INSTALLROOT}/lib/lib/$i
-				exec - then y=`${STDCAT} ${INSTALLROOT}/lib/lib/$i`
-				exec - case $y in
-				exec - *-?*) echo "" $y ;;
-				exec - esac
-				exec - continue
-				exec - elif test ! -f ${INSTALLROOT}/lib/lib$i.a
-				exec - then case `{ ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} -o 1.${COTEMP}.x 1.${COTEMP}.o -l$i 2>&1 || echo '' "$x" ;} | sed -e 's/[][()+@?]/#/g' || :` in
-				exec - *$x*) case `{ ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} -o 1.${COTEMP}.x 1.${COTEMP}.o -l$i 2>&1 || echo '' "$x" ;} | sed -e 's/[][()+@?]/#/g' || :` in
-				exec - *$x*) continue ;;
-				exec - esac
-				exec - ;;
-				exec - esac
-				exec - fi
-				exec - ;;
-				exec - esac
-				exec - echo " -l$i"
-				exec - done
-				exec - } > ast.req
-				exec - ${STDRM} -f 1.${COTEMP}.*
+				note * generate initial ast.req
+				prev ${INSTALLROOT}/bin/mkreq
+				exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} : ${LDFLAGS} : ast iconv w
 				make astmath.exe
 					make port/astmath.c
 						prev std/endian.h

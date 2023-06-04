@@ -131,6 +131,7 @@ L POSIX sh 028(C)
 # SIGTTIN signal then the <state> field in the output message is set to
 # Stopped(SIGTTIN) or Suspended(SIGTTIN).
 
+d 15
 I ^\r?\n$
 p :test-1:
 w sleep 60 &
@@ -153,6 +154,7 @@ L POSIX sh 029(C)
 # SIGTTOU signal then the <state> field in the output message is set to
 # Stopped(SIGTTOU) or Suspended(SIGTTOU).
 
+d 15
 I ^\r?\n$
 p :test-1:
 w sleep 60 &
@@ -190,6 +192,7 @@ L POSIX sh 093(C)
 # command line editing is supported:  After termination of a previous
 # command, sh is entered in insert mode.
 
+d 15
 w echo hello\E
 u ^hello\r?\n$
 c echo goo
@@ -205,6 +208,7 @@ L POSIX sh 094(C)
 # command line editing is supported:  When in insert mode an <ESC>
 # switches sh into command mode.
 
+d 15
 c echo he\E
 s 400
 w allo
@@ -224,6 +228,7 @@ L POSIX sh 096(C)
 # terminal and to reset the command history so that the command that
 # was interrupted is not entered in the history.
 
+d 15
 I ^\r?\n$
 p :test-1:
 w echo first
@@ -268,6 +273,7 @@ L POSIX sh 099(C)
 # and to reset the command history so that the command that was
 # interrupted is not entered in the history.
 
+d 15
 I ^\r?\n$
 p :test-1:
 w echo first
@@ -294,6 +300,7 @@ L POSIX sh 100(C)
 # command line editing is supported:  When in insert mode the kill
 # character clears all the characters from the input line.
 
+d 15
 p :test-1:
 w stty kill ^X
 p :test-2:
@@ -354,6 +361,7 @@ L POSIX sh 104(C)
 # end-of-file at the beginning of an input line is interpreted as the
 # end of input.
 
+d 15
 p :test-1:
 w trap 'echo done >&2' EXIT
 p :test-2:
@@ -374,6 +382,7 @@ L POSIX sh 111(C)
 # line to be treated as a comment and the line is entered in the
 # command history.
 
+d 15
 p :test-1:
 c echo save\E
 s 400
@@ -396,6 +405,7 @@ L POSIX sh 251(C)
 # command N repeats the most recent / or ? command, reversing the
 # direction of the search.
 
+d 15
 p :test-1:
 w echo repeat-1
 u ^repeat-1\r?\n$
@@ -437,6 +447,7 @@ whence -q less &&
 TERM=vt100 tst $LINENO <<"!"
 L process/terminal group exercise
 
+d 15
 w m=yes; while true; do echo $m-$m; done | less
 u :$|:\E|lines
 c \cZ
@@ -455,6 +466,7 @@ L vi mode file name completion
 # base name the same length as the home directory's parent directory
 # shouldn't fail.
 
+d 15
 w set -o vi; HOME=/tmp/fakehome_$$; touch ~/testfile_$$
 w echo ~/tes\t
 u ^/tmp/fakehome_$$/testfile_$$\r?\n$
@@ -471,6 +483,7 @@ L raw Bourne mode literal tab characters
 # handled by ed_viread() in vi.c (even though vi mode is off); it expands tab
 # characters to spaces on the command line. See slowread() in io.c.
 
+d 15
 p :test-1:
 w set +o emacs 2>/dev/null
 p :test-2:
@@ -485,6 +498,7 @@ L raw Bourne mode backslash handling
 # The escaping backslash feature should be disabled in the raw Bourne mode.
 # This is tested with both erase and kill characters.
 
+d 15
 p :test-1:
 w set +o emacs 2>/dev/null
 p :test-2:
@@ -567,8 +581,8 @@ got=$(test -t 1 >/dev/tty && echo ok) && [[ $got == ok ]] && echo OK11 || echo '
 EOF
 tst $LINENO <<"!"
 L test -t 1 inside command substitution
-p :test-1:
 d 40
+p :test-1:
 w . ./test_t.sh
 r ^:test-1: \. \./test_t\.sh\r\n$
 r ^OK0\r\n$
@@ -592,8 +606,8 @@ L race condition while launching external commands
 # Test for bug in ksh binaries that use posix_spawn() while job control is active.
 # See discussion at: https://github.com/ksh93/ksh/issues/79
 
-p :test-1:
 d 40
+p :test-1:
 w printf '%s\\n' 1 2 3 4 5 | while read; do ls /dev/null; done
 r ^:test-1: printf '%s\\n' 1 2 3 4 5 | while read; do ls /dev/null; done\r\n$
 r ^/dev/null\r\n$
@@ -686,6 +700,7 @@ r \tdo something\r\n$
 tst $LINENO <<"!"
 L value of $? after the shell uses a variable with a discipline function
 
+d 15
 w PS1.get() { true; }; PS2.get() { true; }; false
 u PS1.get\(\) \{ true; \}; PS2.get\(\) \{ true; \}; false
 w echo "Exit status is: $?"
@@ -732,6 +747,7 @@ L value of $? after tilde expansion in tab completion
 # Make sure that a .sh.tilde.set discipline function
 # cannot influence the exit status.
 
+d 15
 w .sh.tilde.set() { true; }
 w HOME=/tmp
 w false ~\t
@@ -883,6 +899,8 @@ tst $LINENO <<"!"
 L crash with KEYBD trap after entering multi-line command substitution
 # https://www.mail-archive.com/ast-users@lists.research.att.com/msg00313.html
 
+d 15
+p :test-1:
 w trap : KEYBD
 w : $(
 w true); echo "Exit status is $?"

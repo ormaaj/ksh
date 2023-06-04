@@ -184,4 +184,16 @@ case \\ in [$'!'X]) err_exit "\\ mismatches \$'!'";; esac
 case \\ in [$'^'X]) err_exit "\\ mismatches \$'^'";; esac
 
 # ======
+# https://github.com/ksh93/ksh/issues/649
+exp=YES
+got=$(set +x; eval '
+	case yAdA123YaDa in
+	~(i)yada~(E)\d{3}yada) print YES ;;
+	*) print NO ;;
+	esac
+' 2>&1)
+[[ $got == "$exp" ]] || err_exit "spurious syntax error in case with extended expression" \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

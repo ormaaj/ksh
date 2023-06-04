@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-06-04:
+
+- Fixed a bug in 'case', introduced in ksh 93t 2008-10-31, where extended
+  patterns containing a closing brace ('}') caused a spurious syntax error.
+
 2023-06-02:
 
 - Fixed a bug introduced on 2021-04-24 where unsetting a function in a

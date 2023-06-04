@@ -1024,7 +1024,7 @@ int sh_lex(Lex_t* lp)
 				}
 				if(lp->lexd.level <= inlevel)
 					break;
-				if(lp->lexd.level==inlevel+1 && lp->lex.incase>=TEST_RE && !lp->lex.intest)
+				if(lp->lexd.level==inlevel+1 && lp->lex.incase>=TEST_RE && !lp->lex.intest && c!=RBRACE)
 				{
 					fcseek(-LEN);
 					goto breakloop;

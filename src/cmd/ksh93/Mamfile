@@ -37,6 +37,7 @@ make install
 				exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/options
 			done FEATURE/options generated
 			prev SHOPT.sh
+			prev Mamfile
 			note * the SHOPT.sh file calls the SHOPT function once for each option
 			exec -	set +v +x
 			exec -
@@ -60,7 +61,9 @@ make install
 			exec -		'DEVFD=')
 			exec -			# if /dev/fd/n exposes file descriptor n, make SHOPT_DEVFD use this for
 			exec -			# process substitutions instead of FIFOs, which are not as secure
-			exec -			test -e /dev/fd/9 9<&0 && test ! -e /dev/fd/9 9<&- && writedef DEVFD 1 ;;
+			exec -			# WARNING: do not use 'test -e' for this test (too many shells break it
+			exec -			# by failing to test for the physical existence of /dev/fd/9 in the FS)
+			exec -			ls -d /dev/fd/9 9<&0 >/dev/null 2>&1 && writedef DEVFD 1 ;;
 			exec -		'TEST_L=')
 			exec -			# if external 'test' supports lowercase -l as equivalent to -L, enable
 			exec -			# SHOPT_TEST_L so ksh supports it for compatibility with local scripts

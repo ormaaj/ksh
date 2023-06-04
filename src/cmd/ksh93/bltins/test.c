@@ -607,7 +607,7 @@ int sh_access(const char *name, int mode)
 	struct stat statb;
 	if(*name==0)
 		return -1;
-	if(sh_isdevfd(name))
+	if(!sh_isoption(SH_POSIX) && sh_isdevfd(name))
 		return sh_ioaccess((int)strtol(name+8, NULL, 10),mode);
 	/* can't use access function for execute permission with root */
 	if(mode==X_OK && sh.euserid==0)

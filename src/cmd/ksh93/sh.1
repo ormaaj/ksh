@@ -3573,6 +3573,9 @@ is an integer,
 then the test is applied to the open file whose
 descriptor number is
 .IR n .
+The
+.B posix
+shell option disables this special handling.
 .PP
 A compound expression can be constructed from these primitives by
 using any of the following, listed in decreasing order of precedence:
@@ -7938,6 +7941,10 @@ numerical conversion specifiers of the
 .B printf
 built-in command, causing them to print a warning for operands that are not
 valid decimal, \fB0x\fR-prefixed hexadecimal or \fB0\fR-prefixed octal numbers;
+.IP \[bu]
+disables the special handling of \f3/dev/fd/\fP\f2n\fP in file existence and
+access test operators in \fBtest\fR/\fB[\fR and \fB[[\fR, causing these to
+operate on the file \f3/dev/fd/\fP\f2n\fP in the file system;
 .IP \[bu]
 disables the recognition of unexpanded shell arithmetic expressions in the
 numerical comparison operators

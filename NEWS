@@ -7,6 +7,10 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a bug in 'case', introduced in ksh 93t 2008-10-31, where extended
   patterns containing a closing brace ('}') caused a spurious syntax error.
 
+- The POSIX mode was amended to make 'test -e /dev/fd/n' (where n is a file
+  descriptor number) actually test for the existence of /dev/fd/n in the
+  file system. By default it tests if that file descriptor is open.
+
 2023-06-02:
 
 - Fixed a bug introduced on 2021-04-24 where unsetting a function in a

@@ -142,9 +142,10 @@ static int scantree(Dt_t *tree, const char *pattern, struct argnod **arghead)
 	struct argnod *ap;
 	int nmatch=0;
 	char *cp;
-	np = (Namval_t*)dtfirst(tree);
-	for(;np && !nv_isnull(np);(np = (Namval_t*)dtnext(tree,np)))
+	for(np=(Namval_t*)dtfirst(tree); np; np=(Namval_t*)dtnext(tree,np))
 	{
+		if(nv_isnull(np))
+			continue;
 		if(strmatch(cp=nv_name(np),pattern))
 		{
 			(void)stkseek(sh.stk,ARGVAL);

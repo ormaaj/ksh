@@ -100,6 +100,14 @@ then	warning "pty command hangs on $bintrue -- tests skipped"
 	exit 0
 fi
 
+# ksh invokes tput(1) to get terminal escape sequences necessary for multiline editing.
+# If tput is not available, tests requiring multiline editing would fail.
+typeset -si multiline
+command -pv tput >/dev/null
+if	! let "multiline = ! $?"
+then	warning "tput(1) not available on default path; tests that require multiline editing are skipped"
+fi
+
 tst $LINENO <<"!"
 L POSIX sh 026(C)
 
@@ -822,7 +830,7 @@ r ^:test-2: : One\\ "Two Three"\$'Four Five'\.mp3\r\n$
 !
 
 # needs non-dumb terminal for multiline editing
-((SHOPT_VSH)) && TERM=vt100 tst $LINENO <<"!"
+((multiline && SHOPT_VSH)) && TERM=vt100 tst $LINENO <<"!"
 L crash when entering comment into history file (vi mode)
 # https://github.com/att/ast/issues/798
 
@@ -876,7 +884,7 @@ r ^:test-5: \$'`/dev[[:blank:]]*\r\n$
 !
 
 # needs non-dumb terminal for multiline editing
-((SHOPT_ESH)) && VISUAL=emacs TERM=vt100 tst $LINENO <<"!"
+((multiline && SHOPT_ESH)) && VISUAL=emacs TERM=vt100 tst $LINENO <<"!"
 L emacs: keys with repeat parameters repeat extra steps
 # https://github.com/ksh93/ksh/issues/292
 
@@ -1105,7 +1113,7 @@ u CORRECT
 !
 
 # needs non-dumb terminal for multiline editing
-((SHOPT_ESH)) && mkdir -p fullcomplete/foe && VISUAL=emacs TERM=vt100 tst $LINENO <<"!"
+((multiline && SHOPT_ESH)) && mkdir -p fullcomplete/foe && VISUAL=emacs TERM=vt100 tst $LINENO <<"!"
 L full-word completion in emacs mode
 # https://github.com/ksh93/ksh/pull/580
 
@@ -1122,7 +1130,7 @@ r ^:test-3: true fullcomplete/foi\r\n
 !
 
 # needs non-dumb terminal for multiline editing
-((SHOPT_VSH)) && mkdir -p fullcomplete/fov && VISUAL=vi TERM=vt100 tst $LINENO <<"!"
+((multiline && SHOPT_VSH)) && mkdir -p fullcomplete/fov && VISUAL=vi TERM=vt100 tst $LINENO <<"!"
 L full-word completion in vi mode
 # https://github.com/ksh93/ksh/pull/580
 

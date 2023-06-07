@@ -392,6 +392,15 @@ typ intmax_t stdint.h inttypes.h no{
 	#define	_typ_intmax_t	1
 	typedef _ast_intmax_t intmax_t;
 }end
+typ intptr_t stdint.h inttypes.h no{
+	#undef	_typ_intptr_t
+	#define	_typ_intptr_t	1
+	#if _ast_sizeof_pointer == 8 && defined(_ast_int8_t)
+	typedef _ast_int8_t intptr_t;
+	#else
+	typedef _ast_int4_t intptr_t;
+	#endif
+}end
 typ uintmax_t stdint.h inttypes.h no{
 	#undef	_typ_uintmax_t
 	#define	_typ_uintmax_t	1

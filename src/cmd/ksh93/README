@@ -1,4 +1,4 @@
-This directory, and its subdirectories contain the source code
+\This directory, and its subdirectories contain the source code
 for ksh-93; the language described in the second edition of
 the book, "The KornShell Command and Programming Language," by
 Morris Bolsky and David Korn which is published by Prentice Hall.
@@ -254,46 +254,43 @@ COMPATIBILITY contains a list of potential incompatibilities.
 
 #### TESTED SYSTEMS ####
 
-ksh 93u+m 1.0.0.beta-1 has been compiled and tested on the following.
+ksh 93u+m/1.0.5 has been compiled and tested on the following.
 An asterisk signifies minor regression test failures (one or two minor
 things amiss), two asterisks signify moderate regression test failures
 (some functionality does not work), and three asterisks signify serious
 failures (crashes, and/or important functionality does not work).
 
-*	AIX 7.1 on RISC (PowerPC)
-*	DragonFly BSD 5.8 on x86_64
+**	DragonFly BSD 6.2.2 on x86_64
 	FreeBSD 12.2 on x86_64
 	FreeBSD 13.0 on x86_64
 	FreeBSD 12.2 on arm64 (thanks to hyenias for donating access to a Pi)
-	GNU/Linux: Alpine 3.12.3 (musl C library) on x86_64
-	GNU/Linux: CentOS 8.2 on x86_64
-	GNU/Linux: Debian 10.7 on x86_64
-	GNU/Linux: Gentoo 2.7 on i386
-	GNU/Linux: NixOS 19.09 on x86_64
+	FreeBSD 13.1 on arm64
+	GNU/Linux: ArchLinux 6.2.8-1 on arm64
+	GNU/Linux: Alpine 3.16.1 (musl C library) on x86_64
+*	GNU/Linux: Alpine 3.18.0 (musl C library) on arm64
+	GNU/Linux: CentOS 7 on x86_64
+	GNU/Linux: Debian 11 (bullseye) on arm64
+	GNU/Linux: Fedora 36 on x86_64
+	GNU/Linux: Gentoo 2.8 on i386
+	GNU/Linux: NixOS 22.11 on arm64
 	GNU/Linux: Slackware 14.2 on x86_64
-	GNU/Linux: Ubuntu 16.04 on x86_64
-	GNU/Linux: Ubuntu 18.04 on armv7l (32-bit)
-	GNU/Linux: Ubuntu 20.04 on arm64
+	GNU/Linux: Slackware 15.0 on i386
+*	GNU/Linux: Ubuntu 20.04.6 on armv7l (32-bit)
 	GNU/Linux: Void Linux (musl C library) on x86_64
 ***	Haiku R1/beta3 on x86_64
-***	HP-UX B.11.11 on pa-risc
-*	illumos: OmniOS 2020-08-19 (gcc) on x86_64
-	illumos: OmniOS r151040 (gcc) on x86_64
-	macOS 10.13.6 (High Sierra) on x86_64
+**	illumos: OmniOS r151044 (gcc) on x86_64
 	macOS 10.14.6 (Mojave) on x86_64
-*	macOS 12.0.1 (Monterey) on arm64
-*	NetBSD 8.1 on x86_64
-*	NetBSD 9.2 on x86_64
-*	OpenBSD 6.8 on x86_64
-	OpenBSD 7.0 on x86_64
-*	QNX Neutrino 6.5.0 on i386
-*	Solaris 11.4 (gcc) on x86_64
+	macOS 12.6.3 (Monterey) on arm64
+	MidnightBSD 2.2.0 on x86_64
+*	NetBSD 9.1 on x86_64
+*	NetBSD 9.3 on x86_64
+*	OpenBSD 7.0 on x86_64
+**	OpenBSD 7.0 on i386
+***	QNX Neutrino 6.5.0 on i386
+	Solaris 10.1 (gcc) on i386
+	Solaris 10.1 (gcc) on x86_64
 	Solaris 11.4 (Solaris Studio 12.5 cc) on x86_64
-*	UnixWare 7.1.4 on x86
-***	Windows 7 using Cygwin on x86
-***	Windows 10 using Cygwin on x86_64
-***	Windows 11 using Cygwin on x86_64
-	Windows 11 using WSL 2 with Ubuntu 20.04 on x86_64
+***	Windows 7 using Cygwin on i386
 
 #### REPORTING BUGS ####
 

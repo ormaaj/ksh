@@ -1202,9 +1202,11 @@ is a variable that is a reference to another variable.
 A nameref is created with the
 .B \-n
 attribute of
-.BR typeset .
-The value of the variable at the time of the
 .B typeset
+or with the equivalent
+.B nameref
+command.
+The value of the variable at the time of that
 command becomes the variable that will be referenced whenever
 the nameref variable is used.
 The name of a nameref cannot contain a \fB\s+2.\s-2\fP.
@@ -1215,19 +1217,23 @@ replacing the nameref portion with the name of the variable
 referenced by the nameref.
 If a nameref is used as the index of a \fBfor\fP loop,
 a name reference is established for each item in the list.
+.PP
 A nameref provides a convenient way to refer to the variable
 inside a function whose name is passed as an argument to a function.
 For example, if the name of a variable is passed as the first
 argument to a function, the command
-.PP
-.RS
 \fBtypeset \-n var=$1\fR
-.RE
-.PP
+(a.k.a.
+\fBnameref var=$1\fR)
 inside the function causes references and assignments to
 .B var
 to be references and assignments to the variable whose
 name has been passed to the function.
+Note that, for this to work, the positional parameter must be assigned directly
+to the nameref as part of the declaration command, as in the example above;
+only that idiom can allow one function to access a local variable of another.
+For instance, \fBtypeset \-n var; var=$1\fR won't cross that barrier, nor will
+\fBtypeset foo=$1; typeset \-n var=foo\fR.
 .sp .5
 .PP
 If any of the floating point attributes,

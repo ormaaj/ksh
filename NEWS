@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-06-09:
+
+- Fixed a bug where the 'break' and 'continue' commands stopped working after
+  changing scope levels (.sh.level=n) within a loop invoked from a DEBUG trap.
+
 2023-06-07:
 
 - Release 1.0.5.

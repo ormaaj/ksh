@@ -114,6 +114,7 @@ typedef struct _emacs_
 	char	scvalid;	/* Screen is up to date */
 	char	lastdraw;	/* last update type */
 	int	offset;		/* Screen offset */
+	char	ehist;		/* hist handling required */
 	enum
 	{
 		CRT=0,	/* Crt terminal */
@@ -204,6 +205,7 @@ int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 	Prompt = prompt;
 	ep->screen = Screen;
 	ep->lastdraw = FINAL;
+	ep->ehist = 0;
 	if(tty_raw(ERRIO,0) < 0)
 	{
 		 return reedit ? reedit : ed_read(context,fd,buff,scend,0);
@@ -731,7 +733,11 @@ process:
 		beep();
 		*out = '\0';
 	}
-	draw(ep,FINAL);
+	/* ep->ehist: do not print the literal hist command after ^X^E. */
+	if (!ep->ehist)
+		draw(ep,FINAL);
+	else
+		ep->ehist = 0;
 	tty_cooked(ERRIO);
 	if(ed->e_nlist)
 		ed->e_nlist = 0;
@@ -1325,8 +1331,13 @@ static void xcommands(Emacs_t *ep,int count)
 				if(histlines >= sh.hist_ptr->histsize)
 					hist_flush(sh.hist_ptr);
 			}
+			/* Do not print the literal hist command. */
+			ep->ehist = 1;
 			if(ed_fulledit(ep->ed)==-1)
+			{
+				ep->ehist = 0;
 				beep();
+			}
 			else
 			{
 #if SHOPT_MULTIBYTE

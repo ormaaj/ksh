@@ -536,14 +536,14 @@ test_glob '<a\\b.txt>' $unquoted_patvar
 # 93u+m/1.0.5 regression - glob expansion with brace expansion and parameter exapansion
 v='./'
 mkdir -p bin/BAD sbin/WRONG
-test_glob '<./bin/*> <./sbin/*>' "./"{bin,sbin}"/*"
+((SHOPT_BRACEPAT)) && test_glob '<./bin/*> <./sbin/*>' "./"{bin,sbin}"/*"
 test_glob '<./bin/*>' "$v"bin"/*"
-test_glob '<./bin/*> <./sbin/*>' "$v"{bin,sbin}"/*"
+((SHOPT_BRACEPAT)) && test_glob '<./bin/*> <./sbin/*>' "$v"{bin,sbin}"/*"
 unset null
-test_glob '<b*> <s*>' {b,s}"*"
-test_glob '<b*> <s*>' $null{b,s}"*"
-test_glob '<*b> <*c>' $null"*"{b,c}
-test_glob '<*b> <*c>' "*"$null{b,c}
+((SHOPT_BRACEPAT)) && test_glob '<b*> <s*>' {b,s}"*"
+((SHOPT_BRACEPAT)) && test_glob '<b*> <s*>' $null{b,s}"*"
+((SHOPT_BRACEPAT)) && test_glob '<*b> <*c>' $null"*"{b,c}
+((SHOPT_BRACEPAT)) && test_glob '<*b> <*c>' "*"$null{b,c}
 test_glob '<*>' $null"*"
 
 # ======

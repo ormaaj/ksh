@@ -1,9 +1,10 @@
-Announcing: KornShell 93u+m/1.0.5
+Announcing: KornShell 93u+m/1.0.6
 https://github.com/ksh93/ksh
 
-This is the fifth ksh 93u+m/1.0 bugfix release, again with a wide range of
-bugfixes and robustness enhancements. Many thanks to all contributors for
-their hard work!
+Sooner than expected after the fifth, here is the sixth ksh 93u+m/1.0 bugfix
+release. 93u+m/1.0.5 brought a wide range of bugfixes and robustness
+enhancements, but also introduced a serious regression in pathname
+expansion, so that previous release is WITHDRAWN and should not be used.
 
 Further below is an overview of the main changes. For greater detail, see
 the NEWS file in the distribution. For complete detail, see the git(1)
@@ -68,6 +69,15 @@ Feel free to use Discussions to introduce yourself to the community.
 
 You can also join the mailing list/Google group at:
 https://groups.google.com/g/korn-shell
+
+### MAIN CHANGES between ksh 93u+m/1.0.5 and 93u+m/1.0.6 ###
+
+- Fixed a serious regression in pathname expansion where quoted wildcard
+  characters were incorrectly expanded if a pattern contains both a brace
+  expansion and a variable expansion.
+- Fixed a bug where the command to launch a full-screen editor (^X^E in
+  emacs and 'v' in vi) could cause the wrong command line to be edited
+  if two shell sessions share a .sh_history file.
 
 ### MAIN CHANGES between ksh 93u+m/1.0.4 and 93u+m/1.0.5 ###
 

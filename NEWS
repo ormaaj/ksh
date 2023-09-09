@@ -7,6 +7,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed incorrect rejection of the tab key while reading input using the `read`
   built-in command. Bugs introduced on 2021-02-26 (emacs) and 2022-08-24 (vi).
 
+- Fixed a minor bug that could cause '/opt/ast/bin/getconf PID_MAX' to
+  return the wrong value when ksh is built with strict C99.
+
 2023-06-13:
 
 - Release 1.0.6.

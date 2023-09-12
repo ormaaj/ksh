@@ -2,6 +2,14 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-09-13:
+
+- Fixed: assignments like name=(...) to arrays did not preserve the array and
+  variable types. Fix backported from ksh 93v- beta (2013-07-19, 2013-07-27).
+
+- Fixed: assigning an empty set () to a compound indexed array caused the -C
+  attribute to be lost. Fix backported from ksh 93v- beta (2013-09-13).
+
 2023-09-09:
 
 - Fixed incorrect rejection of the tab key while reading input using the `read`

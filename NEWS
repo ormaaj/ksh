@@ -4,6 +4,10 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
 2023-09-13:
 
+- Fixed a crash on trying to append an indexed array value to an unset name
+  reference, e.g.: nameref unsetref; unsetref+=(foo bar). This now produces
+  a "removing nameref attribute" warning before performing the assignment.
+
 - Fixed: assignments like name=(...) to arrays did not preserve the array and
   variable types. Fix backported from ksh 93v- beta (2013-07-19, 2013-07-27).
 

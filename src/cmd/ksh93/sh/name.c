@@ -946,10 +946,21 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
 					noscope = 1;
 				}
 				sh.first_root = root;
-				if(nv_isref(np) && (c=='[' || c=='.' || !(flags&NV_ASSIGN)))
+				if(nv_isref(np))
 				{
-					errormsg(SH_DICT,ERROR_exit(1),e_noref,nv_name(np));
-					UNREACHABLE();
+					/* At this point, it is known that np is an unset nameref */
+					if(c=='[' || c=='.' || !(flags&NV_ASSIGN))
+					{
+						/* unsetref[foo]=bar or unsetref.foo=bar or $unsetref: error */
+						errormsg(SH_DICT,ERROR_exit(1),e_noref,nv_name(np));
+						UNREACHABLE();
+					}
+					else if(c==0)
+					{
+						/* unsetref=(...) or unsetref+=(...): remove -n attribute */
+						errormsg(SH_DICT,ERROR_warn(0),e_rmref,nv_name(np));
+						nv_offattr(np,NV_REF);
+					}
 				}
 				if(sub && c==0)
 				{

@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-09-15:
+
+- Fixed a hang in command substitutions (introduced in 93u+m/1.0.0) that was
+  triggered when redirecting standard output within a command substitution,
+  in combination with other factors. E.g., the following no longer hangs:
+	{ v=$(redirect 2>&1 1>&9); } 9>&1
+
 2023-09-13:
 
 - Fixed a crash on trying to append an indexed array value to an unset name

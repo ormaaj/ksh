@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-09-16:
+
+- The 'kill' built-in command was meant to refuse to issue SIGSTOP to the
+  shell's process if the shell is a login shell (because this normally
+  causes an unrecoverable freeze of the terminal session). The code
+  prohibiting this did not work on modern systems and is now fixed.
+
 2023-09-15:
 
 - Release 1.0.7.

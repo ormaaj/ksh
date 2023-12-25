@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-12-25:
+
+- Fixed a regression in the behavior of 'exit' in a trap action, introduced
+  on 2020-09-09. The default exit status, used when no argument is given to
+  'exit', is now once again the exit status of the last command executed
+  *before* the trap action, as expected.
+
 2023-09-16:
 
 - The 'kill' built-in command was meant to refuse to issue SIGSTOP to the

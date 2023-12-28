@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2023-12-28:
+
+- Fixed intermittent incorrect behaviour (a race condition), introduced on
+  2023-09-15, that occurred on some systems when running an external command
+  with a redirection from a command substitution.
+
 2023-12-25:
 
 - Fixed a regression in the behavior of 'exit' in a trap action, introduced

@@ -41,9 +41,7 @@
 #include "shopt.h"
 #include <ast.h>
 
-#if SHOPT_SCRIPTONLY
-NoN(history)
-#else
+#if !SHOPT_SCRIPTONLY
 
 #define HIST_MAX	(sizeof(int)*HIST_BSIZE)
 #define HIST_BIG	(0100000-1024)	/* 1K less than maximum short */
@@ -1135,4 +1133,6 @@ static int hist_exceptf(Sfio_t* fp, int type, void *data, Sfdisc_t *handle)
 	return 0;
 }
 
-#endif /* SHOPT_SCRIPTONLY */
+#else
+NoN(history)
+#endif /* !SHOPT_SCRIPTONLY */

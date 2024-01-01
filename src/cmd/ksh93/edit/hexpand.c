@@ -717,6 +717,7 @@ getsel:
 	sfputc(sh.stk,'\0');
 
 done:
+	if(cc && (flag&HIST_HASH))
 	{
 		/* close !# temp file */
 		sfclose(ref);

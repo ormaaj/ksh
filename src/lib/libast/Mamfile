@@ -5302,50 +5302,17 @@ make install
 		exec - ${STDCMP} 2>/dev/null -s misc/magic.tab ${INSTALLROOT}/lib/file/magic || { ${STDMV} ${INSTALLROOT}/lib/file/magic ${INSTALLROOT}/lib/file/magic.old 2>/dev/null || true; ${STDCP} misc/magic.tab ${INSTALLROOT}/lib/file/magic ;}
 	done ${INSTALLROOT}/lib/file/magic generated
 	prev comp/fmtmsg.h
-	prev ast_lib.h
-	exec - case ${mam_cc_HOSTTYPE} in
-	exec - win32.*)
-	exec - if ! ${STDCMP} -s comp/fmtmsg.h ${INSTALLROOT}/include/ast/fmtmsg.h
-	exec - then ${STDCP} comp/fmtmsg.h ${INSTALLROOT}/include/ast/fmtmsg.h
-	exec - fi
-	exec - ;;
-	exec - *) grep -q 'define[ 	][ 	]*_[hl][di][rb]_fmtmsg' ast_lib.h || {
-	exec - if ! ${STDCMP} -s comp/fmtmsg.h ${INSTALLROOT}/include/ast/fmtmsg.h
-	exec - then ${STDCP} comp/fmtmsg.h ${INSTALLROOT}/include/ast/fmtmsg.h
-	exec - fi
-	exec - }
-	exec - ;;
-	exec - esac
 	prev comp/libgen.h
-	prev ast_lib.h
-	exec - case ${mam_cc_HOSTTYPE} in
-	exec - win32.*)
-	exec - if ! ${STDCMP} -s comp/libgen.h ${INSTALLROOT}/include/ast/libgen.h
-	exec - then ${STDCP} comp/libgen.h ${INSTALLROOT}/include/ast/libgen.h
-	exec - fi
-	exec - ;;
-	exec - *) grep -q 'define[ 	][ 	]*_[hl][di][rb]_libgen' ast_lib.h || {
-	exec - if ! ${STDCMP} -s comp/libgen.h ${INSTALLROOT}/include/ast/libgen.h
-	exec - then ${STDCP} comp/libgen.h ${INSTALLROOT}/include/ast/libgen.h
-	exec - fi
-	exec - }
-	exec - ;;
-	exec - esac
 	prev comp/syslog.h
 	prev ast_lib.h
-	exec - case ${mam_cc_HOSTTYPE} in
-	exec - win32.*)
-	exec - if ! ${STDCMP} -s comp/syslog.h ${INSTALLROOT}/include/ast/syslog.h
-	exec - then ${STDCP} comp/syslog.h ${INSTALLROOT}/include/ast/syslog.h
-	exec - fi
-	exec - ;;
-	exec - *) grep -q 'define[ 	][ 	]*_[hl][di][rb]_syslog' ast_lib.h || {
-	exec - if ! ${STDCMP} -s comp/syslog.h ${INSTALLROOT}/include/ast/syslog.h
-	exec - then ${STDCP} comp/syslog.h ${INSTALLROOT}/include/ast/syslog.h
-	exec - fi
-	exec - }
-	exec - ;;
-	exec - esac
+	note * install our own versions of these if iffe hasn't detected these in the system
+	exec - CCt='	'  # one tab
+	exec - for hdr in fmtmsg libgen syslog
+	exec - do	grep -q "define[ $CCt][ $CCt]*_[hl][di][rb]_$hdr" ast_lib.h && continue
+	exec -		if	! ${STDCMP} -s comp/$hdr.h ${INSTALLROOT}/include/ast/$hdr.h
+	exec -		then	${STDCP} comp/$hdr.h ${INSTALLROOT}/include/ast/$hdr.h
+	exec -		fi
+	exec - done
 	exec - 
 	exec - if   ! ${STDCMP} -s releaseflags.h ${INSTALLROOT}/include/ast/releaseflags.h
 	exec - then ${STDCP} releaseflags.h ${INSTALLROOT}/include/ast/releaseflags.h

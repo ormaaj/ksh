@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1250,10 +1250,10 @@ static Vmdata_t	_Vmdata =
 	VM_MTBEST|VM_SHARE,		/* mode		*/
 	0,				/* incr		*/
 	0,				/* pool		*/
-	NULL,			/* seg		*/
-	NULL,			/* free		*/
-	NULL,			/* wild		*/
-	NULL			/* root		*/
+	NULL,				/* seg		*/
+	NULL,				/* free		*/
+	NULL,				/* wild		*/
+	NULL				/* root		*/
 					/* tiny[]	*/
 					/* cache[]	*/
 };
@@ -1268,12 +1268,12 @@ Vmalloc_t _Vmheap =
 	  bestalign,
 	  VM_MTBEST
 	},
-	NULL,			/* file		*/
+	NULL,				/* file		*/
 	0,				/* line		*/
 	0,				/* func		*/
 	(Vmdisc_t*)(&_Vmdcsystem),	/* disc		*/
 	&_Vmdata,			/* data		*/
-	NULL			/* next		*/
+	NULL				/* next		*/
 };
 
 Vmalloc_t*	Vmheap = &_Vmheap;

@@ -341,46 +341,6 @@ make install
 		exec - then mkdir -p ${PACKAGEROOT}/bin
 		exec - fi
 	done ${PACKAGEROOT}/bin generated
-	make ${PACKAGEROOT}/bin/mamprobe
-		make mamprobe
-			prev mamprobe.sh
-			exec - case static,port:$OPTIND:$RANDOM in
-			exec - ?*:*:*|*::*|*:*:$RANDOM)
-			exec - ;;
-			exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-			exec - then if grep '### .*archaic.* ###' >/dev/null
-			exec - then : mamprobe contains archaic constructs :
-			exec - else ENV= LC_ALL=C $SHELL -n mamprobe.sh
-			exec - fi
-			exec - fi
-			exec - ;;
-			exec - esac
-			exec - case '${mam_cc_SHELLMAGIC}' in
-			exec - "") case 0 in
-			exec - 0) ${STDCP} mamprobe.sh mamprobe
-			exec - ;;
-			exec - *) {
-			exec - i=`(read x; echo $x) < mamprobe.sh`
-			exec - case $i in
-			exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-			exec - esac
-			exec - ${STDCAT} - mamprobe.sh <<'!'
-			exec -
-			exec - !
-			exec - } > mamprobe
-			exec - ;;
-			exec - esac
-			exec - ;;
-			exec - *) ${STDCAT} - mamprobe.sh > mamprobe <<'!'
-			exec - ${mam_cc_SHELLMAGIC}
-			exec -
-			exec - !
-			exec - ;;
-			exec - esac
-			exec - test -w mamprobe -a -x mamprobe || ${STDCHMOD} u+w,+x mamprobe
-		done mamprobe generated
-		exec - ${STDCMP} 2>/dev/null -s mamprobe ${PACKAGEROOT}/bin/mamprobe || { ${STDMV} ${PACKAGEROOT}/bin/mamprobe ${PACKAGEROOT}/bin/mamprobe.old 2>/dev/null || true; ${STDCP} mamprobe ${PACKAGEROOT}/bin/mamprobe ;}
-	done ${PACKAGEROOT}/bin/mamprobe generated
 	make ${PACKAGEROOT}/bin/package
 		prev package
 		exec - ${STDCMP} 2>/dev/null -s package ${PACKAGEROOT}/bin/package || { ${STDMV} ${PACKAGEROOT}/bin/package ${PACKAGEROOT}/bin/package.old 2>/dev/null || true; ${STDCP} package ${PACKAGEROOT}/bin/package ;}

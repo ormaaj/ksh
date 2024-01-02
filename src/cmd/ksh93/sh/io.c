@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1122,7 +1122,7 @@ int	sh_redirect(struct ionod *iop, int flag)
 {
 	Sfoff_t off; 
 	char *fname;
-	int 	fd, iof;
+	int fd, iof;
 	const char *message = e_open;
 	int o_mode;		/* mode flag for open */
 	static char io_op[7];	/* used for -x trace info */
@@ -1670,7 +1670,7 @@ static ssize_t tee_write(Sfio_t *iop,const void *buff,size_t n,Sfdisc_t *unused)
  */
 void sh_iosave(int origfd, int oldtop, char *name)
 {
-	int	savefd;
+	int savefd;
 	int flag = (oldtop&(IOSUBSHELL|IOPICKFD));
 	oldtop &= ~(IOSUBSHELL|IOPICKFD);
 	/* see if already saved, only save once */
@@ -1768,7 +1768,7 @@ void	sh_iounsave(void)
  */
 void	sh_iorestore(int last, int jmpval)
 {
-	int 	origfd, savefd, fd;
+	int origfd, savefd, fd;
 	int flag = (last&IOSUBSHELL);
 	last &= ~IOSUBSHELL;
 	for (fd = sh.topfd - 1; fd >= last; fd--)

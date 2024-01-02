@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -827,7 +827,7 @@ void sh_setmatch(const char *v, int vsize, int nmatch, int match[], int index)
 {
 	Init_t		*ip = sh.init_context;
 	struct match	*mp = &ip->SH_MATCH_init;
-	int	i,n,x, savesub=sh.subshell;
+	int		i,n,x, savesub=sh.subshell;
 	Namarr_t	*ap = nv_arrayptr(SH_MATCHNOD);
 	Namval_t	*np;
 	if(sh.intrace)
@@ -1001,7 +1001,7 @@ static Sfdouble_t nget_version(Namval_t* np, Namfun_t *fp)
 {
 	const char	*cp = e_version + strlen(e_version)-10;
 	int		c;
-	Sflong_t		t = 0;
+	Sflong_t	t = 0;
 	NOT_USED(fp);
 
 	while (c = *cp++)

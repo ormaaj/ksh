@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -501,7 +501,7 @@ static void out_string(Sfio_t *iop, const char *cp, int c, int quoted)
 static void put_level(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
 	Shscope_t	*sp;
-	int16_t level, oldlevel = np->nvalue.s;
+	int16_t		level, oldlevel = np->nvalue.s;
 	if(val)
 		nv_putv(np,val,flags,fp);
 	else
@@ -2962,7 +2962,7 @@ int sh_funscope(int argn, char *argv[],int(*fun)(void*),void *arg,int execflg)
 	char			save_invoc_local;
 	char 			**savsig, *save_debugtrap = 0;
 	struct funenv		*fp = 0;
-	struct checkpt	*buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+	struct checkpt		*buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
 	Namval_t		*nspace = sh.namespace;
 	Dt_t			*last_root = sh.last_root;
 	Shopt_t			options;
@@ -3127,8 +3127,8 @@ int sh_funscope(int argn, char *argv[],int(*fun)(void*),void *arg,int execflg)
 
 static void sh_funct(Namval_t *np,int argn, char *argv[],struct argnod *envlist,int execflg)
 {
-	struct funenv fun;
-	char *fname = nv_getval(SH_FUNNAMENOD);
+	struct funenv	fun;
+	char		*fname = nv_getval(SH_FUNNAMENOD);
 	pid_t		pipepid = sh.pipepid;
 #if !SHOPT_DEVFD
 	Dt_t		*save_fifo_tree = sh.fifo_tree;

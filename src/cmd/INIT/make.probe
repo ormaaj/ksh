@@ -3,7 +3,7 @@
 # Glenn Fowler
 # AT&T Research
 #
-# @(#)make.probe (ksh 93u+m) 2023-03-09
+# @(#)make.probe (ksh 93u+m) 2024-01-02
 #
 # C probe for make
 #
@@ -995,7 +995,7 @@ case " $cc_dll " in
 esac
 
 case $hosttype in
-win32.*|cygwin.*|os2.*)
+cygwin.*|os2.*)
 	Lflag=1
 	;;
 *)	if	$cc -c doti.$src

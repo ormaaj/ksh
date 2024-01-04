@@ -1499,6 +1499,7 @@ int	sh_outtype(Sfio_t *out)
 						sfprintf(out,"h '%s'",mp->nvalue.rp->help);
 					sfprintf(out," %s\n",cp);
 				}
+				iop = 0;
 			}
 		}
 		if(indent)

@@ -556,7 +556,7 @@ void hist_eof(History_t *hp)
 	char *cp,*first,*endbuff;
 	int incmd = 0;
 	off_t count = hp->histcnt;
-	int oldind,n,skip=0;
+	int oldind=0,n,skip=0;
 	off_t last = sfseek(hp->histfp,0,SEEK_END);
 	if(last < count)
 	{

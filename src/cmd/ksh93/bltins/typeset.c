@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -647,8 +647,8 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 	char *last = 0;
 	int nvflags=(flag&(NV_ARRAY|NV_NOARRAY|NV_VARNAME|NV_IDENT|NV_ASSIGN|NV_STATIC|NV_MOVE));
 	int r=0, ref=0, comvar=(flag&NV_COMVAR),iarray=(flag&NV_IARRAY);
-	Dt_t *save_vartree;
-	Namval_t *save_namespace;
+	Dt_t *save_vartree = NULL;
+	Namval_t *save_namespace = NULL;
 	if(flag&NV_GLOBAL)
 	{
 		save_vartree = sh.var_tree;

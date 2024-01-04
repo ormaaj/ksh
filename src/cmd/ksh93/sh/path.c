@@ -1536,7 +1536,7 @@ Pathcomp_t *path_addpath(Pathcomp_t *first, const char *path,int type)
 	const char *cp;
 	Pathcomp_t *old=0;
 	int offset = stktell(sh.stk);
-	char *savptr;
+	char *savptr = NULL;
 	if(!path && type!=PATH_PATH)
 		return first;
 	if(type!=PATH_FPATH)
@@ -1576,7 +1576,11 @@ Pathcomp_t *path_addpath(Pathcomp_t *first, const char *path,int type)
 		path_delete(old);
 	}
 	if(offset)
+	{
+		if(!savptr)
+			abort();
 		stkset(sh.stk,savptr,offset);
+	}
 	else
 		stkseek(sh.stk,0);
 	return first;

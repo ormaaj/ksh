@@ -211,7 +211,6 @@ static void p_time(Sfio_t *out, const char *format, clock_t *tm)
 	int		c,n,offset = stktell(sh.stk);
 	const char	*first;
 #ifdef timeofday
-	struct timeval	tv_cpu_sum;
 	struct timeval	*tvp;
 #else
 	double d;

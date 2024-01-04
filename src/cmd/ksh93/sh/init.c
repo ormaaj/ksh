@@ -1606,7 +1606,8 @@ int sh_reinit(char *argv[])
 		dtclose(sh.fun_tree);
 		sh.fun_tree = dp;
 	}
-	dtclear(sh.fun_base = sh.fun_tree);
+	sh.fun_base = sh.fun_tree;
+	dtclear(sh.fun_base);
 	/* Re-init built-ins as per nv_init() */
 	free(sh.bltin_cmds);
 	sh.bltin_tree = sh_inittree((const struct shtable2*)shtab_builtins);

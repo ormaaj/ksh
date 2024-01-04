@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2014 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -929,7 +929,7 @@ static int putstack(Edit_t *ep,char string[], int nbyte, int type)
  */
 int ed_getchar(Edit_t *ep,int mode)
 {
-	int n, c;
+	int n = 0, c;
 	char readin[LOOKAHEAD+1];
 	if(!ep->e_lookahead)
 	{

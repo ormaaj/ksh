@@ -1007,7 +1007,7 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 {
 	int n;
 	Shnode_t *t, **tp;
-	struct comnod *ac;
+	struct comnod *ac = NULL;
 	int array=0, index=0;
 	Namval_t *np;
 	lexp->assignlevel++;

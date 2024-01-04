@@ -144,7 +144,7 @@ extern int	lchmod(const char*, mode_t);
 int
 b_chmod(int argc, char** argv, Shbltin_t* context)
 {
-	int		mode;
+	int		mode = 0;
 	int		force = 0;
 	int		flags;
 	char*		amode = 0;

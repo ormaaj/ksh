@@ -1180,6 +1180,9 @@ static void* mallocmem(void* caddr, size_t csize, size_t nsize)
 		return malloc(nsize);
 	else if(nsize == 0)
 	{	free(caddr);
+#if !__clang__ && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#pragma GCC diagnostic ignored "-Wuse-after-free"
+#endif
 		return caddr;
 	}
 	else	return NULL;

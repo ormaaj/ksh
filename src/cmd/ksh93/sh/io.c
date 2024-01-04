@@ -1122,11 +1122,11 @@ int	sh_redirect(struct ionod *iop, int flag)
 {
 	Sfoff_t off; 
 	char *fname;
-	int fd, iof;
+	int fd = -1, iof;
 	const char *message = e_open;
 	int o_mode;		/* mode flag for open */
 	static char io_op[7];	/* used for -x trace info */
-	int trunc=0, clexec=0, fn, traceon;
+	int trunc=0, clexec=0, fn, traceon=0;
 	int r, indx = sh.topfd, perm= -1;
 	char *tname=0, *after="", *trace = sh.st.trap[SH_DEBUGTRAP];
 	Namval_t *np=0;

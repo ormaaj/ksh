@@ -71,7 +71,7 @@ decomp(Rex_t* e, Rex_t* parent, Sfio_t* sp, int type, int delimiter, regflags_t 
 	Rex_t*		q;
 	unsigned char*	s;
 	unsigned char*	t;
-	int		c;
+	int		c = 0;
 	int		m;
 	int		cb;
 	int		cd;

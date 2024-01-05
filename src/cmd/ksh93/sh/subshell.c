@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -649,6 +649,7 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 					sh_subfork();
 			}
 			sh_offstate(SH_INTERACTIVE);
+			sh_offstate(SH_PROFILE);
 			sh_exec(t,flags);
 		}
 	}

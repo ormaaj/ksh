@@ -2014,7 +2014,7 @@ static ssize_t slowread(Sfio_t *iop,void *buff,size_t size,Sfdisc_t *handle)
 			sh_timerdel(timeout);
 		timeout=0;
 #if SHOPT_HISTEXPAND
-		if(rsize && *(char*)buff != '\n' && sh.nextprompt==1 && sh_isoption(SH_HISTEXPAND))
+		if(rsize > 0 && *(char*)buff != '\n' && sh.nextprompt==1 && sh_isoption(SH_HISTEXPAND))
 		{
 			int r;
 			((char*)buff)[rsize] = '\0';

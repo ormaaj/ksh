@@ -248,4 +248,26 @@ foo() { false; (exit); }
 foo && err_exit "'exit' within subshell does not preserve exit status"
 
 # ======
+if	let ".sh.version >= 20211208" && builtin getconf 2>/dev/null
+then	max=$(getconf INT_MAX) min=$(getconf INT_MIN) err=$tmp/stderr
+	exp=': out of range'
+	foo() { return $((max+1)); }
+	foo 2>$err
+	[[ e=$? -eq 128 && $(<$err) == *"$exp" ]] || err_exit 'return fails to warn for INT_MAX+1' \
+		"(expected status 128 and *$(printf %q "$exp"), got status $e and $(printf %q "$(<$err)"))"
+	foo() { return $((min-1)); }
+	foo 2>$err
+	[[ e=$? -eq 128 && $(<$err) == *"$exp" ]] || err_exit 'return fails to warn for INT_MIN-1' \
+		"(expected status 128 and *$(printf %q "$exp"), got status $e and $(printf %q "$(<$err)"))"
+	foo() { return $max; }
+	foo 2>$err
+	[[ e=$? -eq max && -z $got ]] || err_exit 'return fails for INT_MAX' \
+		"(expected status 128 and '', got status $e and $(printf %q "$(<$err)"))"
+	foo() { return $min; }
+	foo 2>$err
+	[[ e=$? -eq min && -z $got ]] || err_exit 'return fails for INT_MIN' \
+		"(expected status 128 and '', got status $e and $(printf %q "$(<$err)"))"
+fi
+
+# ======
 exit $((Errors<125?Errors:125))

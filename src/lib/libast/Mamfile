@@ -139,39 +139,11 @@ make install
 							make conflim.h implicit
 								make conf
 									prev comp/conf.sh
-									exec - case static,port:$OPTIND:$RANDOM in
-									exec - ?*:*:*|*::*|*:*:$RANDOM)
-									exec - ;;
-									exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-									exec - then if grep '### .*archaic.* ###' >/dev/null
-									exec - then : conf contains archaic constructs :
-									exec - else ENV= LC_ALL=C $SHELL -n comp/conf.sh
-									exec - fi
-									exec - fi
-									exec - ;;
-									exec - esac
-									exec - case '${mam_cc_SHELLMAGIC}' in
-									exec - "") case 29 in
-									exec - 0) ${STDCP} comp/conf.sh conf
-									exec - ;;
-									exec - *) {
-									exec - i=`(read x; echo $x) < comp/conf.sh`
-									exec - case $i in
-									exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-									exec - esac
+									exec - {
 									exec - ${STDCAT} - comp/conf.sh <<'!'
 									exec - HOSTTYPE="${mam_cc_HOSTTYPE}"
 									exec - !
 									exec - } > conf
-									exec - ;;
-									exec - esac
-									exec - ;;
-									exec - *) ${STDCAT} - comp/conf.sh > conf <<'!'
-									exec - ${mam_cc_SHELLMAGIC}
-									exec - HOSTTYPE="${mam_cc_HOSTTYPE}"
-									exec - !
-									exec - ;;
-									exec - esac
 									exec - test -w conf -a -x conf || ${STDCHMOD} u+w,+x conf
 								done conf generated
 								prev comp/conf.tab

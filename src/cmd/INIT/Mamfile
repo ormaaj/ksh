@@ -18,172 +18,27 @@ setv LDFLAGS
 make install
 	make iffe
 		prev iffe.sh
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : iffe contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n iffe.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 225 in
-		exec - 0) ${STDCP} iffe.sh iffe
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < iffe.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} iffe.sh
-		exec - } > iffe
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - iffe.sh > iffe <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} iffe.sh iffe
 		exec - test -w iffe -a -x iffe || ${STDCHMOD} u+w,+x iffe
 	done iffe generated
 	make mktest
 		prev mktest.sh
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : mktest contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n mktest.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 184 in
-		exec - 0) ${STDCP} mktest.sh mktest
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < mktest.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} mktest.sh
-		exec - } > mktest
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - mktest.sh > mktest <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} mktest.sh mktest
 		exec - test -w mktest -a -x mktest || ${STDCHMOD} u+w,+x mktest
 	done mktest generated
 	make package
 		prev package.sh
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : package contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n package.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 184 in
-		exec - 0) ${STDCP} package.sh package
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < package.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} package.sh
-		exec - } > package
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - package.sh > package <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} package.sh package
 		exec - test -w package -a -x package || ${STDCHMOD} u+w,+x package
 	done package generated
 	make regress
 		prev regress.sh
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : regress contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n regress.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 184 in
-		exec - 0) ${STDCP} regress.sh regress
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < regress.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} regress.sh
-		exec - } > regress
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - regress.sh > regress <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} regress.sh regress
 		exec - test -w regress -a -x regress || ${STDCHMOD} u+w,+x regress
 	done regress generated
 	make crossexec
 		prev crossexec.sh
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : crossexec contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n crossexec.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 184 in
-		exec - 0) ${STDCP} crossexec.sh crossexec
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < crossexec.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} crossexec.sh
-		exec - } > crossexec
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - crossexec.sh > crossexec <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} crossexec.sh crossexec
 		exec - test -w crossexec -a -x crossexec || ${STDCHMOD} u+w,+x crossexec
 	done crossexec generated
 	make mamake
@@ -198,76 +53,12 @@ make install
 	done mamake generated
 	make mkreq
 		prev mkreq.sh
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : mkreq contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n mkreq.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 0 in
-		exec - 0) ${STDCP} mkreq.sh mkreq
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < mkreq.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} - mkreq.sh <<'!'
-		exec -
-		exec - !
-		exec - } > mkreq
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - mkreq.sh > mkreq <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec -
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} mkreq.sh mkreq
 		exec - test -w mkreq -a -x mkreq || ${STDCHMOD} u+w,+x mkreq
 	done mkreq generated
 	make mprobe
 		prev mprobe.sh
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : mprobe contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n mprobe.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 0 in
-		exec - 0) ${STDCP} mprobe.sh mprobe
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < mprobe.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} - mprobe.sh <<'!'
-		exec -
-		exec - !
-		exec - } > mprobe
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - mprobe.sh > mprobe <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec -
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} mprobe.sh mprobe
 		exec - test -w mprobe -a -x mprobe || ${STDCHMOD} u+w,+x mprobe
 	done mprobe generated
 	make probe
@@ -276,39 +67,7 @@ make install
 			prev make.probe
 			exec - ${STDCAT} C+probe make.probe > probe.sh
 		done probe.sh generated
-		exec - case static,port:$OPTIND:$RANDOM in
-		exec - ?*:*:*|*::*|*:*:$RANDOM)
-		exec - ;;
-		exec - *) if ENV= LC_ALL=C x= $SHELL -nc '[[ a || b ]] && : ${list[level]}  !(pattern)' 2>/dev/null
-		exec - then if grep '### .*archaic.* ###' >/dev/null
-		exec - then : probe contains archaic constructs :
-		exec - else ENV= LC_ALL=C $SHELL -n probe.sh
-		exec - fi
-		exec - fi
-		exec - ;;
-		exec - esac
-		exec - case '${mam_cc_SHELLMAGIC}' in
-		exec - "") case 0 in
-		exec - 0) ${STDCP} probe.sh probe
-		exec - ;;
-		exec - *) {
-		exec - i=`(read x; echo $x) < probe.sh`
-		exec - case $i in
-		exec - '#!'*|*'||'*|':'*|'":"'*|"':'"*) echo "$i" ;;
-		exec - esac
-		exec - ${STDCAT} - probe.sh <<'!'
-		exec -
-		exec - !
-		exec - } > probe
-		exec - ;;
-		exec - esac
-		exec - ;;
-		exec - *) ${STDCAT} - probe.sh > probe <<'!'
-		exec - ${mam_cc_SHELLMAGIC}
-		exec -
-		exec - !
-		exec - ;;
-		exec - esac
+		exec - ${STDCP} probe.sh probe
 		exec - test -w probe -a -x probe || ${STDCHMOD} u+w,+x probe
 	done probe generated
 	make ${INSTALLROOT}/bin

@@ -976,7 +976,6 @@ int job_kill(struct process *pw,int sig)
 	pid_t pid;
 	int r = -1;
 	const char *msg;
-	int stopsig = (sig==SIGSTOP||sig==SIGTSTP||sig==SIGTTIN||sig==SIGTTOU);
 	job_lock();
 	errno = ECHILD;
 	if(!pw)
@@ -992,27 +991,17 @@ int job_kill(struct process *pw,int sig)
 			errno = EPERM;
 			r = -1;
 		}
+		else if(pid>=0)
+		{
+			r = kill(pid,sig);
+			if(r>=0 && sig==SIGCONT && (pw->p_flag&P_STOPPED))
+				pw->p_flag &= ~(P_STOPPED|P_SIGNALLED);
+		}
 		else
 		{
-			if(pid>=0)
-			{
-				if((r = kill(pid,sig))>=0 && !stopsig)
-				{
-					if(pw->p_flag&P_STOPPED)
-						pw->p_flag &= ~(P_STOPPED|P_SIGNALLED);
-					if(sig)
-						kill(pid,SIGCONT);
-				}
-			}
-			else
-			{
-				if((r = killpg(-pid,sig))>=0 && !stopsig)
-				{
-					job_unstop(job_bypid(pw->p_pid));
-					if(sig)
-						killpg(-pid,SIGCONT);
-				}
-			}
+			r = killpg(-pid,sig);
+			if(r>=0 && sig==SIGCONT)
+				job_unstop(job_bypid(pw->p_pid));
 		}
 	}
 	else
@@ -1020,17 +1009,13 @@ int job_kill(struct process *pw,int sig)
 		if(pid = pw->p_pgrp)
 		{
 			r = killpg(pid,sig);
-			if(r>=0 && (sig==SIGHUP||sig==SIGTERM || sig==SIGCONT))
+			if(r>=0 && sig==SIGCONT)
 				job_unstop(pw);
 			if(r>=0)
 				sh_delay(.05,0);
 		}
 		while(pw && pw->p_pgrp==0 && (r=kill(pw->p_pid,sig))>=0) 
-		{
-			if(sig==SIGHUP || sig==SIGTERM)
-				kill(pw->p_pid,SIGCONT);
 			pw = pw->p_nxtproc;
-		}
 	}
 	if(r<0 && job_string)
 	{

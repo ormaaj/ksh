@@ -589,4 +589,16 @@ wait $!
 (( (SECONDS-s) < 1.8)) && err_exit "'trap - INT' causing trap to not be ignored"
 
 # ======
+# Ancient SIGCONT nonsense present as early as ksh88:
+# the 'kill' built-in sent SIGCONT along with every non-SIGCONT signal issued!
+for sig in TERM HUP INT USR1
+do	for cmd in kill $(whence -p kill)
+	do	got=$("$SHELL" -c "trap 'echo \"SIGCONT (!!)\"' CONT; trap 'echo SIG$sig' $sig; $cmd -s $sig \$\$")
+		[[ e=$? -eq 0 && $got == "SIG$sig" ]] || err_exit "CONT+$sig trap, SIG$sig issued using '$cmd':" \
+			"expected status 0, SIG$sig;" \
+			"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"), $(printf %q "$got"))"
+	done
+done
+
+# ======
 exit $((Errors<125?Errors:125))

@@ -1255,5 +1255,17 @@ w _ksh_93u_m_cmdcompl\t
 r :test-2: _ksh_93u_m_cmdcomplete_test_ \r\n$
 !
 
+tst $LINENO <<"!"
+L terminate interactive shell using the kill built-in
+
+d 40
+p :test-1:
+w PS1=':child-!: ' "$SHELL"
+p :child-1:
+w kill -s HUP \$\$
+r ^:child-1: kill -s HUP \$\$\r\n$
+r ^Hangup\r\n$
+!
+
 # ======
 exit $((Errors<125?Errors:125))

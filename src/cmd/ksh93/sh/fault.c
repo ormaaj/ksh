@@ -128,7 +128,7 @@ void	sh_fault(int sig)
 			sigrelease(sig);
 			if(pp->mode != SH_JMPSUB)
 			{
-				if(pp->mode < SH_JMPSUB)
+				if(pp->mode < SH_JMPSUB && !sh_isstate(SH_INTERACTIVE))
 					pp->mode = sh.subshell?SH_JMPSUB:SH_JMPFUN;
 				else
 					pp->mode = SH_JMPEXIT;

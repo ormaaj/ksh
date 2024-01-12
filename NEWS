@@ -9,6 +9,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   causing a stopped process to be incorrectly resumed upon sending it any
   signal and causing any SIGCONT trap handler to be incorrectly triggered.
 
+- Fixed: the 'kill' built-in was not able to terminate an interactive shell
+  by sending a signal such as SIGHUP to its own shell (e.g. kill -s HUP $$).
+
 2024-01-05:
 
 - Fixed a potential crash on pressing Ctrl+C on the command line while

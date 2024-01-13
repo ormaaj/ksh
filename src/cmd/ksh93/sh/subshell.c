@@ -640,13 +640,13 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 			/* Virtual subshells are not safe to suspend (^Z, SIGTSTP) in the interactive main shell. */
 			if(sh_isstate(SH_INTERACTIVE))
 			{
+				sh_offstate(SH_INTERACTIVE);
 				sh_offstate(SH_TTYWAIT);
 				if(comsub)
 					sigblock(SIGTSTP);
 				else
 					sh_subfork();
 			}
-			sh_offstate(SH_INTERACTIVE);
 			sh_offstate(SH_PROFILE);
 			sh_exec(t,flags);
 		}

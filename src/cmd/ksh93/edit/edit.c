@@ -45,8 +45,10 @@
 #include	"edit.h"
 #include	"shlex.h"
 
+#if SHOPT_ESH || SHOPT_VSH
 static char *cursor_up;  /* move cursor up one line */
 static char *erase_eos;  /* erase to end of screen */
+#endif /*  SHOPT_ESH || SHOPT_VSH */
 
 #if SHOPT_MULTIBYTE
 #   define is_cntrl(c)	((c<=STRIP) && iscntrl(c))

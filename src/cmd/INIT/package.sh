@@ -115,7 +115,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2024-01-02 $
+@(#)$Id: '$command$' (ksh 93u+m) 2024-01-14 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -543,7 +543,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2024-01-02
+  version         package (ksh 93u+m) 2024-01-14
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -2819,6 +2819,41 @@ make|view)
 		;;
 	esac
 
+	# check against previous compiler and flags
+
+	err=
+	for	var in CC CCFLAGS CCLDFLAGS LDFLAGS
+	do	store=$INSTALLROOT/lib/package/gen/$var
+		eval "new=\$$var"
+		if	test -e "$store"
+		then	old=$(cat "$store") || exit
+			case $old in
+			"$new")	;;
+			*)	case $old in
+				'')	old="(none)" ;;
+				*)	old="'$old'" ;;
+				esac
+				case $new in
+				'')	new="(none)" ;;
+				*)	new="'$new'" ;;
+				esac
+				note "$var changed from $old to $new"
+				err=y ;;
+			esac
+		elif	test -d "$INSTALLROOT/lib/package/gen"   # does not exist if 'bin/package debug make'
+		then	case $new in
+			'')	;;
+			*)	echo "$new" ;;
+			esac > $store || exit
+		fi
+	done
+	case $err,${FORCE_FLAGS+f} in
+	y,)	err_out "This would likely break the build. Restore the flag(s)," \
+			"or delete the build directory and rebuild from scratch."
+		;;
+	esac
+	unset err var store old new
+
 	# remember the default $CC
 
 	case $CC in
@@ -2893,40 +2928,6 @@ make|view)
 	case $action in
 	view)	exit 0 ;;
 	esac
-
-	# check against previous compiler and flags
-
-	err=
-	for	var in CC CCFLAGS CCLDFLAGS LDFLAGS
-	do	store=$INSTALLROOT/lib/package/gen/$var
-		eval "new=\$$var"
-		if	test -f $store
-		then	old=$(cat $store)
-			case $old in
-			"$new")	;;
-			*)	case $old in
-				'')	old="(none)" ;;
-				*)	old="'$old'" ;;
-				esac
-				case $new in
-				'')	new="(none)" ;;
-				*)	new="'$new'" ;;
-				esac
-				note "$var changed from $old to $new"
-				err=y ;;
-			esac
-		else	test -d $INSTALLROOT/lib/package/gen && case $new in
-			'')	;;
-			*)	echo "$new" ;;
-			esac > $store
-		fi
-	done
-	case $err,${FORCE_FLAGS+f} in
-	y,)	err_out "This would likely break the build. Restore the flag(s)," \
-			"or delete the build directory and rebuild from scratch."
-		;;
-	esac
-	unset err var store old new
 
 	# all work under $INSTALLROOT/src
 

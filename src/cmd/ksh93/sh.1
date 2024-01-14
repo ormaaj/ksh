@@ -6975,6 +6975,9 @@ can be omitted and the number or name placed immediately
 after the
 .BR \- .
 If the signal being sent is TERM (terminate) or HUP (hangup),
+and the
+.B posix
+shell option is off,
 then the job or process will be sent a CONT (continue) signal
 if it is stopped.
 The argument
@@ -7959,6 +7962,16 @@ numerical conversion specifiers of the
 .B printf
 built-in command, causing them to print a warning for operands that are not
 valid decimal, \fB0x\fR-prefixed hexadecimal or \fB0\fR-prefixed octal numbers;
+.IP \[bu]
+stops the
+.B kill
+built-in command from automatically sending a
+.B CONT
+signal to stopped jobs or processes upon sending a
+.B HUP
+or
+.B TERM
+signal;
 .IP \[bu]
 disables the special handling of \f3/dev/fd/\fP\f2n\fP in file existence and
 access test operators in \fBtest\fR/\fB[\fR and \fB[[\fR, causing these to

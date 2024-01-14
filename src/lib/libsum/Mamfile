@@ -129,37 +129,26 @@ make install
 	done sum virtual
 	prev libsum.a
 	make ${INSTALLROOT}/lib
-		exec - if test ! -d ${INSTALLROOT}/lib
-		exec - then mkdir -p ${INSTALLROOT}/lib
-		exec - fi
+		exec - mkdir -p ${INSTALLROOT}/lib
 	done ${INSTALLROOT}/lib generated
 	make ${INSTALLROOT}/lib/libsum.a archive
-		prev ${INSTALLROOT}/lib
 		prev libsum.a
-		exec - ${STDCMP} 2>/dev/null -s libsum.a ${INSTALLROOT}/lib/libsum.a || { ${STDMV} ${INSTALLROOT}/lib/libsum.a ${INSTALLROOT}/lib/libsum.a.old 2>/dev/null || true; ${STDCP} libsum.a ${INSTALLROOT}/lib/libsum.a ;}
+		exec - ${STDCP} -f libsum.a ${INSTALLROOT}/lib/libsum.a
 		exec - (ranlib ${INSTALLROOT}/lib/libsum.a) >/dev/null 2>&1 || true
 	done ${INSTALLROOT}/lib/libsum.a generated
 	make ${INSTALLROOT}/lib/lib
-		exec - if test ! -d ${INSTALLROOT}/lib/lib
-		exec - then mkdir -p ${INSTALLROOT}/lib/lib
-		exec - fi
+		exec - mkdir -p ${INSTALLROOT}/lib/lib
 	done ${INSTALLROOT}/lib/lib generated
 	make ${INSTALLROOT}/lib/lib/sum
-		prev ${INSTALLROOT}/lib/lib
 		prev sum.req
-		exec - ${STDCMP} 2>/dev/null -s sum.req ${INSTALLROOT}/lib/lib/sum || { ${STDMV} ${INSTALLROOT}/lib/lib/sum ${INSTALLROOT}/lib/lib/sum.old 2>/dev/null || true; ${STDCP} sum.req ${INSTALLROOT}/lib/lib/sum ;}
+		exec - ${STDCP} -f sum.req ${INSTALLROOT}/lib/lib/sum
 	done ${INSTALLROOT}/lib/lib/sum generated
 	make ${PACKAGE_ast_INCLUDE}
-		exec - if test ! -d ${PACKAGE_ast_INCLUDE}
-		exec - then mkdir -p ${PACKAGE_ast_INCLUDE}
-		exec - fi
+		exec - mkdir -p ${PACKAGE_ast_INCLUDE}
 	done ${PACKAGE_ast_INCLUDE} generated
 	make ${PACKAGE_ast_INCLUDE}/sum.h
-		prev ${PACKAGE_ast_INCLUDE}
 		prev sum.h
-		exec - if ! ${STDCMP} -s sum.h ${PACKAGE_ast_INCLUDE}/sum.h
-		exec - then ${STDCP} sum.h ${PACKAGE_ast_INCLUDE}/sum.h
-		exec - fi
+		exec - ${STDCP} -f sum.h ${PACKAGE_ast_INCLUDE}/sum.h
 	done ${PACKAGE_ast_INCLUDE}/sum.h generated
 done install virtual
 make test

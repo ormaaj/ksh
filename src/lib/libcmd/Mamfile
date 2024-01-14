@@ -14,7 +14,6 @@ setv AR ${mam_cc_AR} ${mam_cc_AR_ARFLAGS}
 setv CC cc
 setv mam_cc_FLAGS ${mam_cc_DLL}
 setv CCFLAGS ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?}
-setv COTEMP $$
 setv IFFEFLAGS
 setv LDFLAGS ""
 make install
@@ -29,7 +28,6 @@ make install
 				make cmdinit.c
 					prev ${PACKAGE_ast_INCLUDE}/shcmd.h implicit
 					make cmd.h implicit
-						prev ${PACKAGE_ast_INCLUDE}/dlldefs.h implicit dontcare
 						make cmdext.h implicit
 							prev cmdinit.c
 							make basename.c
@@ -225,7 +223,6 @@ make install
 							make id.c
 								prev fsg.h implicit dontcare virtual
 								prev ${PACKAGE_ast_INCLUDE}/stdio.h
-								prev ${PACKAGE_ast_INCLUDE}/stdio.h
 								make FEATURE/ids implicit
 									prev features/ids
 									exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libutil} ${mam_libast} : run features/ids
@@ -369,11 +366,7 @@ make install
 							exec - -e 's/.*/extern int	b_&(int, char**, Shbltin_t*);/' \
 							exec - ${PACKAGEROOT}/src/lib/libcmd/cmdinit.c ${PACKAGEROOT}/src/lib/libcmd/basename.c ${PACKAGEROOT}/src/lib/libcmd/cat.c ${PACKAGEROOT}/src/lib/libcmd/chgrp.c ${PACKAGEROOT}/src/lib/libcmd/chmod.c ${PACKAGEROOT}/src/lib/libcmd/chown.c ${PACKAGEROOT}/src/lib/libcmd/cksum.c ${PACKAGEROOT}/src/lib/libcmd/cmp.c ${PACKAGEROOT}/src/lib/libcmd/comm.c ${PACKAGEROOT}/src/lib/libcmd/cp.c ${PACKAGEROOT}/src/lib/libcmd/cut.c ${PACKAGEROOT}/src/lib/libcmd/dirname.c ${PACKAGEROOT}/src/lib/libcmd/date.c ${PACKAGEROOT}/src/lib/libcmd/expr.c ${PACKAGEROOT}/src/lib/libcmd/fds.c ${PACKAGEROOT}/src/lib/libcmd/fmt.c ${PACKAGEROOT}/src/lib/libcmd/fold.c ${PACKAGEROOT}/src/lib/libcmd/getconf.c ${PACKAGEROOT}/src/lib/libcmd/head.c ${PACKAGEROOT}/src/lib/libcmd/id.c ${PACKAGEROOT}/src/lib/libcmd/join.c ${PACKAGEROOT}/src/lib/libcmd/ln.c ${PACKAGEROOT}/src/lib/libcmd/logname.c ${PACKAGEROOT}/src/lib/libcmd/md5sum.c ${PACKAGEROOT}/src/lib/libcmd/mkdir.c ${PACKAGEROOT}/src/lib/libcmd/mkfifo.c ${PACKAGEROOT}/src/lib/libcmd/mktemp.c ${PACKAGEROOT}/src/lib/libcmd/mv.c ${PACKAGEROOT}/src/lib/libcmd/paste.c ${PACKAGEROOT}/src/lib/libcmd/pathchk.c ${PACKAGEROOT}/src/lib/libcmd/pids.c ${PACKAGEROOT}/src/lib/libcmd/rev.c ${PACKAGEROOT}/src/lib/libcmd/rm.c ${PACKAGEROOT}/src/lib/libcmd/rmdir.c ${PACKAGEROOT}/src/lib/libcmd/stty.c ${PACKAGEROOT}/src/lib/libcmd/sum.c ${PACKAGEROOT}/src/lib/libcmd/sync.c ${PACKAGEROOT}/src/lib/libcmd/tail.c ${PACKAGEROOT}/src/lib/libcmd/tee.c ${PACKAGEROOT}/src/lib/libcmd/tty.c ${PACKAGEROOT}/src/lib/libcmd/uname.c ${PACKAGEROOT}/src/lib/libcmd/uniq.c ${PACKAGEROOT}/src/lib/libcmd/vmstate.c ${PACKAGEROOT}/src/lib/libcmd/wc.c ${PACKAGEROOT}/src/lib/libcmd/revlib.c ${PACKAGEROOT}/src/lib/libcmd/wclib.c ${PACKAGEROOT}/src/lib/libcmd/lib.c |
 							exec - sort -u
-							exec - } > 1.${COTEMP}.h
-							exec - if ${STDCMP} -s 1.${COTEMP}.h cmdext.h
-							exec - then ${STDRM} -f 1.${COTEMP}.h
-							exec - else ${STDMV} 1.${COTEMP}.h cmdext.h
-							exec - fi
+							exec - } > cmdext.h
 							prev ${PACKAGE_ast_INCLUDE}/shcmd.h
 						done cmdext.h dontcare generated
 						prev ${PACKAGE_ast_INCLUDE}/shcmd.h
@@ -625,43 +618,30 @@ make install
 	done cmd virtual
 	prev libcmd.a
 	make ${INSTALLROOT}/lib
-		exec - if test ! -d ${INSTALLROOT}/lib
-		exec - then mkdir -p ${INSTALLROOT}/lib
-		exec - fi
+		exec - mkdir -p ${INSTALLROOT}/lib
 	done ${INSTALLROOT}/lib generated
 	make ${INSTALLROOT}/lib/libcmd.a archive
-		prev ${INSTALLROOT}/lib
 		prev libcmd.a
-		exec - ${STDCMP} 2>/dev/null -s libcmd.a ${INSTALLROOT}/lib/libcmd.a || { ${STDMV} ${INSTALLROOT}/lib/libcmd.a ${INSTALLROOT}/lib/libcmd.a.old 2>/dev/null || true; ${STDCP} libcmd.a ${INSTALLROOT}/lib/libcmd.a ;}
+		exec - ${STDCP} -f libcmd.a ${INSTALLROOT}/lib/libcmd.a
 		exec - (ranlib ${INSTALLROOT}/lib/libcmd.a) >/dev/null 2>&1 || true
 	done ${INSTALLROOT}/lib/libcmd.a generated
 	make ${INSTALLROOT}/lib/lib
-		exec - if test ! -d ${INSTALLROOT}/lib/lib
-		exec - then mkdir -p ${INSTALLROOT}/lib/lib
-		exec - fi
+		exec - mkdir -p ${INSTALLROOT}/lib/lib
 	done ${INSTALLROOT}/lib/lib generated
 	make ${INSTALLROOT}/lib/lib/cmd
-		prev ${INSTALLROOT}/lib/lib
 		prev cmd.req
-		exec - ${STDCMP} 2>/dev/null -s cmd.req ${INSTALLROOT}/lib/lib/cmd || { ${STDMV} ${INSTALLROOT}/lib/lib/cmd ${INSTALLROOT}/lib/lib/cmd.old 2>/dev/null || true; ${STDCP} cmd.req ${INSTALLROOT}/lib/lib/cmd ;}
+		exec - ${STDCP} -f cmd.req ${INSTALLROOT}/lib/lib/cmd
 	done ${INSTALLROOT}/lib/lib/cmd generated
 	make ${PACKAGE_ast_INCLUDE}
-		exec - if test ! -d ${PACKAGE_ast_INCLUDE}
-		exec - then mkdir -p ${PACKAGE_ast_INCLUDE}
-		exec - fi
+		exec - mkdir -p ${PACKAGE_ast_INCLUDE}
 	done ${PACKAGE_ast_INCLUDE} generated
 	make ${PACKAGE_ast_INCLUDE}/cmd.h
-		prev ${PACKAGE_ast_INCLUDE}
 		prev cmd.h
-		exec - if ! ${STDCMP} -s cmd.h ${PACKAGE_ast_INCLUDE}/cmd.h
-		exec - then ${STDCP} cmd.h ${PACKAGE_ast_INCLUDE}/cmd.h
-		exec - fi
+		exec - ${STDCP} -f cmd.h ${PACKAGE_ast_INCLUDE}/cmd.h
 	done ${PACKAGE_ast_INCLUDE}/cmd.h generated
 	make ${PACKAGE_ast_INCLUDE}/cmdext.h
 		prev cmdext.h
-		exec - if ! ${STDCMP} -s cmdext.h ${PACKAGE_ast_INCLUDE}/cmdext.h
-		exec - then ${STDCP} cmdext.h ${PACKAGE_ast_INCLUDE}/cmdext.h
-		exec - fi
+		exec - ${STDCP} -f cmdext.h ${PACKAGE_ast_INCLUDE}/cmdext.h
 	done ${PACKAGE_ast_INCLUDE}/cmdext.h generated
 	make ${PACKAGE_ast_INCLUDE}/cmdlist.h
 		make cmdlist.h
@@ -726,15 +706,9 @@ make install
 			exec - -e 's/.*/CMDLIST(&)/' \
 			exec - |
 			exec - sort -u
-			exec - } > 1.${COTEMP}.h
-			exec - if ${STDCMP} -s 1.${COTEMP}.h cmdlist.h
-			exec - then ${STDRM} -f 1.${COTEMP}.h
-			exec - else ${STDMV} 1.${COTEMP}.h cmdlist.h
-			exec - fi
+			exec - } > cmdlist.h
 		done cmdlist.h generated
-		exec - if ! ${STDCMP} -s cmdlist.h ${PACKAGE_ast_INCLUDE}/cmdlist.h
-		exec - then ${STDCP} cmdlist.h ${PACKAGE_ast_INCLUDE}/cmdlist.h
-		exec - fi
+		exec - ${STDCP} -f cmdlist.h ${PACKAGE_ast_INCLUDE}/cmdlist.h
 	done ${PACKAGE_ast_INCLUDE}/cmdlist.h generated
 done install virtual
 make test

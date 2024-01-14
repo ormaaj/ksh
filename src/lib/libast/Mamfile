@@ -273,39 +273,43 @@ make install
 				done ast_nl_types.h generated
 				prev ast_wchar.h
 				prev ast_wctype.h
+				note *
 				note * clean up obsolete headers
+				note *
 				exec - ${STDRM} -rf dirent.h iconv.h nl_types.h stdio.h wchar.h wctype.h ast_hdr.h ast_types.h ast_unistd.h iffeio.h \
 				exec - ${INSTALLROOT}/include/ast/limits.h ${INSTALLROOT}/include/ast/unistd.h \
 				exec - ${PACKAGEROOT}/src/lib/libast/std/limits.h
+				note *
 				note * generate initial ast.req
+				note *
 				prev ${INSTALLROOT}/bin/mkreq
 				exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} : ${LDFLAGS} : ast iconv w
-				make astmath.exe
+				note *
+				note * some systems move -lc routines to -lm; see astmath.c for details
+				note *
+				make astmath.out
 					make port/astmath.c
-						prev std/endian.h
 						prev std/endian.h
 					done port/astmath.c
 					exec - X=1
 					exec - for N in 1 2 3 4 5 6 8
-					exec - do if ${CC} ${CCLDFLAGS} -DN=$N -DIS ${mam_cc_FLAGS} ${CCFLAGS} -I. -Istd ${LDFLAGS} -o astmath.exe port/astmath.c 2>/dev/null
-					exec - then : implicit math function N=$N :
-					exec - elif ${CC} ${CCLDFLAGS} -DN=$N -DIS ${mam_cc_FLAGS} ${CCFLAGS} -I. -Istd ${LDFLAGS} -o astmath.exe port/astmath.c -lm 2>/dev/null
-					exec - then : math function N=$N requires -lm :
-					exec - X=0
-					exec - break
-					exec - fi
+					exec - do	if	${CC} ${CCLDFLAGS} -DN=$N -DIS ${mam_cc_FLAGS} ${CCFLAGS} -I. -Istd ${LDFLAGS} -o astmath.exe port/astmath.c 2>/dev/null
+					exec -		then	: implicit math function N=$N :
+					exec -		elif	${CC} ${CCLDFLAGS} -DN=$N -DIS ${mam_cc_FLAGS} ${CCFLAGS} -I. -Istd ${LDFLAGS} -o astmath.exe port/astmath.c -lm 2>/dev/null
+					exec -		then	: math function N=$N requires -lm :
+					exec -			X=0
+					exec -			break
+					exec -		fi
 					exec - done
-					exec - case $X in
-					exec - 0) ${STDRM} -f astmath.exe ;;
-					exec - *) touch astmath.exe ;;
-					exec - esac
-				done astmath.exe dontcare generated
+					exec - ${STDRM} -rf astmath.exe*
+					exec - echo $X > astmath.out
+				done astmath.out generated
 				prev FEATURE/aso
 				exec - sed -e '/^#define _REQ_/!d' -e 's/#define _REQ_\([a-z0-9_]*\).*/ -l\1/' FEATURE/aso >> ast.req
-				exec - if test -f astmath.exe
-				exec - then touch ast.req
-				exec - else echo ' -lm' >> ast.req
-				exec - fi
+				exec - case $(${STDCAT} astmath.out) in
+				exec - 0)	echo ' -lm' >> ast.req ;;
+				exec - *)	touch ast.req ;;
+				exec - esac
 			done ast.req generated
 			make state.o
 				make misc/state.c

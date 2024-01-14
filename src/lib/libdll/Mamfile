@@ -76,7 +76,6 @@ make install
 										make ${PACKAGE_ast_INCLUDE}/ast_sys.h implicit
 											prev ${PACKAGE_ast_INCLUDE}/getopt.h
 											prev ${PACKAGE_ast_INCLUDE}/endian.h
-											prev ${PACKAGE_ast_INCLUDE}/endian.h
 										done ${PACKAGE_ast_INCLUDE}/ast_sys.h
 										prev ${PACKAGE_ast_INCLUDE}/ast_lib.h implicit
 										prev ${PACKAGE_ast_INCLUDE}/ast_common.h

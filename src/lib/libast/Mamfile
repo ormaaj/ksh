@@ -215,7 +215,6 @@ make install
 											prev features/sys
 											exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run features/sys
 											prev std/endian.h
-											prev std/endian.h
 										done FEATURE/sys generated
 										prev FEATURE/lib
 									done features/botch.c
@@ -1742,7 +1741,6 @@ make install
 			make tmlocale.o
 				make tm/tmlocale.c
 					prev std/nl_types.h
-					prev std/nl_types.h
 					prev include/ast_windows.h
 					prev port/lclib.h
 					prev ast_nl_types.h
@@ -1999,7 +1997,6 @@ make install
 			make mnt.o
 				make port/mnt.c
 					prev mnttab.h implicit dontcare virtual
-					prev std/stdio.h
 					prev std/stdio.h
 					prev include/ast_windows.h
 					prev include/ls.h

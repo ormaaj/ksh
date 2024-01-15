@@ -1483,6 +1483,8 @@ static Shnode_t *simple(Lex_t *lexp,int flag, struct ionod *io)
 					last = strchr(argp->argval,'=');
 					if(last && (last[-1]==']'|| (last[-1]=='+' && last[-2]==']')) && (cp=strchr(argp->argval,'[')) && (cp < last) && cp[-1]!='.')
 						last = cp;
+					else if(last && last[-1]=='+')
+						last--;
 					stkseek(sh.stk,ARGVAL);
 					sfwrite(sh.stk,argp->argval,last-argp->argval);
 					ap=(struct argnod*)stkfreeze(sh.stk,1);

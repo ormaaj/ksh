@@ -8,6 +8,10 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   an infinite loop after using the up arrow in emacs mode with an empty
   history file.
 
+- Fixed a bug in 'read -s': in a script, the first invocation of that
+  command, with the emacs or vi shell option on, did not allow the user to
+  navigate through the shell history file.
+
 2024-01-11:
 
 - Fixed ancient incorrect behaviour in the 'kill' built-in: it sent SIGCONT

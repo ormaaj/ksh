@@ -1267,5 +1267,16 @@ r ^:child-1: kill -s HUP \$\$\r\n$
 r ^Hangup\r\n$
 !
 
+((SHOPT_VSH)) && HISTFILE=$tmp/tmp_histfile tst $LINENO <<"!"
+L 'read -s' reads from history file on first go
+
+d 40
+p :test-1:
+w "$SHELL" -o vi -c 'read -s "foo?:prompt: "'
+p :prompt:
+c \Ek
+r ^:prompt: "\$SHELL" -o vi -c 'read -s "foo\?:prompt: "'$
+!
+
 # ======
 exit $((Errors<125?Errors:125))

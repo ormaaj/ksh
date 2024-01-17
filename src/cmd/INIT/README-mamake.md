@@ -163,6 +163,22 @@ The `exec` command assigns the `generated` attribute to the current rule, even i
 
 `bind` `-l`*libraryname* [ `dontcare` ]
 
+These commands are scanned for while sorting leaf directories for recurive
+building, and executed as normal commands while building the current directory.
+
+#### …while scanning and sorting leaf directories ####
+
+If there is a leaf directory named `INIT`, it will always be built before
+all others. For all other leaf directories, the presence of any `bind`
+command of the form `bind -lfoo` (or `bind +lfoo`) anywhere in a leaf
+directory's Mamfile causes the leaf directory named `libfoo` (if it exists)
+to be a prerequisite of that leaf directory.
+The prerequisite leaf directory does not have to be in the same parent
+directory, as long as it is processed as part of the same scan.
+At this stage, attributes are ignored.
+
+#### …while building the current directory ####
+
 An argument of `-l`*libraryname* (or `+l`*libraryname*)
 causes a MAM variable `mam_lib`*libraryname* to be defined (see **MAM variables** above).
 The variable will contain either the compiler argument for linking to the library *libraryname*
@@ -191,7 +207,5 @@ if this fails, the `mam_lib`*libraryname* variable will be emptied.
 
 Any `bind` command whose argument does not start with `-l` or `+l` is ignored.
 
-[`TODO`: `bind` is not yet fully understood; more `mamake.c` code analysis is required.
-In `require()` in `mamake.c` there is some special handling for dynamic libraries.
 Note that the `bind` functionality implemented in `mamake.c`
-is completely different from that described in the original documentation.]
+is completely different from that described in the original documentation.

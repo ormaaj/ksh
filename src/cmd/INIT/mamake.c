@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2023-04-16"
+#define RELEASE_DATE "2024-01-17"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -39,7 +39,7 @@ static const char usage[] =
 "[-?\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\n]"
 "[-author?Glenn Fowler <gsf@research.att.com>]"
 "[-author?Contributors to https://github.com/ksh93/ksh]"
-"[-copyright?(c) 1994-2012 AT&T Intellectual Property]"
+"[-copyright?(c) 1994-2013 AT&T Intellectual Property]"
 "[-copyright?(c) 2020-2024 Contributors to ksh 93u+m]"
 "[-license?https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html]"
 "[+NAME?mamake - make abstract machine make]"
@@ -72,7 +72,10 @@ static const char usage[] =
 "	executed. Use \b-N\b to disable recursion actions too.]"
 "[r:?Recursively make leaf directories matching \apattern\a. Only leaf"
 "	directories containing a file named \bMamfile\b"
-"	are considered.]:[pattern]"
+"	are considered. The \abind\a commands in the Mamfile"
+"	found in each leaf directory are scanned for leaf directory"
+"	prerequisites; the recursion order is determined by a topological sort"
+"	of these prerequisites.]:[pattern]"
 "[C:?Do all work in \adirectory\a. All messages will mention"
 "	\adirectory\a.]:[directory]"
 "[D:?Set the debug trace level to \alevel\a. Higher levels produce more"
@@ -1954,25 +1957,8 @@ scan(Dict_item_t* item, void* handle)
 	Rule_t*			r = (Rule_t*)item->value;
 	char*			s;
 	char*			t;
-	char*			u;
-	char*			w;
 	Rule_t*			q;
-	int			i;
-	int			j;
-	int			k;
-	int			p;
 	Buf_t*			buf;
-
-	static char*		files[] =
-				{
-					"Mamfile"
-				/* ksh 93u+m no longer uses these:
-				 *	"Nmakefile",
-				 *	"nmakefile",
-				 *	"Makefile",
-				 *	"makefile"
-				 */
-				};
 
 	/*
 	 * drop non-leaf rules
@@ -1992,149 +1978,31 @@ scan(Dict_item_t* item, void* handle)
 		return 0;
 	}
 	buf = buffer();
-	for (i = 0; i < elementsof(files); i++)
+	append(buf, r->name);
+	add(buf, '/');
+	append(buf, mamfile);
+	if (push(use(buf), NULL, 0))
 	{
-		append(buf, r->name);
-		add(buf, '/');
-		append(buf, files[i]);
-		if (push(use(buf), NULL, 0))
+		while (s = input())
 		{
-			while (s = input())
-			{
-				j = p = 0;
-				while (*s)
-				{
-					for (k = 1; isspace(i = *s) || i == '"' || i == '\''; s++);
-					for (t = s; (i = *s) && !isspace(i) && i != '"' && i != '\'' && i != '\\' && i != ':'; s++)
-						if (i == '/')
-							t = s + 1;
-						else if (i == '.' && *(s + 1) != 'c' && *(s + 1) != 'C' && *(s + 1) != 'h' && *(s + 1) != 'H' && t[0] == 'l' && t[1] == 'i' && t[2] == 'b')
-							*s = 0;
-					if (*s)
-						*s++ = 0;
-					if (!t[0])
-						k = 0;
-					else if ((t[0] == '-' || t[0] == '+') && t[1] == 'l' && t[2])
-					{
-						append(buf, "lib");
-						append(buf, t + 2);
-						t = use(buf);
-					}
-					else if (p)
-					{
-						if (t[0] == '+' && !t[1])
-							p = 2;
-						else if (p == 1)
-						{
-							if (i != ':' || strncmp(s, "command", 7))
-							{
-								append(buf, "lib");
-								append(buf, t);
-								t = use(buf);
-							}
-							if (i == ':')
-								while (*s && isspace(*s))
-									s++;
-						}
-					}
-					else if (i == ':')
-					{
-						if (j != ':' || !isupper(*t))
-							k = 0;
-						else if (!strcmp(t, "PACKAGE"))
-						{
-							p = 1;
-							k = 0;
-						}
-						else
-						{
-							for (u = t; *u; u++)
-							{
-								if (isupper(*u))
-									*u = tolower(*u);
-								else if (!isalnum(*u))
-								{
-									k = 0;
-									break;
-								}
-							}
-						}
-					}
-					else if (t[0] != 'l' || t[1] != 'i' || t[2] != 'b')
-						k = 0;
-					else
-					{
-						for (u = t + 3; *u; u++)
-						{
-							if (!isalnum(*u))
-							{
-								k = 0;
-								break;
-							}
-						}
-					}
-					if (k && ((q = (Rule_t*)search(state.leaf, t, NULL)) && q != r || *t++ == 'l' && *t++ == 'i' && *t++ == 'b' && *t && (q = (Rule_t*)search(state.leaf, t, NULL)) && q != r))
-					{
-						for (t = w = r->name; *w; w++)
-							if (*w == '/')
-								t = w + 1;
-						if (t[0] == 'l' && t[1] == 'i' && t[2] == 'b')
-							t += 3;
-						for (u = w = q->name; *w; w++)
-							if (*w == '/')
-								u = w + 1;
-						if (strcmp(t, u))
-							cons(r, q);
-					}
-					j = i;
-				}
-			}
-			pop();
-			for (s = 0, w = r->name; *w; w++)
-				if (*w == '/')
-					s = w;
-			if (s)
-			{
-				if ((s - r->name) > 3 && *(s - 1) == 'b' && *(s - 2) == 'i' && *(s - 3) == 'l' && *(s - 4) != '/')
-				{
-					/*
-					 * foolib : foo : libfoo
-					 */
-
-					*(s - 3) = 0;
-					q = (Rule_t*)search(state.leaf, r->name, NULL);
-					if (q && q != r)
-						cons(r, q);
-					for (t = w = r->name; *w; w++)
-						if (*w == '/')
-							t = w + 1;
-					append(buf, "lib");
-					append(buf, t);
-					q = (Rule_t*)search(state.leaf, use(buf), NULL);
-					if (q && q != r)
-						cons(r, q);
-					*(s - 3) = 'l';
-				}
-				else if (((s - r->name) != 3 || *(s - 1) != 'b' || *(s - 2) != 'i' || *(s - 3) != 'l') && (*(s + 1) != 'l' || *(s + 2) != 'i' || *(s + 3) != 'b'))
-				{
-					/*
-					 * huh/foobar : lib/libfoo
-					 */
-
-					s++;
-					t = s + strlen(s);
-					while (--t > s)
-					{
-						append(buf, "lib/lib");
-						appendn(buf, s, t - s);
-						q = (Rule_t*)search(state.leaf, use(buf), NULL);
-						if (q && q != r)
-							cons(r, q);
-					}
-				}
-			}
-			break;
+			for (; isspace(*s); s++);
+			/* examine only commands of the form bind [+-]lfoo */
+			if (s[0] != 'b' || s[1] != 'i' || s[2] != 'n' || s[3] != 'd' || !isspace(s[4]))
+				continue;
+			for (s += 5; isspace(*s); s++);
+			if ((s[0] != '-' && s[0] != '+') || s[1] != 'l' || !s[2])
+				continue;
+			/* construct potential leaf directory name */
+			append(buf, "lib");
+			append(buf, s + 2);
+			t = use(buf);
+			for (s = t; *s && !isspace(*s); s++);
+			*s = '\0';
+			/* add a rule and prepend it onto the prerequisites */
+			if ((q = (Rule_t*)search(state.leaf, t, NULL)) && q != r)
+				cons(r, q);
 		}
+		pop();
 	}
 	drop(buf);
 	return 0;

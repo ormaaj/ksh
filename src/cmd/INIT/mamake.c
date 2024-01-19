@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-01-17"
+#define RELEASE_DATE "2024-01-19"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -411,21 +411,6 @@ dont(Rule_t* r, int code, int keepgoing)
 		state.errors = 1;
 	}
 	r->flags |= RULE_error;
-}
-
-/*
- * local strrchr()
- */
-
-static char*
-last(char* s, int c)
-{
-	char*	r = 0;
-
-	for (r = 0; *s; s++)
-		if (*s == c)
-			r = s;
-	return r;
 }
 
 /*
@@ -1912,7 +1897,7 @@ initializer(char* name)
 {
 	char*	s;
 
-	if (s = last(name, '/'))
+	if (s = strrchr(name, '/'))
 		s++;
 	else
 		s = name;
@@ -2078,7 +2063,7 @@ recurse(char* pattern)
 		if (find(tmp, use(buf), &st))
 		{
 			r = rule(s);
-			if (t = last(r->name, '/'))
+			if (t = strrchr(r->name, '/'))
 				t++;
 			else
 				t = r->name;

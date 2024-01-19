@@ -23,7 +23,7 @@ dat	_tzname,tzname
 
 lib	BSDsetpgrp
 lib	_cleanup
-lib	atexit,bcopy,bzero,catclose,catgets,catopen,confstr,dirread,dup2
+lib	bcopy,bzero,catclose,catgets,catopen,confstr,dirread,dup2
 lib	execlp,execve,execvp,execvpe
 lib	fchmod,fcntl,fmtmsg,fnmatch,fork,fsync
 lib	getconf,getdents,getdirentries,getdtablesize,getdate
@@ -32,7 +32,7 @@ lib	getopt,getsubopt,getopt_long,getopt_long_only
 lib	glob,iswblank,iswctype,killpg,link,localeconv,madvise
 lib	mbtowc,mbrtowc,memalign,memchr,memcpy,memdup,memmove,memset
 lib	mkdir,mkfifo,mktemp,mktime
-lib	mount,onexit,opendir,pathconf
+lib	mount,opendir,pathconf
 lib	readlink,remove,rename,rewinddir,rmdir,setlocale
 lib	setpgid,setpgrp,setpgrp2,setreuid,setsid,setuid,sigaction
 lib	sigprocmask,sigsetmask,sigunblock,sigvec,socketpair

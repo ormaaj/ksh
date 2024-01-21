@@ -1943,11 +1943,16 @@ command.
 .TP
 .B
 .SM RANDOM
-Each time this variable is referenced, a random integer,
-uniformly distributed between 0 and 32767, is generated.
-The sequence of random numbers can be initialized by assigning
-a numeric value to
+Each time this variable is referenced, a pseudorandom integer is generated,
+uniformly distributed between 0 and 32767 (the 16-bit unsigned integer range)
+except that the same number is never repeated twice in a row.
+The sequence of pseudorandom numbers is reproducible
+and can be initialized to a fixed starting point by assigning
+a numeric seed value to
 .BR RANDOM .
+Each time a new shell or subshell environment is entered (see
+.I Subshells\^
+above), the sequence is automatically reset to a different point.
 .TP
 .B
 .SM REPLY

@@ -2,7 +2,7 @@
 #                                                                      #
 #               This software is part of the ast package               #
 #          Copyright (c) 1982-2012 AT&T Intellectual Property          #
-#          Copyright (c) 2020-2023 Contributors to ksh 93u+m           #
+#          Copyright (c) 2020-2024 Contributors to ksh 93u+m           #
 #                      and is licensed under the                       #
 #                 Eclipse Public License, Version 2.0                  #
 #                                                                      #
@@ -994,6 +994,40 @@ got=$(set +x; eval 'got=$( ((y=1<<4)); echo $y )' 2>&1; echo $got) \
 function .sh.math.add x y { .sh.value=x+y; }
 got=$(PATH=/dev/null; typeset -i z; redirect 2>&1; z='add(2 , 3)'; echo $z)
 [[ e=$? -eq 0 && $got == '5' ]] || err_exit ".sh.math.* function parsing: got status $e and $(printf %q "$got")"
+
+# ======
+# arithmetic assignments should not trigger getn disciplines, but the return
+# value should still be cast to the type of the variable that is assigned to
+
+float x
+x.getn() { .sh.value=999.99; }
+let "(got = x = 1234.56) == 1234.56" || err_exit "arithmetic assignment triggers getn discipline (got $got)"
+let "(got = x) == 999.99" || err_exit "arithmetic comparison fails to trigger getn discipline (got $got)"
+unset x
+whence -q x.getn && err_exit "unset x fails to unset -f x.getn"
+
+(
+	ulimit -c 0  # fork
+	Errors=0
+	for sz in '' s l
+	do	typeset -${sz}i x=0
+		if	! let "(got = x = 123.95) == 123"
+		then	err_exit "arithmetic assignment does not return properly typecast value (-${sz}i, got $got)"
+		fi
+		typeset -${sz}F x=0
+		if	! let "(got = x = 123.95) == 123.95"
+		then	err_exit "arithmetic assignment does not return properly typecast value (-${sz}F, got $got)"
+		fi
+	done
+)
+if	let "(e = $?) > 128"
+then	err_exit "typeset crashed the shell (got status $e/SIG$(kill -l "$e"))"
+else	let "Errors += e"
+fi
+
+if	! let "(got = RANDOM = 123.95) == 123"
+then	err_exit "arithmetic assignment to RANDOM does not return typecast of assigned value (got $got)"
+fi
 
 # ======
 exit $((Errors<125?Errors:125))

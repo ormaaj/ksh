@@ -86,10 +86,10 @@ make install
 			exec -	exec >shopt.h
 			exec -	echo '/* Generated from ksh93/SHOPT.sh by ksh93/Mamfile */'
 			exec -	echo
-			exec -	echo '#include "FEATURE/options"'
-			exec -	echo
 			exec -	. "$PACKAGEROOT/src/cmd/ksh93/SHOPT.sh"
 			exec -	${STDCAT} <<-EOF
+			exec -		#include "FEATURE/options"
+			exec -
 			exec -		/* overrides */
 			exec -		#if SHOPT_SCRIPTONLY
 			exec -		#   undef SHOPT_ACCT
@@ -98,6 +98,9 @@ make install
 			exec -		#   undef SHOPT_HISTEXPAND
 			exec -		#   undef SHOPT_SYSRC
 			exec -		#   undef SHOPT_VSH
+			exec -		#endif
+			exec -		#if !_sys_acct
+			exec -		#   undef SHOPT_ACCT
 			exec -		#endif
 			exec -	EOF
 		done shopt.h generated
@@ -251,10 +254,6 @@ make install
 					done include/builtins.h
 					prev include/name.h
 					make include/path.h implicit
-						make FEATURE/acct implicit
-							prev Mamfile
-							exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : def acct
-						done FEATURE/acct generated
 						prev include/defs.h
 						prev include/nval.h
 					done include/path.h
@@ -539,21 +538,8 @@ make install
 			done whence.o generated
 			make main.o
 				make sh/main.c
-					prev execargs.h implicit dontcare virtual
 					prev nc.h implicit dontcare virtual
 					prev FEATURE/externs
-					make FEATURE/execargs implicit
-						prev Mamfile
-						exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : def execargs
-					done FEATURE/execargs generated
-					make FEATURE/pstat implicit
-						prev Mamfile
-						exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : def pstat
-					done FEATURE/pstat generated
-					make FEATURE/setproctitle implicit
-						prev Mamfile
-						exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : def setproctitle
-					done FEATURE/setproctitle generated
 					prev FEATURE/time
 					prev include/timeout.h implicit
 					prev include/history.h

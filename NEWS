@@ -8,9 +8,11 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   functions of a variable to be triggered when performing an assignment in
   an arithmetic expression; only the 'set' discipline is now triggered when
   assigning (as was always the documented behaviour). This applies to the
-  shell's internal disciplines as well. For example, seeding the $RANDOM
-  generator via an arithmetic expression assignment now no longer takes the
-  first value away from the reproducible pseudorandom sequence.
+  shell's internal disciplines as well. For example, $RANDOM is no longer
+  spuriously read from while seeding it via an arithmetic expression.
+
+- Fixed: assigning to LINENO, RANDOM, or _ via an arithmetic expression gave
+  undefined results on systems where sizeof(long double)!=sizeof(double).
 
 2024-01-16:
 

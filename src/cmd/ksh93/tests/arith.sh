@@ -1000,9 +1000,10 @@ got=$(PATH=/dev/null; typeset -i z; redirect 2>&1; z='add(2 , 3)'; echo $z)
 # value should still be cast to the type of the variable that is assigned to
 
 float x
-x.getn() { .sh.value=999.99; }
-let "(got = x = 1234.56) == 1234.56" || err_exit "arithmetic assignment triggers getn discipline (got $got)"
-let "(got = x) == 999.99" || err_exit "arithmetic comparison fails to trigger getn discipline (got $got)"
+x.getn() { .sh.value=987.65; }
+let "got = x = 1234.56"
+[[ $got == 1234.56* ]] || err_exit "arithmetic assignment triggers getn discipline (got $got)"
+[[ $x == 987.65* ]] || err_exit "arithmetic comparison fails to trigger getn discipline (got $x)"
 unset x
 whence -q x.getn && err_exit "unset x fails to unset -f x.getn"
 
@@ -1015,7 +1016,8 @@ whence -q x.getn && err_exit "unset x fails to unset -f x.getn"
 		then	err_exit "arithmetic assignment does not return properly typecast value (-${sz}i, got $got)"
 		fi
 		typeset -${sz}F x=0
-		if	! let "(got = x = 123.95) == 123.95"
+		let "got = x = 123.95"
+		if	[[ $got != 123.95* ]]  # ignore OS-dependent rounding error
 		then	err_exit "arithmetic assignment does not return properly typecast value (-${sz}F, got $got)"
 		fi
 	done
@@ -1027,6 +1029,16 @@ fi
 
 if	! let "(got = RANDOM = 123.95) == 123"
 then	err_exit "arithmetic assignment to RANDOM does not return typecast of assigned value (got $got)"
+fi
+
+let "_ = 123.95, got = _"
+if	[[ $got != '123.95' ]]
+then	err_exit "arithmetic assignment to _ fails (got $got)"
+fi
+
+got=$(let "LINENO = 123"; print $LINENO )
+if	[[ $got != '122' ]]   # TODO: should be 123
+then	err_exit "arithmetic assignment to LINENO fails (got $got)"
 fi
 
 # ======

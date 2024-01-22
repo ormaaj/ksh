@@ -571,9 +571,7 @@ char *nv_setdisc(Namval_t* np,const char *event,Namval_t *action,Namfun_t *fp)
 		else if(type==LOOKUPN)
 			dp->getnum = lookupn;
 		vp->disc[type] = action;
-#if SHOPT_OPTIMIZE
 		nv_optimize_clear(np);
-#endif
 	}
 	else
 	{

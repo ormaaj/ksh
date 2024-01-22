@@ -2080,8 +2080,6 @@ int sh_exec(const Shnode_t *t, int flags)
 			int  jmpval = ((struct checkpt*)sh.jmplist)->mode;
 			struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
 			void *optlist = sh.optlist;
-#endif /* SHOPT_OPTIMIZE */
-#if SHOPT_OPTIMIZE
 			sh.optlist = 0;
 			sh_tclear(t->wh.whtre);
 			sh_tclear(t->wh.dotre);

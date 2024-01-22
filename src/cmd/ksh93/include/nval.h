@@ -139,6 +139,11 @@ struct Namval
 #define NV_TABLE	0x800	/* node is a dictionary table */
 #define NV_IMPORT	0x1000	/* value imported from environment */
 #define NV_MINIMAL	NV_IMPORT	/* node does not contain all fields */
+#if SHOPT_OPTIMIZE
+#define NV_NOOPTIMIZE	NV_TABLE	/* disable loop invariants optimizer */
+#else
+#define NV_NOOPTIMIZE	0
+#endif
 
 #define NV_INTEGER	0x2	/* integer attribute */
 /* The following attributes are valid only when NV_INTEGER is off */

@@ -757,4 +757,18 @@ got=$("$SHELL" -c 'nameref unsetref; unsetref[1]=bar' 2>&1)
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 
 # ======
+# https://github.com/ksh93/ksh/issues/704
+# test backported from ksh 93v- 2013-02-14
+unset one bar baz arr val vv
+one=1 bar=2 baz=3
+arr=(one bar baz)
+nameref vv
+val=$(
+	for vv in "${arr[@]}"
+	do	print -n -- "$vv"
+	done
+)
+[[ $val == 123 ]] || err_exit 'optimization bug with for loops with references'
+
+# ======
 exit $((Errors<125?Errors:125))

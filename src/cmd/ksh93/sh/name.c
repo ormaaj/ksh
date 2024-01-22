@@ -912,7 +912,7 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
 #if NVCACHE
 				nvcache.ok = 0;
 #endif
-				if(c=='.') /* don't optimize */
+				if(nv_isattr(np,NV_NOOPTIMIZE) || c=='.') /* don't optimize */
 					sh.argaddr = 0;
 				else if((flags&NV_NOREF) && (c!='[' && *cp!='.'))
 				{

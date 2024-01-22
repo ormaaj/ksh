@@ -2014,12 +2014,15 @@ int sh_exec(const Shnode_t *t, int flags)
 					}
 				}
 				if(nameref)
-					nv_offattr(np,NV_REF);
+					nv_offattr(np,NV_REF|NV_NOOPTIMIZE);
 				else if(nv_isattr(np, NV_ARRAY))
 					nv_putsub(np,NULL,0L);
 				nv_putval(np,cp,0);
 				if(nameref)
+				{
 					nv_setref(np,NULL,NV_VARNAME);
+					nv_onattr(np,NV_NOOPTIMIZE);
+				}
 				if(trap=sh.st.trap[SH_DEBUGTRAP])
 				{
 					av[0] = (t->tre.tretyp&COMSCAN)?"select":"for";
@@ -2043,6 +2046,8 @@ int sh_exec(const Shnode_t *t, int flags)
 				if(sh.st.breakcnt<0)
 					sh.st.breakcnt++;
 			}
+			if(nameref)
+				nv_offattr(np,NV_NOOPTIMIZE);
 #if SHOPT_OPTIMIZE
 		endfor:
 			sh_popcontext(buffp);

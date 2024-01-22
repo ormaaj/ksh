@@ -440,12 +440,6 @@ static int p_switch(struct regnod *reg)
 	}
 	return n;
 }
-#   define OPTIMIZE_FLAG	(ARG_OPTIMIZE)
-#   define OPTIMIZE		(flags&OPTIMIZE_FLAG)
-#else
-#   define OPTIMIZE_FLAG	(0)
-#   define OPTIMIZE		(0)
-#   define sh_tclear(x)
 #endif /* SHOPT_OPTIMIZE */
 
 static void out_pattern(Sfio_t *iop, const char *cp, int n)
@@ -860,7 +854,7 @@ int sh_exec(const Shnode_t *t, int flags)
 	{
 		int 		type = t->tre.tretyp;
 		char		*com0 = 0;
-		int 		errorflg = (flags&sh_state(SH_ERREXIT))|OPTIMIZE;
+		int 		errorflg = (flags&sh_state(SH_ERREXIT))|(flags & ARG_OPTIMIZE);
 		int 		execflg = (flags&sh_state(SH_NOFORK));
 		int 		execflg2 = (flags&sh_state(SH_FORKED));
 		int 		mainloop = (flags&sh_state(SH_INTERACTIVE));
@@ -907,7 +901,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			type &= (COMMSK|COMSCAN);
 			sh_stats(STAT_SCMDS);
 			error_info.line = t->com.comline-sh.st.firstline;
-			com = sh_argbuild(&argn,&(t->com),OPTIMIZE);
+			com = sh_argbuild(&argn,&(t->com),flags & ARG_OPTIMIZE);
 			echeck = 1;
 			if(t->tre.tretyp&COMSCAN)
 			{
@@ -1216,7 +1210,7 @@ int sh_exec(const Shnode_t *t, int flags)
 						bp->data = t->com.comstate;
 						bp->sigset = 0;
 						bp->notify = 0;
-						bp->flags = (OPTIMIZE!=0);
+						bp->flags = ((flags & ARG_OPTIMIZE)!=0);
 						if(sh.subshell && nv_isattr(np,BLT_NOSFIO))
 							sh_subtmpfile();
 						if(argn)
@@ -1379,7 +1373,7 @@ int sh_exec(const Shnode_t *t, int flags)
 						}
 						namespace = enter_namespace(namespace);
 #endif /* SHOPT_NAMESPACE */
-						sh_funct(np,argn,com,t->com.comset,(flags&~OPTIMIZE_FLAG));
+						sh_funct(np,argn,com,t->com.comset,(flags&~ARG_OPTIMIZE));
 					}
 #if SHOPT_NAMESPACE
 					enter_namespace(namespace);
@@ -1748,7 +1742,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		     */
 		    case TPAR:
 			echeck = 1;
-			flags &= ~OPTIMIZE_FLAG;
+			flags &= ~ARG_OPTIMIZE;
 			if(!sh.subshell && !sh.st.trapdontexec && (flags&sh_state(SH_NOFORK)))
 			{
 				/* This is the last command, so avoid creating a subshell */
@@ -1900,7 +1894,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		    {
 			do
 			{
-				sh_exec(t->lst.lstlef,errorflg|OPTIMIZE);
+				sh_exec(t->lst.lstlef,errorflg|(flags & ARG_OPTIMIZE));
 				t = t->lst.lstrit;
 			}
 			while(t->tre.tretyp == TLST);
@@ -1914,7 +1908,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		    case TAND:
 			if(type&TTEST)
 				skipexitset++;
-			if(sh_exec(t->lst.lstlef,OPTIMIZE)==0)
+			if(sh_exec(t->lst.lstlef, flags & ARG_OPTIMIZE)==0)
 				sh_exec(t->lst.lstrit,flags);
 			break;
 
@@ -1924,7 +1918,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		    case TORF:
 			if(type&TTEST)
 				skipexitset++;
-			if(sh_exec(t->lst.lstlef,OPTIMIZE)!=0)
+			if(sh_exec(t->lst.lstlef, flags & ARG_OPTIMIZE)!=0)
 				sh_exec(t->lst.lstrit,flags);
 			break;
 
@@ -1936,7 +1930,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			char **args;
 			int nargs;
 			Namval_t *np;
-			int flag = errorflg|OPTIMIZE_FLAG;
+			int flag = errorflg|ARG_OPTIMIZE;
 			struct dolnod	*argsav = NULL;
 			struct comnod	*tp;
 			char *cp, *trap, *null_pointer = NULL;
@@ -2033,7 +2027,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					sh_debug(trap,NULL,NULL,av,0);
 				}
 				sh_exec(t->for_.fortre,flag);
-				flag &= ~OPTIMIZE_FLAG;
+				flag &= ~ARG_OPTIMIZE;
 				if(t->tre.tretyp&COMSCAN)
 				{
 					if((cp=nv_getval(sh_scoped(REPLYNOD))) && *cp==0)
@@ -2070,7 +2064,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		    case TWH:
 		    {
 			volatile int 	r=0;
-			int first = OPTIMIZE_FLAG;
+			int first = ARG_OPTIMIZE;
 			Shnode_t *tt = t->wh.whtre;
 #if SHOPT_FILESCAN
 			Sfio_t *iop=0;
@@ -2123,7 +2117,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				if(sh.st.breakcnt==0 && t->wh.whinc)
 					sh_exec((Shnode_t*)t->wh.whinc,first);
 				first = 0;
-				errorflg &= ~OPTIMIZE_FLAG;
+				errorflg &= ~ARG_OPTIMIZE;
 #if SHOPT_FILESCAN
 				sh.offsets[0] = -1;
 				sh.offsets[1] = 0;
@@ -2167,7 +2161,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			error_info.line = t->ar.arline-sh.st.firstline;
 			arg[0] = "((";
 			if(!(t->ar.arexpr->argflag&ARG_RAW))
-				arg[1] = sh_macpat(t->ar.arexpr,OPTIMIZE|ARG_ARITH);
+				arg[1] = sh_macpat(t->ar.arexpr,(flags & ARG_OPTIMIZE)|ARG_ARITH);
 			else
 				arg[1] = t->ar.arexpr->argval;
 			arg[2] = "))";
@@ -2190,7 +2184,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		     * Conditional block: if ... fi
 		     */
 		    case TIF:
-			if(sh_exec(t->if_.iftre,OPTIMIZE)==0)
+			if(sh_exec(t->if_.iftre, flags & ARG_OPTIMIZE)==0)
 				sh_exec(t->if_.thtre,flags);
 			else if(t->if_.eltre)
 				sh_exec(t->if_.eltre, flags);
@@ -2204,7 +2198,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		    case TSW:
 		    {
 			const int eflag = flags & sh_state(SH_ERREXIT);
-			char *r = sh_macpat(t->sw.swarg,OPTIMIZE);
+			char *r = sh_macpat(t->sw.swarg, flags & ARG_OPTIMIZE);
 			error_info.line = t->sw.swline - sh.st.firstline;
 			if(sh.st.trap[SH_DEBUGTRAP])
 			{
@@ -2224,7 +2218,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					const unsigned char raw = rex->argflag & ARG_RAW;
 					char *s;
 					if(rex->argflag&ARG_MAC)
-						s = sh_macpat(rex,OPTIMIZE|ARG_EXP);
+						s = sh_macpat(rex,(flags & ARG_OPTIMIZE)|ARG_EXP);
 					else
 						s = rex->argval;
 					if(raw && strcmp(r,s)==0 || !raw && strmatch(r,s))
@@ -2259,7 +2253,7 @@ int sh_exec(const Shnode_t *t, int flags)
 #endif
 			if(type!=TTIME)
 			{
-				sh_exec(t->par.partre,OPTIMIZE);
+				sh_exec(t->par.partre, flags & ARG_OPTIMIZE);
 				sh.exitval = !sh.exitval;
 				break;
 			}
@@ -2279,7 +2273,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				}
 #endif
 				sh_onstate(SH_TIMING);
-				sh_exec(t->par.partre,sh_isstate(SH_ERREXIT)|OPTIMIZE);
+				sh_exec(t->par.partre,sh_isstate(SH_ERREXIT)|(flags & ARG_OPTIMIZE));
 				if(!timer_on)
 					sh_offstate(SH_TIMING);
 			}
@@ -2529,7 +2523,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			echeck = 1;
 			if((type&TPAREN)==TPAREN)
 			{
-				sh_exec(t->lst.lstlef,OPTIMIZE);
+				sh_exec(t->lst.lstlef, flags & ARG_OPTIMIZE);
 				n = !sh.exitval;
 			}
 			else
@@ -2539,9 +2533,9 @@ int sh_exec(const Shnode_t *t, int flags)
 				char *trap;
 				char *argv[6];
 				n = type>>TSHIFT;
-				left = sh_macpat(&(t->lst.lstlef->arg),OPTIMIZE);
+				left = sh_macpat(&(t->lst.lstlef->arg), flags & ARG_OPTIMIZE);
 				if(type&TBINARY)
-					right = sh_macpat(&(t->lst.lstrit->arg),((n==TEST_PEQ||n==TEST_PNE)?ARG_EXP:0)|OPTIMIZE);
+					right = sh_macpat(&(t->lst.lstrit->arg),((n==TEST_PEQ||n==TEST_PNE)?ARG_EXP:0)|(flags & ARG_OPTIMIZE));
 				if(trap=sh.st.trap[SH_DEBUGTRAP])
 					argv[0] = (type&TNEGATE)?((char*)e_tstbegin):"[[";
 				if(sh_isoption(SH_XTRACE))
@@ -2628,7 +2622,7 @@ int sh_exec(const Shnode_t *t, int flags)
 		}
 		if(!skipexitset)
 			exitset();
-		if(!(OPTIMIZE))
+		if(!(flags & ARG_OPTIMIZE))
 		{
 			if(sav != stkptr(sh.stk,0))
 				stkset(sh.stk,sav,0);

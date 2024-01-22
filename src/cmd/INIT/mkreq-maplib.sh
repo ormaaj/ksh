@@ -63,7 +63,6 @@ do	# for each lib name also add '-'
 done
 
 # Setup.
-set -o noglob
 trap 'set +o noglob; rm -rf "$req".exe*' 0
 
 ######### Main ##########

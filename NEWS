@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-01-23:
+
+- Fixed a rare crash or rare incorrect behaviour in .sh.tilde.{get,set}
+  discipline functions for ~ expansion (see 2021-03-16 below).
+
 2024-01-22:
 
 - Fixed a bug in the loop invariants optimizer (SHOPT_OPTIMIZE) that caused

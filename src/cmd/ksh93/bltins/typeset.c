@@ -249,7 +249,7 @@ int    b_typeset(int argc,char *argv[],Shbltin_t *context)
 			new_argv[1] = "-n";
 		else
 		{
-			errormsg(SH_DICT, ERROR_exit(128), "internal error");
+			errormsg(SH_DICT, ERROR_PANIC, e_internal);
 			UNREACHABLE();
 		}
 		for (n = 1; n <= argc; n++)

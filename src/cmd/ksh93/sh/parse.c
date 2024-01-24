@@ -164,6 +164,15 @@ static void typeset_order(const char *str,int line)
 	}
 }
 
+static int b_dummy(int argc, char *argv[], Shbltin_t *context)
+{
+	NOT_USED(argc);
+	NOT_USED(argv[0]);
+	NOT_USED(context);
+	errormsg(SH_DICT,ERROR_PANIC,e_internal);
+	UNREACHABLE();
+}
+
 /*
  * This function handles linting for 'typeset' options via typeset_order().
  *
@@ -233,7 +242,7 @@ static void check_typedef(struct comnod *tp, char intypeset)
 			dcl_tree = dtopen(&_Nvdisc, Dtoset);
 			dtview(sh.bltin_tree, dcl_tree);
 		}
-		nv_onattr(sh_addbuiltin(cp, b_true, NULL), NV_BLTIN|BLT_DCL);
+		nv_onattr(sh_addbuiltin(cp, b_dummy, NULL), NV_BLTIN|BLT_DCL);
 	}
 }
 /*

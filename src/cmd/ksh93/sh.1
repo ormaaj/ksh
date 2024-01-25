@@ -1104,9 +1104,6 @@ The attributes supported by the shell are described
 later with the
 .B typeset\^
 special built-in command.
-Exported variables pass their attributes to the environment so that a newly
-invoked ksh that is a child or exec'd process of the current shell will
-automatically import them, unless the \fBposix\fR shell option is on.
 .PP
 The shell supports both indexed and associative arrays.
 An element of an array variable is referenced by a
@@ -3960,6 +3957,15 @@ which must be noted in
 or
 .B typeset \-x
 commands.
+.PP
+Exported variables pass their attributes though the environment so that a
+newly invoked ksh that is a child or exec'd process of the current shell
+will automatically import them, unless the \fBposix\fR shell option is on.
+As of ksh 93u+m/1.0, this never includes the
+.B readonly
+attribute.
+Passing attributes through the environment is deprecated
+and this feature will be removed in ksh 93u+m/1.1.
 .PP
 The environment for any
 .I simple-command\^

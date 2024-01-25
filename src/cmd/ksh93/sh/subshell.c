@@ -88,9 +88,9 @@ static struct subshell
 	int		cpipe;
 	char		subshare;
 	char		comsub;
-	unsigned int	rand_seed;  /* parent shell $RANDOM seed */
-	int		rand_last;  /* last random number from $RANDOM in parent shell */
-	int		rand_state; /* 0 means sp->rand_seed hasn't been set, 1 is the opposite */
+	unsigned int	rand_seed;          /* parent shell $RANDOM seed */
+	int		rand_last;          /* last random number from $RANDOM in parent shell */
+	int		rand_state;         /* 0 means sp->rand_seed hasn't been set, 1 is the opposite */
 #if _lib_fchdir
 	int		pwdfd;	/* file descriptor for PWD */
 	char		pwdclose;

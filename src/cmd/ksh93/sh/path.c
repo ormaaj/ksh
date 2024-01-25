@@ -800,7 +800,7 @@ Pathcomp_t *path_absolute(const char *name, Pathcomp_t *pp, int flag)
 					np->nvenv = dll;
 					goto found;
 				}
-				if(*stkptr(sh.stk,PATH_OFFSET)=='/' && nv_search(stkptr(sh.stk,PATH_OFFSET),sh.bltin_tree,0))
+				if(!sh_isstate(SH_XARG) && *stkptr(sh.stk,PATH_OFFSET)=='/' && nv_search(stkptr(sh.stk,PATH_OFFSET),sh.bltin_tree,0))
 					goto found;
 				if(fp)
 					free(fp);

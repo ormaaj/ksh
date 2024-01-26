@@ -1141,7 +1141,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					pipejob = 1;
 				}
 				/* check for builtins */
-				if(np && is_abuiltin(np) && !sh_isstate(SH_XARG))
+				if(np && is_abuiltin(np))
 				{
 					volatile char scope=0, share=0, was_mktype=(sh.mktype!=NULL);
 					volatile void *save_ptr;

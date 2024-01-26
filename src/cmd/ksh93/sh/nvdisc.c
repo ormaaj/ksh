@@ -992,6 +992,9 @@ Namval_t *nv_search(const char *name, Dt_t *root, int mode)
 {
 	Namval_t *np;
 	Dt_t *dp = 0;
+	/* do not find builtins when using 'command -x' */
+	if(!(mode&NV_ADD) && sh_isstate(SH_XARG) && (root==sh.bltin_tree || root==sh.fun_tree))
+		return NULL;
 	if(mode&NV_NOSCOPE)
 		dp = dtview(root,0);
 	if(mode&NV_REF)

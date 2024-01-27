@@ -225,7 +225,7 @@ int    b_typeset(int argc,char *argv[],Shbltin_t *context)
 
 	memset(&tdata,0,sizeof(tdata));
 	troot = sh.var_tree;
-	if(ntp)					/* custom declaration command added using enum */
+	if(ntp)					/* type declaration command added using 'typeset -T' or 'enum' */
 	{
 		tdata.tp = ntp->tp;
 		opt_info.disc = (Optdisc_t*)ntp->optinfof;

@@ -21,8 +21,16 @@
 
 . "${SHTESTS_COMMON:-${0%/*}/_common}"
 
-integer hasposix=0
-(set -o posix) 2>/dev/null && ((hasposix++))	# not using [[ -o ?posix ]] as it's broken on 93v-
+enum bool=(false true)
+
+bool HAVE_signbit=false
+if	typeset -f .sh.math.signbit >/dev/null && (( signbit(-NaN) ))
+then	HAVE_signbit=true
+else	warning "-lm does not support signbit(-NaN)"
+fi
+
+bool HAVE_posix=false
+(set -o posix) 2>/dev/null && HAVE_posix=true	# not using [[ -o ?posix ]] as it's broken on 93v-
 
 trap '' FPE # NOTE: osf.alpha requires this (no ieee math)
 
@@ -351,7 +359,7 @@ unset x
 x=010
 (( x == 10 )) || err_exit 'leading zeros in x treated as octal arithmetic with ((x))'
 (( $x == 10 )) || err_exit 'leading zeros in x treated as octal arithmetic with (($x))'
-if	((hasposix))
+if	((HAVE_posix))
 then	set --posix
 	((x == 8)) || err_exit 'posix: leading zeros in x not treated as octal arithmetic with ((x))'
 	(($x == 8)) || err_exit 'posix: leading zeros in x not treated as octal arithmetic with (($x))'
@@ -454,8 +462,8 @@ then	set \
 		Inf		inf	\
 		-Inf		-inf	\
 		Nan		nan	\
-		-Nan		-nan	\
 		1.0/0.0		inf
+	((HAVE_signbit)) && set -- "$@" -Nan -nan
 	while	(( $# >= 2 ))
 	do	x=$(printf "%g\n" $(($1)))
 		[[ $x == $2 ]] || err_exit "printf '%g\\n' \$(($1)) failed -- expected $2, got $x"
@@ -746,7 +754,7 @@ print -- -020 | read x
 ((x == -20)) || err_exit 'numbers with leading -0 treated as octal outside ((...))'
 print -- -8#20 | read x
 ((x == -16)) || err_exit 'numbers with leading -8# should be treated as octal'
-if	((hasposix))
+if	((HAVE_posix))
 then	set --posix
 	(($r == 16)) || err_exit 'posix: leading 0 not treated as octal inside ((...))'
 	x=$(($r))
@@ -772,7 +780,7 @@ let "$x==10" || err_exit 'arithmetic with $x where $x is 010 should be decimal i
 x010=99
 ((x$x == 99 )) || err_exit 'arithmetic with x$x where x=010 should be $x010'
 (( 3+$x == 13 )) || err_exit '3+$x where x=010 should be 13 in ((...))'
-if	((hasposix))
+if	((HAVE_posix))
 then	set --posix
 	(( 3+$x == 11 )) || err_exit 'posix: 3+$x where x=010 should be 11 in ((...))'
 	set --noposix
@@ -904,7 +912,7 @@ unset got
 
 # ======
 # https://github.com/ksh93/ksh/issues/326
-((hasposix)) && for m in u d i o x X
+((HAVE_posix)) && for m in u d i o x X
 do
 	set --posix
 	case $m in
@@ -923,7 +931,7 @@ done
 # BUG_ARITHNAN: In ksh <= 93u+m 2021-11-15 and zsh 5.6 - 5.8, the case-insensitive
 # floating point constants Inf and NaN are recognised in arithmetic evaluation,
 # overriding any variables with the names Inf, NaN, INF, nan, etc.
-if	((hasposix))
+if	((HAVE_posix))
 then	set --posix
 	Inf=42 NaN=13
 	inf=421 nan=137

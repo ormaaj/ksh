@@ -19,10 +19,11 @@
 
 . "${SHTESTS_COMMON:-${0%/*}/_common}"
 
-typeset -is HAVE_signbit=0
+enum bool=(false true)
+bool HAVE_signbit=false
 
 if	typeset -f .sh.math.signbit >/dev/null && (( signbit(-NaN) ))
-then	HAVE_signbit=1
+then	HAVE_signbit=true
 else	warning "-lm does not support signbit(-NaN)"
 fi
 

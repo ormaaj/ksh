@@ -1757,7 +1757,7 @@ make(Rule_t* r)
 		case KEY('d','o','n','e'):
 			q = rule(expand(buf, t));
 			if (q != r && t[0] != '$')
-				report(2, "improper done statement", t, 0);
+				report(3, "improper done statement", t, 0);
 			attributes(r, v);
 			if (cmd && state.active && (state.force || r->time < z || !r->time && !z))
 			{

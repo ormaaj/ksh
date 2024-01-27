@@ -43,16 +43,6 @@ make install
 		exec - ${STDCP} crossexec.sh crossexec
 		exec - test -w crossexec -a -x crossexec || ${STDCHMOD} u+w,+x crossexec
 	done crossexec generated
-	make mamake
-		make mamake.o
-			make mamake.c
-				prev shlib-compat.h implicit dontcare virtual
-				prev ast.h implicit dontcare virtual
-			done mamake.c
-			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -c mamake.c
-		done mamake.o generated
-		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} -o mamake mamake.o
-	done mamake generated
 	make mkreq
 		prev mkreq.sh
 		exec - ${STDCP} mkreq.sh mkreq
@@ -111,12 +101,6 @@ make install
 		prev crossexec
 		exec - ${STDCP} -f crossexec ${INSTALLROOT}/bin/crossexec
 	done ${INSTALLROOT}/bin/crossexec generated
-	make ${INSTALLROOT}/bin/mamake
-		prev mamake
-		note * macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
-		exec - ${STDRM} -f ${INSTALLROOT}/bin/mamake &&
-		exec - ${STDCP} mamake ${INSTALLROOT}/bin/mamake
-	done ${INSTALLROOT}/bin/mamake generated
 	make ${INSTALLROOT}/bin/proto
 		note *
 		note * proto(1) has been removed, but install a backward compatibility stub
@@ -410,7 +394,7 @@ done install virtual
 make test
 	make test.iffe
 		prev iffe.tst
-		exec - exec "$SHELL" "$INSTALLROOT/bin/regress" iffe.tst iffe
+		exec - regress iffe.tst iffe
 	done test.iffe virtual
 	make test.mamake
 		make mamake.tst
@@ -419,6 +403,7 @@ make test
 			exec - then "$SHELL" "$INSTALLROOT/bin/mktest" --style=regress mamake.rt > mamake.tst
 			exec - fi
 		done mamake.tst generated
-		exec - exec "$SHELL" "$INSTALLROOT/bin/regress" mamake.tst mamake
+		exec - : testing mamake as built by package.sh :
+		exec - regress mamake.tst mamake
 	done test.mamake virtual
 done test dontcare virtual

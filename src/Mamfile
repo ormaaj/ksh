@@ -7,6 +7,9 @@ note * indentation to improve readability. The language is documented in
 note * src/cmd/INIT/README-mamake.md.
 note *
 make test
+	make test_announce
+		exec - : testing KornShell $KSH_VERSION :
+	done test_announce virtual
 	make install
 		make all
 			exec - ${MAMAKE} -r '*/*' ${MAMAKEARGS}

@@ -4985,6 +4985,36 @@ make install
 		prev releaseflags.h
 		exec - ${STDCP} -f releaseflags.h ${INSTALLROOT}/include/ast/releaseflags.h
 	done ${INSTALLROOT}/include/ast/releaseflags.h generated
+	note *
+	note * mamake was previously built by package.sh without libast;
+	note * now rebuild it with libast, so we get 'mamake --man', etc.
+	note *
+	make mamake
+		make mamake.o
+			make ${PACKAGEROOT}/src/cmd/INIT/mamake.c
+				prev ${INSTALLROOT}/include/ast/error.h
+				prev ${INSTALLROOT}/include/ast/ast.h
+			done ${PACKAGEROOT}/src/cmd/INIT/mamake.c
+			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I${INSTALLROOT}/include/ast -D_PACKAGE_ast -c ${PACKAGEROOT}/src/cmd/INIT/mamake.c
+		done mamake.o generated
+		bind -last
+		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L${INSTALLROOT}/lib} -o mamake mamake.o ${mam_libast}
+		note *
+		note * We purposely do not have a make target of ${INSTALLROOT}/bin/mamake here;
+		note * this helps to ensure that the package.sh-built version gets overwritten.
+		note *
+		note * macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
+		exec - ${STDRM} -rf ${INSTALLROOT}/bin/mamake ${INSTALLROOT}/bin/mamake.*
+		exec - ${STDCP} mamake ${INSTALLROOT}/bin/mamake
+	done mamake generated
 done install virtual
 make test
+	make test.mamake
+		make mamake.tst
+			prev ${PACKAGEROOT}/src/cmd/INIT/mamake.rt
+			exec - mktest --style=regress ${PACKAGEROOT}/src/cmd/INIT/mamake.rt > mamake.tst
+		done mamake.tst generated
+		exec - : testing the libast rebuild of mamake :
+		exec - regress mamake.tst mamake
+	done test.mamake virtual
 done test dontcare virtual

@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-01-19"
+#define RELEASE_DATE "2024-01-27"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -181,6 +181,7 @@ static const char usage[] =
 #define RULE_implicit	0x0040		/* implicit prerequisite	*/
 #define RULE_made	0x0080		/* already made			*/
 #define RULE_virtual	0x0100		/* not a file			*/
+#define RULE_notrace	0x0200		/* do not xtrace shell action	*/
 
 #define STREAM_KEEP	0x0001		/* don't fclose() on pop()	*/
 #define STREAM_MUST	0x0002		/* push() file must exist	*/
@@ -1271,6 +1272,7 @@ run(Rule_t* r, char* s)
 	else
 		x = state.exec;
 	if (x)
+	{
 		append(buf,
 			/* stub for nmake's silent prefix (for backward compat) */
 			"silent()\n"
@@ -1293,9 +1295,11 @@ run(Rule_t* r, char* s)
 			".:*)	;;\n"
 			"*)	PATH=.:$PATH;;\n"
 			"esac\n"
-			/* show trace for the shell action commands */
-			"set -x\n"
 		);
+		/* show trace for the shell action commands */
+		if (!(r->flags & RULE_notrace))
+			append(buf,"set -x\n");
+	}
 	if (state.view)
 	{
 		do
@@ -1527,6 +1531,10 @@ attributes(Rule_t* r, char* s)
 		case 'j':
 			if (n == 5 && !strncmp(t, "joint", n))
 				flag = -1;	/* ignore (not implemented) */
+			break;
+		case 'n':
+			if (n == 7 && !strncmp(t, "notrace", n))
+				flag = RULE_notrace;
 			break;
 		}
 		if(flag > 0)

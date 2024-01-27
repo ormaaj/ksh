@@ -18,8 +18,7 @@ setv IFFEFLAGS
 setv LDFLAGS
 make install
 	make ast
-		make _always_generate_releaseflags.h
-			exec -	set +v +x  # reduce log noise
+		make _always_generate_releaseflags.h notrace virtual
 			exec -	git_commit=$(git rev-parse --short=8 HEAD 2>/dev/null)
 			exec -	case $?,$git_commit in
 			exec -	0,[0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z])
@@ -63,7 +62,7 @@ make install
 			exec -	then	${STDRM} -f releaseflags.h.new
 			exec -	else	${STDMV} -f releaseflags.h.new releaseflags.h
 			exec -	fi
-		done _always_generate_releaseflags.h virtual
+		done _always_generate_releaseflags.h
 		make libast.a archive
 			make ast.req
 				make ast_standards.h implicit

@@ -29,7 +29,7 @@ make install
 			prev ${INSTALLROOT}/bin/mkreq
 			exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} : ${LDFLAGS} : shell dll cmd ast m jobs i socket nsl secdb network
 		done shell.req generated
-		make shopt.h implicit
+		make shopt.h notrace implicit
 			make FEATURE/options implicit
 				prev features/options
 				prev shell.req
@@ -37,9 +37,9 @@ make install
 			done FEATURE/options generated
 			prev SHOPT.sh
 			prev Mamfile
+			note *
 			note * the SHOPT.sh file calls the SHOPT function once for each option
-			exec -	set +v +x  # reduce log noise
-			exec -
+			note *
 			exec -	writedef()
 			exec -	{
 			exec -		echo "${3:-#ifndef SHOPT_$1}"
@@ -1279,6 +1279,11 @@ make install
 		prev fun/pushd
 		exec - ${STDCP} -f fun/pushd ${INSTALLROOT}/fun/pushd && ${STDCHMOD} ugo+x ${INSTALLROOT}/fun/pushd
 	done ${INSTALLROOT}/fun/pushd generated
+	make announce_build_done notrace virtual
+		prev ksh
+		exec - ksh -c 'print \# KornShell $KSH_VERSION '
+		exec - echo "# Type 'bin/package use' to try it out"
+	done announce_build_done
 done install virtual
 make test
 	make test.ksh

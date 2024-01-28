@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-01-27"
+#define RELEASE_DATE "2024-01-28"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -617,7 +617,10 @@ search(Dict_t* dict, char* name, void* value)
 static int
 strict(void)
 {
-	return search(state.vars, "MAMAKE_STRICT", NULL) != NULL;
+	static int found = -1;
+	if(found < 0)
+		found = search(state.vars, "MAMAKE_STRICT", NULL) != NULL;
+	return found;
 }
 
 /*
@@ -1756,8 +1759,10 @@ make(Rule_t* r)
 			continue;
 		case KEY('d','o','n','e'):
 			q = rule(expand(buf, t));
-			if (q != r && t[0] != '$')
+			if (q != r && (t[0] != '$' || strict()))
 				report(3, "improper done statement", t, 0);
+			if(*v && strict())
+				report(1, v, "done: attributes are deprecated here, please move them to 'make'", 0);
 			attributes(r, v);
 			if (cmd && state.active && (state.force || r->time < z || !r->time && !z))
 			{
@@ -1825,7 +1830,7 @@ make(Rule_t* r)
 				}
 			}
 			else if (*v)
-				report(3, v, "superfluous attributes", 0);
+				report(3, v, "prev: superfluous attributes", 0);
 			if (!q->making)
 			{
 				if (!(q->flags & RULE_ignore) && z < q->time)

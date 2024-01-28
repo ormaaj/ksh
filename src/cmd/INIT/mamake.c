@@ -1276,24 +1276,14 @@ run(Rule_t* r, char* s)
 		x = state.exec;
 	if (x)
 	{
+		/* stubs for backward compat */
+		if(!strict())
+			append(buf,
+				"alias silent=\n"
+				"ignore() { env \"$@\" || :; }\n"
+			);
+		/* find commands in the current working directory first */
 		append(buf,
-			/* stub for nmake's silent prefix (for backward compat) */
-			"silent()\n"
-			"(\n"
-				"while	test \"$#\" -gt 0\n"
-				"do	case $1 in\n"
-					"*=*)	export \"$1\"; shift;;\n"
-					"*)	break;;\n"
-					"esac\n"
-				"done\n"
-				"\"$@\"\n"
-			")\n"
-			/* stub for nmake's ignore prefix (for backward compat) */
-			"ignore()\n"
-			"{\n"
-				"silent \"$@\" || :\n"  /* always return status 0 */
-			"}\n"
-			/* find commands in the current working directory first */
 			"case $PATH in\n"
 			".:*)	;;\n"
 			"*)	PATH=.:$PATH;;\n"

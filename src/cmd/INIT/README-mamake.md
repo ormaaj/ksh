@@ -33,6 +33,8 @@ ksh 93u+m made a few changes to `mamake` that make it easier to maintain Mamfile
 * Indentation and word separators may use any whitespace (e.g. tabs), not only spaces.
 * Unrecognized commands and rule attributes throw an error instead of being silently ignored.
 * Fixed some crashing bugs and memory leaks.
+* The `silent` and `ignore` command prefixes for shell actions are processed internally
+  for backward compatibility, unless the `MAMAKE_STRICT` variable is set.
 * The `prev` command may now be used without a prior `make`...`done` to declare a simple
   prerequisite, provided the `MAMAKE_STRICT` variable is set.
 * The `notrace` attribute was added to disable xtrace for a rule's shell action.

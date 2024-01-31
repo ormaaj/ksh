@@ -1787,7 +1787,8 @@ static Namfun_t	 stat_child_fun =
 static void stat_init(void)
 {
 	int		i,nstat = STAT_SUBSHELL+1;
-	struct Stats	*sp = sh_newof(0,struct Stats,1,nstat*NV_MINSZ);
+	size_t		extrasize = nstat*(sizeof(int)+NV_MINSZ);
+	struct Stats	*sp = sh_newof(0,struct Stats,1,extrasize);
 	Namval_t	*np;
 	sp->numnodes = nstat;
 	sp->nodes = (char*)(sp+1);
@@ -1801,7 +1802,7 @@ static void stat_init(void)
 		nv_setsize(np,10);
 		np->nvalue.ip = &sh.stats[i];
 	}
-	sp->hdr.dsize = sizeof(struct Stats) + nstat*(sizeof(int)+NV_MINSZ);
+	sp->hdr.dsize = sizeof(struct Stats) + extrasize;
 	sp->hdr.disc = &stat_disc;
 	nv_stack(SH_STATS,&sp->hdr);
 	sp->hdr.nofree = 1;

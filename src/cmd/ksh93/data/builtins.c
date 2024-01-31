@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1685,6 +1685,7 @@ const char sh_optksh[] =
 		"was found on \bPATH\b but was not executable.]"
 	"[+127?\b-c\b and \b-s\b were not specified and the command script "
 		"corresponding to \aarg\a could not be found.]"
+	"[+128?An unrecoverable system or internal error occurred.]"
 "}"
 
 "[+SEE ALSO?\bset\b(1), \bbuiltin\b(1)]"

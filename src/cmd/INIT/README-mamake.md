@@ -203,8 +203,8 @@ The effect of `bind` is global, not scoped; it takes effect for all commands
 physically following it, regardless of `make`…`done` nesting level.
 
 There is also a mechanism to communicate library dependency information across Mamfiles and `mamake` invocations.
-If a file named *libraryname* in the current directory
-or an `${INSTALLROOT}/lib/lib/`*libraryname*`.req` file
+If a file named *libraryname*`.req` in the current directory
+or an `${INSTALLROOT}/lib/lib/`*libraryname* file
 exists, `mamake` processes each of the words in the form `-l`*libraryname* in its contents
 as if they were arguments to `bind` commands
 and the resulting values are appended to the value of `mam_lib`*libraryname*

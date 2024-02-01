@@ -272,6 +272,7 @@ make install virtual
 				note * generate initial ast.req
 				note *
 				prev ${INSTALLROOT}/bin/mkreq
+				exec - set -o errexit
 				exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} : ${LDFLAGS} : ast iconv w
 				note *
 				note * some systems move -lc routines to -lm; see astmath.c for details
@@ -281,13 +282,15 @@ make install virtual
 						prev std/endian.h
 					done port/astmath.c
 					exec - X=1
-					exec - for N in 1 2 3 4 5 6 8
+					exec - for N in 1 2 3 4 5 6 7 8
 					exec - do	if	${CC} ${CCLDFLAGS} -DN=$N -DIS ${mam_cc_FLAGS} ${CCFLAGS} -I. -Istd ${LDFLAGS} -o astmath.exe port/astmath.c 2>/dev/null
 					exec -		then	: implicit math function N=$N :
 					exec -		elif	${CC} ${CCLDFLAGS} -DN=$N -DIS ${mam_cc_FLAGS} ${CCFLAGS} -I. -Istd ${LDFLAGS} -o astmath.exe port/astmath.c -lm 2>/dev/null
 					exec -		then	: math function N=$N requires -lm :
 					exec -			X=0
 					exec -			break
+					exec -		else	: ERROR: astmath.c fails to compile or link, even with -lm :
+					exec -			exit 1
 					exec -		fi
 					exec - done
 					exec - ${STDRM} -rf astmath.exe*
@@ -295,7 +298,8 @@ make install virtual
 				done astmath.out
 				prev FEATURE/aso
 				exec - sed -e '/^#define _REQ_/!d' -e 's/#define _REQ_\([a-z0-9_]*\).*/ -l\1/' FEATURE/aso >> ast.req
-				exec - case $(${STDCAT} astmath.out) in
+				exec - read no_libm_needed <astmath.out
+				exec - case $no_libm_needed in
 				exec - 0)	echo ' -lm' >> ast.req ;;
 				exec - *)	touch ast.req ;;
 				exec - esac
@@ -4989,6 +4993,7 @@ make install virtual
 			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I${INSTALLROOT}/include/ast -D_PACKAGE_ast -c ${PACKAGEROOT}/src/cmd/INIT/mamake.c
 		done mamake.o
 		bind -last
+		exec - set -o errexit
 		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L${INSTALLROOT}/lib} -o mamake mamake.o ${mam_libast}
 		note *
 		note * We purposely do not have a make target of ${INSTALLROOT}/bin/mamake here;

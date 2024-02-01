@@ -1031,7 +1031,7 @@ make install virtual
 						make features/math.sh
 							prev data/math.tab implicit
 						done features/math.sh
-						exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} -lm : run features/math.sh ${PACKAGEROOT}/src/cmd/ksh93/data/math.tab
+						exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run features/math.sh ${PACKAGEROOT}/src/cmd/ksh93/data/math.tab
 						prev ${PACKAGE_ast_INCLUDE}/ast_standards.h implicit
 						make ${INSTALLROOT}/src/lib/libast/FEATURE/float implicit
 							prev ${INSTALLROOT}/src/lib/libast/FEATURE/standards implicit
@@ -1163,7 +1163,7 @@ make install virtual
 			exec - (ranlib libshell.a) >/dev/null 2>&1 || true
 		done libshell.a
 		bind -lshell
-		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -o ksh pmain.o ${mam_libshell} ${mam_libnsl} ${mam_libast} -lm
+		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -o ksh pmain.o ${mam_libshell} ${mam_libnsl} ${mam_libast} ${mam_libm}
 	done ksh
 	make shcomp
 		make shcomp.o
@@ -1179,7 +1179,7 @@ make install virtual
 			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Iinclude -I${PACKAGE_ast_INCLUDE} -DSH_DICT=${SH_DICT} -D_API_ast=20100309 -DERROR_CONTEXT_T=Error_context_t -c sh/shcomp.c
 		done shcomp.o
 		prev ksh
-		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -o shcomp shcomp.o ${mam_libshell} ${mam_libnsl} ${mam_libast} -lm
+		exec - ${CC} ${CCLDFLAGS} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS} ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -o shcomp shcomp.o ${mam_libshell} ${mam_libnsl} ${mam_libast} ${mam_libm}
 	done shcomp
 	make shell virtual
 		prev libshell.a

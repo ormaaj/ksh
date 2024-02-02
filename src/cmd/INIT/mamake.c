@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-01-28"
+#define RELEASE_DATE "2024-02-02"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1639,7 +1639,7 @@ require(char* lib, int dontcare)
 		else if (dontcare)
 		{
 			append(tmp, "set +v +x\n");
-			append(tmp, "cd \"${TMPDIR:-/tmp}\"\n");
+			append(tmp, "cd \"${TMPDIR-/tmp}\"\n");
 			append(tmp, "echo 'int main(void){return 0;}' > x.${!-$$}.c\n");
 			append(tmp, "${CC} ${CCFLAGS} -o x.${!-$$}.x x.${!-$$}.c ");
 			append(tmp, r);

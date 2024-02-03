@@ -20,43 +20,35 @@ note *
 make install virtual
 	make iffe
 		prev iffe.sh
-		exec - ${STDCP} iffe.sh iffe
-		exec - test -w iffe -a -x iffe || ${STDCHMOD} u+w,+x iffe
+		exec - ${STDCP} iffe.sh iffe && ${STDCHMOD} u+w,+x iffe
 	done iffe
 	make mktest
 		prev mktest.sh
-		exec - ${STDCP} mktest.sh mktest
-		exec - test -w mktest -a -x mktest || ${STDCHMOD} u+w,+x mktest
+		exec - ${STDCP} mktest.sh mktest && ${STDCHMOD} u+w,+x mktest
 	done mktest
 	make package
 		prev package.sh
-		exec - ${STDCP} package.sh package
-		exec - test -w package -a -x package || ${STDCHMOD} u+w,+x package
+		exec - ${STDCP} package.sh package && ${STDCHMOD} u+w,+x package
 	done package
 	make regress
 		prev regress.sh
-		exec - ${STDCP} regress.sh regress
-		exec - test -w regress -a -x regress || ${STDCHMOD} u+w,+x regress
+		exec - ${STDCP} regress.sh regress && ${STDCHMOD} u+w,+x regress
 	done regress
 	make crossexec
 		prev crossexec.sh
-		exec - ${STDCP} crossexec.sh crossexec
-		exec - test -w crossexec -a -x crossexec || ${STDCHMOD} u+w,+x crossexec
+		exec - ${STDCP} crossexec.sh crossexec && ${STDCHMOD} u+w,+x crossexec
 	done crossexec
 	make mkreq
 		prev mkreq.sh
-		exec - ${STDCP} mkreq.sh mkreq
-		exec - test -w mkreq -a -x mkreq || ${STDCHMOD} u+w,+x mkreq
+		exec - ${STDCP} mkreq.sh mkreq && ${STDCHMOD} u+w,+x mkreq
 	done mkreq
 	make mkreq-maplib
 		prev mkreq-maplib.sh
-		exec - ${STDCP} mkreq-maplib.sh mkreq-maplib
-		exec - test -w mkreq-maplib -a -x mkreq-maplib || ${STDCHMOD} u+w,+x mkreq-maplib
+		exec - ${STDCP} mkreq-maplib.sh mkreq-maplib && ${STDCHMOD} u+w,+x mkreq-maplib
 	done mkreq-maplib
 	make mprobe
 		prev mprobe.sh
-		exec - ${STDCP} mprobe.sh mprobe
-		exec - test -w mprobe -a -x mprobe || ${STDCHMOD} u+w,+x mprobe
+		exec - ${STDCP} mprobe.sh mprobe && ${STDCHMOD} u+w,+x mprobe
 	done mprobe
 	make probe
 		make probe.sh
@@ -64,8 +56,7 @@ make install virtual
 			prev make.probe
 			exec - ${STDCAT} C+probe make.probe > probe.sh
 		done probe.sh
-		exec - ${STDCP} probe.sh probe
-		exec - test -w probe -a -x probe || ${STDCHMOD} u+w,+x probe
+		exec - ${STDCP} probe.sh probe && ${STDCHMOD} u+w,+x probe
 	done probe
 	make ${INSTALLROOT}/bin
 		exec - mkdir -p ${INSTALLROOT}/bin

@@ -618,7 +618,7 @@ static int
 strict(void)
 {
 	static int found = -1;
-	if(found < 0)
+	if (found < 0)
 		found = search(state.vars, "MAMAKE_STRICT", NULL) != NULL;
 	return found;
 }
@@ -770,7 +770,7 @@ view(void)
 				}
 			}
 			n = strlen(s);
-			if(!p)
+			if (!p)
 				abort();
 			if (!(vp = newof(0, View_t, 1, strlen(p) + n + 1)))
 				report(3, "out of memory [view]", s, 0);
@@ -1143,10 +1143,10 @@ push(char* file, Stdio_t* fp, int flags)
 		report(3, "input stream stack overflow", NULL, 0);
 	if (state.sp->fp = fp)
 	{
-		if(state.sp->file)
+		if (state.sp->file)
 			free(state.sp->file);
 		state.sp->file = strdup("pipeline");
-		if(!state.sp->file)
+		if (!state.sp->file)
 			report(3, "out of memory [push]", NULL, 0);
 	}
 	else if (flags & STREAM_PIPE)
@@ -1154,10 +1154,10 @@ push(char* file, Stdio_t* fp, int flags)
 	else if (!file || !strcmp(file, "-") || !strcmp(file, "/dev/stdin"))
 	{
 		flags |= STREAM_KEEP;
-		if(state.sp->file)
+		if (state.sp->file)
 			free(state.sp->file);
 		state.sp->file = strdup("/dev/stdin");
-		if(!state.sp->file)
+		if (!state.sp->file)
 			report(3, "out of memory [push]", NULL, 0);
 		state.sp->fp = stdin;
 	}
@@ -1168,7 +1168,7 @@ push(char* file, Stdio_t* fp, int flags)
 		{
 			if (!(state.sp->fp = fopen(path, "r")))
 				report(3, "cannot read", path, 0);
-			if(state.sp->file)
+			if (state.sp->file)
 				free(state.sp->file);
 			state.sp->file = duplicate(path);
 			drop(buf);
@@ -1277,7 +1277,7 @@ run(Rule_t* r, char* s)
 	if (x)
 	{
 		/* stubs for backward compat */
-		if(!strict())
+		if (!strict())
 			append(buf,
 				"alias silent=\n"
 				"ignore() { env \"$@\" || :; }\n"
@@ -1530,9 +1530,9 @@ attributes(Rule_t* r, char* s)
 				flag = RULE_notrace;
 			break;
 		}
-		if(flag > 0)
+		if (flag > 0)
 			r->flags |= flag;
-		else if(flag == 0)
+		else if (flag == 0)
 		{
 			t[n] = '\0';
 			report(3, "unknown attribute", t, 0);
@@ -1632,7 +1632,7 @@ require(char* lib, int dontcare)
 				}
 			}
 			fclose(f);
-			if(tofree)
+			if (tofree)
 				free(r);
 			r = use(buf);
 		}
@@ -1649,7 +1649,7 @@ require(char* lib, int dontcare)
 			append(tmp, "exit $c\n");
 			if (execute(expand(buf, use(tmp))))
 			{
-				if(tofree)
+				if (tofree)
 					free(r);
 				r = "";
 			}
@@ -1717,7 +1717,7 @@ make(Rule_t* r)
 		else
 			t = v = s;
 		/* enforce 4-letter lowercase command name */
-		if(u[0]<'a' || u[0]>'z' || u[1]<'a' || u[1]>'z' || u[2]<'a' || u[2]>'z' || u[3]<'a' || u[3]>'z' || u[4] && !isspace(u[4]))
+		if (u[0]<'a' || u[0]>'z' || u[1]<'a' || u[1]>'z' || u[2]<'a' || u[2]>'z' || u[3]<'a' || u[3]>'z' || u[4] && !isspace(u[4]))
 			report(3, "not a command name", u, 0);
 		switch (KEY(u[0], u[1], u[2], u[3]))
 		{
@@ -1751,7 +1751,7 @@ make(Rule_t* r)
 			q = rule(expand(buf, t));
 			if (q != r && (t[0] != '$' || strict()))
 				report(3, "improper done statement", t, 0);
-			if(*v && strict())
+			if (*v && strict())
 				report(1, v, "done: attributes are deprecated here, please move them to 'make'", 0);
 			attributes(r, v);
 			if (cmd && state.active && (state.force || r->time < z || !r->time && !z))
@@ -1812,7 +1812,7 @@ make(Rule_t* r)
 				 * special-case this as a way to declare a simple source file prerequisite
 				 */
 				attributes(q = rule(name), v);
-				if(!(q->flags & RULE_virtual))
+				if (!(q->flags & RULE_virtual))
 				{
 					bindfile(q);
 					if (!(q->flags & (RULE_dontcare | RULE_exists)))

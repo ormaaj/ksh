@@ -137,8 +137,7 @@ make install virtual
 									exec - ${STDCAT} - comp/conf.sh <<'!'
 									exec - HOSTTYPE="${mam_cc_HOSTTYPE}"
 									exec - !
-									exec - } > conf
-									exec - test -w conf -a -x conf || ${STDCHMOD} u+w,+x conf
+									exec - } > conf && ${STDCHMOD} u+w,+x conf
 								done conf
 								prev comp/conf.tab
 								exec - ${INSTALLROOT}/src/lib/libast/conf -v comp/conf.tab ${CC} ${mam_cc_FLAGS} ${CCFLAGS}

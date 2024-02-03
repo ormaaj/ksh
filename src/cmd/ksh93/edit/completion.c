@@ -589,6 +589,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 	return rval;
 }
 
+#if SHOPT_ESH || SHOPT_VSH
 /*
  * look for edit macro named _i
  * if found, puts the macro definition into lookahead buffer and returns 1
@@ -629,6 +630,7 @@ int ed_macro(Edit_t *ep, int i)
 	} 
 	return 0;
 }
+#endif /* SHOPT_ESH || SHOPT_VSH */
 
 /*
  * Enter the fc command on the current history line

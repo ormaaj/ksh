@@ -388,13 +388,8 @@ make test dontcare virtual
 		exec - regress iffe.tst iffe
 	done
 	make test.mamake virtual
-		make mamake.tst
-			prev mamake.rt
-			exec - if test mamake.rt -nt mamake.tst
-			exec - then "$SHELL" "$INSTALLROOT/bin/mktest" --style=regress mamake.rt > mamake.tst
-			exec - fi
-		done
-		exec - : testing mamake as built by package.sh :
+		prev mamake.tst
+		exec - : testing non-libast mamake at $PWD/mamake :
 		exec - regress mamake.tst mamake
 	done
 done test

@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-02-03"
+#define RELEASE_DATE "2024-02-04"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -257,6 +257,8 @@ typedef struct View_s			/* viewpath level		*/
 
 static struct				/* program state		*/
 {
+	int		strict;		/* strict mode activated if set */
+
 	Buf_t*		buf;		/* work buffer			*/
 	Buf_t*		old;		/* dropped buffers		*/
 	Buf_t*		opt;		/* option buffer		*/
@@ -608,19 +610,6 @@ search(Dict_t* dict, char* name, void* value)
 		dict->root = rroot;
 	}
 	return NULL;
-}
-
-/*
- * return true if in strict mode
- */
-
-static int
-strict(void)
-{
-	static int found = -1;
-	if (found < 0)
-		found = search(state.vars, "MAMAKE_STRICT", NULL) != NULL;
-	return found;
 }
 
 /*
@@ -1277,7 +1266,7 @@ run(Rule_t* r, char* s)
 	if (x)
 	{
 		/* stubs for backward compat */
-		if (!strict())
+		if (!state.strict)
 			append(buf,
 				"alias silent=\n"
 				"ignore() { env \"$@\" || :; }\n"
@@ -1504,8 +1493,9 @@ attributes(Rule_t* r, char* s)
 				flag = RULE_dontcare;
 			break;
 		case 'g':
+			/* 'exec' assigns this attribute; ignore explicit assignment in strict mode */
 			if (n == 9 && !strncmp(t, "generated", n))
-				flag = RULE_generated;
+				flag = state.strict ? -1 : RULE_generated;
 			break;
 		case 'i':
 			if (n == 6 && !strncmp(t, "ignore", n))
@@ -1537,6 +1527,9 @@ attributes(Rule_t* r, char* s)
 			t[n] = '\0';
 			report(3, "unknown attribute", t, 0);
 		}
+		/* deprecate ignored attributes */
+		else if (state.strict)
+			report(1, "deprecated", t, 0);
 	}
 }
 
@@ -1751,12 +1744,12 @@ make(Rule_t* r)
 			if (*t)
 			{	/* target is optional; use it for sanity check if present */
 				q = rule(expand(buf, t));
-				if (q != r && (t[0] != '$' || strict()))
+				if (q != r && (t[0] != '$' || state.strict))
 					report(3, "mismatched done statement", t, 0);
 				if (*v)
 				{
-					if (strict())
-						report(1, v, "done: attributes are deprecated here, please move them to 'make'", 0);
+					if (state.strict)
+						report(1, v, "done: attributes deprecated; move to 'make'", 0);
 					attributes(r, v);
 				}
 			}
@@ -1810,7 +1803,7 @@ make(Rule_t* r)
 		case KEY('p','r','e','v'):
 		{
 			char *name = expand(buf, t);
-			if (!strict())
+			if (!state.strict)
 				q = rule(name); /* for backward compat */
 			else if (!(q = (Rule_t*)search(state.rules, name, NULL)))
 			{	/*
@@ -1840,6 +1833,8 @@ make(Rule_t* r)
 			continue;
 		}
 		case KEY('s','e','t','v'):
+			if (strcmp(t, "MAMAKE_STRICT") == 0)
+				state.strict = 1;
 			if (!search(state.vars, t, NULL))
 			{
 				if (*v == '"')
@@ -1859,11 +1854,14 @@ make(Rule_t* r)
 				probe();
 			}
 			continue;
-		case KEY('i','n','f','o'):
 		case KEY('n','o','t','e'):
-		case KEY('m','e','t','a'):
 			/* comment command */
 			continue;
+		case KEY('i','n','f','o'):
+		case KEY('m','e','t','a'):
+			if (!state.strict)
+				continue;
+			/* FALLTHROUGH */
 		default:
 			report(3, "unknown command", u, 0);
 		}

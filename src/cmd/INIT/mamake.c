@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-02-02"
+#define RELEASE_DATE "2024-02-03"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1748,12 +1748,18 @@ make(Rule_t* r)
 			}
 			continue;
 		case KEY('d','o','n','e'):
-			q = rule(expand(buf, t));
-			if (q != r && (t[0] != '$' || strict()))
-				report(3, "improper done statement", t, 0);
-			if (*v && strict())
-				report(1, v, "done: attributes are deprecated here, please move them to 'make'", 0);
-			attributes(r, v);
+			if (*t)
+			{	/* target is optional; use it for sanity check if present */
+				q = rule(expand(buf, t));
+				if (q != r && (t[0] != '$' || strict()))
+					report(3, "mismatched done statement", t, 0);
+				if (*v)
+				{
+					if (strict())
+						report(1, v, "done: attributes are deprecated here, please move them to 'make'", 0);
+					attributes(r, v);
+				}
+			}
 			if (cmd && state.active && (state.force || r->time < z || !r->time && !z))
 			{
 				if (state.explain && !state.force)

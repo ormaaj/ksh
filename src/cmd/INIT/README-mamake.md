@@ -26,7 +26,7 @@ It was not worth fixing because it is about as complex as ksh itself --
 whereas `mamake` is simple and portable, and offers all the same flexibility.
 
 Compared to the 2012-08-01 AT&T distribution,
-ksh 93u+m made a few changes to `mamake` that make it easier to maintain Mamfiles by hand:
+ksh 93u+m made a number of changes to `mamake` that make it easier to maintain Mamfiles by hand:
 * If the `MAMAKE_STRICT` variable is set before any other mamake command is executed,
   some backward incompatible changes are activated to facilitate maintainability.
 * All Mamfiles have been indented for legibility. (See `bin/Mamfile_indent` in the distribution.)
@@ -40,6 +40,8 @@ ksh 93u+m made a few changes to `mamake` that make it easier to maintain Mamfile
 * The `notrace` attribute was added to disable xtrace for a rule's shell action.
 * If `MAMAKE_STRICT` is set, appending attributes to the `done` command
   produces a deprecation warning; please append them to `make` instead.
+* Repeating the rule name in the `done` commnand is now optional so that
+  a simple `done` also works to terminate the current rule.
 
 In addition, the following two simple shell scripts are now provided to aid
 in maintaining and modernising Mamfiles:
@@ -67,10 +69,15 @@ For historical reasons, `info` and `meta` are also ignored.
 ### Rules ###
 
 `make` *rule* [ *attribute* ... ]    
-`done` *rule*
+`done` [ *rule* [ *attribute* ... ] ]
 
 A `make`...`done` block defines the target rule named *rule* using the other commands described here.
 Unless the `virtual` attribute is used, *rule* names the pathname of the file generated or referenced by the rule.
+
+The *rule* name may be repeated as the operand to the `done` command.
+In that case, it is matched against the current `make` *rule* and
+any mismatch will produce a "mismatched done statement" error.
+If it is omitted, the current `make` *rule* is assumed.
 
 Dependencies may be defined in two ways:
 1. By nesting `make`...`done` blocks:

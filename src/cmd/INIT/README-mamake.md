@@ -200,7 +200,7 @@ building, and executed as normal commands while building the current directory.
 
 If there is a leaf directory named `INIT`, it will always be built before
 all others. For all other leaf directories, the presence of any `bind`
-command of the form `bind -lfoo` (or `bind +lfoo`) anywhere in a leaf
+command of the form `bind -lfoo` anywhere in a leaf
 directory's Mamfile causes the leaf directory named `libfoo` (if it exists)
 to be a prerequisite of that leaf directory.
 The prerequisite leaf directory does not have to be in the same parent
@@ -209,7 +209,7 @@ At this stage, attributes are ignored.
 
 #### …while building the current directory ####
 
-An argument of `-l`*libraryname* (or `+l`*libraryname*)
+An argument of `-l`*libraryname*
 causes a MAM variable `mam_lib`*libraryname* to be defined (see **MAM variables** above).
 The variable will contain either the compiler argument for linking to the library *libraryname*
 (either the `-l`*libraryname* flag, or the full path in case of a static library)
@@ -235,7 +235,7 @@ If no such dependency file exists, and the `dontcare` attribute is added,
 then `mamake` compiles a small test program on the fly to check if the library exists;
 if this fails, the `mam_lib`*libraryname* variable will be emptied.
 
-Any `bind` command whose argument does not start with `-l` or `+l` is ignored.
+Any `bind` command whose argument does not start with `-l` is ignored.
 
 Note that the `bind` functionality implemented in `mamake.c`
 is completely different from that described in the original documentation.

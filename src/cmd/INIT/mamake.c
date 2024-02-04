@@ -1715,7 +1715,7 @@ make(Rule_t* r)
 		switch (KEY(u[0], u[1], u[2], u[3]))
 		{
 		case KEY('b','i','n','d'):
-			if ((t[0] == '-' || t[0] == '+') && t[1] == 'l' && (s = require(t, !strcmp(v, "dontcare"))) && strncmp(r->name, "FEATURE/", 8) && strcmp(r->name, "configure.h"))
+			if (t[0] == '-' && t[1] == 'l' && (s = require(t, !strcmp(v, "dontcare"))) && strncmp(r->name, "FEATURE/", 8) && strcmp(r->name, "configure.h"))
 			{
 				for (;;)
 				{
@@ -1978,11 +1978,11 @@ scan(Dict_item_t* item, void* handle)
 		while (s = input())
 		{
 			for (; isspace(*s); s++);
-			/* examine only commands of the form bind [+-]lfoo */
+			/* examine only commands of the form bind -lfoo */
 			if (s[0] != 'b' || s[1] != 'i' || s[2] != 'n' || s[3] != 'd' || !isspace(s[4]))
 				continue;
 			for (s += 5; isspace(*s); s++);
-			if ((s[0] != '-' && s[0] != '+') || s[1] != 'l' || !s[2])
+			if (s[0] != '-' || s[1] != 'l' || !s[2])
 				continue;
 			/* construct potential leaf directory name */
 			append(buf, "lib");

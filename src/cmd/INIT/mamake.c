@@ -259,12 +259,10 @@ static struct				/* program state		*/
 {
 	int		strict;		/* strict mode activated if set */
 
-	Buf_t*		buf;		/* work buffer			*/
 	Buf_t*		old;		/* dropped buffers		*/
 	Buf_t*		opt;		/* option buffer		*/
 
 	Dict_t*		leaf;		/* recursion leaf dictionary	*/
-	Dict_t*		libs;		/* library dictionary		*/
 	Dict_t*		rules;		/* rule dictionary		*/
 	Dict_t*		vars;		/* variable dictionary		*/
 
@@ -287,14 +285,11 @@ static struct				/* program state		*/
 	int		indent;		/* debug indent			*/
 	int		keepgoing;	/* do siblings on error		*/
 	int		never;		/* never execute		*/
-	int		peek;		/* next line already in input	*/
 	int		probed;		/* probe already done		*/
 	int		verified;	/* don't bother with verify()	*/
 
 	Stream_t	streams[4];	/* input file stream stack	*/
 	Stream_t*	sp;		/* input stream stack pointer	*/
-
-	char		input[8*CHUNK];	/* input buffer			*/
 } state;
 
 static unsigned long	make(Rule_t*);
@@ -1183,18 +1178,17 @@ push(char* file, Stdio_t* fp, int flags)
 static char*
 input(void)
 {
-	char*	e;
+	static char	input[8*CHUNK];  /* input buffer */
+	char		*e;
 
 	if (!state.sp)
 		report(3, "no input file stream", NULL, 0);
-	if (state.peek)
-		state.peek = 0;
-	else if (!fgets(state.input, sizeof(state.input), state.sp->fp))
+	if (!fgets(input, sizeof(input), state.sp->fp))
 		return NULL;
-	else if (*state.input && *(e = state.input + strlen(state.input) - 1) == '\n')
+	if (*input && *(e = input + strlen(input) - 1) == '\n')
 		*e = 0;
 	state.sp->line++;
-	return state.input;
+	return input;
 }
 
 /*
@@ -1535,28 +1529,32 @@ attributes(Rule_t* r, char* s)
 
 /*
  * define ${mam_libX} for library reference lib
+ *
+ * lib is expected to be in the format "-lX"
  */
+
+#define LIB_VARPREFIX "mam_lib"
 
 static char*
 require(char* lib, int dontcare)
 {
-	int		c;
-	char*		s;
-	char*		r;
-	FILE*		f;
-	Buf_t*		buf;
-	Buf_t*		tmp;
-	struct stat	st;
-
-	int		tofree = 0;
 	static int	dynamic = -1;
+	char		*s, *r, varname[64];
 
 	if (dynamic < 0)
 		dynamic = (s = search(state.vars, "mam_cc_L", NULL)) ? atoi(s) : 0;
-	if (!(r = search(state.vars, lib, NULL)))
+
+	if (strlen(lib + 2) > sizeof(varname) - sizeof(LIB_VARPREFIX))
+		report(3, "-lname too long", lib, 0);
+	sprintf(varname, LIB_VARPREFIX "%s", lib + 2);
+
+	if (!(r = search(state.vars, varname, NULL)))
 	{
-		buf = buffer();
-		tmp = buffer();
+		Buf_t		*buf = buffer(), *tmp = buffer();
+		int		c, tofree = 0;
+		FILE		*f;
+		struct stat	st;
+
 		s = 0;
 		for (;;)
 		{
@@ -1597,7 +1595,7 @@ require(char* lib, int dontcare)
 			tofree = 1;
 			r = duplicate(r);
 		}
-		search(state.vars, lib, r);
+		search(state.vars, varname, r);
 		append(tmp, lib + 2);
 		append(tmp, ".req");
 		if (!(f = fopen(use(tmp), "r")))
@@ -1631,15 +1629,13 @@ require(char* lib, int dontcare)
 		}
 		else if (dontcare)
 		{
-			append(tmp, "set +v +x\n");
-			append(tmp, "cd \"${TMPDIR-/tmp}\"\n");
-			append(tmp, "echo 'int main(void){return 0;}' > x.${!-$$}.c\n");
-			append(tmp, "${CC} ${CCFLAGS} -o x.${!-$$}.x x.${!-$$}.c ");
+			append(tmp, "echo 'int main(void){return 0;}' > libtest.$$.c\n"
+				"${CC} ${CCFLAGS} -o libtest.$$.x libtest.$$.c ");
 			append(tmp, r);
-			append(tmp, " >/dev/null 2>&1\n");
-			append(tmp, "c=$?\n");
-			append(tmp, "rm -f x.${!-$$}.[cox]\n");
-			append(tmp, "exit $c\n");
+			append(tmp, " >/dev/null 2>&1\n"
+				"c=$?\n"
+				"exec rm -rf libtest.$$.* &\n"  /* also remove artefacts like *.dSYM dir (macOS) */
+				"exit $c\n");
 			if (execute(expand(buf, use(tmp))))
 			{
 				if (tofree)
@@ -1648,10 +1644,7 @@ require(char* lib, int dontcare)
 			}
 		}
 		r = duplicate(r);
-		search(state.vars, lib, r);
-		append(tmp, "mam_lib");
-		append(tmp, lib + 2);
-		search(state.vars, use(tmp), r);
+		search(state.vars, varname, r);
 		drop(tmp);
 		drop(buf);
 	}
@@ -1717,6 +1710,7 @@ make(Rule_t* r)
 		case KEY('b','i','n','d'):
 			if (t[0] == '-' && t[1] == 'l' && (s = require(t, !strcmp(v, "dontcare"))) && strncmp(r->name, "FEATURE/", 8) && strcmp(r->name, "configure.h"))
 			{
+				/* bind to library file */
 				for (;;)
 				{
 					for (t = s; *s && !isspace(*s); s++);
@@ -1724,7 +1718,8 @@ make(Rule_t* r)
 						*s = 0;
 					else
 						s = 0;
-					if (*t)
+					/* only bother if t is a path to a *.a we built (i.e. not -l...) */
+					if (*t == '/')
 					{
 						q = rule(expand(buf, t));
 						attributes(q, v);

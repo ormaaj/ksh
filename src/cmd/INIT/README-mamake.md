@@ -180,14 +180,21 @@ define a shell script that is executed for *rule*.
 The word following `exec` is ignored; by convention it is `-`.
 Each `exec` command appends a line of code to the shell script for the current rule.
 It is customary for a rule's `exec` commands to be contiguous, but not necessary.
+
 Before adding each line of code to the script,
 MAM variable references (see **MAM variables** above)
 are expanded; their literal values are inserted into the *code* line
 (beware: no quoting is applied!).
+
+After MAM variable expansion, viewpathing is applied: each word
+(separated by space, tab, newline, `;`, `(`, `)`, `` ` ``, `|`, `&` or `=`)
+is searched for in the current rule's dependencies,
+and if it matches the name of a non-generated dependency,
+it is replaced by the canonical path to it in the source directory.
+
 When `mamake` encounters the `done` command,
 the script is executed by the shell whose path is in the `SHELL` environment variable
 or, absent that, by `/bin/sh`.
-The `exec` command assigns the `generated` attribute to the current rule, even if it was not specified.
 
 ### Binding libraries ###
 

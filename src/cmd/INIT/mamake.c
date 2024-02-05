@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-02-04"
+#define RELEASE_DATE "2024-02-05"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1276,25 +1276,7 @@ run(Rule_t* r, char* s)
 		);
 		/* show trace for the shell action commands */
 		if (!(r->flags & RULE_notrace))
-		{
-			char *cp;
-			/* construct a nice PS4 */
-			append(buf,"PS4='+ (");
-			cp = state.pwd + strlen(state.pwd) - 1;
-			while (*cp != '/' && *cp != '\'' && cp > state.pwd)
-				cp--;
-			append(buf, cp + 1);
-			add(buf, '/');
-			append(buf, state.file);
-			if (r->line && state.sp)
-			{
-				char nbuf[64];
-				sprintf(nbuf, ":%lu-%lu", r->line, state.sp->line);
-				append(buf, nbuf);
-			}
-			append(buf,") '\n"
-				"set -x\n");
-		}
+			append(buf,"set -x\n");
 	}
 	if (state.view)
 	{
@@ -1770,14 +1752,34 @@ make(Rule_t* r)
 			}
 			if (cmd && state.active && (state.force || r->time < z || !r->time && !z))
 			{
-				if (state.explain && !state.force)
+				char	*fname = state.sp->file, *rname = r->name, *rnamepre = "", *val;
+				int	len;
+				/* show a nice trace header */
+				/* ...mamfile path: make relative to ${PACKAGEROOT} */
+				if (*fname == '/'
+				&& (val = search(state.vars, "PACKAGEROOT", NULL)) && (len = strlen(val))
+				&& strncmp(fname, val, len) == 0 && fname[len] == '/' && fname[++len])
+					fname += len;
+				/* ...rule name: change install root path prefix back to '${INSTALLROOT}' for brevity */
+				if (*rname == '/'
+				&& (val = search(state.vars, "INSTALLROOT", NULL)) && (len = strlen(val))
+				&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
+					rname += len, rnamepre = "${INSTALLROOT}";
+				fprintf(stderr, "\n# %s: %lu-%lu: make %s%s\n",
+					fname, r->line, state.sp->line, rnamepre, rname);
+				/* -e option */
+				if (state.explain)
 				{
+					fprintf(stderr, "# reason: ");
 					if (!r->time)
-						fprintf(stderr, "%s [not found]\n", r->name);
+						fprintf(stderr, "target %s\n",
+							(r->flags & RULE_virtual) ? "is virtual" : "not found");
 					else
-						fprintf(stderr, "%s [%lu] older than prerequisites [%lu]\n", r->name, r->time, z);
+						fprintf(stderr, "target [%lu] older than prerequisites [%lu]\n", r->time, z);
 				}
+				/* expand MAM variables in the shell action */
 				substitute(buf, use(cmd));
+				/* run the shell action */
 				x = run(r, use(buf));
 				if (z < x)
 					z = x;
@@ -1949,6 +1951,9 @@ update(Rule_t* r)
 	substitute(buf, cmd);
 	append(buf, r->name);
 	substitute(buf, arg);
+	fprintf(stderr, "\n# ... making %s ...\n", r->name);
+	if (state.explain)
+		fprintf(stderr, "# reason: recursion\n");
 	run(r, use(buf));
 	drop(buf);
 	return 0;
@@ -2342,6 +2347,13 @@ main(int argc, char** argv)
 		}
 	}
 #endif
+
+	/*
+	 * option incompatibility
+	 */
+
+	if (state.force)
+		state.explain = 0;
 
 	/*
 	 * load the environment

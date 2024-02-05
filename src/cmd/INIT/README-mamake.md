@@ -80,6 +80,9 @@ In the legacy mode, `info` and `meta` are also ignored.
 A `make`...`done` block defines the target rule named *rule* using the other commands described here.
 Unless the `virtual` attribute is used, *rule* names the pathname of the file generated or referenced by the rule.
 
+`mamake` processes the commands within the block if the *rule* target is out
+of date or if the rule has the `virtual` attribute (see below).
+
 The *rule* name may be repeated as the operand to the `done` command.
 In that case, it is matched against the current `make` *rule* and
 any mismatch will produce a "mismatched done statement" error.
@@ -117,6 +120,7 @@ The following *attribute*s are available:
   then `foo.h` should be marked as an implicit prerequisite of `foo.c`
   so that touching `foo.h` does not make `foo.c` out of date while making `foo.o` out of date.
 * `notrace`: Disables echoing (xtrace) of shell action commands.
+  This does not disable the trace header for the containing rule (see *Shell actions* below).
 * `virtual`: Marks a rule that is not associated with any file.
   The commands within are executed every time the Mamfile is processed.
   By convention, a virtual rule named `all` makes everything,
@@ -195,6 +199,12 @@ it is replaced by the canonical path to it in the source directory.
 When `mamake` encounters the `done` command,
 the script is executed by the shell whose path is in the `SHELL` environment variable
 or, absent that, by `/bin/sh`.
+Before executing the script, a trace header in the following format is added to the log:
+```
+# path/to/Mamfile: startline-endline: rule
+```
+During script execution, shell action comands are traced using the
+shell's xtrace option, unless the rule has the `notrace` attribute.
 
 ### Binding libraries ###
 

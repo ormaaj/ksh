@@ -117,11 +117,11 @@ make install virtual
 										exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I.  ${LDFLAGS}" run features/map.c
 									done
 									exec - ${STDCP} -f FEATURE/map ast_map.h
-								done
-							done
-						done
-					done
-				done
+								done ast_map.h
+							done ast_common.h
+						done std/bytesex.h
+					done std/endian.h
+				done FEATURE/param
 				make FEATURE/aso
 					prev features/aso
 					exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run features/aso
@@ -149,11 +149,11 @@ make install virtual
 							prev FEATURE/common
 							prev FEATURE/lib
 							prev FEATURE/standards
-						done
+						done features/limits.c
 						exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Icomp -Iinclude -Istd  ${LDFLAGS}" run features/limits.c
-					done
+					done FEATURE/limits
 					exec - ${STDCP} -f FEATURE/limits ast_limits.h
-				done
+				done ast_limits.h
 				make ast_stdio.h dontcare
 					make FEATURE/stdio
 						prev features/stdio
@@ -246,12 +246,12 @@ make install virtual
 							done
 							prev ast_common.h
 							prev ast_standards.h
-						done
-					done
+						done include/ast_std.h
+					done FEATURE/stdio
 					exec - ${STDCP} -f FEATURE/stdio ast_stdio.h
 					prev include/sfio_s.h
 					prev include/ast_std.h
-				done
+				done ast_stdio.h
 				make ast_nl_types.h
 					make FEATURE/nl_types
 						prev features/nl_types
@@ -302,7 +302,7 @@ make install virtual
 				exec - 0)	echo ' -lm' >> ast.req ;;
 				exec - *)	touch ast.req ;;
 				exec - esac
-			done
+			done ast.req
 			make state.o
 				make misc/state.c
 					make include/ast.h implicit

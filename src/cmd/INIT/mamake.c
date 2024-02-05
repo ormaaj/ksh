@@ -238,6 +238,7 @@ typedef struct Rule_s			/* rule item			*/
 	int		flags;		/* RULE_* flags			*/
 	int		making;		/* currently make()ing		*/
 	unsigned long	time;		/* modification time		*/
+	unsigned long	line;		/* starting line in Mamfile	*/
 } Rule_t;
 
 typedef struct Stream_s			/* input file stream stack	*/
@@ -651,6 +652,7 @@ rule(char* name)
 		if (!(r = newof(0, Rule_t, 1, 0)))
 			report(3, "out of memory [rule]", name, 0);
 		r->name = (char*)search(state.rules, name, r);
+		r->line = state.sp ? state.sp->line : 0;
 	}
 	return r;
 }
@@ -1274,7 +1276,25 @@ run(Rule_t* r, char* s)
 		);
 		/* show trace for the shell action commands */
 		if (!(r->flags & RULE_notrace))
-			append(buf,"set -x\n");
+		{
+			char *cp;
+			/* construct a nice PS4 */
+			append(buf,"PS4='+ (");
+			cp = state.pwd + strlen(state.pwd) - 1;
+			while (*cp != '/' && *cp != '\'' && cp > state.pwd)
+				cp--;
+			append(buf, cp + 1);
+			add(buf, '/');
+			append(buf, state.file);
+			if (r->line && state.sp)
+			{
+				char nbuf[64];
+				sprintf(nbuf, ":%lu-%lu", r->line, state.sp->line);
+				append(buf, nbuf);
+			}
+			append(buf,") '\n"
+				"set -x\n");
+		}
 	}
 	if (state.view)
 	{

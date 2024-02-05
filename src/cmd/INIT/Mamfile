@@ -15,7 +15,7 @@ setv CCFLAGS ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?
 setv CCLDFLAGS ${-strip-symbols?1?${mam_cc_LD_STRIP}??}
 setv LDFLAGS
 note *
-note * initialization for all packages
+note * initialization for the build system
 note *
 make install virtual
 	make iffe
@@ -25,10 +25,6 @@ make install virtual
 	make mktest
 		prev mktest.sh
 		exec - ${STDCP} mktest.sh mktest && ${STDCHMOD} u+w,+x mktest
-	done
-	make package
-		prev package.sh
-		exec - ${STDCP} package.sh package && ${STDCHMOD} u+w,+x package
 	done
 	make regress
 		prev regress.sh
@@ -73,20 +69,12 @@ make install virtual
 		prev mktest
 		exec - ${STDCP} -f mktest ${INSTALLROOT}/bin/mktest
 	done
-	make ${INSTALLROOT}/bin/package
-		prev package
-		exec - ${STDCP} -f package ${INSTALLROOT}/bin/package
-	done
 	make ${INSTALLROOT}/bin/regress
 		prev regress
 		exec - ${STDCP} -f regress ${INSTALLROOT}/bin/regress
 	done
 	make ${PACKAGEROOT}/bin
 		exec - mkdir -p ${PACKAGEROOT}/bin
-	done
-	make ${PACKAGEROOT}/bin/package
-		prev package
-		exec - ${STDCP} -f package ${PACKAGEROOT}/bin/package
 	done
 	make ${INSTALLROOT}/bin/crossexec
 		prev crossexec

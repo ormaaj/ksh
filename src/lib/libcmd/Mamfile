@@ -26,7 +26,6 @@ make install virtual
 			prev cmd.req
 			make cmdinit.o
 				make cmdinit.c
-					prev ${PACKAGE_ast_INCLUDE}/shcmd.h implicit
 					make cmd.h implicit
 						make cmdext.h implicit dontcare
 							prev cmdinit.c
@@ -34,13 +33,6 @@ make install virtual
 								prev cmd.h
 							done
 							make cat.c
-								make ${PACKAGE_ast_INCLUDE}/endian.h implicit
-									make ${PACKAGE_ast_INCLUDE}/bytesex.h implicit
-										make ${PACKAGE_ast_INCLUDE}/ast_common.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/ast_map.h implicit
-										done
-									done
-								done
 								prev cmd.h
 							done
 							make chgrp.c
@@ -50,131 +42,25 @@ make install virtual
 									bind -last
 									exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libutil} ${mam_libast} : run features/symlink
 								done
-								make ${PACKAGE_ast_INCLUDE}/fts.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast_mode.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast_fs.h implicit
-									make ${PACKAGE_ast_INCLUDE}/ast_std.h implicit
-										make ${PACKAGE_ast_INCLUDE}/regex.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/ast_api.h implicit
-											make ${PACKAGE_ast_INCLUDE}/ast_wchar.h implicit
-												make ${PACKAGE_ast_INCLUDE}/wctype.h implicit
-													make ${PACKAGE_ast_INCLUDE}/ast_wctype.h implicit
-														prev ${PACKAGE_ast_INCLUDE}/endian.h
-														make ${PACKAGE_ast_INCLUDE}/wchar.h implicit
-															prev ${PACKAGE_ast_INCLUDE}/ast_wchar.h
-														done
-													done
-												done
-												make ${PACKAGE_ast_INCLUDE}/stdio.h implicit
-													make ${PACKAGE_ast_INCLUDE}/ast_stdio.h implicit
-														prev ${PACKAGE_ast_INCLUDE}/sfio_s.h implicit
-														prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-													done
-												done
-												prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-											done
-											prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-										done
-										make ${PACKAGE_ast_INCLUDE}/getopt.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/ast_getopt.h implicit
-										done
-										prev ${PACKAGE_ast_INCLUDE}/ast_map.h
-										prev ${PACKAGE_ast_INCLUDE}/ast_botch.h implicit
-										prev ${PACKAGE_ast_INCLUDE}/ast_limits.h implicit
-										make ${PACKAGE_ast_INCLUDE}/ast_fcntl.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/ast_fs.h
-										done
-										prev ${PACKAGE_ast_INCLUDE}/ast_getopt.h
-										make ${PACKAGE_ast_INCLUDE}/ast_sys.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/getopt.h
-											prev ${PACKAGE_ast_INCLUDE}/endian.h
-										done
-										prev ${PACKAGE_ast_INCLUDE}/ast_lib.h implicit
-										prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-									done
-								done
-								prev ${PACKAGE_ast_INCLUDE}/endian.h
-								make ${PACKAGE_ast_INCLUDE}/ls.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast_mode.h
-									prev ${PACKAGE_ast_INCLUDE}/ast_fs.h
-									prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-								done
-								make ${PACKAGE_ast_INCLUDE}/cdt.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-									prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-								done
 								prev cmd.h
 							done
 							make chmod.c
 								prev FEATURE/symlink
-								prev ${PACKAGE_ast_INCLUDE}/fts.h
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make chown.c
 								prev cmd.h
 							done
 							make cksum.c
-								make ${PACKAGE_ast_INCLUDE}/error.h implicit
-									make ${PACKAGE_ast_INCLUDE}/option.h implicit
-										make ${PACKAGE_ast_INCLUDE}/ast.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/ast_api.h
-											make ${PACKAGE_ast_INCLUDE}/vmalloc.h implicit
-												prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-												prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-											done
-											make ${PACKAGE_ast_INCLUDE}/sfio.h implicit
-												prev ${PACKAGE_ast_INCLUDE}/sfio_s.h
-												prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-												prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-											done
-											prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-										done
-									done
-									prev ${PACKAGE_ast_INCLUDE}/ast.h
-								done
-								prev ${PACKAGE_ast_INCLUDE}/fts.h
-								make ${PACKAGE_ast_INCLUDE}/modex.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/modecanon.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast_fs.h
-								done
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
-								make ${PACKAGE_ast_INCLUDE}/sum.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast.h
-								done
 								prev cmd.h
 							done
 							make cmp.c
-								make ${PACKAGE_ast_INCLUDE}/ccode.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast_ccode.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-								done
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make comm.c
 								prev cmd.h
 							done
 							make cp.c
-								make ${PACKAGE_ast_INCLUDE}/tmx.h implicit
-									make ${PACKAGE_ast_INCLUDE}/tv.h implicit
-										prev ${PACKAGE_ast_INCLUDE}/ast.h
-									done
-									make ${PACKAGE_ast_INCLUDE}/tm.h implicit
-										make ${PACKAGE_ast_INCLUDE}/times.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/ast_time.h implicit
-											prev ${PACKAGE_ast_INCLUDE}/ast.h
-										done
-										prev ${PACKAGE_ast_INCLUDE}/ast.h
-									done
-								done
-								make ${PACKAGE_ast_INCLUDE}/stk.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/sfio.h
-								done
-								prev ${PACKAGE_ast_INCLUDE}/hashkey.h implicit
-								prev ${PACKAGE_ast_INCLUDE}/fts.h
-								prev ${PACKAGE_ast_INCLUDE}/times.h
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make cut.c
@@ -184,25 +70,16 @@ make install virtual
 								prev cmd.h
 							done
 							make date.c
-								prev ${PACKAGE_ast_INCLUDE}/times.h
-								prev ${PACKAGE_ast_INCLUDE}/tmx.h
-								make ${PACKAGE_ast_INCLUDE}/proc.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast.h
-								done
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make expr.c
-								prev ${PACKAGE_ast_INCLUDE}/regex.h
 								prev cmd.h
 							done
 							make fds.c
-								prev ${PACKAGE_ast_INCLUDE}/endian.h
 								make FEATURE/sockets implicit
 									prev features/sockets
 									exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libutil} ${mam_libast} : run features/sockets
 								done
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make fmt.c
@@ -212,16 +89,12 @@ make install virtual
 								prev cmd.h
 							done
 							make getconf.c
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
-								prev ${PACKAGE_ast_INCLUDE}/proc.h
 								prev cmd.h
 							done
 							make head.c
 								prev cmd.h
 							done
 							make id.c
-								prev fsg.h implicit dontcare virtual
-								prev ${PACKAGE_ast_INCLUDE}/stdio.h
 								make FEATURE/ids implicit
 									prev features/ids
 									exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libutil} ${mam_libast} : run features/ids
@@ -229,11 +102,6 @@ make install virtual
 								prev cmd.h
 							done
 							make join.c
-								prev ${PACKAGE_ast_INCLUDE}/wctype.h
-								prev ${PACKAGE_ast_INCLUDE}/wchar.h
-								make ${PACKAGE_ast_INCLUDE}/sfdisc.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast.h
-								done
 								prev cmd.h
 							done
 							make ln.c
@@ -246,15 +114,12 @@ make install virtual
 								prev cmd.h
 							done
 							make mkdir.c
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make mkfifo.c
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make mktemp.c
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make mv.c
@@ -264,12 +129,9 @@ make install virtual
 								prev cmd.h
 							done
 							make pathchk.c
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make pids.c
-								prev ${PACKAGE_ast_INCLUDE}/sfdisc.h
-								prev ${PACKAGE_ast_INCLUDE}/ast_tty.h implicit
 								prev cmd.h
 							done
 							make rev.c
@@ -277,34 +139,25 @@ make install virtual
 								prev cmd.h
 							done
 							make rm.c
-								prev ${PACKAGE_ast_INCLUDE}/fts.h
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make rmdir.c
 								prev cmd.h
 							done
 							make stty.c
-								prev ${PACKAGE_ast_INCLUDE}/ast_tty.h
-								prev ${PACKAGE_ast_INCLUDE}/ccode.h
 								prev cmd.h
 							done
 							make sum.c
 								prev cmd.h
 							done
 							make sync.c
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make tail.c
 								prev rev.h
-								prev ${PACKAGE_ast_INCLUDE}/tv.h
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make tee.c
-								prev ${PACKAGE_ast_INCLUDE}/sig.h implicit
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
 								prev cmd.h
 							done
 							make tty.c
@@ -315,22 +168,16 @@ make install virtual
 									prev features/utsname
 									exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libutil} ${mam_libast} : run features/utsname
 								done
-								prev ${PACKAGE_ast_INCLUDE}/proc.h
 								prev cmd.h
 							done
 							make uniq.c
 								prev cmd.h
 							done
 							make vmstate.c
-								prev ${PACKAGE_ast_INCLUDE}/sfdisc.h
-								prev ${PACKAGE_ast_INCLUDE}/vmalloc.h
 								prev cmd.h
 							done
 							make wc.c
-								prev ${PACKAGE_ast_INCLUDE}/ls.h
-								make wc.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast.h
-								done
+								prev wc.h implicit
 								prev cmd.h
 							done
 							make revlib.c
@@ -338,11 +185,6 @@ make install virtual
 								prev cmd.h
 							done
 							make wclib.c
-								make ${PACKAGE_ast_INCLUDE}/lc.h implicit
-									prev ${PACKAGE_ast_INCLUDE}/ast.h
-								done
-								prev ${PACKAGE_ast_INCLUDE}/wctype.h
-								prev ${PACKAGE_ast_INCLUDE}/wchar.h
 								prev wc.h
 								prev cmd.h
 							done
@@ -366,12 +208,7 @@ make install virtual
 							exec - ${PACKAGEROOT}/src/lib/libcmd/cmdinit.c ${PACKAGEROOT}/src/lib/libcmd/basename.c ${PACKAGEROOT}/src/lib/libcmd/cat.c ${PACKAGEROOT}/src/lib/libcmd/chgrp.c ${PACKAGEROOT}/src/lib/libcmd/chmod.c ${PACKAGEROOT}/src/lib/libcmd/chown.c ${PACKAGEROOT}/src/lib/libcmd/cksum.c ${PACKAGEROOT}/src/lib/libcmd/cmp.c ${PACKAGEROOT}/src/lib/libcmd/comm.c ${PACKAGEROOT}/src/lib/libcmd/cp.c ${PACKAGEROOT}/src/lib/libcmd/cut.c ${PACKAGEROOT}/src/lib/libcmd/dirname.c ${PACKAGEROOT}/src/lib/libcmd/date.c ${PACKAGEROOT}/src/lib/libcmd/expr.c ${PACKAGEROOT}/src/lib/libcmd/fds.c ${PACKAGEROOT}/src/lib/libcmd/fmt.c ${PACKAGEROOT}/src/lib/libcmd/fold.c ${PACKAGEROOT}/src/lib/libcmd/getconf.c ${PACKAGEROOT}/src/lib/libcmd/head.c ${PACKAGEROOT}/src/lib/libcmd/id.c ${PACKAGEROOT}/src/lib/libcmd/join.c ${PACKAGEROOT}/src/lib/libcmd/ln.c ${PACKAGEROOT}/src/lib/libcmd/logname.c ${PACKAGEROOT}/src/lib/libcmd/md5sum.c ${PACKAGEROOT}/src/lib/libcmd/mkdir.c ${PACKAGEROOT}/src/lib/libcmd/mkfifo.c ${PACKAGEROOT}/src/lib/libcmd/mktemp.c ${PACKAGEROOT}/src/lib/libcmd/mv.c ${PACKAGEROOT}/src/lib/libcmd/paste.c ${PACKAGEROOT}/src/lib/libcmd/pathchk.c ${PACKAGEROOT}/src/lib/libcmd/pids.c ${PACKAGEROOT}/src/lib/libcmd/rev.c ${PACKAGEROOT}/src/lib/libcmd/rm.c ${PACKAGEROOT}/src/lib/libcmd/rmdir.c ${PACKAGEROOT}/src/lib/libcmd/stty.c ${PACKAGEROOT}/src/lib/libcmd/sum.c ${PACKAGEROOT}/src/lib/libcmd/sync.c ${PACKAGEROOT}/src/lib/libcmd/tail.c ${PACKAGEROOT}/src/lib/libcmd/tee.c ${PACKAGEROOT}/src/lib/libcmd/tty.c ${PACKAGEROOT}/src/lib/libcmd/uname.c ${PACKAGEROOT}/src/lib/libcmd/uniq.c ${PACKAGEROOT}/src/lib/libcmd/vmstate.c ${PACKAGEROOT}/src/lib/libcmd/wc.c ${PACKAGEROOT}/src/lib/libcmd/revlib.c ${PACKAGEROOT}/src/lib/libcmd/wclib.c ${PACKAGEROOT}/src/lib/libcmd/lib.c |
 							exec - sort -u
 							exec - } > cmdext.h
-							prev ${PACKAGE_ast_INCLUDE}/shcmd.h
 						done
-						prev ${PACKAGE_ast_INCLUDE}/shcmd.h
-						prev ${PACKAGE_ast_INCLUDE}/stk.h
-						prev ${PACKAGE_ast_INCLUDE}/error.h
-						prev ${PACKAGE_ast_INCLUDE}/ast.h
 					done cmd.h
 				done cmdinit.c
 				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -I${PACKAGE_ast_INCLUDE} -D_BLD_cmd -c cmdinit.c
@@ -584,9 +421,6 @@ make install virtual
 	make ${INSTALLROOT}/lib/lib/cmd
 		prev cmd.req
 		exec - ${STDCP} -f cmd.req ${INSTALLROOT}/lib/lib/cmd
-	done
-	make ${PACKAGE_ast_INCLUDE}
-		exec - mkdir -p ${PACKAGE_ast_INCLUDE}
 	done
 	make ${PACKAGE_ast_INCLUDE}/cmd.h
 		prev cmd.h

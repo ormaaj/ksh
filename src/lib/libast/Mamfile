@@ -325,7 +325,6 @@ make install virtual
 				make dir/opendir.c
 					make dir/dirlib.h implicit
 						prev dir/dirstd.h implicit dontcare
-						prev direntry.h implicit dontcare virtual
 						make ast_param.h implicit dontcare
 							prev FEATURE/param
 							exec - ${STDCP} -f FEATURE/param ast_param.h
@@ -341,7 +340,6 @@ make install virtual
 								prev include/ast_std.h
 							done
 						done
-						prev ndir.h implicit dontcare virtual
 						prev std/dirent.h
 						make include/ls.h implicit
 							make ast_mode.h implicit dontcare
@@ -938,7 +936,7 @@ make install virtual
 						prev features/prog
 						exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run features/prog
 					done
-					prev include/ast_windows.h
+					prev include/ast_windows.h implicit
 					prev include/ast.h
 				done
 				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Icomp -Iinclude -Istd -c path/pathprog.c
@@ -990,7 +988,6 @@ make install virtual
 			done
 			make getenv.o
 				make misc/getenv.c
-					prev windows.h implicit dontcare virtual
 					prev misc/intercepts.h
 				done
 				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Icomp -Imisc -Iinclude -Istd -c misc/getenv.c
@@ -1221,9 +1218,7 @@ make install virtual
 						exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run features/locale
 					done
 					make port/lclang.h implicit
-						make include/ast_windows.h implicit
-							prev windows.h
-						done
+						prev include/ast_windows.h
 					done
 					prev port/lclib.h
 				done
@@ -1246,7 +1241,6 @@ make install virtual
 					prev port/lclib.h
 					make sfio/sfhdr.h implicit
 						prev port/lclib.h
-						prev stropts.h implicit dontcare virtual
 						prev std/wchar.h
 						prev include/error.h
 						make FEATURE/float implicit
@@ -1256,9 +1250,6 @@ make install virtual
 							exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run features/float
 							prev ast_common.h
 						done
-						prev mman.h implicit dontcare virtual
-						prev filio.h implicit dontcare virtual
-						prev stat.h implicit dontcare virtual
 						prev include/ls.h
 						make ast_tty.h implicit dontcare
 							prev FEATURE/tty
@@ -1979,7 +1970,6 @@ make install virtual
 			done
 			make mnt.o
 				make port/mnt.c
-					prev mnttab.h implicit dontcare virtual
 					prev std/stdio.h
 					prev include/ast_windows.h
 					prev include/ls.h
@@ -2300,7 +2290,6 @@ make install virtual
 				make comp/spawnveg.c
 					prev ast_tty.h
 					prev sig.h
-					prev process.h implicit dontcare virtual
 					prev include/wait.h
 					prev include/error.h
 					prev include/ast.h
@@ -2367,7 +2356,6 @@ make install virtual
 			make gross.o
 				make comp/gross.c
 					make comp/gross_sgi.h implicit dontcare
-						prev locale_attr.h implicit dontcare virtual
 					done
 					prev FEATURE/hack
 					prev include/ls.h
@@ -2377,7 +2365,6 @@ make install virtual
 			done
 			make omitted.o
 				make comp/omitted.c
-					prev process.h
 					prev include/ast_windows.h
 					prev include/ls.h
 					make FEATURE/omitted implicit
@@ -4067,7 +4054,6 @@ make install virtual
 			done
 			make astwinsize.o
 				make port/astwinsize.c
-					prev jioctl.h implicit dontcare virtual
 					prev ast_tty.h
 					prev include/ast.h
 				done
@@ -4158,7 +4144,6 @@ make install virtual
 			done
 			make vmbest.o
 				make vmalloc/vmbest.c
-					prev windows.h
 					prev include/ast_windows.h
 					make vmalloc/vmhdr.h implicit dontcare
 						prev include/vmalloc.h

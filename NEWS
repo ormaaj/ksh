@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-02-08:
+
+- Fixed an init-time crash that may occur if standard error is on a terminal,
+  but the path to its tty device can't be found (e.g., in a chroot situation).
+
 2024-02-06:
 
 - Fixed a regression introduced on 2023-03-04 that caused ksh to lock up

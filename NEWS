@@ -7,6 +7,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed an init-time crash that may occur if standard error is on a terminal,
   but the path to its tty device can't be found (e.g., in a chroot situation).
 
+- Fixed corrupted output of the 'time' keyword as formatted via TIMEFORMAT on
+  systems where sizeof(time_t) != sizeof(int). Bug introduced on 2020-07-13.
+
 2024-02-06:
 
 - Fixed a regression introduced on 2023-03-04 that caused ksh to lock up

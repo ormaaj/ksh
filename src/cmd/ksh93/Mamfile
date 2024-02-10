@@ -71,6 +71,13 @@ make install virtual
 			exec -			then	writedef TEST_L 1
 			exec -			fi 2>/dev/null
 			exec -			${STDRM} -f "$EXECROOT/link$$" ;;
+			exec -		'PRINTF_LEGACY=')
+			exec -			# if external 'printf' allows POSIX-ignorant syntax (i.e., a format operand
+			exec -			# starting with '-' without prior '--'), enable code for backward compat
+			exec -			case $(env printf '-zut%s\n' alors 2>/dev/null) in
+			exec -			-zutalors)
+			exec -				writedef PRINTF_LEGACY 1 ;;
+			exec -			esac ;;
 			exec -		'SYSRC=')
 			exec -			# if one of these exists, make SHOPT_SYSRC load /etc/ksh.kshrc by default
 			exec -			if	test -f /etc/ksh.kshrc || test -f /etc/bash.bashrc

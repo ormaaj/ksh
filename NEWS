@@ -2,6 +2,15 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-02-11:
+
+- Added SHOPT_PRINTF_LEGACY compile-time option for compatibility with
+  POSIX-ignorant external printf(1) commands that process a format operand
+  starting with '-' without the standard preceding '--' options terminator.
+  This is for backward compatibility with local system scripts. The
+  behaviour of the system's external printf(1) determines whether this is
+  compiled in or out by default. Normal ksh printf options keep working.
+
 2024-02-09:
 
 - Fixed multiple inaccurate or missing values in the /opt/ast/bin/getconf

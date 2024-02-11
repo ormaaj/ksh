@@ -295,6 +295,7 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 						nflag++;
 						argv++;
 					}
+					opt_info.disc = NULL;
 					goto skip2;
 				}
 			}

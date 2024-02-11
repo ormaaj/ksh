@@ -134,7 +134,7 @@ make install virtual
 		exec -				*PLUGIN_LIB=*)
 		exec -					p=$x ;;
 		exec -				*)	case $u in
-		exec -					?*	 u=$u$N ;;
+		exec -					?*)	 u=$u$N ;;
 		exec -					esac
 		exec -					u=$u$x ;;
 		exec -				esac

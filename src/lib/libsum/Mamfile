@@ -134,7 +134,7 @@ make install virtual
 	done
 	make ${INSTALLROOT}/lib/libsum.a
 		prev libsum.a
-		exec - ${STDCP} -f ${<} ${@} || exit
+		exec - cp -f ${<} ${@} || exit
 		exec - (ranlib ${@}) >/dev/null 2>&1 || true
 	done
 	make ${INSTALLROOT}/lib/lib
@@ -142,14 +142,14 @@ make install virtual
 	done
 	make ${INSTALLROOT}/lib/lib/sum
 		prev sum.req
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}
 		exec - mkdir -p ${PACKAGE_ast_INCLUDE}
 	done
 	make ${PACKAGE_ast_INCLUDE}/sum.h
 		prev sum.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 done install
 make test dontcare virtual

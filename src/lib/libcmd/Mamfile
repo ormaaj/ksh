@@ -349,7 +349,7 @@ make install virtual
 								prev cmd.h
 							done
 							exec - {
-							exec - ${STDCAT} <<!
+							exec - cat <<!
 							exec - /*
 							exec -  * -lcmd extern function prototypes
 							exec -  */
@@ -576,7 +576,7 @@ make install virtual
 	done
 	make ${INSTALLROOT}/lib/libcmd.a
 		prev libcmd.a
-		exec - ${STDCP} -f ${<} ${@} || exit
+		exec - cp -f ${<} ${@} || exit
 		exec - (ranlib ${@}) >/dev/null 2>&1 || true
 	done
 	make ${INSTALLROOT}/lib/lib
@@ -584,18 +584,18 @@ make install virtual
 	done
 	make ${INSTALLROOT}/lib/lib/cmd
 		prev cmd.req
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}
 		exec - mkdir -p ${PACKAGE_ast_INCLUDE}
 	done
 	make ${PACKAGE_ast_INCLUDE}/cmd.h
 		prev cmd.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}/cmdext.h
 		prev cmdext.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}/cmdlist.h
 		make cmdlist.h
@@ -647,7 +647,7 @@ make install virtual
 			prev wclib.c
 			prev lib.c
 			exec - {
-			exec - ${STDCAT} <<!
+			exec - cat <<!
 			exec - /*
 			exec -  * -lcmd function list -- define your own CMDLIST()
 			exec -  */
@@ -662,7 +662,7 @@ make install virtual
 			exec - sort -u
 			exec - } > ${@}
 		done cmdlist.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done ${PACKAGE_ast_INCLUDE}/cmdlist.h
 done install
 make test dontcare virtual

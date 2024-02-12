@@ -58,9 +58,9 @@ make install virtual
 			exec -		echo "#undef _AST_git_commit"
 			exec -		;;
 			exec -	esac > releaseflags.h.new
-			exec -	if	${STDCMP} -s releaseflags.h.new releaseflags.h
-			exec -	then	${STDRM} -f releaseflags.h.new
-			exec -	else	${STDMV} -f releaseflags.h.new releaseflags.h
+			exec -	if	cmp -s releaseflags.h.new releaseflags.h
+			exec -	then	rm -f releaseflags.h.new
+			exec -	else	mv -f releaseflags.h.new releaseflags.h
 			exec -	fi
 		done
 		make ast.req
@@ -69,7 +69,7 @@ make install virtual
 					prev features/standards
 					exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 				done
-				exec - ${STDCP} -f ${<} ${@}
+				exec - cp -f ${<} ${@}
 			done
 			make FEATURE/lib
 				prev features/lib
@@ -95,7 +95,7 @@ make install virtual
 												prev features/sig.sh
 												exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 											done
-											exec - ${STDCP} -f ${<} ${@}
+											exec - cp -f ${<} ${@}
 										done
 										make FEATURE/api implicit
 											prev features/api
@@ -122,7 +122,7 @@ make install virtual
 									done
 									exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I.  ${LDFLAGS}" run ${<}
 								done
-								exec - ${STDCP} -f ${<} ${@}
+								exec - cp -f ${<} ${@}
 							done ast_map.h
 						done ast_common.h
 					done std/bytesex.h
@@ -140,10 +140,10 @@ make install virtual
 							make conf
 								prev comp/conf.sh
 								exec - {
-								exec - ${STDCAT} - comp/conf.sh <<'!'
+								exec - cat - comp/conf.sh <<'!'
 								exec - HOSTTYPE="${mam_cc_HOSTTYPE}"
 								exec - !
-								exec - } > conf && ${STDCHMOD} u+w,+x conf
+								exec - } > conf && chmod u+w,+x conf
 							done
 							prev comp/conf.tab
 							exec - ${INSTALLROOT}/src/lib/libast/conf -v comp/conf.tab ${CC} ${mam_cc_FLAGS} ${CCFLAGS}
@@ -158,7 +158,7 @@ make install virtual
 					done features/limits.c
 					exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Icomp -Iinclude -Istd  ${LDFLAGS}" run ${<}
 				done FEATURE/limits
-				exec - ${STDCP} -f ${<} ${@}
+				exec - cp -f ${<} ${@}
 			done ast_limits.h
 			make ast_stdio.h dontcare
 				make FEATURE/stdio
@@ -169,7 +169,7 @@ make install virtual
 						make include/regex.h implicit
 							make ast_api.h implicit dontcare
 								prev FEATURE/api
-								exec - ${STDCP} -f ${<} ${@}
+								exec - cp -f ${<} ${@}
 							done
 							make ast_wchar.h implicit dontcare
 								make FEATURE/wchar
@@ -187,7 +187,7 @@ make install virtual
 													prev ast_wchar.h
 												done
 											done
-											exec - ${STDCP} -f ${<} ${@}
+											exec - cp -f ${<} ${@}
 										done
 									done
 									make std/stdio.h implicit dontcare
@@ -195,7 +195,7 @@ make install virtual
 									done
 									prev ast_common.h
 								done
-								exec - ${STDCP} -f ${<} ${@}
+								exec - cp -f ${<} ${@}
 								prev std/stdio.h
 								prev ast_common.h
 							done
@@ -215,7 +215,7 @@ make install virtual
 								done
 								exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Icomp -Iinclude -Istd  ${LDFLAGS}" run ${<}
 							done
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 						done
 						prev ast_limits.h
 						make ast_fcntl.h implicit dontcare
@@ -235,26 +235,26 @@ make install virtual
 								exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Icomp -Iinclude -Istd  ${LDFLAGS}" run ${<}
 								make ast_fs.h implicit dontcare
 									prev FEATURE/fs
-									exec - ${STDCP} -f ${<} ${@}
+									exec - cp -f ${<} ${@}
 								done
 							done
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 							prev ast_fs.h
 						done
 						prev include/ast_getopt.h
 						make ast_sys.h implicit dontcare
 							prev FEATURE/sys
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 						done
 						make ast_lib.h implicit dontcare
 							prev FEATURE/lib
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 						done
 						prev ast_common.h
 						prev ast_standards.h
 					done include/ast_std.h
 				done FEATURE/stdio
-				exec - ${STDCP} -f ${<} ${@}
+				exec - cp -f ${<} ${@}
 				prev include/sfio_s.h
 				prev include/ast_std.h
 			done ast_stdio.h
@@ -263,14 +263,14 @@ make install virtual
 					prev features/nl_types
 					exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 				done
-				exec - ${STDCP} -f ${<} ${@}
+				exec - cp -f ${<} ${@}
 			done
 			prev ast_wchar.h
 			prev ast_wctype.h
 			note *
 			note * clean up obsolete headers
 			note *
-			exec - ${STDRM} -rf dirent.h iconv.h nl_types.h stdio.h wchar.h wctype.h ast_hdr.h ast_types.h ast_unistd.h iffeio.h \
+			exec - rm -rf dirent.h iconv.h nl_types.h stdio.h wchar.h wctype.h ast_hdr.h ast_types.h ast_unistd.h iffeio.h \
 			exec - ${INSTALLROOT}/include/ast/limits.h ${INSTALLROOT}/include/ast/unistd.h \
 			exec - ${PACKAGEROOT}/src/lib/libast/std/limits.h
 			note *
@@ -298,7 +298,7 @@ make install virtual
 				exec -			exit 1
 				exec -		fi
 				exec - done
-				exec - ${STDRM} -rf astmath.exe*
+				exec - rm -rf astmath.exe*
 				exec - echo $X > astmath.out
 			done
 			prev FEATURE/aso
@@ -335,7 +335,7 @@ make install virtual
 						prev direntry.h implicit dontcare virtual
 						make ast_param.h implicit dontcare
 							prev FEATURE/param
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 						done
 						make std/dirent.h implicit dontcare
 							make ast_dirent.h implicit dontcare
@@ -344,7 +344,7 @@ make install virtual
 									prev features/dirent
 									exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 								done
-								exec - ${STDCP} -f ${<} ${@}
+								exec - cp -f ${<} ${@}
 								prev include/ast_std.h
 							done
 						done
@@ -359,7 +359,7 @@ make install virtual
 									done
 									exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -Iinclude -Istd  ${LDFLAGS}" run ${<}
 								done
-								exec - ${STDCP} -f ${<} ${@}
+								exec - cp -f ${<} ${@}
 							done
 							prev ast_fs.h
 							prev include/ast_std.h
@@ -536,7 +536,7 @@ make install virtual
 								prev features/ccode
 								exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 							done
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 						done
 						prev ast_common.h
 					done
@@ -773,7 +773,7 @@ make install virtual
 								prev features/time
 								exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 							done
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 						done
 						prev include/ast.h
 					done
@@ -879,7 +879,7 @@ make install virtual
 							prev features/tv
 							exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 						done
-						exec - ${STDCP} -f ${<} ${@}
+						exec - cp -f ${<} ${@}
 						prev include/ast.h
 					done
 					prev include/ls.h
@@ -1192,7 +1192,7 @@ make install virtual
 								prev features/iconv
 								exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 							done
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 							prev include/ccode.h
 							prev ast_common.h
 						done
@@ -1263,7 +1263,7 @@ make install virtual
 						prev include/ls.h
 						make ast_tty.h implicit dontcare
 							prev FEATURE/tty
-							exec - ${STDCP} -f ${<} ${@}
+							exec - cp -f ${<} ${@}
 						done
 						prev ast_time.h
 						prev include/ast.h
@@ -1481,7 +1481,7 @@ make install virtual
 							done
 							exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 						done
-						exec - ${STDCP} -f ${<} ${@}
+						exec - cp -f ${<} ${@}
 						prev tv.h
 						prev include/tm.h
 					done
@@ -1552,7 +1552,7 @@ make install virtual
 							done
 							exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I.  ${LDFLAGS}" run ${<}
 						done
-						exec - ${STDCP} -f ${<} ${@}
+						exec - cp -f ${<} ${@}
 					done
 					prev include/ast.h
 					prev include/sfio_t.h
@@ -1631,7 +1631,7 @@ make install virtual
 									prev features/wait
 									exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 								done
-								exec - ${STDCP} -f ${<} ${@}
+								exec - cp -f ${<} ${@}
 							done
 							prev include/ast.h
 						done
@@ -4028,7 +4028,7 @@ make install virtual
 					prev include/ls.h
 					make ast_mmap.h implicit
 						prev FEATURE/mmap
-						exec - ${STDCP} -f ${<} ${@}
+						exec - cp -f ${<} ${@}
 					done
 					prev include/ast.h
 				done
@@ -4309,7 +4309,7 @@ make install virtual
 	done
 	make ${INSTALLROOT}/lib/libast.a
 		prev libast.a
-		exec - ${STDCP} -f ${<} ${@} || exit
+		exec - cp -f ${<} ${@} || exit
 		exec - (ranlib ${@}) >/dev/null 2>&1 || true
 	done
 	make ${INSTALLROOT}/man/man3
@@ -4317,559 +4317,559 @@ make install virtual
 	done
 	make ${INSTALLROOT}/man/man3/LIBAST.3
 		prev man/LIBAST.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/aso.3
 		prev man/aso.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/ast.3
 		prev man/ast.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/cdt.3
 		prev man/cdt.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/chr.3
 		prev man/chr.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/compat.3
 		prev man/compat.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/error.3
 		prev man/error.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/find.3
 		prev man/find.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/fmt.3
 		prev man/fmt.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/fmtls.3
 		prev man/fmtls.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/ftwalk.3
 		prev man/ftwalk.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/getcwd.3
 		prev man/getcwd.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/hash.3
 		prev man/hash.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/iblocks.3
 		prev man/iblocks.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/int.3
 		prev man/int.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/ip6.3
 		prev man/ip6.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/magic.3
 		prev man/magic.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/mem.3
 		prev man/mem.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/mime.3
 		prev man/mime.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/modecanon.3
 		prev man/modecanon.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/optget.3
 		prev man/optget.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/path.3
 		prev man/path.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/proc.3
 		prev man/proc.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/re.3
 		prev man/re.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/regex.3
 		prev man/regex.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/setenviron.3
 		prev man/setenviron.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/sfio.3
 		prev man/sfio.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/sig.3
 		prev man/sig.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/spawnveg.3
 		prev man/spawnveg.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/stk.3
 		prev man/stk.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strcopy.3
 		prev man/strcopy.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strdup.3
 		prev man/strdup.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strelapsed.3
 		prev man/strelapsed.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strerror.3
 		prev man/strerror.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/stresc.3
 		prev man/stresc.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/streval.3
 		prev man/streval.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strgid.3
 		prev man/strgid.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strmatch.3
 		prev man/strmatch.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/stropt.3
 		prev man/stropt.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strperm.3
 		prev man/strperm.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strsignal.3
 		prev man/strsignal.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strsort.3
 		prev man/strsort.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strtape.3
 		prev man/strtape.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/strton.3
 		prev man/strton.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/struid.3
 		prev man/struid.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/swap.3
 		prev man/swap.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/tab.3
 		prev man/tab.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/tm.3
 		prev man/tm.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/tmx.3
 		prev man/tmx.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/tok.3
 		prev man/tok.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/touch.3
 		prev man/touch.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/tv.3
 		prev man/tv.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/vecargs.3
 		prev man/vecargs.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/vmalloc.3
 		prev man/vmalloc.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/lib/lib
 		exec - mkdir -p ${@}
 	done
 	make ${INSTALLROOT}/lib/lib/ast
 		prev ast.req
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast
 		exec - mkdir -p ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_common.h
 		prev ast_common.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast.h
 		prev include/ast.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_dir.h
 		prev include/ast_dir.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_getopt.h
 		prev include/ast_getopt.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_std.h
 		prev include/ast_std.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_windows.h
 		prev include/ast_windows.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ccode.h
 		prev include/ccode.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/cdt.h
 		prev include/cdt.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/cdtlib.h
 		prev cdt/cdtlib.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/cmdarg.h
 		prev include/cmdarg.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/debug.h
 		prev include/debug.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/dt.h
 		prev include/dt.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/error.h
 		prev include/error.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/find.h
 		prev include/find.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ftw.h
 		prev comp/ftw.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ftwalk.h
 		prev include/ftwalk.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/fts.h
 		prev include/fts.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/getopt.h
 		prev comp/getopt.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/glob.h
 		prev include/glob.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/hash.h
 		prev include/hash.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/hashkey.h
 		prev include/hashkey.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/hashpart.h
 		prev include/hashpart.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ip6.h
 		prev include/ip6.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/lc.h
 		prev lc.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ls.h
 		prev include/ls.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/magic.h
 		prev include/magic.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/mc.h
 		prev include/mc.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/mime.h
 		prev include/mime.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/mnt.h
 		prev include/mnt.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/modecanon.h
 		prev include/modecanon.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/modex.h
 		prev include/modex.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/namval.h
 		prev include/namval.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/option.h
 		prev include/option.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/proc.h
 		prev include/proc.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/re_comp.h
 		prev comp/re_comp.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/recfmt.h
 		prev include/recfmt.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/regex.h
 		prev include/regex.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/regexp.h
 		prev comp/regexp.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/sfio.h
 		prev include/sfio.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/sfio_s.h
 		prev include/sfio_s.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/sfio_t.h
 		prev include/sfio_t.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/sfdisc.h
 		prev include/sfdisc.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/shcmd.h
 		prev include/shcmd.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/stk.h
 		prev include/stk.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/swap.h
 		prev include/swap.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/tar.h
 		prev include/tar.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/times.h
 		prev include/times.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/tm.h
 		prev include/tm.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/tok.h
 		prev include/tok.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/usage.h
 		prev include/usage.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/vdb.h
 		prev include/vdb.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/vecargs.h
 		prev include/vecargs.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/vmalloc.h
 		prev include/vmalloc.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/wait.h
 		prev include/wait.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/wordexp.h
 		prev comp/wordexp.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/bytesex.h
 		prev std/bytesex.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/endian.h
 		prev std/endian.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/fnmatch.h
 		prev comp/fnmatch.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/magicid.h
 		make include/magicid.h
 			prev ast_common.h
 		done
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/fnv.h
 		prev include/fnv.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/aso.h
 		prev include/aso.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/dirent.h
 		prev std/dirent.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/iconv.h
 		prev std/iconv.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/nl_types.h
 		prev std/nl_types.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/stdio.h
 		prev std/stdio.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/wchar.h
 		prev std/wchar.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/wctype.h
 		prev std/wctype.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/align.h
 		prev align.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/sig.h
 		prev sig.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/tmx.h
 		prev tmx.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/tv.h
 		prev tv.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_api.h
 		prev ast_api.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_botch.h
 		prev ast_botch.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_ccode.h
 		prev ast_ccode.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_fcntl.h
 		prev ast_fcntl.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_float.h
 		make ast_float.h
 			prev ast_common.h
 			prev FEATURE/float
-			exec - ${STDCP} -f ${<} ${@}
+			exec - cp -f ${<} ${@}
 		done
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_fs.h
 		prev ast_fs.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_lib.h
 		prev ast_lib.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_map.h
 		prev ast_map.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_mmap.h
 		prev ast_mmap.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_mode.h
 		prev ast_mode.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_ndbm.h
 		make ast_ndbm.h
@@ -4878,37 +4878,37 @@ make install virtual
 				prev features/ndbm
 				exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 			done
-			exec - ${STDCP} -f ${<} ${@}
+			exec - cp -f ${<} ${@}
 		done
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_param.h
 		prev ast_param.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_sys.h
 		prev ast_sys.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_time.h
 		prev ast_time.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_tty.h
 		prev ast_tty.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_wait.h
 		prev ast_wait.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_limits.h
 		prev ast_limits.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_standards.h
 		prev ast_standards.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_sizeof.h
 		make ast_sizeof.h
@@ -4916,40 +4916,40 @@ make install virtual
 				prev features/sizeof
 				exec - iffe ${IFFEFLAGS} -v -X ast -X std -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" run ${<}
 			done
-			exec - ${STDCP} -f ${<} ${@}
+			exec - cp -f ${<} ${@}
 		done
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_dirent.h
 		prev ast_dirent.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_iconv.h
 		prev ast_iconv.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_nl_types.h
 		prev ast_nl_types.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_stdio.h
 		prev ast_stdio.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_wchar.h
 		prev ast_wchar.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/include/ast/ast_wctype.h
 		prev ast_wctype.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/lib/file
 		exec - mkdir -p ${@}
 	done
 	make ${INSTALLROOT}/lib/file/magic
 		prev misc/magic.tab
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/lib/package/gen/.asthdr_tstamp
 		prev ast_lib.h
@@ -4961,15 +4961,15 @@ make install virtual
 		exec - do	hdr=$(basename "$src" .h)
 		exec -		grep -q "define[ $CCt][ $CCt]*_[hl][di][rb]_$hdr" ast_lib.h && continue
 		exec -		dst=${INSTALLROOT}/include/ast/$hdr.h
-		exec -		if	! ${STDCMP} -s "$src" "$dst"
-		exec -		then	${STDCP} -f "$src" "$dst" || exit
+		exec -		if	! cmp -s "$src" "$dst"
+		exec -		then	cp -f "$src" "$dst" || exit
 		exec -		fi
 		exec - done
 		exec - touch ${@}
 	done
 	make ${INSTALLROOT}/include/ast/releaseflags.h
 		prev releaseflags.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	note *
 	note * mamake was previously built by package.sh without libast;
@@ -4991,8 +4991,8 @@ make install virtual
 		note * this helps to ensure that the package.sh-built version gets overwritten.
 		note *
 		note * macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
-		exec - ${STDRM} -rf ${INSTALLROOT}/bin/${@} ${INSTALLROOT}/bin/${@}.*
-		exec - ${STDCP} ${@} ${INSTALLROOT}/bin/${@}
+		exec - rm -rf ${INSTALLROOT}/bin/${@} ${INSTALLROOT}/bin/${@}.*
+		exec - cp ${@} ${INSTALLROOT}/bin/${@}
 	done
 done install
 make test dontcare virtual

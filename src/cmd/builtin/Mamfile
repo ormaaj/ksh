@@ -120,7 +120,7 @@ make install virtual
 	make ${INSTALLROOT}/bin/pty
 		prev pty
 		note * macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
-		exec - ${STDRM} -f ${@} && ${STDCP} ${<} ${@}
+		exec - rm -f ${@} && cp ${<} ${@}
 	done
 done install
 make test dontcare virtual

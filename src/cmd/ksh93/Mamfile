@@ -65,11 +65,11 @@ make install virtual
 			exec -		'TEST_L=')
 			exec -			# if external 'test' supports lowercase -l as equivalent to -L, enable
 			exec -			# SHOPT_TEST_L so ksh supports it for compatibility with local scripts
-			exec -			${STDLN} -s /dev/null "$EXECROOT/link$$"
+			exec -			ln -s /dev/null "$EXECROOT/link$$"
 			exec -			if	env test -l "$EXECROOT/link$$" && env test ! -l .
 			exec -			then	writedef TEST_L 1
 			exec -			fi 2>/dev/null
-			exec -			${STDRM} -f "$EXECROOT/link$$" ;;
+			exec -			rm -f "$EXECROOT/link$$" ;;
 			exec -		'PRINTF_LEGACY=')
 			exec -			# if external 'printf' allows POSIX-ignorant syntax (i.e., a format operand
 			exec -			# starting with '-' without prior '--'), enable code for backward compat
@@ -93,7 +93,7 @@ make install virtual
 			exec -	echo '/* Generated from ksh93/SHOPT.sh by ksh93/Mamfile */'
 			exec -	echo
 			exec -	. "$PACKAGEROOT/src/cmd/ksh93/SHOPT.sh"
-			exec -	${STDCAT} <<-EOF
+			exec -	cat <<-EOF
 			exec -		#include "FEATURE/options"
 			exec -
 			exec -		/* overrides */
@@ -1199,21 +1199,21 @@ make install virtual
 	make ${INSTALLROOT}/bin/ksh
 		prev ksh
 		note * macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
-		exec - ${STDRM} -f ${@} && ${STDCP} ${<} ${@}
+		exec - rm -f ${@} && cp ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man1
 		exec - mkdir -p ${@}
 	done
 	make ${INSTALLROOT}/man/man1/sh.1
 		prev sh.1
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/lib
 		exec - mkdir -p ${@}
 	done
 	make ${INSTALLROOT}/lib/libshell.a
 		prev libshell.a
-		exec - ${STDCP} -f ${<} ${@} || exit
+		exec - cp -f ${<} ${@} || exit
 		exec - (ranlib ${@}) >/dev/null 2>&1 || true
 	done
 	make ${INSTALLROOT}/man/man3
@@ -1221,69 +1221,69 @@ make install virtual
 	done
 	make ${INSTALLROOT}/man/man3/shell.3
 		prev shell.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/man/man3/nval.3
 		prev nval.3
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/lib/lib
 		exec - mkdir -p ${@}
 	done
 	make ${INSTALLROOT}/lib/lib/shell
 		prev shell.req
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}
 		exec - mkdir -p ${PACKAGE_ast_INCLUDE}
 	done
 	make ${PACKAGE_ast_INCLUDE}/nval.h
 		prev include/nval.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}/shell.h
 		prev include/shell.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}/history.h
 		prev include/history.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${INSTALLROOT}/bin/shcomp
 		prev shcomp
 		note * macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
-		exec - ${STDRM} -f ${@} && ${STDCP} ${<} ${@}
+		exec - rm -f ${@} && cp ${<} ${@}
 	done
 	make ${INSTALLROOT}/fun
 		exec - mkdir -p ${@}
 	done
 	make ${INSTALLROOT}/fun/autocd
 		prev fun/autocd
-		exec - ${STDCP} -f ${<} ${@} && ${STDCHMOD} ugo+x ${@}
+		exec - cp -f ${<} ${@} && chmod ugo+x ${@}
 	done
 	make ${INSTALLROOT}/fun/cd
 		prev fun/cd
-		exec - ${STDCP} -f ${<} ${@} && ${STDCHMOD} ugo+x ${@}
+		exec - cp -f ${<} ${@} && chmod ugo+x ${@}
 	done
 	make ${INSTALLROOT}/fun/dirs
 		prev fun/dirs
-		exec - ${STDCP} -f ${<} ${@} && ${STDCHMOD} ugo+x ${@}
+		exec - cp -f ${<} ${@} && chmod ugo+x ${@}
 	done
 	make ${INSTALLROOT}/fun/man
 		prev fun/man
-		exec - ${STDCP} -f ${<} ${@} && ${STDCHMOD} ugo+x ${@}
+		exec - cp -f ${<} ${@} && chmod ugo+x ${@}
 	done
 	make ${INSTALLROOT}/fun/mcd
 		prev fun/mcd
-		exec - ${STDCP} -f ${<} ${@} && ${STDCHMOD} ugo+x ${@}
+		exec - cp -f ${<} ${@} && chmod ugo+x ${@}
 	done
 	make ${INSTALLROOT}/fun/popd
 		prev fun/popd
-		exec - ${STDCP} -f ${<} ${@} && ${STDCHMOD} ugo+x ${@}
+		exec - cp -f ${<} ${@} && chmod ugo+x ${@}
 	done
 	make ${INSTALLROOT}/fun/pushd
 		prev fun/pushd
-		exec - ${STDCP} -f ${<} ${@} && ${STDCHMOD} ugo+x ${@}
+		exec - cp -f ${<} ${@} && chmod ugo+x ${@}
 	done
 	make announce_build_done notrace virtual
 		prev ksh

@@ -97,7 +97,7 @@ make install virtual
 							bind -last
 							exec - iffe ${IFFEFLAGS} -v -c "${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}" ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdl} ${mam_libast} : run ${<}
 						done
-						exec - ${STDCP} -f ${<} ${@}
+						exec - cp -f ${<} ${@}
 					done
 					prev ${PACKAGE_ast_INCLUDE}/ast.h
 				done dlfcn.c
@@ -193,7 +193,7 @@ make install virtual
 	done
 	make ${INSTALLROOT}/lib/libdll.a
 		prev libdll.a
-		exec - ${STDCP} -f ${<} ${@} || exit
+		exec - cp -f ${<} ${@} || exit
 		exec - (ranlib ${@}) >/dev/null 2>&1 || true
 	done
 	make ${INSTALLROOT}/lib/lib
@@ -201,14 +201,14 @@ make install virtual
 	done
 	make ${INSTALLROOT}/lib/lib/dll
 		prev dll.req
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 	make ${PACKAGE_ast_INCLUDE}
 		exec - mkdir -p ${PACKAGE_ast_INCLUDE}
 	done
 	make ${PACKAGE_ast_INCLUDE}/dlldefs.h
 		prev dlldefs.h
-		exec - ${STDCP} -f ${<} ${@}
+		exec - cp -f ${<} ${@}
 	done
 done install
 make test dontcare virtual

@@ -11,6 +11,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   behaviour of the system's external printf(1) determines whether this is
   compiled in or out by default. Normal ksh printf options keep working.
 
+- Fixed a bug, introduced on 2023-06-02, that made it impossible within a
+  namespace to unset a function defined outside the namespace.
+
 2024-02-09:
 
 - Fixed multiple inaccurate or missing values in the /opt/ast/bin/getconf

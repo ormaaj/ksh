@@ -569,6 +569,7 @@ static void	exfile(Sfio_t *iop,int fno)
 				sfclrerr(iop);
 				continue;
 			}
+			sh.exitval = sh.savexit;
 			goto done;
 		}
 		sh.exitval = sh.savexit;

@@ -954,7 +954,7 @@ w : ..\t
 r : \.\./\r\n$
 !
 
-tst $LINENO <<"!"
+((SHOPT_VSH)) && tst $LINENO <<"!"
 L Ctrl+C with SIGINT ignored
 # https://github.com/ksh93/ksh/issues/343
 # Fix improved on 2024-02-12.

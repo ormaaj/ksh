@@ -373,11 +373,11 @@ done install
 make test dontcare virtual
 	make test.iffe virtual
 		prev iffe.tst
-		exec - regress ${<} iffe
+		exec - regress --verbose ${<} iffe
 	done
 	make test.mamake virtual
 		prev mamake.tst
 		exec - : testing non-libast mamake at $PWD/mamake :
-		exec - regress ${<} mamake
+		exec - regress --verbose ${<} mamake
 	done
 done test

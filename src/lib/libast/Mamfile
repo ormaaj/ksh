@@ -4999,6 +4999,6 @@ make test dontcare virtual
 	make test.mamake virtual
 		prev ${PACKAGEROOT}/src/cmd/INIT/mamake.tst
 		exec - : testing the libast rebuild of mamake at $PWD/mamake :
-		exec - regress ${<} mamake
+		exec - regress --verbose ${<} mamake
 	done
 done test

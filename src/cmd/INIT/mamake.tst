@@ -60,4 +60,4 @@ echo __NoT_DeFiNeD__=VALUE ${__NoT_DeFiNeD__=VALUE}
 echo __NoT_DeFiNeD__[VALUE] ${__NoT_DeFiNeD__[VALUE]}
 echo __NoT_DeFiNeD__.COMPONENT 
 echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VALUE]}'
-		ERROR -n -
+		ERROR - $'\n# Mamfile: 4-30: make all'

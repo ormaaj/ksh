@@ -160,7 +160,7 @@ static const char usage[] =
 #include <string.h>
 #endif
 
-#define delimiter(c)	((c)==' '||(c)=='\t'||(c)=='\n'||(c)==';'||(c)=='('||(c)==')'||(c)=='`'||(c)=='|'||(c)=='&'||(c)=='=')
+#define delimiter(c)	(isspace(c)||(c)==';'||(c)=='('||(c)==')'||(c)=='`'||(c)=='|'||(c)=='&'||(c)=='=')
 
 #define add(b,c)	(((b)->nxt >= (b)->end) ? append(b, "") : NULL, *(b)->nxt++ = (c))
 #define get(b)		((b)->nxt-(b)->buf)
@@ -216,7 +216,11 @@ typedef struct Dict_item_s		/* dictionary item		*/
 	struct Dict_item_s*	left;	/* left child			*/
 	struct Dict_item_s*	right;	/* right child			*/
 	void*			value;	/* user defined value		*/
+#if __STDC_VERSION__ >= 199901L
+	char			name[];	/* 0 terminated name		*/
+#else
 	char			name[1];/* 0 terminated name		*/
+#endif
 } Dict_item_t;
 
 typedef struct Dict_s			/* dictionary handle		*/
@@ -254,7 +258,11 @@ typedef struct View_s			/* viewpath level		*/
 {
 	struct View_s*	next;		/* next level in viewpath	*/
 	int		node;		/* viewpath node path length	*/
+#if __STDC_VERSION__ >= 199901L
+	char		dir[];		/* viewpath level dir prefix	*/
+#else
 	char		dir[1];		/* viewpath level dir prefix	*/
+#endif
 } View_t;
 
 static struct				/* program state		*/
@@ -599,7 +607,7 @@ search(Dict_t* dict, char* name, void* value)
 	}
 	else if (value)
 	{
-		if (!(root = newof(0, Dict_item_t, 1, strlen(name))))
+		if (!(root = newof(0, Dict_item_t, 1, strlen(name) + 1)))
 		{
 			report(3, "out of memory [dictionary]", name, 0);
 			abort();
@@ -669,10 +677,18 @@ rule(char* name)
 
 	if (!(r = (Rule_t*)search(state.rules, name, NULL)))
 	{
+		int n;
 		if (!(r = newof(0, Rule_t, 1, 0)))
 			report(3, "out of memory [rule]", name, 0);
 		r->name = ((Dict_item_t*)search(state.rules, name, r))->name;
 		r->line = state.sp ? state.sp->line : 0;
+		/*
+		 * Since ksh 93u+m removed proto(1) including the *.lic license
+		 * atrocities, make those prerequisites optional. This allows
+		 * testing code with old Mamfiles using the current build system.
+		 */
+		if (!state.strict && *name == '/' && (n = strlen(name)) > 4 && strcmp(name + n - 4, ".lic") == 0)
+			r->flags |= RULE_dontcare;
 	}
 	return r;
 }
@@ -885,9 +901,13 @@ substitute(Buf_t* buf, char* s)
 					else if (*s == '}' && !--n)
 						break;
 			}
+
+			/* Special expansion syntax */
+
 			switch (c)
 			{
 			case '?':
+				/* ${variable?c?x?y?} */
 				q = cond(t - 1);
 				if (v)
 				{
@@ -921,6 +941,7 @@ substitute(Buf_t* buf, char* s)
 				break;
 			case '+':
 			case '-':
+				/* ${variable+x}, ${variable-x} */
 				if ((v == 0 || *v == 0) == (c == '-'))
 				{
 					c = *s;
@@ -1260,7 +1281,6 @@ run(Rule_t* r, char* s)
 	Rule_t*		q;
 	char*		t;
 	int		c;
-	View_t*		v;
 	int		i;
 	int		j;
 	int		x;
@@ -1310,11 +1330,21 @@ run(Rule_t* r, char* s)
 				append(buf, t);
 				continue;
 			}
+			/*
+			 * If the word matches the name of a non-generated prerequisite,
+			 * replace it with its canonical path within the source directory.
+			 */
 			if ((q = (Rule_t*)search(state.rules, t, NULL)) && q->path && !(q->flags & RULE_generated))
 				append(buf, q->path);
 			else
 			{
 				append(buf, t);
+				/*
+				 * Viewpathing for -I cc flags (include path directories):
+				 * duplicate every '-Ipath' and '-I path', where 'path' is a relative
+				 * pathname (i.e. not starting with '/'). The duplicate points to the
+				 * corresponding canonical path in the source directory.
+				 */
 				if (*t == '-' && *(t + 1) == 'I' && (*(t + 2) || c))
 				{
 					if (*(t + 2))
@@ -1330,7 +1360,7 @@ run(Rule_t* r, char* s)
 					}
 					if (*(t + i) && *(t + i) != '/')
 					{
-						v = state.view;
+						View_t *v = state.view;
 						while (v = v->next)
 						{
 							add(buf, ' ');

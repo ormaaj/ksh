@@ -5,7 +5,7 @@ let() { return $((!($1))); }
 # Usage: Mamfile_indent <Mamfile >Mamfile.new
 #
 # Should work on all current POSIX compliant shells.
-# By Martijn Dekker <martijn@inlv.org>, 2021. Public domain.
+# By Martijn Dekker <martijn@inlv.org>, 2021, 2024. Public domain.
 
 # Spacing per indentation level. Edit to change style.
 indent='	'  # one tab
@@ -27,6 +27,7 @@ do	case $line in
 	printf '%s\n' $spc$line
 
 	case $line in
-	make*)	let "indentlvl += 1" ;;
+	make* | loop*)
+		let "indentlvl += 1" ;;
 	esac
 done

@@ -38,6 +38,7 @@ static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 static const char usage[] =
 "[-?\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\n]"
 "[-author?Glenn Fowler <gsf@research.att.com>]"
+"[-author?Martijn Dekker <martijn@inlv.org>]"
 "[-author?Contributors to https://github.com/ksh93/ksh]"
 "[-copyright?(c) 1994-2013 AT&T Intellectual Property]"
 "[-copyright?(c) 2020-2024 Contributors to ksh 93u+m]"
@@ -300,9 +301,12 @@ static struct				/* program state		*/
 
 	Stream_t	streams[4];	/* input file stream stack	*/
 	Stream_t*	sp;		/* input stream stack pointer	*/
+
+	char*		shim;		/* finished shim		*/
+	Buf_t*		shim_buf;	/* shim being built up		*/
 } state;
 
-static unsigned long	make(Rule_t*);
+static unsigned long	make(Rule_t*, int, unsigned long, Buf_t**);
 
 static char		mamfile[] = "Mamfile";
 static char		sh[] = "/bin/sh";
@@ -857,41 +861,79 @@ cond(char* s)
 static void
 substitute(Buf_t* buf, char* s)
 {
-	char*	t;
-	char*	v;
-	char*	q;
-	char*	b;
-	int	c;
-	int	n;
-	int	a = 0;
-	int	i;
+	char	*t, *q;
+	char	*v;		/* variable's value */
+	char	*b;		/* beginning: the literal expansion starting at $ */
+	int	c, n;
+	int	found_AR = 0;	/* 1 if ${AR} encountered */
+	int	valid_sh_name;	/* if set, the variable name is valid in sh(1) */
 
 	while (c = *s++)
 	{
 		if (c == '$' && *s == '{')
 		{
 			b = s - 1;
-			i = 1;
-			for (n = *(t = ++s) == '-' ? 0 : '-'; (c = *s) && (c != '?' || s == t) && c != '+' && c != n && c != ':' && c != '=' && c != '[' && c != '}'; s++)
+			t = ++s;
+			n = *t == '-' ? 0 : '-';
+			valid_sh_name = 1;
+			while ( (c = *s) &&
+				(c != '?' || s == t) &&
+				c != '+' &&
+				c != n &&
+				c != ':' &&
+				c != '=' &&
+				c != '[' &&
+				c != '}' )
+			{
+				s++;
 				if (!isalnum(c) && c != '_')
-					i = 0;
+					valid_sh_name = 0;
+			}
+
+			/* Zero-terminate the variable name */
+
 			*s = 0;
+
+			/* Keep unexpanded if it looks like a ksh array expansion ${var[subscript]} */
+
 			if (c == '[')
 			{
 				append(buf, b);
 				*s = c;
 				continue;
 			}
+
+			/* Obtain value */
+
 			v = (char*)search(state.vars, t, NULL);
-			if ((c == ':' || c == '=') && (!v || c == ':' && !*v))
+
+			/*
+			 * In strict >= 2, always keep ${foo:-bar}, ${foo:+bar}, ${foo:=bar}, ${foo=bar}
+			 * unexpanded for passing on to shell scripts in 'exec'.
+			 *
+			 * Before strict==2, this depends on whether the MAM variable value is nonexistent
+			 * or (if ':') empty, which does not make a lot of sense, as that is not valid MAM
+			 * expansion syntax and the feature is not actually implemented properly at all.
+			 */
+
+			if ((c == ':' || c == '=') && (state.strict >= 2 || !v || c == ':' && !*v))
 			{
 				append(buf, b);
 				*s = c;
 				continue;
 			}
+
+			/* A really absurd hack, see check for found_AR further below */
+
 			if (t[0] == 'A' && t[1] == 'R' && t[2] == 0)
-				a = 1;
+				found_AR = 1;
+
+			/* Un-terminate the variable name */
+
 			*s = c;
+
+			/* Find the ending '}', dealing with nesting */
+
 			if (c && c != '}')
 			{
 				n = 1;
@@ -957,9 +999,23 @@ substitute(Buf_t* buf, char* s)
 			case '=':
 			case '}':
 				if (v)
-				{
-					if (a && t[0] == 'm' && t[1] == 'a' && t[2] == 'm' && t[3] == '_' && t[4] == 'l' && t[5] == 'i' && t[6] == 'b')
-					{
+				{	/*
+					 * Perform the expansion: append the value of the variable to the buffer.
+					 */
+					if (found_AR && strncmp(t, "mam_lib", 7) == 0 && state.strict < 2)
+					{	/*
+						 * Absurd AT&T hack from 2007. The relevant src/cmd/INIT/RELEASE entry:
+						 *	07-02-26 mamake.c: expand first of ${mam_lib*} for ${AR}
+						 * i.e.: after ${AR}, expand any ${mam_lib*} to only first word of its value.
+						 *
+						 * In the entire AST repository's history, this has only been used once, in
+						 * libcmd/Mamfile, to extract sumlib.o from libsum.a (to add it to libcmd.a):
+						 *
+						 *	exec - ${AR} x ${mam_libsum} sumlib.o
+						 *
+						 * Taking the first word from ${mam_libsum} can very easily be handled
+						 * by the shell script instead, so this is disabled at strict level 2+.
+						 */
 						for (t = v; isspace(*t); t++);
 						for (; *t && !isspace(*t); t++);
 						if (*t)
@@ -970,10 +1026,18 @@ substitute(Buf_t* buf, char* s)
 						if (t)
 							*t = ' ';
 					}
-					else
+					else if (state.strict < 2)
+					{
+						/* Recursively expand variable references in values (no loop detection)! */
 						substitute(buf, v);
+					}
+					else
+					{
+						/* Sanity at long last. Variables expand to their literal values. */
+						append(buf, v);
+					}
 				}
-				else if (i)
+				else if (valid_sh_name || state.strict >= 2)
 				{
 					c = *s;
 					*s = 0;
@@ -1225,7 +1289,11 @@ input(void)
 	if (!state.sp)
 		report(3, "no input file stream", NULL, 0);
 	if (!fgets(input, sizeof(input), state.sp->fp))
+	{
+		if (ferror(state.sp->fp))
+			report(3, "read error", NULL, 0);
 		return NULL;
+	}
 	if (*input && *(e = input + strlen(input) - 1) == '\n')
 		*e = 0;
 	state.sp->line++;
@@ -1312,12 +1380,37 @@ run(Rule_t* r, char* s)
 			"*)	PATH=.:$PATH;;\n"
 			"esac\n"
 		);
+		/* disable global pathname expansion for safer field splitting */
+		if (state.strict >= 2)
+			append(buf,"set -f\n");
 		/* show trace for the shell action commands */
 		if (!(r->flags & RULE_notrace))
 			append(buf,"set -x\n");
+		/* add the shim if one was set */
+		if (state.shim)
+			append(buf, state.shim);
 	}
+
+	/*
+	 * Do viewpathing
+	 */
+
 	if (state.view)
 	{
+		char	*tofree = NULL;
+		if (x && state.shim)
+		{
+			/* Also subject the user-set shim to viewpathing
+			 * (plus other code preprended above, but it should not contain anything viewpathable) */
+			char	*pre = use(buf);
+			long	n = strlen(pre);
+			if (!(tofree = malloc(n + strlen(s) + 1)))
+				report(3, "out of memory [run]", NULL, 0);
+			strcpy(tofree, pre);
+			strcpy(tofree + n, s);
+			s = tofree;
+		}
+		/* Find words to apply viewpathing to */
 		do
 		{
 			for (; delimiter(*s); s++)
@@ -1378,6 +1471,8 @@ run(Rule_t* r, char* s)
 			}
 		} while (*s = c);
 		s = use(buf);
+		if (tofree)
+			free(tofree);
 	}
 	else if (x)
 	{
@@ -1509,7 +1604,7 @@ probe(void)
 	}
 	drop(pro);
 	drop(buf);
-	make(rule(""));
+	make(rule(""), 0, 0, NULL);
 	pop();
 }
 
@@ -1537,7 +1632,7 @@ attributes(Rule_t* r, char* s)
 				flag = RULE_dontcare;
 			break;
 		case 'g':
-			/* 'exec' assigns this attribute; ignore explicit assignment in strict mode */
+			/* 'exec' assigns this attribute; ignore explicit assignment at strict level 1 */
 			if (n == 9 && !strncmp(t, "generated", n))
 				flag = state.strict ? -1 : RULE_generated;
 			break;
@@ -1553,11 +1648,11 @@ attributes(Rule_t* r, char* s)
 			break;
 		case 'a':
 			if (n == 7 && !strncmp(t, "archive", n))
-				flag = -1;	/* ignore (not implemented) */
+				flag = -1;	/* not implemented */
 			break;
 		case 'j':
 			if (n == 5 && !strncmp(t, "joint", n))
-				flag = -1;	/* ignore (not implemented) */
+				flag = -1;	/* not implemented */
 			break;
 		case 'n':
 			if (n == 7 && !strncmp(t, "notrace", n))
@@ -1566,12 +1661,11 @@ attributes(Rule_t* r, char* s)
 		}
 		if (flag > 0)
 			r->flags |= flag;
-		else if (flag == 0)
+		else if (flag == 0 || state.strict >= 2)
 		{
 			t[n] = '\0';
 			report(3, "unknown attribute", t, 0);
 		}
-		/* deprecate ignored attributes */
 		else if (state.strict)
 			report(1, "deprecated", t, 0);
 	}
@@ -1703,34 +1797,42 @@ require(char* lib, int dontcare)
 
 /*
  * input() until `done r'
+ *
+ * This function is called recursively for both 'make' and 'loop'. The inloop
+ * parameter is nonzero while processing a loop, in which case modtime and
+ * cmd are passed on from the caller and updated in the caller upon return.
+ * If inloop==0, modtime must be initialised to zero and parentcmd is ignored.
  */
 
 static unsigned long
-make(Rule_t* r)
+make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 {
-	char*			s;
-	char*			t;
-	char*			u;
-	char*			v;
-	Rule_t*			q;
-	unsigned long		z;
-	unsigned long		x;
-	Buf_t*			buf;
-	Buf_t*			cmd;
+	char		*s;
+	char		*u;	/* command name */
+	char		*t;	/* argument word */
+	char		*v;	/* operand string */
+	Rule_t		*q;	/* new rule */
+	unsigned long	x;	/* new modtime */
+	Buf_t		*buf;	/* scratch buffer */
+	Buf_t		*cmd;	/* shell action */
 
-	r->making++;
-	if (r->flags & RULE_active)
-		state.active++;
-	if (*r->name)
-	{
-		z = bindfile(r);
-		state.indent++;
-		report(-1, r->name, "make", r->time);
-	}
+	if (inloop)
+		cmd = *parentcmd;
 	else
-		z = 0;
+	{
+		cmd = NULL;
+		r->making++;
+		if (r->flags & RULE_active)
+			state.active++;
+		if (*r->name)
+		{
+			if (!(r->flags & RULE_virtual))
+				modtime = bindfile(r);
+			state.indent++;
+			report(-1, r->name, "make", r->time);
+		}
+	}
 	buf = buffer();
-	cmd = 0;
 	/*
 	 * Parse lines
 	 */
@@ -1774,8 +1876,8 @@ make(Rule_t* r)
 						q = rule(expand(buf, t));
 						attributes(q, v);
 						x = bindfile(q);
-						if (z < x)
-							z = x;
+						if (modtime < x)
+							modtime = x;
 						if (q->flags & RULE_error)
 							r->flags |= RULE_error;
 					}
@@ -1785,20 +1887,34 @@ make(Rule_t* r)
 				}
 			}
 			continue;
+
 		case KEY('d','o','n','e'):
+			if (inloop)
+			{
+				if (*t)
+					report(3, "superflous arguments", u, 0);
+				break;
+			}
 			if (*t)
 			{	/* target is optional; use it for sanity check if present */
 				q = rule(expand(buf, t));
 				if (q != r && (t[0] != '$' || state.strict))
-					report(3, "mismatched done statement", t, 0);
+				{
+					append(buf,q->name);
+					append(buf," != ");
+					append(buf,r->name);
+					report(3, "mismatched done statement", use(buf), 0);
+				}
 				if (*v)
 				{
-					if (state.strict)
-						report(1, v, "done: attributes deprecated; move to 'make'", 0);
+					if (state.strict >= 2)
+						report(3, "superfluous arguments", u, 0);
+					else if (state.strict)
+						report(1, "attributes deprecated, move to 'make'", u, 0);
 					attributes(r, v);
 				}
 			}
-			if (cmd && state.active && (state.force || r->time < z || !r->time && !z))
+			if (cmd && state.active && (state.force || r->time < modtime || !r->time && !modtime))
 			{
 				char	*fname = state.sp->file, *rname = r->name, *rnamepre = "", *val;
 				int	len;
@@ -1825,19 +1941,20 @@ make(Rule_t* r)
 						fprintf(stderr, "target %s\n",
 							(r->flags & RULE_virtual) ? "is virtual" : "not found");
 					else
-						fprintf(stderr, "target [%lu] older than prerequisites [%lu]\n", r->time, z);
+						fprintf(stderr, "target [%lu] older than prerequisites [%lu]\n", r->time, modtime);
 				}
 
 				/* run the shell action */
 				x = run(r, use(cmd));
-				if (z < x)
-					z = x;
+				if (modtime < x)
+					modtime = x;
 				r->flags |= RULE_updated;
 			}
 			r->flags |= RULE_made;
 			if (!(r->flags & (RULE_dontcare|RULE_error|RULE_exists|RULE_generated|RULE_implicit|RULE_virtual)))
 				dont(r, 0, state.keepgoing);
 			break;
+
 		case KEY('e','x','e','c'):
 			r->flags |= RULE_generated;
 			if (r->path)
@@ -1856,7 +1973,63 @@ make(Rule_t* r)
 				 * to avoid confusing behaviour of automatic variables such as ${<} */
 				append(cmd, expand(buf, v));
 			}
+			/* if a shim is buffered, get it ready and reset the buffer */
+			if (get(state.shim_buf))
+			{
+				state.shim = use(state.shim_buf);
+				/* a single 'shim -' deactivates the shim */
+				if (*state.shim == '\n' && !state.shim[1])
+					state.shim = NULL;
+			}
 			continue;
+
+		case KEY('l','o','o','p'):
+		{
+			long		saveoff;
+			char		*vname, *words, *w, *nextw, *cp, *save_value;
+			Dict_item_t	*vnode;
+			unsigned long	saveline = state.sp->line;
+
+			if (!*v)
+				report(3, "syntax error", u, 0);
+			/* remember current offset for repeated reading */
+			if ((saveoff = ftell(state.sp->fp)) < 0)
+				report(3, "unseekable input", u, 0);
+			/* iterate through one or more whitespace-separated words */
+			vname = duplicate(expand(buf, t));
+			w = words = duplicate(expand(buf, v));
+			save_value = search(state.vars, vname, NULL);
+			vnode = search(state.vars, vname, empty);
+			for (w = words; w; w = nextw)
+			{
+				/* zero-terminate current word and find next word */
+				nextw = NULL;
+				for (cp = w; *cp && !isspace(*cp); cp++);
+				if (*cp)
+				{
+					*cp++ = '\0';
+					for (; *cp && isspace(*cp); cp++);
+					if (*cp)
+						nextw = cp;
+				}
+				/* set iteration variable to current word */
+				vnode->value = w;
+				/* reposition input to the start of this loop block */
+				if (w != words)
+				{
+					if (fseek(state.sp->fp, saveoff, SEEK_SET) < 0)
+						report(3, "fseek failed", u, 0);
+					state.sp->line = saveline;
+				}
+				/* (re)read the loop block until 'done', in the context of the current rule */
+				modtime = make(r, 1, modtime, &cmd);
+			}
+			vnode->value = save_value;
+			free(words);
+			free(vname);
+			continue;
+		}
+
 		case KEY('m','a','k','e'):
 		{
 			char *rulename = expand(buf, t);
@@ -1876,9 +2049,9 @@ make(Rule_t* r)
 
 				/* make the target */
 				attributes(q, v);
-				x = make(q);
-				if (!(q->flags & RULE_ignore) && z < x)
-					z = x;
+				x = make(q, 0, 0, NULL);
+				if (!(q->flags & RULE_ignore) && modtime < x)
+					modtime = x;
 				if (q->flags & RULE_error)
 					r->flags |= RULE_error;
 
@@ -1907,6 +2080,7 @@ make(Rule_t* r)
 			}
 			continue;
 		}
+
 		case KEY('p','r','e','v'):
 		{
 			char *name = expand(buf, t);
@@ -1929,8 +2103,8 @@ make(Rule_t* r)
 				report(3, v, "prev: superfluous attributes", 0);
 			if (!q->making)
 			{
-				if (!(q->flags & RULE_ignore) && z < q->time)
-					z = q->time;
+				if (!(q->flags & RULE_ignore) && modtime < q->time)
+					modtime = q->time;
 				if (q->flags & RULE_error)
 					r->flags |= RULE_error;
 				state.indent++;
@@ -1954,12 +2128,11 @@ make(Rule_t* r)
 			}
 			continue;
 		}
+
 		case KEY('s','e','t','v'):
-			if (strcmp(t, "MAMAKE_STRICT") == 0)
-				state.strict = 1;
 			if (!search(state.vars, t, NULL))
 			{
-				if (*v == '"')
+				if (*v == '"' && state.strict < 2)
 				{
 					s = v + strlen(v) - 1;
 					if (*s == '"')
@@ -1968,7 +2141,10 @@ make(Rule_t* r)
 						v++;
 					}
 				}
-				search(state.vars, t, duplicate(expand(buf, v)));
+				v = duplicate(expand(buf, v));
+				search(state.vars, t, v);
+				if (strcmp(t, "MAMAKE_STRICT") == 0)
+					state.strict = *v ? strtol(v, NULL, 10) : 1;
 			}
 			if (!state.probed && t[0] == 'C' && t[1] == 'C' && !t[2])
 			{
@@ -1976,31 +2152,47 @@ make(Rule_t* r)
 				probe();
 			}
 			continue;
+
+		case KEY('s','h','i','m'):
+			state.shim = NULL;
+			/* add line of code to shim buffer */
+			if (*v)
+				append(state.shim_buf, expand(buf, v));
+			add(state.shim_buf, '\n');
+			continue;
+
 		case KEY('n','o','t','e'):
 			/* comment command */
 			continue;
+
 		case KEY('i','n','f','o'):
 		case KEY('m','e','t','a'):
 			if (!state.strict)
 				continue;
 			/* FALLTHROUGH */
+
 		default:
 			report(3, "unknown command", u, 0);
 		}
 		break;
 	}
 	drop(buf);
+	if (inloop)
+	{
+		*parentcmd = cmd;
+		return modtime;
+	}
 	if (cmd)
 		drop(cmd);
 	if (*r->name)
 	{
-		report(-1, r->name, "done", z);
+		report(-1, r->name, "done", modtime);
 		state.indent--;
 	}
 	if (r->flags & RULE_active)
 		state.active--;
 	r->making--;
-	return r->time = z;
+	return r->time = modtime;
 }
 
 /*
@@ -2252,6 +2444,7 @@ main(int argc, char** argv)
 	state.exec = 1;
 	state.file = mamfile;
 	state.opt = buffer();
+	state.shim_buf = buffer();
 	state.rules = dictionary();
 	state.vars = dictionary();
 	search(state.vars, "MAMAKE", *argv);
@@ -2554,7 +2747,7 @@ main(int argc, char** argv)
 
 	search(state.vars, "MAMAKEARGS", duplicate(use(state.opt) + 1));
 	push(state.file, NULL, STREAM_MUST);
-	make(rule(""));
+	make(rule(""), 0, 0, NULL);
 	pop();
 
 	/*

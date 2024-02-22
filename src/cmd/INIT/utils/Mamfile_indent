@@ -1,3 +1,4 @@
+origIFS=$IFS
 IFS=''; set -fCu  # safe mode: no split/glob = no quoting headaches
 let() { return $((!($1))); }
 
@@ -13,9 +14,9 @@ indent='	'  # one tab
 # Remove existing indentation, add new indentation.
 indentlvl=0
 sed 's/^[[:space:]]*//' \
-| while read -r line
+| while IFS=$origIFS read -r line
 do	case $line in
-	'')	continue ;;
+	'')	printf '\n'; continue ;;
 	done*)	let "indentlvl -= 1" ;;
 	esac
 

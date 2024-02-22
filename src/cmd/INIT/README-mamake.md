@@ -15,10 +15,11 @@ abstraction layer for `make` implementations such as AT&T `nmake`.
 The [original documentation](https://web.archive.org/web/20041227143022/http://www2.research.att.com/~gsf/mam/mam.html)
 for MAM specified a more extensive and slightly different language
 than was actually implemented in `mamake.c`.
+Notably, the `bind` command described there is completely different.
 This file documents the MAM implementation that is actually in use.
 
 Since fixing and maintaining AT&T `nmake` proved impractical, `mamake` is
-used here as a full `make` replacement, gradually adding some extensions to
+used here as a full `make` replacement, gradually adding some features to
 the language to facilitate human maintenance of the `Mamfile`s.
 
 ## Table of contents ##
@@ -156,21 +157,21 @@ In the legacy mode, `info` and `meta` are also ignored.
 `make` *target* [ *attribute* ... ]    
 `done` [ *target* ]
 
-A `make`...`done` block defines the target rule named *rule* using the other commands described here.
-Unless the `virtual` attribute is used, *rule* names the pathname of the file generated or referenced by the rule.
+A `make`...`done` block defines the rule named *target* using the other commands described here.
+Unless the `virtual` attribute is used, *target* names the pathname of the file generated or referenced by the rule.
 
-`mamake` processes the commands within the block if the *rule* target is out
+`mamake` processes the commands within the block if the *target* is out
 of date or if the rule has the `virtual` attribute (see below).
 
-The *rule* name may be repeated as the operand to the `done` command.
-In that case, it is matched against the current `make` *rule* and
+The *target* may be repeated as the operand to the `done` command.
+In that case, it is matched against the current `make` *target* and
 any mismatch will produce a "mismatched done statement" error.
-If it is omitted, the current `make` *rule* is assumed.
+If it is omitted, the current `make` *target* is assumed.
 
 Dependencies may be defined in two ways:
 1. By nesting `make`...`done` blocks:
-   the enclosing *rule* is the parent
-   and the enclosed *rule*s are the prerequisites.
+   the enclosing rule is the parent
+   and the enclosed rules are the prerequisites.
 2. By using the `prev` command (see **Referencing previously defined rules** below)
    to reference a previous `make`...`done` block.
    The dependency is defined as if that block were repeated at the `prev` command's location.
@@ -191,7 +192,7 @@ The following *attribute*s are available:
 * `dontcare`: Marks files that do not need to exist.
   If the file exists then its last-modified timestamp is checked and propagated,
   otherwise it is silently ignored. 
-* `ignore`: The timestamp associated with *rule* is ignored in dependency resolution.
+* `ignore`: The timestamp associated with the *target* is ignored in dependency resolution.
 * `implicit`: Marks the current rule as an implicit prerequisite of the enclosing parent rule.
   An implicit prerequisite can make the parent rule out of date without triggering the parent action.
   Implicit prerequisites usually correspond to `#include` prerequisites.
@@ -201,9 +202,8 @@ The following *attribute*s are available:
 * `notrace`: Disables echoing (xtrace) of shell action commands.
   This does not disable the trace header for the containing rule (see *Shell actions* below).
 * `virtual`: Marks a rule that is not associated with any file.
-  The commands within are executed every time the Mamfile is processed.
-  By convention, a virtual rule named `all` makes everything,
-  and a virtual rule named `install` performs installation.
+  The commands within are executed every time the rule is processed.
+  By convention, a virtual rule with target `install` performs pre-installation.
 
 At strict level 1 and up, specifying the following *attribute*s is
 deprecated and will produce a warning; at strict level 2 and up,
@@ -221,20 +221,20 @@ specifying these is an error.
 
 ### Referencing prerequisites or previously defined rules ###
 
-`prev` *rule* [ *attribute* ... ]
+`prev` *target* [ *attribute* ... ]
 
 The `prev` command is used in two ways:
 
-1. If *rule* is a previously defined rule, `prev` adds a dependency on that rule to the current rule.
+1. If *target* matches a previously defined rule, `prev` adds a dependency on that rule to the current rule.
    This can be used to make a rule a prerequisite of multiple `make`...`done` blocks without repeating the rule.
    No attributes should be given for this use of `prev`, because the attributes of the referenced rule are used.
    Superfluous attributes are an error at strict level >= 1 and ignored in the legacy mode.
 
-2. If *rule* is not a previously defined rule, the following applies.
+2. If *target* does not match a previously defined rule, the following applies.
    In the legacy mode, `prev` creates an empty dummy
-   *rule* and ignores the *attribute*s; this is for backward compatibility.
+   rule and ignores the *attribute*s; this is for backward compatibility.
    At strict level 1 and up,
-   `prev` creates a rule that declares a dependency on a prerequisite file named by *rule*
+   `prev` creates a rule that declares a dependency on a prerequisite file named by *target*
    in a manner equivalent to an empty `make`...`done` block,
    with the optional *attribute*s applied to the new rule, and
    a nonexistent prerequisite is an error unless a `virtual` or `dontcare` attribute is given.
@@ -267,8 +267,8 @@ as if it followed the `setv CC` command.
 `exec` `-` *code*
 
 One or more `exec` commands within a `make`...`done` block
-define a shell script that is executed for *rule*.
-The word following `exec` is ignored; by convention it is `-`.
+define a shell script that is run to generate the *target*.
+The argument following `exec` is ignored; by convention it is `-`.
 Each `exec` command appends a line of code to the shell script for the current rule.
 It is customary for a rule's `exec` commands to be contiguous, but not necessary.
 
@@ -288,14 +288,14 @@ the object code directory and the second the source code directory;
 viewpathing provides the first with a vew to the second.
 Viewpathing applies two transformations.
 
-The first is prerequisite replacement.
-Each word (separated by space, tab, newline, `;`, `(`, `)`, `` ` ``, `|`, `&` or `=`)
+The first is *prerequisite replacement*.
+Each word (separated by whitespace, `;`, `(`, `)`, `` ` ``, `|`, `&` or `=`)
 is searched for in the current rule's prerequisites,
 and if it matches the name of a non-generated prerequisite,
 it is replaced by the canonical path to it in the source directory,
 ensuring that things like prerequisite headers are found.
 
-The second is include flag duplication.
+The second is *include flag duplication*.
 After every argument that looks like a compiler include directory path (i.e.,
 starting with `-I`) with a relative path name (i.e., a directory path that does
 *not* start with a `/`), another argument starting with `-I` is inserted with
@@ -339,7 +339,7 @@ this should only be done for individual commands in a `(`subshell`)`.
 One or more `shim` commands declare a ‘shim’: a common section of `sh`(1)
 code that will be automatically inserted in front of subsequent shell
 actions upon execution. Like `exec`, `shim` combines multiple lines of
-*code* into one section, with MAM variables expanded at declarzation time and
+*code* into one section, with MAM variables expanded at declaration time and
 viewpathing applied at execution time. The effect of `shim` is global.
 
 One use case is defining a shell function that each shell action can call.
@@ -348,11 +348,10 @@ compiler flags common to all compiler invocations, with other flags added via
 arguments to the function, so the common flags do not need to be repeated in
 every shell action.
 
-Only one shim is active at a time, but it can be redefined. Each `shim`
-command adds a line to a buffer. Upon executing the next shell action at
-`done`, the buffer's contents are copied and the buffer is reset. The next
-time a `shim` command is encountered, it starts a new shim from scratch that
-affects subsequently executed shell actions.
+Only one shim is active at a time, but it can be redefined. When the next
+`exec` command is encountered, the shim is marked ready for use. The next
+time a `shim` command is encountered after that, it starts a new shim from
+scratch that affects subsequently executed shell actions.
 A single `shim -` deactivates the shim.
 
 ### Binding libraries ###
@@ -403,9 +402,6 @@ if this fails, the `mam_lib`*libraryname* variable will be emptied.
 
 Any `bind` command whose argument does not start with `-l` is ignored.
 
-Note that the `bind` functionality implemented in `mamake.c`
-is completely different from that described in the original documentation.
-
 ### Repeatedly iterating through a block ###
 
 `loop` *variable* *word* [ *word* ... ]    
@@ -414,8 +410,7 @@ is completely different from that described in the original documentation.
 `loop` reads the lines contained between it and the corresponding `done`
 repeatedly with a named *variable* set to each of the *word*s. The lines
 are processed as part of the rule containing the loop.
-The *variable* is locally scoped to the `loop` block and restored to
-its previous state after the loop completes.
+The *variable* is restored to its previous state after the loop completes.
 
 Note that `loop` causes repeated reading and processing of Mamfile lines,
 *not* necessarily repeated execution. For instance, a loop can be used to

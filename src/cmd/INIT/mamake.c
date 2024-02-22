@@ -1185,7 +1185,7 @@ bindfile(Rule_t* r)
 	if (s = find(buf, r->name, &st))
 	{
 		if (s != r->name)
-			r->path = duplicate(s);
+			r->path = reduplicate(r->path, s);
 		r->time = st.st_mtime;
 		r->flags |= RULE_exists;
 	}
@@ -1796,6 +1796,40 @@ require(char* lib, int dontcare)
 }
 
 /*
+ * update ${<}, ${^} and ${?}
+ */
+
+static void
+update_allprev(Rule_t *r, char *all, char *upd)
+{
+	char		*name = r->name;
+	unsigned long	n = strlen(name), nn;
+	/* set ${<} */
+	auto_prev->value = reduplicate(auto_prev->value, name);
+	/* restore ${^}, append to it */
+	if (nn = strlen(all))
+		(all = realloc(all, nn + n + 2)) && (all[nn++] = ' ');
+	else
+		all = malloc(n + 1);
+	if (!all)
+		report(3, "out of memory [upd_allprev]", NULL, 0);
+	strcpy(all + nn, name);
+	auto_allprev->value = all;
+	/* restore ${?}, append to it if rule was updated */
+	if (r->flags & RULE_updated)
+	{
+		if (nn = strlen(upd))
+			(upd = realloc(upd, nn + n + 2)) && (upd[nn++] = ' ');
+		else
+			upd = malloc(n + 1);
+		if (!upd)
+			report(3, "out of memory [upd_allprev]", NULL, 0);
+		strcpy(upd + nn, name);
+	}
+	auto_updprev->value = upd;
+}
+
+/*
  * input() until `done r'
  *
  * This function is called recursively for both 'make' and 'loop'. The inloop
@@ -2031,9 +2065,7 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 		}
 
 		case KEY('m','a','k','e'):
-		{
-			char *rulename = expand(buf, t);
-			q = rule(rulename);
+			q = rule(expand(buf, t));
 			if (!q->making)
 			{
 				char *save_making = auto_making->value;
@@ -2041,8 +2073,7 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 				char *save_updprev = auto_updprev->value;
 
 				/* set ${@}; empty ${?}, ${^} and ${<} */
-				rulename = duplicate(rulename);
-				auto_making->value = rulename;
+				auto_making->value = q->name;
 				auto_updprev->value = empty;
 				auto_allprev->value = empty;
 				auto_prev->value = reduplicate(auto_prev->value, empty);
@@ -2055,31 +2086,16 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 				if (q->flags & RULE_error)
 					r->flags |= RULE_error;
 
-				/* set ${<} */
-				auto_prev->value = reduplicate(auto_prev->value, rulename);
-				/* restore ${^}, append to it */
-				if (*save_allprev)
-					append(buf, save_allprev), add(buf, ' ');
-				append(buf, rulename);
-				if (save_allprev != empty)
-					free(save_allprev);
-				auto_allprev->value = reduplicate(auto_allprev->value, use(buf));
-				/* restore ${?}, append to it if rule was updated */
-				if (q->flags & RULE_updated)
-				{
-					if (save_updprev != empty)
-						append(buf, save_updprev), add(buf, ' ');
-					append(buf, rulename);
-					save_updprev = reduplicate(save_updprev, use(buf));
-				}
+				/* update ${<}, restore/update ${^} and ${?} */
+				if (auto_allprev->value != empty)
+					free(auto_allprev->value);
 				if (auto_updprev->value != empty)
 					free(auto_updprev->value);
-				auto_updprev->value = save_updprev;
+				update_allprev(q, save_allprev, save_updprev);
 				/* restore ${@} */
 				auto_making->value = save_making;
 			}
 			continue;
-		}
 
 		case KEY('p','r','e','v'):
 		{
@@ -2111,21 +2127,8 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 				report(-2, q->name, "prev", q->time);
 				state.indent--;
 			}
-			/* set ${<} */
-			auto_prev->value = name = reduplicate(auto_prev->value, name);
-			/* append to ${^} */
-			if (auto_allprev->value != empty)
-				append(buf, auto_allprev->value), add(buf, ' ');
-			append(buf, name);
-			auto_allprev->value = reduplicate(auto_allprev->value, use(buf));
-			/* append to ${?} if rule was updated */
-			if (q->flags & RULE_updated)
-			{
-				if (auto_updprev->value != empty)
-					append(buf, auto_updprev->value), add(buf, ' ');
-				append(buf, name);
-				auto_updprev->value = reduplicate(auto_updprev->value, use(buf));
-			}
+			/* update ${<}, ${^} and ${?} */
+			update_allprev(q, auto_allprev->value, auto_updprev->value);
 			continue;
 		}
 

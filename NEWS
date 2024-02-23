@@ -12,6 +12,8 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   'exit' with no arguments to assume the before-trap exit status instead of
   that of the last-run command. This broke the shipped 'autocd' function.
 
+- Fixed some integer overflows that could occur when using TMOUT.
+
 2024-02-17:
 
 - Fixed a crash that could occur when using 'typeset -T' typed variables

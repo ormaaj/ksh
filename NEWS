@@ -14,6 +14,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
 - Fixed some integer overflows that could occur when using TMOUT.
 
+- Fixed a crash on Solaris and illumos when cancelling a here-document
+  with ^C or ^D in an interactive shell.
+
 2024-02-17:
 
 - Fixed a crash that could occur when using 'typeset -T' typed variables

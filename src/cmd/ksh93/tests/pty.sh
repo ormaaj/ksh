@@ -1286,5 +1286,21 @@ c \Ek
 r ^:prompt: "\$SHELL" -o vi -c 'read -s "foo\?:prompt: "'$
 !
 
+tst $LINENO <<"!"
+L crash when attempting to cancel a heredoc in an interactive shell
+# https://github.com/ksh93/ksh/pull/721
+
+d 40
+p :test-1:
+w "$SHELL"
+p :test-2:
+w cat << EOS
+p :test-3:
+w \cD
+p :test-4:
+w print Exit status $?
+u ^Exit status 0\r\n$
+!
+
 # ======
 exit $((Errors<125?Errors:125))

@@ -4206,13 +4206,6 @@ make install virtual
 			exec - compile ${<} -Iport -Isfio -Istdio -I${INSTALLROOT}/include
 		done
 
-		make putchar.o
-			make stdio/putchar.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile ${<} -Iport -Isfio -Istdio -I${INSTALLROOT}/include
-		done
-
 		make puts.o
 			make stdio/puts.c
 				prev stdio/stdhdr.h

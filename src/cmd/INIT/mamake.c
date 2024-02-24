@@ -798,7 +798,7 @@ view(void)
 			n = strlen(s);
 			if (!p)
 				abort();
-			if (!(vp = newof(0, View_t, 1, strlen(p) + n + 1)))
+			if (!(vp = newof(0, View_t, 1, strlen(p) + n + 2)))
 				report(3, "out of memory [view]", s, 0);
 			vp->node = n + 1;
 			strcpy(vp->dir, s);

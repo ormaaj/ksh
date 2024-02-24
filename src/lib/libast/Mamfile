@@ -2257,47 +2257,6 @@ make install virtual
 			exec - compile ${<} -Imisc
 		done
 
-		make vecargs.o
-			make vec/vecargs.c
-				prev include/vecargs.h implicit
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make vecfile.o
-			make vec/vecfile.c
-				prev include/vecargs.h
-				prev include/ls.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make vecfree.o
-			make vec/vecfree.c
-				prev include/vecargs.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make vecload.o
-			make vec/vecload.c
-				prev include/vecargs.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make vecstring.o
-			make vec/vecstring.c
-				prev include/vecargs.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
 		make univdata.o
 			make misc/univdata.c
 				prev misc/univlib.h
@@ -4993,7 +4952,7 @@ make install virtual
 	done
 
 	note * section 3 manual pages
-	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 magic mem mime modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc streval strgid strmatch stropt strperm strsignal strsort strtape strton struid swap tab tm tmx tok touch tv vecargs vmalloc
+	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 magic mem mime modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc streval strgid strmatch stropt strperm strsignal strsort strtape strton struid swap tab tm tmx tok touch tv vmalloc
 		make ${INSTALLROOT}/man/man3/${SECT3MAN}.3
 			prev man/${SECT3MAN}.3
 			exec - cp -f ${<} ${@}
@@ -5009,7 +4968,7 @@ make install virtual
 		done
 	done
 	note * ...main AST headers
-	loop HDR ast ast_dir ast_getopt ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk swap tar times tm tok usage vdb vecargs vmalloc wait magicid fnv aso
+	loop HDR ast ast_dir ast_getopt ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk swap tar times tm tok usage vdb vmalloc wait magicid fnv aso
 		make ${INSTALLROOT}/include/ast/${HDR}.h
 			prev include/${HDR}.h
 			exec - cp -f ${<} ${@}

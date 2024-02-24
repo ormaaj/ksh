@@ -103,7 +103,13 @@ namespace man
 	{
 		typeset IFS		# local default split...
 		set -o noglob		# ...and no pathname expansion...
-		${PAGER:-less -R}	# ...so we can safely split $PAGER
+		typeset pager=${PAGER-}
+		case $pager in
+		'')	pager='less -R' ;;
+		less | */less | 'less '* | */'less '*)
+			pager+=' -R' ;;
+		esac
+		$pager			# ...so we can safely split $PAGER
 	}
 
 	# Try if a system manual page in a section exists. Unfortunately, we

@@ -327,7 +327,7 @@ make install virtual
 		prev ${PACKAGE_ast_INCLUDE}/option.h
 	done
 
-	make include/regress.h
+	make include/regress.h implicit
 	done
 
 	make include/argnod.h implicit
@@ -428,7 +428,7 @@ make install virtual
 		prev ${PACKAGE_ast_INCLUDE}/releaseflags.h
 	done
 
-	make include/timeout.h
+	make include/timeout.h implicit
 	done
 
 	note *

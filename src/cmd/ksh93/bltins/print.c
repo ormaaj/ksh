@@ -307,7 +307,9 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 			errormsg(SH_DICT,ERROR_usage(2), "%s", opt_info.arg);
 			UNREACHABLE();
 	}
+#if SHOPT_PRINTF_LEGACY
 skipopts:
+#endif /* SHOPT_PRINTF_LEGACY */
 	opt_info.disc = NULL;
 	argv += opt_info.index;
 	if(error_info.errors || (argc<0 && !(format = *argv++)))

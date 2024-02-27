@@ -2488,7 +2488,8 @@ main(int argc, char** argv)
 		case 'K':
 			continue;
 		case 'V':
-			fprintf(stdout, "%s\n", id + 10);
+			write(1, id + 10, strlen(id) - 12);
+			putchar('\n');
 			exit(0);
 		case 'f':
 			append(state.opt, " -f ");
@@ -2604,7 +2605,8 @@ main(int argc, char** argv)
 				search(state.vars, "-strip-symbols", "1");
 				continue;
 			case 'V':
-				fprintf(stdout, "%s\n", id + 10);
+				write(1, id + 10, strlen(id) - 12);
+				putchar('\n');
 				exit(0);
 			case 'f':
 			case 'r':

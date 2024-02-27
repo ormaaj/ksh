@@ -16,7 +16,7 @@ setv LDFLAGS
 
 note *
 note * iffe and cc invocations are mostly the same but some add custom flags;
-note * set shim functions for brevity and "single source of truth" while still allowing this
+note * set shim functions for brevity and "single source of truth" while allowing for variety in invocations
 note *
 
 shim - invoke_iffe()

@@ -529,8 +529,8 @@ int sh_debug(const char *trap, const char *name, const char *subscript, char *co
 {
 	Namval_t		*np = SH_COMMANDNOD;
 	int			n=4, offset=stktell(sh.stk);
-	char			*sav = stkfreeze(sh.stk,0);
-	struct sh_scoped	*savst = (struct sh_scoped*)stkalloc(sh.stk,sizeof(struct sh_scoped));
+	void			*sav = stkfreeze(sh.stk,0);
+	struct sh_scoped	*savst = stkalloc(sh.stk,sizeof(struct sh_scoped));
 	const char		*cp = "+=( ";
 	if(sh.indebug)
 		return 0;
@@ -597,7 +597,7 @@ int sh_eval(Sfio_t *iop, int mode)
 	struct slnod *saveslp = sh.st.staklist;
 	int jmpval;
 	struct checkpt *pp = (struct checkpt*)sh.jmplist;
-	struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+	struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 	static Sfio_t *io_save;
 	volatile int traceon=0, lineno=0;
 	int binscript=sh.binscript;
@@ -1035,7 +1035,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					else
 					{
 						/* avoid exit on error from nv_setlist, e.g. read-only variable */
-						struct checkpt *chkp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+						struct checkpt *chkp = stkalloc(sh.stk,sizeof(struct checkpt));
 						sh_pushcontext(chkp,SH_JMPCMD);
 						jmpval = sigsetjmp(chkp->buff,0);
 						if(!jmpval)
@@ -1147,7 +1147,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					volatile void *save_data;
 					int save_prompt;
 					int was_nofork = execflg?sh_isstate(SH_NOFORK):0;
-					struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+					struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 					bp = &sh.bltindata;
 					save_ptr = bp->ptr;
 					save_data = bp->data;
@@ -1294,7 +1294,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				{
 					volatile int indx;
 					volatile char scope = 0;
-					struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+					struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 #if SHOPT_NAMESPACE
 					Namval_t *namespace=0;
 #endif /* SHOPT_NAMESPACE */
@@ -1340,8 +1340,8 @@ int sh_exec(const Shnode_t *t, int flags)
 						if(nv_isattr(np,NV_STATICF) && (mp=nv_type(nq)))
 							nq = mp;
 						sh.last_table = last_table;
-						nodep = (Namval_t*)stkalloc(sh.stk,sizeof(Namval_t));
-						nrp = (struct Namref*)stkalloc(sh.stk,sizeof(struct Namref));
+						nodep = stkalloc(sh.stk,sizeof(Namval_t));
+						nrp = stkalloc(sh.stk,sizeof(struct Namref));
 						mode = set_instance(nq,nodep,nrp);
 					}
 					if(io)
@@ -1514,7 +1514,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			 */
 			{
 				volatile int jmpval;
-				struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+				struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 				struct ionod *iop;
 				int	rewrite=0;
 #if !SHOPT_DEVFD
@@ -1656,7 +1656,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			pid_t	pid = 0;
 			int 	jmpval, waitall = 0;
 			int 	simple = (t->fork.forktre->tre.tretyp&COMMSK)==TCOM;
-			struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+			struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 			if(sh.subshell && !sh.subshare && t->fork.forkio)
 			{
 				/* Subshell forking workaround for https://github.com/ksh93/ksh/issues/161
@@ -1747,7 +1747,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				/* This is the last command, so avoid creating a subshell */
 				char *savsig;
 				int nsig,jmpval;
-				struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+				struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 				sh.st.otrapcom = 0;
 				if((nsig=sh.st.trapmax*sizeof(char*))>0 || sh.st.trapcom[0])
 				{
@@ -1808,7 +1808,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				job.curpgid = 0;
 				while((tn=tn->lst.lstrit) && tn->tre.tretyp==TFIL)
 					job.waitall++;
-				exitval = job.exitval = (int*)stkalloc(sh.stk,job.waitall*sizeof(int));
+				exitval = job.exitval = stkalloc(sh.stk,job.waitall*sizeof(int));
 				memset(exitval,0,job.waitall*sizeof(int));
 			}
 			else
@@ -1937,7 +1937,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			char *av[5];
 #if SHOPT_OPTIMIZE
 			int  jmpval = ((struct checkpt*)sh.jmplist)->mode;
-			struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+			struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 			void *optlist = sh.optlist;
 			sh.optlist = 0;
 			sh_tclear(t->for_.fortre);
@@ -2071,7 +2071,7 @@ int sh_exec(const Shnode_t *t, int flags)
 #endif /* SHOPT_FILESCAN */
 #if SHOPT_OPTIMIZE
 			int  jmpval = ((struct checkpt*)sh.jmplist)->mode;
-			struct checkpt *buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+			struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 			void *optlist = sh.optlist;
 			sh.optlist = 0;
 			sh_tclear(t->wh.whtre);
@@ -2340,7 +2340,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				Namval_t *oldnspace = sh.namespace;
 				int offset = stktell(sh.stk);
 				int	flags=NV_NOARRAY|NV_VARNAME;
-				struct checkpt *chkp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+				struct checkpt *chkp = stkalloc(sh.stk,sizeof(struct checkpt));
 				int jmpval;
 				if(cp)
 				{
@@ -2648,15 +2648,15 @@ int sh_exec(const Shnode_t *t, int flags)
 int sh_run(int argn, char *argv[])
 {
 	struct dolnod	*dp;
-	struct comnod	*t = (struct comnod*)stkalloc(sh.stk,sizeof(struct comnod));
+	struct comnod	*t = stkalloc(sh.stk,sizeof(struct comnod));
 	int		savtop = stktell(sh.stk);
-	char		*savptr = stkfreeze(sh.stk,0);
+	void		*savptr = stkfreeze(sh.stk,0);
 	Opt_t		*op, *np = optctx(0, 0);
 	Shbltin_t	bltindata;
 	bltindata = sh.bltindata;
 	op = optctx(np, 0);
 	memset(t, 0, sizeof(struct comnod));
-	dp = (struct dolnod*)stkalloc(sh.stk, (unsigned)sizeof(struct dolnod) + ARG_SPARE*sizeof(char*) + argn*sizeof(char*));
+	dp = stkalloc(sh.stk, (unsigned)sizeof(struct dolnod) + ARG_SPARE*sizeof(char*) + argn*sizeof(char*));
 	dp->dolnum = argn;
 	dp->dolbot = ARG_SPARE;
 	memcpy(dp->dolval+ARG_SPARE, argv, (argn+1)*sizeof(char*));
@@ -2948,7 +2948,7 @@ int sh_funscope(int argn, char *argv[],int(*fun)(void*),void *arg,int execflg)
 	char			*trap;
 	int			nsig;
 	struct dolnod		*argsav=0,*saveargfor;
-	struct sh_scoped	*savst = (struct sh_scoped*)stkalloc(sh.stk,sizeof(struct sh_scoped));
+	struct sh_scoped	*savst = stkalloc(sh.stk,sizeof(struct sh_scoped));
 	struct sh_scoped	*prevscope = sh.st.self;
 	struct argnod		*envlist=0;
 	int			isig,jmpval;
@@ -2957,7 +2957,7 @@ int sh_funscope(int argn, char *argv[],int(*fun)(void*),void *arg,int execflg)
 	char			save_invoc_local;
 	char 			**savsig, *save_debugtrap = 0;
 	struct funenv		*fp = 0;
-	struct checkpt		*buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+	struct checkpt		*buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 	Namval_t		*nspace = sh.namespace;
 	Dt_t			*last_root = sh.last_root;
 	Shopt_t			options;
@@ -3212,7 +3212,7 @@ int sh_fun(Namval_t *np, Namval_t *nq, char *argv[])
 	if(nq)
 		mode = set_instance(nq,&node, &nr);
 	jmpthresh = is_abuiltin(np) ? SH_JMPCMD : SH_JMPFUN;
-	checkpoint = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+	checkpoint = stkalloc(sh.stk,sizeof(struct checkpt));
 	sh_pushcontext(checkpoint, jmpthresh);
 	jmpval = sigsetjmp(checkpoint->buff,1);
 	if(jmpval == 0)
@@ -3309,7 +3309,7 @@ static void sigreset(int mode)
 static pid_t sh_ntfork(const Shnode_t *t,char *argv[],int *jobid,int topfd)
 {
 	static pid_t	spawnpid;
-	struct checkpt	*buffp = (struct checkpt*)stkalloc(sh.stk,sizeof(struct checkpt));
+	struct checkpt	*buffp = stkalloc(sh.stk,sizeof(struct checkpt));
 	int		jmpval,jobfork=0;
 	volatile int	scope=0, sigwasset=0;
 	char		**arge, *path;

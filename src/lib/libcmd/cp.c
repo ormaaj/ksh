@@ -872,7 +872,7 @@ b_cp(int argc, char** argv, Shbltin_t* context)
 		argc--;
 		argv++;
 	}
-	if (!(v = (char**)stkalloc(stkstd, (argc + 2) * sizeof(char*))))
+	if (!(v = stkalloc(stkstd, (argc + 2) * sizeof(char*))))
 	{
 		error(ERROR_SYSTEM|ERROR_PANIC, "out of memory");
 		UNREACHABLE();

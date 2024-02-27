@@ -230,7 +230,7 @@ static int		rand_shift;
 /*
  * Exception callback routine for stk(3) and sh_*alloc wrappers.
  */
-static noreturn char *nomemory(size_t s)
+static noreturn void *nomemory(size_t s)
 {
 	errormsg(SH_DICT, ERROR_SYSTEM|ERROR_PANIC, "out of memory (needed %llu bytes)", (uintmax_t)s);
 	UNREACHABLE();
@@ -1281,7 +1281,7 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	sh.lex_context = sh_lexopen(0,1);
 	sh.radixpoint = '.';  /* pre-locale init */
 	sh.strbuf = sfstropen();
-	sh.stk = stkstd;
+	stkoverflow(sh.stk = stkstd, nomemory);
 	sfsetbuf(sh.strbuf,NULL,64);
 	error_info.catalog = e_dict;
 #if SHOPT_REGRESS
@@ -1330,7 +1330,6 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	sh_ioinit();
 	/* initialize signal handling */
 	sh_siginit();
-	stkinstall(NULL,nomemory);
 	/* set up memory for name-value pairs */
 	sh.init_context = nv_init();
 	/* initialize shell type */

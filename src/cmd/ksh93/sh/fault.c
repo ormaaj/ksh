@@ -495,7 +495,7 @@ int sh_trap(const char *trap, int mode)
 	char	was_no_trapdontexec = !sh.st.trapdontexec;
 	char	save_chldexitsig = sh.chldexitsig;
 	int	staktop = stktell(sh.stk);
-	char	*savptr = stkfreeze(sh.stk,0);
+	void	*savptr = stkfreeze(sh.stk,0);
 	struct	checkpt buff;
 	Fcin_t	savefc;
 	fcsave(&savefc);

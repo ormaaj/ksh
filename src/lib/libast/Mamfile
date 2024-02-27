@@ -4966,7 +4966,7 @@ make install virtual
 		done
 	done
 	note * ...main AST headers
-	loop HDR ast ast_dir ast_getopt ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk swap tar times tm tok usage vdb vmalloc wait magicid fnv aso
+	loop HDR ast ast_dir ast_getopt ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok usage vdb vmalloc wait magicid fnv aso
 		make ${INSTALLROOT}/include/ast/${HDR}.h
 			prev include/${HDR}.h
 			exec - cp -f ${<} ${@}

@@ -20,42 +20,32 @@
  * David Korn
  * AT&T Research
  *
- * Interface definitions for a stack-like storage library
- *
+ * Obsolete interface definitions for a stack-like storage library.
+ * These now simply map onto the current stk(3) functions as below.
  */
 
-#ifndef _STK_H
-#define _STK_H
+#ifndef _STAK_H
+#define _STAK_H
 
-#include <sfio.h>
+#include	<stk.h>
 
-#define _Stk_data	_Stak_data
+#define Stak_t		Sfio_t
+#define	staksp		stkstd
+#define STAK_SMALL	STK_SMALL
 
-#define stkstd		(&_Stk_data)
-
-#define	Stk_t		Sfio_t
-
-/* option bits for stkopen() */
-#define STK_SMALL	1		/* allocate small stack frames	*/
-#define STK_NULL	2		/* return NULL on overflow	*/
-
-#define	stkptr(sp,n)	((char*)((sp)->_data)+(n))
-#define stktop(sp)	((char*)(sp)->_next)
-#define	stktell(sp)	((sp)->_next-(sp)->_data)
-#define stkseek(sp,n)	((n)==0?(void*)((sp)->_next=(sp)->_data):_stkseek(sp,n))
-
-extern Sfio_t		_Stk_data;
-
-extern Stk_t*		stkopen(int);
-extern Stk_t*		stkinstall(Stk_t*, char*(*)(size_t));	/* deprecated */
-extern void		stkoverflow(Stk_t*, void*(*)(size_t));
-extern int		stkclose(Stk_t*);
-extern unsigned int	stklink(Stk_t*);
-extern void*		stkalloc(Stk_t*, size_t);
-extern char*		stkcopy(Stk_t*, const char*);
-extern void*		stkset(Stk_t*, void*, size_t);
-extern void*		_stkseek(Stk_t*, ssize_t);
-extern void*		stkfreeze(Stk_t*, size_t);
-extern int		stkon(Stk_t*, char*);
+#define	stakptr(n)		stkptr(stkstd,n)
+#define	staktell()		stktell(stkstd)
+#define stakputc(c)		sfputc(stkstd,(c))
+#define stakwrite(b,n)		sfwrite(stkstd,(b),(n))
+#define stakputs(s)		(sfputr(stkstd,(s),0),--stkstd->_next)
+#define stakseek(n)		stkseek(stkstd,n)
+#define stakcreate(n)		stkopen(n)
+#define stakinstall(s,f)	stkinstall(s,f)
+#define stakdelete(s)		stkclose(s)
+#define staklink(s)		stklink(s)
+#define stakalloc(n)		stkalloc(stkstd,n)
+#define stakcopy(s)		stkcopy(stkstd,s)
+#define stakset(c,n)		stkset(stkstd,c,n)
+#define stakfreeze(n)		stkfreeze(stkstd,n)
 
 #endif

@@ -1484,7 +1484,7 @@ retry1:
 		if(np && (type==M_BRACE ? !nv_isnull(np) : (type==M_TREE || !c || !ap)))
 		{
 			/* Either the parameter is set, or it's a special type of expansion where 'unset' doesn't apply. */
-			char *savptr;
+			void *savptr;
 			c = *((unsigned char*)stkptr(stkp,offset-1));
 			savptr = stkfreeze(stkp,0);
 			if(type==M_VNAME || (type==M_SUBNAME && ap))
@@ -2156,7 +2156,8 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 	struct slnod            *saveslp = sh.st.staklist;
 	Mac_t			savemac = *mp;
 	int			savtop = stktell(stkp);
-	char			lastc=0, *savptr = stkfreeze(stkp,0);
+	char			lastc = '\0';
+	void			*savptr = stkfreeze(stkp,0);
 	int			was_history = sh_isstate(SH_HISTORY);
 	int			was_verbose = sh_isstate(SH_VERBOSE);
 	int			was_interactive = sh_isstate(SH_INTERACTIVE);
@@ -2572,7 +2573,7 @@ static void endfield(Mac_t *mp,int split)
 	Stk_t		*stkp = sh.stk;
 	if(stktell(stkp) > ARGVAL || split)
 	{
-		argp = (struct argnod*)stkfreeze(stkp,1);
+		argp = stkfreeze(stkp,1);
 		argp->argnxt.cp = 0;
 		argp->argflag = 0;
 		mp->atmode = 0;

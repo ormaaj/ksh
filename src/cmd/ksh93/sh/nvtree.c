@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -942,7 +942,7 @@ static char *walk_tree(Namval_t *np, Namval_t *xp, int flags)
 	Sfio_t *outfile;
 	Sfoff_t	off = 0;
 	int len, savtop = stktell(sh.stk);
-	char *savptr = stkfreeze(sh.stk,0);
+	void *savptr = stkfreeze(sh.stk,0);
 	struct argnod *ap=0; 
 	struct argnod *arglist=0;
 	char *name,*cp, **argv;
@@ -1006,7 +1006,7 @@ static char *walk_tree(Namval_t *np, Namval_t *xp, int flags)
 		}
 		stkseek(sh.stk,ARGVAL);
 		sfputr(sh.stk,cp,-1);
-		ap = (struct argnod*)stkfreeze(sh.stk,1);
+		ap = stkfreeze(sh.stk,1);
 		ap->argflag = ARG_RAW;
 		ap->argchn.ap = arglist; 
 		n++;
@@ -1018,7 +1018,7 @@ static char *walk_tree(Namval_t *np, Namval_t *xp, int flags)
 		sh.var_tree = save_tree;
 		return NULL;
 	}
-	argv = (char**)stkalloc(sh.stk,(n+1)*sizeof(char*));
+	argv = stkalloc(sh.stk,(n+1)*sizeof(char*));
 	argv += n;
 	*argv = 0;
 	for(; ap; ap=ap->argchn.ap)

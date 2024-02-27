@@ -1190,7 +1190,7 @@ int	sh_redirect(struct ionod *iop, int flag)
 		{
 			if(iof&IOLSEEK)
 			{
-				struct argnod *ap = (struct argnod*)stkalloc(sh.stk,ARGVAL+strlen(iop->ioname));
+				struct argnod *ap = stkalloc(sh.stk,ARGVAL+strlen(iop->ioname));
 				memset(ap, 0, ARGVAL);
 				ap->argflag = ARG_MAC;
 				strcpy(ap->argval,iop->ioname);
@@ -1202,7 +1202,7 @@ int	sh_redirect(struct ionod *iop, int flag)
 		if((iof&IOPROCSUB) && !(iof&IOLSEEK))
 		{
 			/* handle process substitution passed to redirection */
-			struct argnod *ap = (struct argnod*)stkalloc(sh.stk,ARGVAL+strlen(iop->ioname));
+			struct argnod *ap = stkalloc(sh.stk,ARGVAL+strlen(iop->ioname));
 			memset(ap, 0, ARGVAL);
 			if(iof&IOPUT)
 				ap->argflag = ARG_RAW;
@@ -2201,7 +2201,7 @@ static int	io_prompt(Sfio_t *iop,int flag)
 			/* PS2 prompt. Save stack state to avoid corrupting command substitutions
 			 * in case we're executing a PS2.get discipline function at parse time. */
 			int	savestacktop = stktell(sh.stk);
-			char	*savestackptr = stkfreeze(sh.stk,0);
+			void	*savestackptr = stkfreeze(sh.stk,0);
 			cp = nv_getval(sh_scoped(PS2NOD));
 			stkset(sh.stk, savestackptr, savestacktop);
 			break;

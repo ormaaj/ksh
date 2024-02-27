@@ -379,12 +379,17 @@ causes a MAM variable `mam_lib`*libraryname* to be defined (see **MAM variables*
 The variable will contain either the compiler argument for linking to the library *libraryname*
 (either the `-l`*libraryname* flag, or the full path in case of a static library)
 or, if the `dontcare` attribute is specified, possibly the empty string.
+Any library dependencies are also included (see below).
 This can be used both for AST libraries shipped with the distribution and for system libraries.
-If the library file is found in the distribution,
-its time stamp is checked and the current target is marked as outdated if it is newer.
+For each corresponding *.a library archive dependency built previously,
+its time stamp is checked and the current target is marked as outdated if it is
+newer, as if a `prev` had been executed for it.
 
-The effect of `bind` is global, not scoped; it takes effect for all commands
-physically following it, regardless of `make`…`done` nesting level.
+The variable set by `bind` is global, but the marking of the target as
+outdated applies to the current rule only, so it may be necessary to
+repeat a `bind` command when statically linking executables that depend
+on a library, otherwise they may not be relinked when the library changes.
+The `mam_lib`*libraryname* variable will not be regenerated when repeating a `bind`.
 
 There is also a mechanism to communicate library dependency information across Mamfiles and `mamake` invocations.
 If a file named *libraryname*`.req` in the current directory

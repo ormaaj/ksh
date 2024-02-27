@@ -4931,8 +4931,6 @@ make install virtual
 	note * pre-install libast in $INSTALLROOT
 	note *
 
-	prev libast.a
-
 	note * ensure preinstallation directories exist
 	loop DIR include/ast lib/lib lib/file man/man3
 		make ${INSTALLROOT}/${DIR}

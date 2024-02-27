@@ -463,6 +463,7 @@ make install virtual
 			done
 		done
 		make sumlib.o
+			bind -lsum
 			exec - set -- ${mam_libsum}
 			exec - ${AR} x "$1" sumlib.o
 		done

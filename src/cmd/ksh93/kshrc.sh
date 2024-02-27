@@ -150,10 +150,15 @@ function GITBRANCH.get
 # ${.rc.status} is a nicely formatted/coloured $?
 function .rc.status.get
 {
-	typeset e=${.rc.fmt[status$(($? > 0))]}$?${.rc.fmt[reset]}
+	typeset e=$?
+	typeset clr=${.rc.fmt[status$((e > 0))]}
 	typeset q1=$'\u00AB' q2=$'\u00BB'
 	((${#q1}==1 && ${#q2}==1)) || q1='<' q2='>'
-	.sh.value=${.rc.fmt[reset]}$q1$e$q2
+	if	((e>256))  # add signal name
+	then	typeset s=${ kill -l "$e"; }
+		[[ $s == *[A-Z]* ]] && e+="/SIG$s"
+	fi
+	.sh.value=${.rc.fmt[reset]}$q1$clr$e${.rc.fmt[reset]}$q2
 }
 
 # Regular (PS1) prompt.

@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-02-17"
+#define RELEASE_DATE "2024-02-27"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1905,7 +1905,7 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 					else
 						s = 0;
 					/* only bother if t is a path to a *.a we built (i.e. not -l...) */
-					if (*t == '/')
+					if (t[0] != '-' || t[1] != 'l')
 					{
 						q = rule(expand(buf, t));
 						attributes(q, v);

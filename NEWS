@@ -2,6 +2,14 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-02-29:
+
+- Improved the robustness of the routines handling the execution by ksh of a
+  script without an initial #! path. More memory is freed up after ksh forks.
+
+- Fixed a crash that could occur after 'typeset +x var' when var was imported
+  from the environment and then a discipline function was set for it.
+
 2024-02-22:
 
 - Fixed a crash that occurred when starting ksh with no TERM variable in the

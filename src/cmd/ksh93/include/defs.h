@@ -115,7 +115,6 @@ extern char		*sh_checkid(char*,char*);
 extern void		sh_chktrap(void);
 extern int		sh_debug(const char*,const char*,const char*,char *const[],int);
 extern char 		**sh_envgen(void);
-extern void 		sh_envnolocal(Namval_t*,void*);
 extern Sfdouble_t	sh_arith(const char*);
 extern void		*sh_arithcomp(char*);
 extern pid_t 		sh_fork(int,int*);

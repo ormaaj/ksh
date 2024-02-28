@@ -1186,7 +1186,10 @@ pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath
 	    case EISDIR:
 		return -1;
 	    case ENOEXEC:
-		errno = ENOEXEC;
+		/*
+		 * A script without #! -- it starts here. Summary of events:
+		 * fork; exscript; longjmp back to sh_main; sh_reinit; exfile
+		 */
 		if(spawn)
 		{
 			if(sh.subshell)
@@ -1304,6 +1307,26 @@ static noreturn void exscript(char *path,char *argv[],char **envp)
 	sh_offstate(SH_FORKED);
 	if(sh.sigflag[SIGCHLD]==SH_SIGOFF)
 		sh.sigflag[SIGCHLD] = SH_SIGFAULT;
+	/*
+	 * Export -x vars to new environment now, before longjmp & removing any local scope.
+	 * Since sh_envgen() puts it all on the stack, create a stack to preserve 'environ'.
+	 */
+	{
+		static Stk_t	*envstk;
+		Stk_t		*savstk = sh.stk;
+		if (envstk)
+			stkset(envstk, NULL, 0);
+		else
+			envstk = stkopen(STK_SMALL);
+		sh.stk = envstk;
+		environ = sh_envgen();
+		sh.stk = savstk;
+		stkfreeze(envstk,0);
+	}
+	/*
+	 * Longjmp with SH_JMPSCRIPT triggers a chain of longjmps to restore state as appropriate,
+	 * ending up back in sh_main() which then calls sh_reinit() and executes the script.
+	 */
 	siglongjmp(*sh.jmplist,SH_JMPSCRIPT);
 	UNREACHABLE();  /* silence warning on Haiku */
 }

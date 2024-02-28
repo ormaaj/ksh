@@ -341,7 +341,8 @@ struct Shell_s
 	int		xargmin;
 	int		xargmax;
 	int		xargexit;
-	int		nenv;
+	int		save_env_n;	/* number of saved pointers to environment variables with invalid names */
+	char		**save_env;	/* saved pointers to environment variables with invalid names */
 	mode_t		mask;
 	void		*init_context;
 	void		*mac_context;
@@ -425,7 +426,7 @@ extern Libcomp_t *liblist;
 
 extern void		sh_subfork(void);
 extern Shell_t		*sh_init(int,char*[],Shinit_f);
-extern int		sh_reinit(char*[]);
+extern void		sh_reinit(void);
 extern int 		sh_eval(Sfio_t*,int);
 extern void 		sh_delay(double,int);
 extern void		*sh_parse(Sfio_t*,int);

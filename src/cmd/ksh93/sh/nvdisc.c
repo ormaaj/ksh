@@ -328,11 +328,8 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 		/* restore everything but the nvlink field */
 		memcpy(&SH_VALNOD->nvname,  &node.nvname, sizeof(node)-sizeof(node.nvlink));
 	}
-	else if(sh_isstate(SH_INIT) || np==SH_FUNNAMENOD)
-	{
-		/* don't free functions during reinitialization */
+	else if(np==SH_FUNNAMENOD)
 		nv_putv(np,val,flags,handle);
-	}
 	else if(!nq || !isblocked(bp,type))
 	{
 		Dt_t *root = sh_subfuntree(1);
@@ -1144,7 +1141,7 @@ Namval_t *sh_addbuiltin(const char *path, Shbltin_f bltin, void *extra)
 		stkseek(sh.stk,offset);
 		if(extra == (void*)1)
 		{
-			if(nv_isattr(np,BLT_SPC))
+			if(nv_isattr(np,BLT_SPC) && !sh_isstate(SH_INIT))
 			{
 				/* builtin(1) cannot delete special builtins */
 				errormsg(SH_DICT,ERROR_exit(1),"cannot delete: %s%s",name,is_spcbuiltin);

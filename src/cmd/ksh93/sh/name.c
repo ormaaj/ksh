@@ -1676,8 +1676,6 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 		up = np->nvalue.up;
 	if(up && up->cp==Empty)
 		up->cp = 0;
-	if(nv_isattr(np,NV_EXPORT))
-		nv_offattr(np,NV_IMPORT);
 	if(nv_isattr (np, NV_INTEGER))
 	{
 		if(nv_isattr(np, NV_DOUBLE) == NV_DOUBLE)
@@ -2147,11 +2145,8 @@ static char *staknam(Namval_t *np, char *value)
 	char *p,*q;
 	q = stkalloc(sh.stk,strlen(nv_name(np))+(value?strlen(value):0)+2);
 	p=strcopy(q,nv_name(np));
-	if(value)
-	{
-		*p++ = '=';
-		strcpy(p,value);
-	}
+	*p++ = '=';
+	strcpy(p,value);
 	return q;
 }
 
@@ -2200,9 +2195,7 @@ static void pushnam(Namval_t *np, void *data)
 	if(strchr(np->nvname,'.'))
 		return;
 	ap->tp = 0;
-	if(nv_isattr(np,NV_IMPORT) && np->nvenv)
-		*ap->argnam++ = np->nvenv;
-	else if(value=nv_getval(np))
+	if(value=nv_getval(np))
 		*ap->argnam++ = staknam(np,value);
 	if(!sh_isoption(SH_POSIX) && nv_isattr(np,ATTR_TO_EXPORT))
 		ap->attsize += (strlen(nv_name(np))+4);
@@ -2223,11 +2216,13 @@ char **sh_envgen(void)
 	nv_offattr(L_ARGNOD,NV_EXPORT);
 	data.attsize = 6;
 	namec = nv_scan(sh.var_tree,nullscan,NULL,NV_EXPORT,NV_EXPORT);
-	namec += sh.nenv;
+	namec += sh.save_env_n;
 	er = stkalloc(sh.stk,(namec+4)*sizeof(char*));
-	data.argnam = (er+=2) + sh.nenv;
-	if(sh.nenv)
-		memcpy(er,environ,sh.nenv*sizeof(char*));
+	data.argnam = (er+=2) + sh.save_env_n;
+	/* Pass non-imported env vars to child */
+	if(sh.save_env_n)
+		memcpy(er,sh.save_env,sh.save_env_n*sizeof(char*));
+	/* Add exported vars */
 	nv_scan(sh.var_tree, pushnam,&data,NV_EXPORT, NV_EXPORT);
 	*data.argnam = (char*)stkalloc(sh.stk,data.attsize);
 	/* Export variable attributes into env var named by e_envmarker, unless POSIX mode is on */
@@ -2354,53 +2349,6 @@ void sh_scope(struct argnod *envlist, int fun)
 	}
 	dtview(newscope,(Dt_t*)newroot);
 	sh.var_tree = newscope;
-}
-
-/* 
- * Remove freeable local space associated with the nvalue field
- * of nnod. This includes any strings representing the value(s) of the
- * node, as well as its dope vector, if it is an array.
- */
-void	sh_envnolocal (Namval_t *np, void *data)
-{
-	char *cp = 0, was_export = nv_isattr(np,NV_EXPORT)!=0;
-	NOT_USED(data);
-	if(np==VERSIONNOD && nv_isref(np))
-		return;
-	if(np==L_ARGNOD)
-		return;
-	if(np == sh.namespace)
-		return;
-	if(nv_isref(np))
-		nv_unref(np);
-	if(nv_isattr(np,NV_EXPORT) && nv_isarray(np))
-	{
-		nv_putsub(np,NULL,0);
-		if(cp = nv_getval(np))
-			cp = sh_strdup(cp);
-	}
-	if(nv_isattr(np,NV_EXPORT|NV_NOFREE))
-	{
-		if(nv_isref(np) && np!=VERSIONNOD)
-		{
-			nv_offattr(np,NV_NOFREE|NV_REF);
-			free(np->nvalue.nrp);
-			np->nvalue.cp = 0;
-		}
-		if(!cp)
-			return;
-	}
-	if(nv_isarray(np))
-		nv_putsub(np,NULL,ARRAY_UNDEF);
-	_nv_unset(np,NV_RDONLY);
-	nv_setattr(np,0);
-	if(cp)
-	{
-		nv_putval(np,cp,0);
-		free(cp);
-	}
-	if(was_export)
-		nv_onattr(np,NV_EXPORT);
 }
 
 static void table_unset(Dt_t *root, int flags, Dt_t *oroot)
@@ -2961,8 +2909,6 @@ void nv_newattr (Namval_t *np, unsigned newatts, int size)
 	/* handle attributes that do not change data separately */
 	n = np->nvflag;
 	trans = !(n&NV_INTEGER) && (n&(NV_LTOU|NV_UTOL)); /* transcode to lower or upper case */
-	if(newatts&NV_EXPORT)
-		nv_offattr(np,NV_IMPORT);
 	if(((n^newatts)&NV_EXPORT)) /* EXPORT attribute has been toggled */
 	{
 		/* record changes to the environment */

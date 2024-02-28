@@ -727,7 +727,9 @@ static void outval(char *name, const char *vname, struct Walk *wp)
 		_nv_unset(np,NV_RDONLY);
 		if(sh.subshell || (wp->flags!=NV_RDONLY) || nv_isattr(np,NV_MINIMAL|NV_NOFREE))
 			wp->root = 0;
-		nv_delete(np,wp->root,nv_isattr(np,NV_MINIMAL)?NV_NOFREE:0);
+		/* Delete the node from the tree and free np, unless we're unsetting variables in sh_reinit() */
+		if(!sh_isstate(SH_INIT))
+			nv_delete(np,wp->root,nv_isattr(np,NV_MINIMAL)?NV_NOFREE:0);
 		return;
 	}
 	if(isarray==1 && !nq)

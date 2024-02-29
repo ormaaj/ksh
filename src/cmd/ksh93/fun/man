@@ -88,8 +88,12 @@ namespace man
 
 	show_selfdoc()
 	{
-		typeset -x ERROR_OPTIONS=emphasis
-		export LINES COLUMNS
+		typeset -x COLUMNS=$COLUMNS  # export in local scope
+		if ((stdout_on_terminal)); then
+			typeset -x ERROR_OPTIONS=emphasis
+		else
+			COLUMNS=80
+		fi
 		case $1 in
 		test )	command test '--??man' -- ;;
 		[ )	command [ '--??man' -- ] ;;
@@ -105,6 +109,7 @@ namespace man
 	pager()
 	{
 		typeset pager=${MANPAGER:-${PAGER-}}
+		((!stdout_on_terminal)) && pager=cat
 		case $pager in
 		'')	pager='less -R' ;;
 		less | */less | 'less '* | */'less '*)
@@ -168,6 +173,11 @@ function man
 {
 	typeset IFS	# local default split...
 	set -o noglob	# ...and no pathname expansion, for safe field splitting
+	# set stdout_on_terminal to 1 if standard output is on a terminal;
+	# this needs flagging now as show_selfdoc() will have stdout on a pipe
+	[[ -t 1 ]]
+	typeset -si stdout_on_terminal=$((! $?))
+	# and off we go
 	.man.main "$@"
 }
 

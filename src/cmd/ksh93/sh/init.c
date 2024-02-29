@@ -789,7 +789,7 @@ static void put_lastarg(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		nv_offattr(np,NV_NOFREE);
 	sh.lastarg = (char*)val;
 	nv_offattr(np,NV_EXPORT);
-	np->nvenv = 0;
+	np->nvmeta = NULL;
 }
 
 static void match2d(struct match *mp)
@@ -1950,7 +1950,7 @@ Dt_t *sh_inittree(const struct shtable2 *name_vals)
 			np->nvname = (char*)tp->sh_name;
 			treep = base_treep;
 		}
-		np->nvenv = 0;
+		np->nvmeta = NULL;
 		if(name_vals==(const struct shtable2*)shtab_builtins)
 			np->nvalue.bfp = (void*)((struct shtable3*)tp)->sh_value;
 		else
@@ -2032,7 +2032,7 @@ static void env_import_attributes(char *next)
 		if(next = strchr(++cp,'='))
 			*next = 0;
 		np = nv_search(cp+2,sh.var_tree,NV_ADD);
-		if(np!=SHLVL && nv_isattr(np,NV_IMPORT|NV_EXPORT))
+		if(np!=SHLVL && nv_isattr(np,NV_EXPORT))
 		{
 			int flag = *(unsigned char*)cp-' ';
 			int size = *(unsigned char*)(cp+1)-' ';
@@ -2064,7 +2064,7 @@ static void env_import_attributes(char *next)
 			flag &= ~NV_RDONLY;	/* refuse to import readonly attribute */
 			if(!flag)
 				continue;
-			nv_newattr(np,flag|NV_IMPORT|NV_EXPORT,size);
+			nv_newattr(np,flag|NV_EXPORT,size);
 		}
 	}
 	return;

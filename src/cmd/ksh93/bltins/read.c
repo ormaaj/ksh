@@ -277,11 +277,11 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, Sflong_t
 		}
 		else if(flags&C_FLAG)
 		{
-			char *sp =  np->nvenv;
+			void *sp = np->nvmeta;
 			delim = -1;
 			nv_unset(np);
 			if(!nv_isattr(np,NV_MINIMAL))
-				np->nvenv = sp;
+				np->nvmeta = sp;
 			nv_setvtree(np);
 		}
 		else
@@ -499,7 +499,7 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, Sflong_t
 					var = sh_memdup(var,c+1);
 				nv_putval(np,var,NV_RAW);
 				nv_setsize(np,c);
-				if(!nv_isattr(np,NV_IMPORT|NV_EXPORT)  && (mp=(Namval_t*)np->nvenv))
+				if(!nv_isattr(np,NV_MINIMAL|NV_EXPORT) && (mp = np->nvmeta))
 					nv_setsize(mp,c);
 			}
 		}

@@ -1181,7 +1181,7 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
 							if(n && ap && !ap->table)
 								ap->table = dtopen(&_Nvdisc,Dtoset);
 							if(ap && ap->table && (nq=nv_search(sub,ap->table,n)))
-								nq->nvenv = (char*)np;
+								nq->nvmeta = np;
 							if(nq && nv_isnull(nq))
 								nq = nv_arraychild(np,nq,c);
 						}
@@ -2404,7 +2404,7 @@ static void table_unset(Dt_t *root, int flags, Dt_t *oroot)
  *   will retain its attributes.
  *   <flags> can contain NV_RDONLY to override the readonly attribute
  *	being cleared.
- *   <flags> can contain NV_EXPORT to override preserve nvenv
+ *   <flags> can contain NV_EXPORT to preserve nvmeta.
  */
 void	_nv_unset(Namval_t *np,int flags)
 {
@@ -2421,7 +2421,7 @@ void	_nv_unset(Namval_t *np,int flags)
 	}
 	if(is_afunction(np) && np->nvalue.ip)
 	{
-		struct slnod *slp = (struct slnod*)(np->nvenv);
+		struct slnod *slp = np->nvmeta;
 		if(np->nvalue.rp->running)
 		{
 			np->nvalue.rp->running |= 1;
@@ -2531,7 +2531,7 @@ done:
 			if(nv_isattr(np,NV_EXPORT) && !strchr(np->nvname,'['))
 				env_change();
 			if(!(flags&NV_EXPORT) ||  nv_isattr(np,NV_EXPORT))
-				np->nvenv = 0;
+				np->nvmeta = NULL;
 			nv_setattr(np,0);
 		}
 		else
@@ -3156,7 +3156,8 @@ int nv_rename(Namval_t *np, int flags)
 	Namval_t		*last_table = sh.last_table;
 	Dt_t			*last_root = sh.last_root;
 	Dt_t			*hp = 0;
-	char			*nvenv=0,*prefix=sh.prefix;
+	void			*nvmeta = NULL;
+	char			*prefix = sh.prefix;
 	Namarr_t		*ap;
 	if(nv_isattr(np,NV_PARAM) && sh.st.prevst)
 	{
@@ -3164,8 +3165,8 @@ int nv_rename(Namval_t *np, int flags)
 			hp = dtvnext(sh.var_tree);
 	}
 	if(!nv_isattr(np,NV_MINIMAL))
-		nvenv = np->nvenv;
-	if(nvenv || (cp = nv_name(np)) && nv_isarray(np) && cp[strlen(cp)-1] == ']')
+		nvmeta = np->nvmeta;
+	if(nvmeta || (cp = nv_name(np)) && nv_isarray(np) && cp[strlen(cp)-1] == ']')
 		arraynp = 1;
 	if(!(cp=nv_getval(np)))
 	{
@@ -3215,12 +3216,12 @@ int nv_rename(Namval_t *np, int flags)
 		{
 			if(ap = nv_arrayptr(np))
 				ap->nelem++;
-			mp->nvenv = nvenv = (void*)np;
+			mp->nvmeta = nvmeta = np;
 		}
 	}
 	if(mp)
 	{
-		nvenv = (char*)np;
+		nvmeta = np;
 		np = mp;
 	}
 	if(nr==np)
@@ -3244,7 +3245,7 @@ int nv_rename(Namval_t *np, int flags)
 	sh.last_root = last_root;
 	if(flags&NV_MOVE)
 	{
-		if(arraynp && !nv_isattr(np,NV_MINIMAL) && (mp=(Namval_t*)np->nvenv) && (ap=nv_arrayptr(mp)) && !ap->fun)
+		if(arraynp && !nv_isattr(np,NV_MINIMAL) && (mp = np->nvmeta) && (ap = nv_arrayptr(mp)) && !ap->fun)
 			ap->nelem++;
 	}
 	if((nv_arrayptr(nr) && !arraynr) || nv_isvtree(nr))
@@ -3256,7 +3257,7 @@ int nv_rename(Namval_t *np, int flags)
 			if(ap->table)
 				mp = nv_search(nv_getsub(np),ap->table,NV_ADD);
 			nv_arraychild(np,mp,0);
-			nvenv = (void*)np;
+			nvmeta = np;
 		}
 		else
 			mp = np;
@@ -3282,10 +3283,10 @@ int nv_rename(Namval_t *np, int flags)
 		}
 		else
 			nv_clone(nr,mp,(flags&NV_MOVE)|NV_COMVAR);
-		mp->nvenv = nvenv;
+		mp->nvmeta = nvmeta;
 		if(flags&NV_MOVE)
 		{
-			if(arraynr && !nv_isattr(nr,NV_MINIMAL) && (mp=(Namval_t*)nr->nvenv) && (ap=nv_arrayptr(mp)))
+			if(arraynr && !nv_isattr(nr,NV_MINIMAL) && (mp = nr->nvmeta) && (ap = nv_arrayptr(mp)))
 			{
 				nv_putsub(mp,nr->nvname,0);
 				_nv_unset(mp,0);
@@ -3298,7 +3299,7 @@ int nv_rename(Namval_t *np, int flags)
 		nv_putval(np,nv_getval(nr),0);
 		if(flags&NV_MOVE)
 		{
-			if(!nv_isattr(nr,NV_MINIMAL) && (mp=(Namval_t*)(nr->nvenv)) && (ap=nv_arrayptr(mp)))
+			if(!nv_isattr(nr,NV_MINIMAL) && (mp = nr->nvmeta) && (ap = nv_arrayptr(mp)))
 				ap->nelem--;
 			_nv_unset(nr,0);
 		}
@@ -3552,9 +3553,9 @@ char *nv_name(Namval_t *np)
 #if SHOPT_FIXEDARRAY
 	ap = nv_arrayptr(np);
 #endif /* SHOPT_FIXEDARRAY */
-	if(!nv_isattr(np,NV_MINIMAL|NV_EXPORT) && np->nvenv)
+	if(!nv_isattr(np,NV_MINIMAL|NV_EXPORT) && np->nvmeta)
 	{
-		Namval_t *nq= sh.last_table, *mp= (Namval_t*)np->nvenv;
+		Namval_t *nq = sh.last_table, *mp = np->nvmeta;
 		if(np==sh.last_table)
 			sh.last_table = 0;
 		if(nv_isarray(mp))

@@ -348,7 +348,7 @@ static void nv_restore(struct subshell *sp)
 		}
 		nv_setsize(mp,nv_size(np));
 		if(!(flags&NV_MINIMAL))
-			mp->nvenv = np->nvenv;
+			mp->nvmeta = np->nvmeta;
 		mp->nvfun = np->nvfun;
 		if(np->nvfun && nofree)
 			np->nvfun->nofree = nofree;

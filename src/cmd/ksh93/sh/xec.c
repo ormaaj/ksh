@@ -702,7 +702,7 @@ static long set_instance(Namval_t *nq, Namval_t *node, struct Namref *nr)
 	char		*sp=0,*cp;
 	Namarr_t	*ap;
 	Namval_t	*np;
-	if(!nv_isattr(nq,NV_MINIMAL|NV_EXPORT|NV_ARRAY) && (np=(Namval_t*)nq->nvenv) && nv_isarray(np))
+	if(!nv_isattr(nq,NV_MINIMAL|NV_EXPORT|NV_ARRAY) && (np = nq->nvmeta) && nv_isarray(np))
 		nq = np;
 	cp = nv_name(nq);
 	memset(nr,0,sizeof(*nr));
@@ -729,8 +729,8 @@ static long set_instance(Namval_t *nq, Namval_t *node, struct Namref *nr)
 	memcpy(node,L_ARGNOD,sizeof(*node));
 	L_ARGNOD->nvalue.nrp = nr;
 	L_ARGNOD->nvflag = NV_REF|NV_NOFREE;
-	L_ARGNOD->nvfun = 0;
-	L_ARGNOD->nvenv = 0;
+	L_ARGNOD->nvfun = NULL;
+	L_ARGNOD->nvmeta = NULL;
 	if(sp)
 	{
 		nv_putval(SH_SUBSCRNOD,nr->sub=sp,NV_NOFREE);
@@ -1330,7 +1330,7 @@ int sh_exec(const Shnode_t *t, int flags)
 						}
 					}
 					/* increase refcnt for unset */
-					slp = (struct slnod*)np->nvenv;
+					slp = np->nvmeta;
 					sh_funstaks(slp->slchild,1);
 					if(slp->slptr)
 						stklink(slp->slptr);
@@ -2426,7 +2426,7 @@ int sh_exec(const Shnode_t *t, int flags)
 			if(np->nvalue.rp)
 			{
 				struct Ufunction *rp = np->nvalue.rp;
-				slp = (struct slnod*)np->nvenv;
+				slp = np->nvmeta;
 				sh_funstaks(slp->slchild,-1);
 				if(slp->slptr)
 				{
@@ -2471,7 +2471,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				sh_funstaks(slp->slchild,1);
 				if(slp->slptr)
 					stklink(slp->slptr);
-				np->nvenv = (char*)slp;
+				np->nvmeta = slp;
 				nv_funtree(np) = (int*)(t->funct.functtre);
 				np->nvalue.rp->hoffset = t->funct.functloc;
 				np->nvalue.rp->lineno = t->funct.functline;
@@ -2913,12 +2913,12 @@ Sfdouble_t sh_mathfun(void *fp, int nargs, Sfdouble_t *arg)
 	np = (Namval_t*)fp;
 	funenv.node = np;
 	funenv.nref = nref; 
-	funenv.env = 0;
+	funenv.env = NULL;
 	memcpy(&node,SH_VALNOD,sizeof(node));
-	SH_VALNOD->nvfun = 0;
-	SH_VALNOD->nvenv = 0;
+	SH_VALNOD->nvfun = NULL;
+	SH_VALNOD->nvmeta = NULL;
 	SH_VALNOD->nvflag = NV_LDOUBLE|NV_NOFREE;
-	SH_VALNOD->nvalue.ldp = 0;
+	SH_VALNOD->nvalue.ldp = NULL;
 	for(i=0; i < nargs; i++)	
 	{
 		*nr++ = mp = nv_namptr(sh.mathnodes,i);
@@ -2926,14 +2926,14 @@ Sfdouble_t sh_mathfun(void *fp, int nargs, Sfdouble_t *arg)
 	}
 	*nr = 0;
 	SH_VALNOD->nvalue.ldp = &d;
-	argv[0] =  np->nvname;
-	argv[1] = 0;
+	argv[0] = np->nvname;
+	argv[1] = NULL;
 	sh_funscope(1,argv,0,&funenv,0);
 	while(mp= *nr++)
-		mp->nvalue.ldp = 0;
+		mp->nvalue.ldp = NULL;
 	SH_VALNOD->nvfun = node.nvfun;
 	SH_VALNOD->nvflag = node.nvflag;
-	SH_VALNOD->nvenv = node.nvenv;
+	SH_VALNOD->nvmeta = node.nvmeta;
 	SH_VALNOD->nvalue.ldp = node.nvalue.ldp;
 	return d;
 }

@@ -549,7 +549,7 @@ endargs:
 		}
 		else if(nv_isnull(tdata.tp) && sh.envlist)   /* only create a type command if there were assignment(s) */
 			nv_newtype(tdata.tp);
-		tdata.tp->nvenv = tdata.help;
+		tdata.tp->nvmeta = tdata.help;
 		flag &= ~NV_TYPE;
 		if(nv_isattr(tdata.tp,NV_TAGGED))
 		{
@@ -790,7 +790,7 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 			}
 			if(nv_isnull(np) && !nv_isarray(np) && nv_isattr(np,NV_NOFREE))
 				nv_offattr(np,NV_NOFREE);
-			else if(tp->tp && !nv_isattr(np,NV_MINIMAL|NV_EXPORT) && (mp=(Namval_t*)np->nvenv) && (ap=nv_arrayptr(mp)) && (ap->nelem&ARRAY_TREE))
+			else if(tp->tp && !nv_isattr(np,NV_MINIMAL|NV_EXPORT) && (mp = np->nvmeta) && (ap = nv_arrayptr(mp)) && (ap->nelem & ARRAY_TREE))
 			{
 				errormsg(SH_DICT,ERROR_exit(1),e_typecompat,nv_name(np));
 				UNREACHABLE();
@@ -958,7 +958,7 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 			}
 			if(tp->help && !nv_isattr(np,NV_MINIMAL|NV_EXPORT))
 			{
-				np->nvenv = tp->help;
+				np->nvmeta = tp->help;
 				nv_onattr(np,NV_EXPORT);
 			}
 			if(last)

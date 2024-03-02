@@ -149,7 +149,7 @@ int tty_check(int fd)
 	Sfio_t *sp;
 	ep->e_savefd = -1;
 	if(fd < 0 || fd > sh.lim.open_max || sh.fdstatus[fd] == IOCLOSE
-	|| (sp = sh.sftable[fd]) && (sfset(sp,0,0) & SF_STRING))
+	|| (sp = sh.sftable[fd]) && (sfset(sp,0,0) & SFIO_STRING))
 		return 0;
 	return tty_get(fd,&tty)==0;
 }
@@ -657,12 +657,12 @@ void	ed_setup(Edit_t *ep, int fd, int reedit)
 		ep->e_outlast = ep->e_outptr + MAXLINE;
 		return;
 	}
-	qlen = sfset(sfstderr,SF_READ,0);
-	/* make sure SF_READ not on */
-	ep->e_outbase = ep->e_outptr = (char*)sfreserve(sfstderr,SF_UNBOUND,SF_LOCKR);
+	qlen = sfset(sfstderr,SFIO_READ,0);
+	/* make sure SFIO_READ not on */
+	ep->e_outbase = ep->e_outptr = (char*)sfreserve(sfstderr,SFIO_UNBOUND,SFIO_LOCKR);
 	ep->e_outlast = ep->e_outptr + sfvalue(sfstderr);
 	if(qlen)
-		sfset(sfstderr,SF_READ,1);
+		sfset(sfstderr,SFIO_READ,1);
 	sfwrite(sfstderr,ep->e_outptr,0);
 	ep->e_eol = reedit;
 	if(ep->e_default && (pp = nv_getval(ep->e_default)))

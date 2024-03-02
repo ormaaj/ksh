@@ -97,7 +97,7 @@ tee_cleanup(Tee_t* tp)
 	{
 		sfdisc(sfstdout, NULL);
 		if (tp->line >= 0)
-			sfset(sfstdout, SF_LINE, tp->line);
+			sfset(sfstdout, SFIO_LINE, tp->line);
 		for (hp = tp->fd; (n = *hp) >= 0; hp++)
 			close(n);
 	}
@@ -135,11 +135,11 @@ b_tee(int argc, char** argv, Shbltin_t* context)
 			signal(SIGINT, SIG_IGN);
 			continue;
 		case 'l':
-			line = sfset(sfstdout, 0, 0) & SF_LINE;
+			line = sfset(sfstdout, 0, 0) & SFIO_LINE;
 			if ((line == 0) == (opt_info.num == 0))
 				line = -1;
 			else
-				sfset(sfstdout, SF_LINE, !!opt_info.num);
+				sfset(sfstdout, SFIO_LINE, !!opt_info.num);
 			continue;
 		case ':':
 			error(2, "%s", opt_info.arg);
@@ -198,7 +198,7 @@ b_tee(int argc, char** argv, Shbltin_t* context)
 			UNREACHABLE();
 		}
 	}
-	if ((sfmove(sfstdin, sfstdout, SF_UNBOUND, -1) < 0 || !sfeof(sfstdin)) && !ERROR_PIPE(errno) && errno != EINTR)
+	if ((sfmove(sfstdin, sfstdout, SFIO_UNBOUND, -1) < 0 || !sfeof(sfstdin)) && !ERROR_PIPE(errno) && errno != EINTR)
 		error(ERROR_system(0), "read error");
 	if (sfsync(sfstdout))
 		error(ERROR_system(0), "write error");

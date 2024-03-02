@@ -2122,7 +2122,7 @@ noreturn void sh_syntax(Lex_t *lp)
 		Sfio_t *top;
 		while(fcget()>0);
 		fcclose();
-		while(top=sfstack(sp,SF_POPSTACK))
+		while(top=sfstack(sp,SFIO_POPSTACK))
 			sfclose(top);
 	}
 	else
@@ -2421,19 +2421,19 @@ static int alias_exceptf(Sfio_t *iop,int type,void *data, Sfdisc_t *handle)
 	Namval_t *np;
 	Lex_t	*lp;
 	NOT_USED(data);
-	if(type==0 || type==SF_ATEXIT || !ap)
+	if(type==0 || type==SFIO_ATEXIT || !ap)
 		return 0;
 	lp = ap->lp;
 	np = ap->np;
-	if(type!=SF_READ)
+	if(type!=SFIO_READ)
 	{
-		if(type==SF_CLOSING)
+		if(type==SFIO_CLOSING)
 		{
-			Sfdisc_t *dp = sfdisc(iop,SF_POPDISC);
+			Sfdisc_t *dp = sfdisc(iop,SFIO_POPDISC);
 			if(dp!=handle)
 				sfdisc(iop,dp);
 		}
-		else if(type==SF_DPOP || type==SF_FINAL)
+		else if(type==SFIO_DPOP || type==SFIO_FINAL)
 			free(ap);
 		goto done;
 	}

@@ -761,7 +761,7 @@ static void unset_instance(Namval_t *nq, Namval_t *node, struct Namref *nr,long 
 	savein = dup(0);
 	if(fd==0)
 		fd = savein;
-	sp = sfnew(NULL,NULL,SF_UNBOUND,fd,SF_READ);
+	sp = sfnew(NULL,NULL,SFIO_UNBOUND,fd,SFIO_READ);
 	while(close(0)<0 && errno==EINTR)
 		errno = err;
 	open(e_devnull,O_RDONLY);
@@ -1184,10 +1184,10 @@ int sh_exec(const Shnode_t *t, int flags)
 						if(!(nv_isattr(np,BLT_ENV)))
 						{
 							sfsync(NULL);
-							share = sfset(sfstdin,SF_SHARE,0);
+							share = sfset(sfstdin,SFIO_SHARE,0);
 							sh_onstate(SH_STOPOK);
-							sfpool(sfstderr,NULL,SF_WRITE);
-							sfset(sfstderr,SF_LINE,1);
+							sfpool(sfstderr,NULL,SFIO_WRITE);
+							sfset(sfstderr,SFIO_LINE,1);
 							save_prompt = sh.nextprompt;
 							sh.nextprompt = 0;
 						}
@@ -1257,11 +1257,11 @@ int sh_exec(const Shnode_t *t, int flags)
 					if(!(nv_isattr(np,BLT_ENV)))
 					{
 						sh_offstate(SH_STOPOK);
-						if(share&SF_SHARE)
-							sfset(sfstdin,SF_PUBLIC|SF_SHARE,1);
-						sfset(sfstderr,SF_LINE,0);
-						sfpool(sfstderr,sh.outpool,SF_WRITE);
-						sfpool(sfstdin,NULL,SF_WRITE);
+						if(share&SFIO_SHARE)
+							sfset(sfstdin,SFIO_PUBLIC|SFIO_SHARE,1);
+						sfset(sfstderr,SFIO_LINE,0);
+						sfpool(sfstderr,sh.outpool,SFIO_WRITE);
+						sfpool(sfstdin,NULL,SFIO_WRITE);
 						sh.nextprompt = save_prompt;
 					}
 					sh_popcontext(buffp);
@@ -1686,7 +1686,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				 * treat as non-shareable to improve performance
 				 */
 				if(simple)
-					sfset(sfstdin,SF_PUBLIC|SF_SHARE,0);
+					sfset(sfstdin,SFIO_PUBLIC|SFIO_SHARE,0);
 				waitall = job.waitall;
 				job.waitall = 0;
 				pid = job.parent;
@@ -2101,7 +2101,7 @@ int sh_exec(const Shnode_t *t, int flags)
 #if SHOPT_FILESCAN
 				if(iop)
 				{
-					if(!(sh.cur_line=sfgetr(iop,'\n',SF_STRING)))
+					if(!(sh.cur_line=sfgetr(iop,'\n',SFIO_STRING)))
 						break;
 				}
 				else
@@ -2685,7 +2685,7 @@ int sh_trace(char *argv[], int nl)
 		int decl = (nl&2);
 		nl &= ~2;
 		/* make this trace atomic */
-		sfset(sfstderr,SF_SHARE|SF_PUBLIC,0);
+		sfset(sfstderr,SFIO_SHARE|SFIO_PUBLIC,0);
 		if(!(cp=nv_getval(sh_scoped(PS4NOD))))
 			cp = "+ ";
 		else
@@ -2722,7 +2722,7 @@ int sh_trace(char *argv[], int nl)
 				sfputr(sfstderr,cp,*argv?' ':nl);
 			}
 		}
-		sfset(sfstderr,SF_SHARE|SF_PUBLIC,1);
+		sfset(sfstderr,SFIO_SHARE|SFIO_PUBLIC,1);
 		return 1;
 	}
 	return 0;

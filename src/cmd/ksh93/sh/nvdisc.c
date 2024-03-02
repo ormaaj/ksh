@@ -1312,7 +1312,7 @@ static char *get_table(Namval_t *np, Namfun_t *fp)
         if(out)
                 sfseek(out,0,SEEK_SET);
         else
-                out =  sfnew(NULL,NULL,-1,-1,SF_WRITE|SF_STRING);
+                out =  sfnew(NULL,NULL,-1,-1,SFIO_WRITE|SFIO_STRING);
 	for(np=(Namval_t*)dtfirst(root);np;np=(Namval_t*)dtnext(root,np))
 	{
                 if(!nv_isnull(np) || np->nvfun || nv_isattr(np,~NV_NOFREE))

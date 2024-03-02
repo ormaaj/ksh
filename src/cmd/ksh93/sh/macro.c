@@ -2219,7 +2219,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 		sh_offstate(SH_VERBOSE);
 		if(mp->sp)
 			sfsync(mp->sp);	/* flush before executing command */
-		sp = sfnew(NULL,str,c,-1,SF_STRING|SF_READ);
+		sp = sfnew(NULL,str,c,-1,SFIO_STRING|SFIO_READ);
 		c = sh.inlineno;
 		sh.inlineno = error_info.line+sh.st.firstline;
 		t = (Shnode_t*)sh_parse(sp,SH_EOF|SH_NL);
@@ -2256,7 +2256,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 			if(!(sp=sh.sftable[fd]))
 			{
 				char *cp = (char*)sh_malloc(IOBSIZE+1);
-				sp = sfnew(NULL,cp,IOBSIZE,fd,SF_READ|SF_MALLOC);
+				sp = sfnew(NULL,cp,IOBSIZE,fd,SFIO_READ|SFIO_MALLOC);
 			}
 		}
 		else
@@ -2284,7 +2284,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 	sfsetbuf(sp,sp,0);
 	bufsize = sfvalue(sp);
 	/* read command substitution output and put on stack or here-doc */
-	sfpool(sp, NULL, SF_WRITE);
+	sfpool(sp, NULL, SFIO_WRITE);
 	sh_offstate(SH_INTERACTIVE);
 	if((foff = sfseek(sp,0,SEEK_END)) > 0)
 	{
@@ -2293,7 +2293,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 		stkseek(stkp,soff+foff+64);
 		stkseek(stkp,soff);
 	}
-	while((str=(char*)sfreserve(sp,SF_UNBOUND,0)) && (c=bufsize=sfvalue(sp))>0)
+	while((str=(char*)sfreserve(sp,SFIO_UNBOUND,0)) && (c=bufsize=sfvalue(sp))>0)
 	{
 #if SHOPT_CRNL
 		/* eliminate <cr> */

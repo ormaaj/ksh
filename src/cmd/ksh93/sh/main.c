@@ -229,7 +229,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 		if(sh.comdiv)
 		{
 		shell_c:
-			iop = sfnew(NULL,sh.comdiv,strlen(sh.comdiv),0,SF_STRING|SF_READ);
+			iop = sfnew(NULL,sh.comdiv,strlen(sh.comdiv),0,SFIO_STRING|SFIO_READ);
 		}
 		else
 		{
@@ -449,7 +449,7 @@ static void	exfile(Sfio_t *iop,int fno)
 		{
 			while(fcget()>0);
 			fcclose();
-			while(top=sfstack(iop,SF_POPSTACK))
+			while(top=sfstack(iop,SFIO_POPSTACK))
 				sfclose(top);
 		}
 		/*

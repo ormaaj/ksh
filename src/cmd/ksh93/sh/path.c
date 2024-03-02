@@ -574,7 +574,7 @@ static void funload(int fno, const char *name)
 	sh.funload = 1;
 	sh.inlineno = 1;
 	error_info.line = 0;
-	sh_eval(sfnew(NULL,buff,IOBSIZE,fno,SF_READ),SH_FUNEVAL);
+	sh_eval(sfnew(NULL,buff,IOBSIZE,fno,SFIO_READ),SH_FUNEVAL);
 	sh_close(fno);
 	sh.readscript = 0;
 #if SHOPT_NAMESPACE
@@ -1279,7 +1279,7 @@ static noreturn void exscript(char *path,char *argv[],char **envp)
 	}
 	sh.cpid = 0;
 	if(sp=fcfile())
-		while(sfstack(sp,SF_POPSTACK));
+		while(sfstack(sp,SFIO_POPSTACK));
 	job_clear();
 	if(sh.infd>0 && (sh.fdstatus[sh.infd]&IOCLEX))
 		sh_close(sh.infd);

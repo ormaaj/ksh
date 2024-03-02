@@ -275,7 +275,7 @@ cutcols(Cut_t* cut, Sfio_t* fdin, Sfio_t* fdout)
 			bp = sfreserve(fdin, len, -1);
 		else
 			bp = sfgetr(fdin, '\n', 0);
-		if (!bp && !(bp = sfgetr(fdin, 0, SF_LASTR)))
+		if (!bp && !(bp = sfgetr(fdin, 0, SFIO_LASTR)))
 			break;
 		len = sfvalue(fdin);
 		xx = 0;
@@ -387,7 +387,7 @@ cutfields(Cut_t* cut, Sfio_t* fdin, Sfio_t* fdout)
 	long offset = 0;
 	unsigned char mb[8];
 	/* process each buffer */
-	while ((bp = (unsigned char*)sfreserve(fdin, SF_UNBOUND, -1)) && (c = sfvalue(fdin)) > 0)
+	while ((bp = (unsigned char*)sfreserve(fdin, SFIO_UNBOUND, -1)) && (c = sfvalue(fdin)) > 0)
 	{
 		cp = bp;
 		ep = cp + --c;
@@ -444,7 +444,7 @@ cutfields(Cut_t* cut, Sfio_t* fdin, Sfio_t* fdout)
 									}
 									for (i = 0; i <= (ep - cp); i++)
 										mb[i] = cp[i];
-									if (!(bp = (unsigned char*)sfreserve(fdin, SF_UNBOUND, -1)) || (c = sfvalue(fdin)) <= 0)
+									if (!(bp = (unsigned char*)sfreserve(fdin, SFIO_UNBOUND, -1)) || (c = sfvalue(fdin)) <= 0)
 										goto failed;
 									cp = bp;
 									ep = cp + --c;

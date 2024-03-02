@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -312,7 +312,7 @@ int    b_dot_cmd(int n,char *argv[],Shbltin_t *context)
 		else
 		{
 			buffer = sh_malloc(IOBSIZE+1);
-			iop = sfnew(NULL,buffer,IOBSIZE,fd,SF_READ);
+			iop = sfnew(NULL,buffer,IOBSIZE,fd,SFIO_READ);
 			sh_offstate(SH_NOFORK);
 			sh_eval(iop,sh_isstate(SH_PROFILE)?SH_FUNEVAL:0);
 		}

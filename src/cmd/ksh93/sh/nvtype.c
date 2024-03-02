@@ -642,7 +642,7 @@ static int typeinfo(Opt_t* op, Sfio_t *out, const char *str, Optdisc_t *fp)
 		return 0;
 	}
 	help = &dp->names[dp->ndisc];
-	sp = sfnew(NULL,buffer,sizeof(buffer),-1,SF_STRING|SF_WRITE);
+	sp = sfnew(NULL,buffer,sizeof(buffer),-1,SFIO_STRING|SFIO_WRITE);
 	sfprintf(out,"[+?\b%s\b defines the following fields:]{\n",np->nvname);
 	for(i=0; i < dp->numnodes; i++)
 	{

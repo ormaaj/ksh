@@ -38,7 +38,7 @@
 #include	"history.h"
 #include	"version.h"
 
-#define HERE_MEM	SF_BUFSIZE	/* size of here-docs kept in memory */
+#define HERE_MEM	SFIO_BUFSIZE	/* size of here-docs kept in memory */
 
 /* These routines are local to this module */
 
@@ -442,7 +442,7 @@ void	*sh_parse(Sfio_t *iop, int flag)
 	fcrestore(&sav_input);
 	lexp->arg = sav_arg;
 	/* unstack any completed alias expansions */
-	if((sfset(iop,0,0)&SF_STRING) && !sfreserve(iop,0,-1))
+	if((sfset(iop,0,0)&SFIO_STRING) && !sfreserve(iop,0,-1))
 	{
 		Sfio_t *sp = sfstack(iop,NULL);
 		if(sp)
@@ -2109,9 +2109,8 @@ int kiaclose(Lex_t *lexp)
 		nv_scan(lexp->entity_tree,kia_add,lexp,NV_TAGGED,0);
 		off1 = sfseek(lexp->kiafile,0,SEEK_END);
 		sfseek(lexp->kiatmp,0,SEEK_SET);
-		sfmove(lexp->kiatmp,lexp->kiafile,SF_UNBOUND,-1);
+		sfmove(lexp->kiatmp,lexp->kiafile,SFIO_UNBOUND,-1);
 		off2 = sfseek(lexp->kiafile,0,SEEK_END);
-#ifdef SF_BUFCONST
 		if(off2==off1)
 			n= sfprintf(lexp->kiafile,"DIRECTORY\nENTITY;%lld;%d\nDIRECTORY;",(Sflong_t)lexp->kiabegin,(size_t)(off1-lexp->kiabegin));
 		else
@@ -2119,13 +2118,6 @@ int kiaclose(Lex_t *lexp)
 		if(off2 >= INT_MAX)
 			off2 = -(n+12);
 		sfprintf(lexp->kiafile,"%010.10lld;%010d\n",(Sflong_t)off2+10, n+12);
-#else
-		if(off2==off1)
-			n= sfprintf(lexp->kiafile,"DIRECTORY\nENTITY;%d;%d\nDIRECTORY;",lexp->kiabegin,off1-lexp->kiabegin);
-		else
-			n= sfprintf(lexp->kiafile,"DIRECTORY\nENTITY;%d;%d\nRELATIONSHIP;%d;%d\nDIRECTORY;",lexp->kiabegin,off1-lexp->kiabegin,off1,off2-off1);
-		sfprintf(lexp->kiafile,"%010d;%010d\n",off2+10, n+12);
-#endif
 	}
 	return sfclose(lexp->kiafile);
 }

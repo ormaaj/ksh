@@ -59,7 +59,7 @@ typedef char* (*_old_stk_overflow_)(size_t);	/* for stkinstall (deprecated) */
 static int stkexcept(Sfio_t*,int,void*,Sfdisc_t*);
 static Sfdisc_t stkdisc = { 0, 0, 0, stkexcept };
 
-Sfio_t	_Stak_data = SFNEW(NULL,0,-1,SF_STATIC|SF_WRITE|SF_STRING,&stkdisc);
+Sfio_t	_Stak_data = SFNEW(NULL,0,-1,SFIO_STATIC|SFIO_WRITE|SFIO_STRING,&stkdisc);
 
 struct frame
 {
@@ -118,7 +118,7 @@ static int stkexcept(Sfio_t *stream, int type, void* val, Sfdisc_t* dp)
 	NoP(val);
 	switch(type)
 	{
-	    case SF_CLOSING:
+	    case SFIO_CLOSING:
 		{
 			struct stk *sp = stream2stk(stream); 
 			char *cp = sp->stkbase;
@@ -148,13 +148,13 @@ static int stkexcept(Sfio_t *stream, int type, void* val, Sfdisc_t* dp)
 			stream->_data = stream->_next = 0;
 		}
 		return 0;
-	    case SF_FINAL:
+	    case SFIO_FINAL:
 		free(stream);
 		return 1;
-	    case SF_DPOP:
+	    case SFIO_DPOP:
 		return -1;
-	    case SF_WRITE:
-	    case SF_SEEK:
+	    case SFIO_WRITE:
+	    case SFIO_SEEK:
 		{
 			long size = sfvalue(stream);
 			if(init)
@@ -171,7 +171,7 @@ static int stkexcept(Sfio_t *stream, int type, void* val, Sfdisc_t* dp)
 				stkinit(size);
 		}
 		return 1;
-	    case SF_NEW:
+	    case SFIO_NEW:
 		return -1;
 	}
 	return 0;
@@ -214,7 +214,7 @@ Sfio_t *stkopen(int flags)
 	fp->nalias = 0;
 	fp->aliases = 0;
 	fp->end = sp->stkend = cp+bsize;
-	if(!sfnew(stream,cp,bsize,-1,SF_STRING|SF_WRITE|SF_STATIC|SF_EOF))
+	if(!sfnew(stream,cp,bsize,-1,SFIO_STRING|SFIO_WRITE|SFIO_STATIC|SFIO_EOF))
 		return NULL;
 	sfdisc(stream,dp);
 	return stream;
@@ -240,7 +240,7 @@ Sfio_t *stkinstall(Sfio_t *stream, _old_stk_overflow_ oflow)
 	if(stream)
 	{
 		sp = stream2stk(stream);
-		while(sfstack(stkstd, SF_POPSTACK));
+		while(sfstack(stkstd, SFIO_POPSTACK));
 		if(stream!=stkstd)
 			sfstack(stkstd,stream);
 		stkcur = sp;

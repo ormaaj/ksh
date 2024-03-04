@@ -1042,7 +1042,11 @@ int sh_exec(const Shnode_t *t, int flags)
 							nv_setlist(argp,flgs,tp);
 						sh_popcontext(chkp);
 						if(jmpval)	/* error occurred */
+						{
+							if(jmpval>SH_JMPCMD)
+								siglongjmp(*sh.jmplist,jmpval);
 							goto setexit;
+						}
 					}
 					if(np==sh.typeinit)
 						sh.typeinit = 0;

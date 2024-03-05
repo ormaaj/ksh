@@ -176,6 +176,7 @@ int    b_print(int argc, char *argv[], Shbltin_t *context)
 	Namval_t *vname=0;
 	Optdisc_t disc;
 	exitval = 0;
+	memset(&disc, 0, sizeof(disc));
 	disc.version = OPT_VERSION;
 	disc.infof = infof;
 	if(argc>0)

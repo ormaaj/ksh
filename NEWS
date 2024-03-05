@@ -9,6 +9,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   ANSI escape codes for emphasis in the output of --man or --help.
   (Type, e.g., print '--???' for more information about common options.)
 
+- Fixed a rare crash in the 'print' built-in due to the use of uninitialised
+  memory while parsing options. Bug introduced in ksh 93u+ 2012-05-31.
+
 2024-02-29:
 
 - Improved the robustness of the routines handling the execution by ksh of a

@@ -3,7 +3,7 @@ note * This build script is in an extended Make Abstract Machine (MAM)
 note * language. Documentation is at: src/cmd/INIT/README-mamake.md
 note *
 
-setv MAMAKE_STRICT 2
+setv MAMAKE_STRICT 3
 setv INSTALLROOT ../../..
 setv PACKAGEROOT ../../../../..
 setv CC cc
@@ -219,6 +219,63 @@ make install virtual
 		exec - cp -f ${<} ${@}
 	done
 
+	make ast_fs.h implicit
+		make FEATURE/fs implicit
+			prev features/fs
+			exec - invoke_iffe ${<}
+		done
+		exec - cp -f ${<} ${@}
+	done
+
+	make ast_tty.h implicit
+		make FEATURE/tty implicit
+			prev features/tty
+			exec - invoke_iffe ${<}
+		done
+		exec - cp -f ${<} ${@}
+	done
+
+	make ast_fcntl.h implicit
+		prev ast_fs.h
+		make FEATURE/fcntl
+			prev ast_fs.h
+			make features/fcntl.c
+				prev FEATURE/tty
+				prev FEATURE/fs
+				prev FEATURE/lib
+				prev FEATURE/standards
+			done
+			exec - invoke_iffe ${<} -I. -Icomp -Iinclude -Istd
+		done
+		exec - cp -f ${<} ${@}
+	done
+
+	make ast_botch.h implicit
+		make FEATURE/botch
+			make features/botch.c
+				prev FEATURE/sys
+				prev FEATURE/lib
+			done
+			exec - invoke_iffe ${<} -I. -Icomp -Iinclude -Istd
+		done
+		exec - cp -f ${<} ${@}
+	done
+
+	make ast_wchar.h implicit
+		make FEATURE/wchar
+			prev std/wctype.h implicit
+			prev std/stdio.h implicit
+			prev ast_common.h
+			make features/wchar
+				prev ast_common.h
+			done
+			exec - invoke_iffe ${<}
+		done
+		exec - cp -f ${<} ${@}
+		prev std/stdio.h
+		prev ast_common.h
+	done
+
 	note *
 	note * Generate system library dependency information
 	note *
@@ -303,26 +360,39 @@ make install virtual
 		exec - cp -f ${<} ${@}
 	done ast_limits.h
 
+
 	note *
 	note * Declare implicit header dependencies
 	note *
 
 	make include/ast.h implicit
 		prev ast_api.h
-		prev include/vmalloc.h
-		prev include/sfio.h
-		prev include/ast_std.h implicit
-	done
-
-	make include/vmalloc.h implicit
-		prev ast_common.h
-		prev include/ast_std.h
-	done
-
-	make include/sfio.h implicit
-		prev include/sfio_s.h implicit
-		prev ast_common.h
-		prev include/ast_std.h
+		make include/ast_std.h
+			make include/regex.h implicit
+				prev ast_api.h
+				prev ast_wchar.h
+				prev ast_common.h
+			done
+			prev comp/getopt.h
+			prev ast_map.h
+			prev ast_botch.h
+			prev ast_limits.h
+			prev ast_fcntl.h
+			prev include/ast_getopt.h
+			prev ast_sys.h
+			prev ast_lib.h
+			prev ast_common.h
+			prev ast_standards.h
+		done include/ast_std.h
+		make include/sfio.h implicit
+			prev include/sfio_s.h implicit
+			prev ast_common.h
+			prev include/ast_std.h
+		done
+		make include/vmalloc.h implicit
+			prev ast_common.h
+			prev include/ast_std.h
+		done
 	done
 
 	prev dir/dirstd.h implicit
@@ -341,29 +411,6 @@ make install virtual
 		exec - cp -f ${<} ${@}
 	done
 
-	make ast_fs.h implicit
-		make FEATURE/fs implicit
-			prev features/fs
-			exec - invoke_iffe ${<}
-		done
-		exec - cp -f ${<} ${@}
-	done
-
-	make ast_wchar.h implicit
-		make FEATURE/wchar
-			prev std/wctype.h
-			prev std/stdio.h
-			prev ast_common.h
-			make features/wchar
-				prev ast_common.h
-			done
-			exec - invoke_iffe ${<}
-		done
-		exec - cp -f ${<} ${@}
-		prev std/stdio.h
-		prev ast_common.h
-	done
-
 	make ast_wctype.h implicit
 		make FEATURE/wctype
 			prev features/wctype
@@ -376,62 +423,12 @@ make install virtual
 		exec - cp -f ${<} ${@}
 	done
 
-	make ast_botch.h implicit
-		make FEATURE/botch
-			make features/botch.c
-				prev FEATURE/sys
-				prev FEATURE/lib
-			done
-			exec - invoke_iffe ${<} -I. -Icomp -Iinclude -Istd
-		done
-		exec - cp -f ${<} ${@}
-	done
-
-	make ast_tty.h implicit
-		make FEATURE/tty implicit
-			prev features/tty
-			exec - invoke_iffe ${<}
-		done
-		exec - cp -f ${<} ${@}
-	done
-
-	make ast_fcntl.h implicit
-		prev ast_fs.h
-		make FEATURE/fcntl
-			prev ast_fs.h
-			make features/fcntl.c
-				prev FEATURE/tty
-				prev FEATURE/fs
-				prev FEATURE/lib
-				prev FEATURE/standards
-			done
-			exec - invoke_iffe ${<} -I. -Icomp -Iinclude -Istd
-		done
-		exec - cp -f ${<} ${@}
-	done
-
 	make ast_stdio.h implicit
 		prev include/sfio_s.h
 		prev include/ast_std.h
 		make FEATURE/stdio
 			prev include/sfio_s.h
-			make include/ast_std.h
-				make include/regex.h implicit
-					prev ast_api.h
-					prev ast_wchar.h
-					prev ast_common.h
-				done
-				prev comp/getopt.h
-				prev ast_map.h
-				prev ast_botch.h
-				prev ast_limits.h
-				prev ast_fcntl.h
-				prev include/ast_getopt.h
-				prev ast_sys.h
-				prev ast_lib.h
-				prev ast_common.h
-				prev ast_standards.h
-			done include/ast_std.h
+			prev include/ast_std.h
 			prev features/stdio
 			exec - invoke_iffe ${<}
 		done FEATURE/stdio
@@ -508,8 +505,9 @@ make install virtual
 		prev include/ast.h
 		prev port/lc.tab
 		make lctab.c
-			prev port/lclang.h
-			prev port/lclib.h
+			make port/lclang.h implicit
+				prev include/ast_windows.h implicit
+			done
 			make lcgen
 				make port/lcgen.c
 					prev std/stdio.h
@@ -518,6 +516,18 @@ make install virtual
 			done
 			exec - lcgen lc.h lctab.c < port/lc.tab
 		done
+	done
+	note * The following block was moved out of lc.h to resolve a circular dependency on lc.h.
+	note * We have to break the dependency loop somewhere: lctab.c depends on lclib.h but we cannot declare that here.
+	make port/lclib.h implicit
+		prev lc.h
+		make include/error.h implicit
+			make include/option.h implicit
+				prev include/ast.h
+			done
+			prev include/ast.h
+		done
+		prev include/ast.h
 	done
 
 	make ast_ndbm.h implicit
@@ -615,12 +625,7 @@ make install virtual
 					prev dir/dirlib.h
 					prev ast_lib.h
 				done
-				make include/error.h implicit
-					make include/option.h implicit
-						prev include/ast.h
-					done
-					prev include/ast.h
-				done
+				prev include/error.h
 				prev FEATURE/syscall
 				prev include/ast.h
 			done
@@ -1040,11 +1045,7 @@ make install virtual
 			make path/pathexists.c
 				prev include/error.h
 				prev include/ls.h
-				make port/lclib.h implicit
-					prev lc.h
-					prev include/error.h
-					prev include/ast.h
-				done
+				prev port/lclib.h
 			done
 			exec - compile ${<} -Iport
 		done
@@ -1189,7 +1190,7 @@ make install virtual
 					prev features/prog
 					exec - invoke_iffe ${<}
 				done
-				prev include/ast_windows.h implicit
+				prev include/ast_windows.h
 				prev include/ast.h
 			done
 			exec - compile ${<}
@@ -1493,9 +1494,7 @@ make install virtual
 					prev features/locale
 					exec - invoke_iffe ${<}
 				done
-				make port/lclang.h implicit
-					prev include/ast_windows.h
-				done
+				prev port/lclang.h
 				prev port/lclib.h
 			done
 			exec - compile ${<} -Iport
@@ -1514,7 +1513,6 @@ make install virtual
 				prev include/vmalloc.h
 				prev std/iconv.h
 				prev port/lclib.h
-				prev sfio/sfhdr.h
 				make sfio/sfhdr.h implicit
 					prev port/lclib.h
 					prev std/wchar.h

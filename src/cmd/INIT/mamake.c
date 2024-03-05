@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-02-27"
+#define RELEASE_DATE "2024-03-05"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -2065,19 +2065,24 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 		}
 
 		case KEY('m','a','k','e'):
-			q = rule(expand(buf, t));
-			if (!q->making)
+		{
+			char *save_making = auto_making->value;
+			char *save_allprev = auto_allprev->value;
+			char *save_updprev = auto_updprev->value;
+			char *name = expand(buf, t);
+			if ((q = (Rule_t*)search(state.rules, name, NULL)) && (q->flags & RULE_made))
+				report(state.strict < 3 ? 1 : 3, "rule already made", name, 0);
+			if (!q)
+				q = rule(name);
+			/* set ${@}; empty ${?}, ${^} and ${<} */
+			auto_making->value = q->name;
+			auto_updprev->value = empty;
+			auto_allprev->value = empty;
+			auto_prev->value = reduplicate(auto_prev->value, empty);
+			if (q->making)
+				report(state.strict < 3 ? 1 : 3, "rule already being made", name, 0);
+			else
 			{
-				char *save_making = auto_making->value;
-				char *save_allprev = auto_allprev->value;
-				char *save_updprev = auto_updprev->value;
-
-				/* set ${@}; empty ${?}, ${^} and ${<} */
-				auto_making->value = q->name;
-				auto_updprev->value = empty;
-				auto_allprev->value = empty;
-				auto_prev->value = reduplicate(auto_prev->value, empty);
-
 				/* make the target */
 				attributes(q, v);
 				x = make(q, 0, 0, NULL);
@@ -2085,17 +2090,17 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 					modtime = x;
 				if (q->flags & RULE_error)
 					r->flags |= RULE_error;
-
-				/* update ${<}, restore/update ${^} and ${?} */
-				if (auto_allprev->value != empty)
-					free(auto_allprev->value);
-				if (auto_updprev->value != empty)
-					free(auto_updprev->value);
-				update_allprev(q, save_allprev, save_updprev);
-				/* restore ${@} */
-				auto_making->value = save_making;
 			}
+			/* update ${<}, restore/update ${^} and ${?} */
+			if (auto_allprev->value != empty)
+				free(auto_allprev->value);
+			if (auto_updprev->value != empty)
+				free(auto_updprev->value);
+			update_allprev(q, save_allprev, save_updprev);
+			/* restore ${@} */
+			auto_making->value = save_making;
 			continue;
+		}
 
 		case KEY('p','r','e','v'):
 		{
@@ -2114,10 +2119,13 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 					if (!(q->flags & (RULE_dontcare | RULE_exists)))
 						dont(q, 0, state.keepgoing);
 				}
+				q->flags |= RULE_made;
 			}
 			else if (*v)
 				report(3, v, "prev: superfluous attributes", 0);
-			if (!q->making)
+			if (q->making)
+				report(state.strict < 3 ? 1 : 3, "rule already being made", name, 0);
+			else
 			{
 				if (!(q->flags & RULE_ignore) && modtime < q->time)
 					modtime = q->time;

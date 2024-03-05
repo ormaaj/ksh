@@ -2241,19 +2241,37 @@ update(Rule_t* r)
 	static char		cmd[] = "${MAMAKE} -C ";
 	static char		arg[] = " ${MAMAKEARGS}";
 
+	/* topological sort */
 	r->flags |= RULE_made;
 	if (r->leaf)
 		r->leaf->flags |= RULE_made;
 	for (x = r->prereqs; x; x = x->next)
 		if (x->rule->leaf && !(x->rule->flags & RULE_made))
 			update(x->rule);
+
 	buf = buffer();
+
+	/* announce */
+	{
+		char	*p, *q;
+		int	n;
+		append(buf, state.pwd);
+		add(buf, '/');
+		append(buf, r->name);
+		p = use(buf);
+		/* show path relative to ${INSTALLROOT} */
+		q = search(state.vars, "INSTALLROOT", NULL);
+		if (q && strncmp(p, q, n = strlen(q)) == 0)
+			p += n + 1;
+		fprintf(stderr, "\n# ... making %s ...\n", p);
+		if (state.explain)
+			fprintf(stderr, "# reason: recursion\n");
+	}
+
+	/* do */
 	substitute(buf, cmd);
 	append(buf, r->name);
 	substitute(buf, arg);
-	fprintf(stderr, "\n# ... making %s ...\n", r->name);
-	if (state.explain)
-		fprintf(stderr, "# reason: recursion\n");
 	run(r, use(buf));
 	drop(buf);
 	return 0;

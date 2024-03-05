@@ -13,5 +13,10 @@ make test virtual
 		make all virtual
 			exec - ${MAMAKE} -r '*/*' ${MAMAKEARGS}
 		done
+		make announce_build_done virtual notrace
+			prev cmd/ksh93/ksh
+			exec - ${<} -c 'print "# KornShell $KSH_VERSION"'
+			exec - echo "# Type 'bin/package use' to try it out"
+		done
 	done
 done

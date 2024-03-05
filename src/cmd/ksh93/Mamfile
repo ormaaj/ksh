@@ -1263,11 +1263,6 @@ make install virtual
 		prev kshrc.sh
 		exec - cp -f ${<} ${@}
 	done
-	make announce_build_done notrace virtual
-		prev ksh
-		exec - ${<} -c 'print \# KornShell $KSH_VERSION '
-		exec - echo "# Type 'bin/package use' to try it out"
-	done
 done install
 
 note *

@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-03-05:
+
+- Fixed a regression, introduced on 2021-02-07, that made the common AST
+  options '--???ESC' and '--???noESC' ineffective for enabling/disabling
+  ANSI escape codes for emphasis in the output of --man or --help.
+  (Type, e.g., print '--???' for more information about common options.)
+
 2024-02-29:
 
 - Improved the robustness of the routines handling the execution by ksh of a

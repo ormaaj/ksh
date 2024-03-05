@@ -12,6 +12,13 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a rare crash in the 'print' built-in due to the use of uninitialised
   memory while parsing options. Bug introduced in ksh 93u+ 2012-05-31.
 
+- Fixed a 2021-04-14 regression: the 'exec' command (which runs a command
+  that replaces the shell process and therefore should only run external
+  commands) would run a path-bound built-in if /opt/ast/bin is in PATH.
+
+- Fixed a corner case bug: a ${ shared-state command substitution;} failed to
+  capture the standard output of a command that replces the shell via 'exec'.
+
 2024-02-29:
 
 - Improved the robustness of the routines handling the execution by ksh of a

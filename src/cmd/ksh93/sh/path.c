@@ -728,8 +728,8 @@ Pathcomp_t *path_absolute(const char *name, Pathcomp_t *pp, int flag)
 			sh.path_err = ENOENT;
 			return NULL;
 		}
-		isfun = (oldpp->flags&PATH_FPATH);
-		if(!isfun)
+		isfun = (oldpp->flags&PATH_FPATH) && !sh_isstate(SH_EXEC);
+		if(!isfun && !sh_isstate(SH_EXEC))
 		{
 #if SHOPT_DYNAMIC
 			Shbltin_f addr;
@@ -982,6 +982,8 @@ noreturn void path_exec(const char *arg0,char *argv[],struct argnod *local)
 		}
 		else
 			opath = arg0;
+		if(sh.subshell)
+			sh_subtmpfile();
 		spawnpid = path_spawn(opath,argv,envp,libpath,0);
 		if(spawnpid==-1 && sh.path_err!=ENOENT)
 		{
@@ -1026,7 +1028,7 @@ pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath
 	char		*s, *v;
 	int		r, n, pidsize=0;
 	pid_t		pid= -1;
-	if(nv_search(opath,sh.bltin_tree,0))
+	if(!sh_isstate(SH_EXEC) && nv_search(opath,sh.bltin_tree,0))
 	{
 		/* Found a path-bound built-in. Since this was not caught earlier in sh_exec(), it must
 		   have been found on a temporarily assigned PATH, as with 'PATH=/opt/ast/bin:$PATH cat'.
@@ -1457,7 +1459,7 @@ static Pathcomp_t *path_addcomp(Pathcomp_t *first, Pathcomp_t *old,const char *n
 	else
 		first = pp;
 	pp->flags = flag;
-	if(strcmp(name,SH_CMDLIB_DIR)==0)
+	if(!sh_isstate(SH_EXEC) && strcmp(name,SH_CMDLIB_DIR)==0)
 	{
 		pp->dev = 1;
 		pp->blib = pp->bbuf = sh_malloc(sizeof(LIBCMD));
@@ -1768,7 +1770,7 @@ static Namfun_t  talias_init = { &talias_disc, 1 };
 void path_settrackedalias(const char *name, Pathcomp_t *pp)
 {
 	Namval_t *np;
-	if(sh_isstate(SH_DEFPATH) || sh_isstate(SH_XARG))
+	if(sh_isstate(SH_DEFPATH) || sh_isstate(SH_XARG) || sh_isstate(SH_EXEC))
 		return;
 	if(!(np = nv_search(name,sh_subtracktree(1),NV_ADD|NV_NOSCOPE)))
 		return;
@@ -1804,6 +1806,7 @@ Namval_t *path_gettrackedalias(const char *name)
 	Namval_t *np;
 	if(!sh_isstate(SH_DEFPATH)
 	&& !sh_isstate(SH_XARG)
+	&& !sh_isstate(SH_EXEC)
 	&& (np=nv_search(name,sh.track_tree,0))
 	&& !nv_isattr(np,NV_NOALIAS)
 	&& np->nvalue.cp)

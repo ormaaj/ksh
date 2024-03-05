@@ -569,6 +569,7 @@ void sh_exit(int xno)
 		sh.exitval |= (sig=sh.lastsig);
 	if(pp && pp->mode>1)
 		cursig = -1;
+	sh_offstate(SH_EXEC);
 	if((sh.trapnote&SH_SIGTSTP) && job.jobcontrol)
 	{
 		/* ^Z detected by the shell */

@@ -82,6 +82,7 @@ typedef union Shnode_u Shnode_t;
 #define SH_COMPLETE	19	/* set for command completion */
 #define SH_XARG		21	/* set while in xarg (command -x) mode */
 #define SH_NOTILDEXP	22	/* set to disable tilde expansion */
+#define SH_EXEC		23	/* set while in exec(1) */
 
 /*
  * Shell options (set -o). Used with sh_isoption(), sh_onoption(), sh_offoption().

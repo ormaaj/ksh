@@ -114,11 +114,6 @@ typedef struct edit
 	dev_t	e_tty_dev;
 	char	*e_tty;
 #endif
-#if SHOPT_OLDTERMIO
-	char	e_echoctl;
-	char	e_tcgeta;
-	struct termio e_ott;
-#endif
 	int	*e_globals;	/* global variables */
 	genchar	*e_window;	/* display window image */
 	char	e_inmacro;	/* processing macro expansion */

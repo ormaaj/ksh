@@ -171,7 +171,6 @@ typedef enum
 
 static void draw(Emacs_t*,Draw_t);
 static int escape(Emacs_t*,genchar*, int);
-static int dosearch(Emacs_t*,genchar*,int);
 static void search(Emacs_t*,genchar*,int);
 static void setcursor(Emacs_t*,int, int);
 static void show_info(Emacs_t*,const char*);

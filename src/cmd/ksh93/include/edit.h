@@ -179,6 +179,7 @@ typedef struct edit
 #define TCAP_ERASE_EOS	"cd"
 
 extern void	ed_putchar(Edit_t*, int);
+extern void	ed_putstring(Edit_t*, const char*);
 extern void	ed_ringbell(void);
 extern void	ed_setup(Edit_t*,int, int);
 extern void	ed_flush(Edit_t*);

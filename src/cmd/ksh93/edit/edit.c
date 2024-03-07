@@ -677,11 +677,12 @@ void	ed_setup(Edit_t *ep, int fd, int reedit)
 	}
 }
 
-static void ed_putstring(Edit_t *ep, const char *str)
+void ed_putstring(Edit_t *ep, const char *str)
 {
 	int c;
-	while(c = *str++)
-		ed_putchar(ep,c);
+	mbinit();
+	while (c = mbchar(str))
+		ed_putchar(ep, c < 0 ? '?' : c);
 }
 
 static void ed_nputchar(Edit_t *ep, int n, int c)
@@ -1019,24 +1020,24 @@ void ed_ungetchar(Edit_t *ep,int c)
 
 void	ed_putchar(Edit_t *ep,int c)
 {
-	char buf[8];
 	char *dp = ep->e_outptr;
-	int i,size=1;
+#if SHOPT_MULTIBYTE
+	char buf[8];
+	int size;
+#endif	/* SHOPT_MULTIBYTE */
 	if(!dp)
 		return;
-	buf[0] = c;
 #if SHOPT_MULTIBYTE
 	/* check for place holder */
 	if(c == MARKER)
 		return;
 	if((size = mbconv(buf, (wchar_t)c)) > 1)
 	{
-		for (i = 0; i < (size-1); i++)
+		int i;
+		for (i = 0; i < size; i++)
 			*dp++ = buf[i];
-		c = buf[i];
 	}
 	else
-		buf[0] = c;
 #endif	/* SHOPT_MULTIBYTE */
 	*dp++ = c;
 	*dp = '\0';

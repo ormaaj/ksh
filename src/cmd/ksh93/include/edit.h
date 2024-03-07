@@ -109,7 +109,7 @@ typedef struct edit
 	int	e_fd;		/* file descriptor */
 	int	e_ttyspeed;	/* line speed, also indicates tty parameters are valid */
 	int	e_tabcount;
-#ifdef _hdr_utime
+#if _hdr_utime
 	ino_t	e_tty_ino;
 	dev_t	e_tty_dev;
 	char	*e_tty;

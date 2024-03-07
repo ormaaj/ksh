@@ -2628,7 +2628,7 @@ yankeol:
 #if SHOPT_MULTIBYTE
     static int _isalph(int v)
     {
-#ifdef _lib_iswalnum
+#if _lib_iswalnum
 	return iswalnum(v) || v=='_';
 #else
 	return (v&~STRIP) || isalnum(v) || v=='_';

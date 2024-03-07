@@ -1536,10 +1536,10 @@ static void draw(Emacs_t *ep,Draw_t option)
 #define	BOTH   '*'
 #define	UPPER  '>'
 
-	genchar *sptr;		/* Pointer within screen */
+	genchar *sptr;			/* Pointer within screen */
 	genchar nscreen[2*MAXLINE];	/* New entire screen */
 	genchar *ncursor;		/* New cursor */
-	genchar *nptr;		/* Pointer to New screen */
+	genchar *nptr;			/* Pointer to New screen */
 	char  longline;			/* Line overflow */
 	genchar *logcursor;
 	genchar *nscend;		/* end of logical screen */

@@ -205,17 +205,17 @@ typedef FILE Stdio_t;
 
 typedef struct Buf_s			/* buffer stream		*/
 {
-	struct Buf_s*	old;		/* next dropped buffer		*/
-	char*		end;		/* 1 past end of buffer		*/
-	char*		nxt;		/* next char to add		*/
-	char*		buf;		/* buffer space			*/
+	struct Buf_s	*old;		/* next dropped buffer		*/
+	char		*end;		/* 1 past end of buffer		*/
+	char		*nxt;		/* next char to add		*/
+	char		*buf;		/* buffer space			*/
 } Buf_t;
 
 typedef struct Dict_item_s		/* dictionary item		*/
 {
-	struct Dict_item_s*	left;	/* left child			*/
-	struct Dict_item_s*	right;	/* right child			*/
-	void*			value;	/* user defined value		*/
+	struct Dict_item_s	*left;	/* left child			*/
+	struct Dict_item_s	*right;	/* right child			*/
+	void			*value;	/* user defined value		*/
 #if __STDC_VERSION__ >= 199901L
 	char			name[];	/* 0 terminated name		*/
 #else
@@ -225,21 +225,21 @@ typedef struct Dict_item_s		/* dictionary item		*/
 
 typedef struct Dict_s			/* dictionary handle		*/
 {
-	Dict_item_t*	root;		/* root item			*/
+	Dict_item_t	*root;		/* root item			*/
 } Dict_t;
 
 typedef struct List_s			/* Rule_t list			*/
 {
-	struct List_s*	next;		/* next in list			*/
-	struct Rule_s*	rule;		/* list item			*/
+	struct List_s	*next;		/* next in list			*/
+	struct Rule_s	*rule;		/* list item			*/
 } List_t;
 
 typedef struct Rule_s			/* rule item			*/
 {
-	char*		name;		/* unbound name			*/
-	char*		path;		/* bound path			*/
-	List_t*		prereqs;	/* prerequisites		*/
-	struct Rule_s*	leaf;		/* recursion leaf alias		*/
+	char		*name;		/* unbound name			*/
+	char		*path;		/* bound path			*/
+	List_t		*prereqs;	/* prerequisites		*/
+	struct Rule_s	*leaf;		/* recursion leaf alias		*/
 	int		flags;		/* RULE_* flags			*/
 	int		making;		/* currently make()ing		*/
 	unsigned long	time;		/* modification time		*/
@@ -248,15 +248,15 @@ typedef struct Rule_s			/* rule item			*/
 
 typedef struct Stream_s			/* input file stream stack	*/
 {
-	Stdio_t*	fp;		/* read stream			*/
-	char*		file;		/* stream path			*/
+	Stdio_t		*fp;		/* read stream			*/
+	char		*file;		/* stream path			*/
 	unsigned long	line;		/* stream line			*/
 	int		flags;		/* stream flags			*/
 } Stream_t;
 
 typedef struct View_s			/* viewpath level		*/
 {
-	struct View_s*	next;		/* next level in viewpath	*/
+	struct View_s	*next;		/* next level in viewpath	*/
 	int		node;		/* viewpath node path length	*/
 #if __STDC_VERSION__ >= 199901L
 	char		dir[];		/* viewpath level dir prefix	*/
@@ -269,21 +269,21 @@ static struct				/* program state		*/
 {
 	int		strict;		/* strict mode activated if set */
 
-	Buf_t*		old;		/* dropped buffers		*/
-	Buf_t*		opt;		/* option buffer		*/
+	Buf_t		*old;		/* dropped buffers		*/
+	Buf_t		*opt;		/* option buffer		*/
 
-	Dict_t*		leaf;		/* recursion leaf dictionary	*/
-	Dict_t*		rules;		/* rule dictionary		*/
-	Dict_t*		vars;		/* variable dictionary		*/
+	Dict_t		*leaf;		/* recursion leaf dictionary	*/
+	Dict_t		*rules;		/* rule dictionary		*/
+	Dict_t		*vars;		/* variable dictionary		*/
 
-	View_t*		view;		/* viewpath levels		*/
+	View_t		*view;		/* viewpath levels		*/
 
-	char*		directory;	/* work in this directory	*/
-	char*		id;		/* command name			*/
-	char*		file;		/* first input file		*/
-	char*		pwd;		/* current directory		*/
-	char*		recurse;	/* recursion pattern		*/
-	char*		shell;		/* ${SHELL}			*/
+	char		*directory;	/* work in this directory	*/
+	char		*id;		/* command name			*/
+	char		*file;		/* first input file		*/
+	char		*pwd;		/* current directory		*/
+	char		*recurse;	/* recursion pattern		*/
+	char		*shell;		/* ${SHELL}			*/
 
 	int		active;		/* targets currently active	*/
 	int		debug;		/* negative of debug level	*/
@@ -299,24 +299,24 @@ static struct				/* program state		*/
 	int		verified;	/* don't bother with verify()	*/
 
 	Stream_t	streams[4];	/* input file stream stack	*/
-	Stream_t*	sp;		/* input stream stack pointer	*/
+	Stream_t	*sp;		/* input stream stack pointer	*/
 
-	char*		shim;		/* finished shim		*/
-	Buf_t*		shim_buf;	/* shim being built up		*/
+	char		*shim;		/* finished shim		*/
+	Buf_t		*shim_buf;	/* shim being built up		*/
 } state;
 
-static unsigned long	make(Rule_t*, int, unsigned long, Buf_t**);
+static unsigned long	make(Rule_t *, int, unsigned long, Buf_t **);
 
 static char		mamfile[] = "Mamfile";
 static char		sh[] = "/bin/sh";
 static char		empty[] = "";
 
-static Dict_item_t*	auto_making;	/* ${@} - name of rule being made */
-static Dict_item_t*	auto_prev;	/* ${<} - name of last prerequisite */
-static Dict_item_t*	auto_allprev;	/* ${^} - space-separated names of all prerequisites */
-static Dict_item_t*	auto_updprev;	/* ${?} - space-separated names of updated prerequisites */
+static Dict_item_t	*auto_making;	/* ${@} - name of rule being made */
+static Dict_item_t	*auto_prev;	/* ${<} - name of last prerequisite */
+static Dict_item_t	*auto_allprev;	/* ${^} - space-separated names of all prerequisites */
+static Dict_item_t	*auto_updprev;	/* ${?} - space-separated names of updated prerequisites */
 
-extern char**		environ;
+extern char		**environ;
 
 #if !_PACKAGE_ast
 
@@ -328,8 +328,7 @@ extern char**		environ;
  * emit usage message and exit
  */
 
-static void
-usage(void)
+static void usage(void)
 {
 	fprintf(stderr, "Usage: %s"
 		" [-iknFKNV]"
@@ -349,8 +348,7 @@ usage(void)
  * output error message identification
  */
 
-static void
-identify(Stdio_t* sp)
+static void identify(Stdio_t * sp)
 {
 	if (state.directory)
 		fprintf(sp, "%s [%s]: ", state.id, state.directory);
@@ -368,8 +366,7 @@ identify(Stdio_t* sp)
  *	>2	exit(level-2)
  */
 
-static void
-report(int level, char* text, char* item, unsigned long stamp)
+static void report(int level, char *text, char *item, unsigned long stamp)
 {
 	int	i;
 
@@ -411,8 +408,7 @@ report(int level, char* text, char* item, unsigned long stamp)
  * don't know how to make or exit code making
  */
 
-static void
-dont(Rule_t* r, int code, int keepgoing)
+static void dont(Rule_t *r, int code, int keepgoing)
 {
 	identify(stderr);
 	if (!code)
@@ -434,10 +430,9 @@ dont(Rule_t* r, int code, int keepgoing)
  * open a buffer stream
  */
 
-static Buf_t*
-buffer(void)
+static Buf_t *buffer(void)
 {
-	Buf_t*	buf;
+	Buf_t	*buf;
 
 	if (buf = state.old)
 		state.old = state.old->old;
@@ -452,8 +447,7 @@ buffer(void)
  * close a buffer stream
  */
 
-static void
-drop(Buf_t* buf)
+static void drop(Buf_t *buf)
 {
 	buf->old = state.old;
 	state.old = buf;
@@ -463,8 +457,7 @@ drop(Buf_t* buf)
  * append str length n to buffer and return the buffer base
  */
 
-static char*
-appendn(Buf_t* buf, char* str, int n)
+static char *appendn(Buf_t *buf, char *str, int n)
 {
 	int	m;
 	int	i;
@@ -488,8 +481,7 @@ appendn(Buf_t* buf, char* str, int n)
  * if str==0 then next pointer reset to base
  */
 
-static char*
-append(Buf_t* buf, char* str)
+static char *append(Buf_t *buf, char *str)
 {
 	if (str)
 		return appendn(buf, str, strlen(str));
@@ -502,10 +494,9 @@ append(Buf_t* buf, char* str)
  * allocate space for s and return the copy
  */
 
-static char*
-reduplicate(char* orig, char* s)
+static char *reduplicate(char *orig, char *s)
 {
-	char*	t;
+	char	*t;
 	int	n;
 
 	n = strlen(s);
@@ -521,8 +512,7 @@ reduplicate(char* orig, char* s)
 	return t;
 }
 
-static char*
-duplicate(char* s)
+static char *duplicate(char *s)
 {
 	return reduplicate(NULL, s);
 }
@@ -531,10 +521,9 @@ duplicate(char* s)
  * open a new dictionary
  */
 
-static Dict_t*
-dictionary(void)
+static Dict_t *dictionary(void)
 {
-	Dict_t*	dict;
+	Dict_t	*dict;
 
 	if (!(dict = newof(0, Dict_t, 1, 0)))
 		report(3, "out of memory [dictionary]", NULL, 0);
@@ -653,10 +642,9 @@ static void *getval(Dict_t *dict, char *name)
  * low level for walk()
  */
 
-static int
-apply(Dict_t* dict, Dict_item_t* item, int (*func)(Dict_item_t*, void*), void* handle)
+static int apply(Dict_t *dict, Dict_item_t *item, int (*func)(Dict_item_t *, void *), void *handle)
 {
-	Dict_item_t*	right;
+	Dict_item_t	*right;
 
 	do
 	{
@@ -673,8 +661,7 @@ apply(Dict_t* dict, Dict_item_t* item, int (*func)(Dict_item_t*, void*), void* h
  * apply func to each dictionary item
  */
 
-static int
-walk(Dict_t* dict, int (*func)(Dict_item_t*, void*), void* handle)
+static int walk(Dict_t *dict, int (*func)(Dict_item_t *, void *), void *handle)
 {
 	return dict->root ? apply(dict, dict->root, func, handle) : 0;
 }
@@ -683,10 +670,9 @@ walk(Dict_t* dict, int (*func)(Dict_item_t*, void*), void* handle)
  * return a rule pointer for name
  */
 
-static Rule_t*
-rule(char* name)
+static Rule_t *rule(char *name)
 {
-	Rule_t*		r;
+	Rule_t	*r;
 
 	if (!(r = getval(state.rules, name)))
 	{
@@ -713,10 +699,9 @@ rule(char* name)
  * prepend p onto rule r prereqs
  */
 
-static void
-cons(Rule_t* r, Rule_t* p)
+static void cons(Rule_t *r, Rule_t *p)
 {
-	List_t*	x;
+	List_t	*x;
 
 	for (x = r->prereqs; x && x->rule != p; x = x->next);
 	if (!x)
@@ -733,23 +718,14 @@ cons(Rule_t* r, Rule_t* p)
  * initialize the viewpath
  */
 
-static void
-view(void)
+static void view(void)
 {
-	char*		s;
-	char*		t;
-	char*		p;
-	View_t*		vp;
-
-	View_t*		zp;
-	int		c;
-	int		n;
-
-	Stat_t		st;
-	Stat_t		ts;
-
+	char		*s, *t, *p;
+	View_t		*vp, *zp;
+	int		c, n;
+	Stat_t		st, ts;
 	char		buf[CHUNK];
-	Dict_item_t*	vnode;
+	Dict_item_t	*vnode;
 
 	if (stat(".", &st))
 		report(3, "cannot stat", ".", 0);
@@ -835,8 +811,7 @@ view(void)
  * return next '?' or '}' in nested '}'
  */
 
-static char*
-cond(char* s)
+static char *cond(char *s)
 {
 	int	n;
 
@@ -872,8 +847,7 @@ cond(char* s)
  * expand var refs from s into buf
  */
 
-static void
-substitute(Buf_t* buf, char* s)
+static void substitute(Buf_t *buf, char *s)
 {
 	char	*t, *q;
 	char	*v;		/* variable's value */
@@ -939,7 +913,7 @@ substitute(Buf_t* buf, char* s)
 
 			/* A really absurd hack, see check for found_AR further below */
 
-			if (t[0] == 'A' && t[1] == 'R' && t[2] == 0)
+			if (strcmp(t, "AR") == 0)
 				found_AR = 1;
 
 			/* Un-terminate the variable name */
@@ -1073,8 +1047,7 @@ substitute(Buf_t* buf, char* s)
  * expand var refs from s into buf and return buf base
  */
 
-static char*
-expand(Buf_t* buf, char* s)
+static char *expand(Buf_t *buf, char *s)
 {
 	substitute(buf, s);
 	return use(buf);
@@ -1084,12 +1057,11 @@ expand(Buf_t* buf, char* s)
  * stat() with .exe check
  */
 
-static char*
-status(Buf_t* buf, int off, char* path, struct stat* st)
+static char *status(Buf_t *buf, int off, char *path, struct stat *st)
 {
-	int		r;
-	char*		s;
-	Buf_t*		tmp;
+	int	r;
+	char	*s;
+	Buf_t	*tmp;
 
 	if (!stat(path, st))
 		return path;
@@ -1123,14 +1095,11 @@ status(Buf_t* buf, int off, char* path, struct stat* st)
  * return path to file
  */
 
-static char*
-find(Buf_t* buf, char* file, struct stat* st)
+static char *find(Buf_t *buf, char *file, struct stat *st)
 {
-	char*		s;
-	View_t*		vp;
-	int		node;
-	int		c;
-	int		o;
+	char	*s;
+	View_t	*vp;
+	int	node, c, o;
 
 	if (s = status(buf, 0, file, st))
 	{
@@ -1188,11 +1157,10 @@ find(Buf_t* buf, char* file, struct stat* st)
  * bind r to a file and return the modify time
  */
 
-static unsigned long
-bindfile(Rule_t* r)
+static unsigned long bindfile(Rule_t *r)
 {
-	char*		s;
-	Buf_t*		buf;
+	char		*s;
+	Buf_t		*buf;
 	struct stat	st;
 
 	buf = buffer();
@@ -1211,8 +1179,7 @@ bindfile(Rule_t* r)
  * pop the current input file
  */
 
-static int
-pop(void)
+static int pop(void)
 {
 	int	r;
 
@@ -1235,11 +1202,10 @@ pop(void)
  * push file onto the input stack
  */
 
-static int
-push(char* file, Stdio_t* fp, int flags)
+static int push(char *file, Stdio_t *fp, int flags)
 {
-	char*		path;
-	Buf_t*		buf;
+	char		*path;
+	Buf_t		*buf;
 	struct stat	st;
 
 	if (!state.sp)
@@ -1294,8 +1260,7 @@ push(char* file, Stdio_t* fp, int flags)
  * return the next input line
  */
 
-static char*
-input(void)
+static char *input(void)
 {
 	static char	input[8*CHUNK];  /* input buffer */
 	char		*e;
@@ -1320,11 +1285,10 @@ input(void)
  * even on systems that otherwise demand #! magic (can you say Cygwin)
  */
 
-static int
-execute(char* s)
+static int execute(char *s)
 {
-	int		c;
-	Buf_t*		buf;
+	int	c;
+	Buf_t	*buf;
 
 	if (!state.shell && (!(state.shell = getval(state.vars, "SHELL")) || !strcmp(state.shell, sh)))
 		state.shell = sh;
@@ -1357,17 +1321,13 @@ execute(char* s)
  * run action s to update r
  */
 
-static unsigned long
-run(Rule_t* r, char* s)
+static unsigned long run(Rule_t *r, char *s)
 {
-	Rule_t*		q;
-	char*		t;
-	int		c;
-	int		i;
-	int		j;
-	int		x;
-	Stat_t		st;
-	Buf_t*		buf;
+	Rule_t	*q;
+	char	*t;
+	int	c, i, j, x;
+	Stat_t	st;
+	Buf_t	*buf;
 
 	if (r->flags & RULE_error)
 		return r->time;
@@ -1521,17 +1481,11 @@ run(Rule_t* r, char* s)
  * return the full path for s using buf workspace
  */
 
-static char*
-path(Buf_t* buf, char* s, int must)
+static char *path(Buf_t *buf, char *s, int must)
 {
-	char*		p;
-	char*		d;
-	char*		x;
-	char*		e;
-	int		c;
-	int		t;
-	int		o;
-	Stat_t		st;
+	char	*p, *d, *x, *e;
+	int	c, t, o;
+	Stat_t	st;
 
 	for (e = s; *e && !isspace(*e); e++);
 	t = *e;
@@ -1570,16 +1524,11 @@ path(Buf_t* buf, char* s, int must)
  * done on the first `setv CC ...'
  */
 
-static void
-probe(void)
+static void probe(void)
 {
-	char*		cc;
-	char*		s;
-	unsigned long	h;
-	unsigned long	q;
-	Buf_t*		buf;
-	Buf_t*		pro;
-	Buf_t*		tmp;
+	char		*cc, *s;
+	unsigned long	h, q;
+	Buf_t		*buf, *pro, *tmp;
 	struct stat	st;
 
 	static char	let[] = "ABCDEFGHIJKLMNOP";
@@ -1626,10 +1575,9 @@ probe(void)
  * add attributes in s to r
  */
 
-static void
-attributes(Rule_t* r, char* s)
+static void attributes(Rule_t *r, char *s)
 {
-	char*	t;
+	char	*t;
 	int	n;
 
 	for (;;)
@@ -1693,8 +1641,7 @@ attributes(Rule_t* r, char* s)
 
 #define LIB_VARPREFIX "mam_lib"
 
-static char*
-require(char* lib, int dontcare)
+static char *require(char *lib, int dontcare)
 {
 	static int	dynamic = -1;
 	char		*s, *r, varname[64];
@@ -1813,8 +1760,7 @@ require(char* lib, int dontcare)
  * update ${<}, ${^} and ${?}
  */
 
-static void
-update_allprev(Rule_t *r, char *all, char *upd)
+static void update_allprev(Rule_t *r, char *all, char *upd)
 {
 	char		*name = r->name;
 	unsigned long	n = strlen(name), nn;
@@ -1852,8 +1798,7 @@ update_allprev(Rule_t *r, char *all, char *upd)
  * If inloop==0, modtime must be initialised to zero and parentcmd is ignored.
  */
 
-static unsigned long
-make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
+static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 {
 	char		*s;
 	char		*u;	/* command name */
@@ -2172,7 +2117,7 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
 				if (strcmp(t, "MAMAKE_STRICT") == 0)
 					state.strict = *v ? atoi(v) : 1;
 			}
-			if (!state.probed && t[0] == 'C' && t[1] == 'C' && !t[2])
+			if (!state.probed && strcmp(t, "CC") == 0)
 			{
 				state.probed = 1;
 				probe();
@@ -2225,10 +2170,9 @@ make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
  * verify that active targets were made
  */
 
-static int
-verify(Dict_item_t* item, void* handle)
+static int verify(Dict_item_t *item, void *handle)
 {
-	Rule_t*	r = (Rule_t*)item->value;
+	Rule_t	*r = item->value;
 
 	if ((r->flags & (RULE_active|RULE_error|RULE_made)) == RULE_active)
 		dont(r, 0, 1);
@@ -2239,30 +2183,25 @@ verify(Dict_item_t* item, void* handle)
  * return 1 if name is an initializer
  */
 
-static int
-initializer(char* name)
+static int initializer(char *name)
 {
-	char*	s;
+	char	*s;
 
 	if (s = strrchr(name, '/'))
 		s++;
 	else
 		s = name;
-	return s[0] == 'I' && s[1] == 'N' && s[2] == 'I' && s[3] == 'T';
+	return !strncmp(s, "INIT", 4);
 }
 
 /*
  * update recursion leaf r and its prerequisites
  */
 
-static int
-update(Rule_t* r)
+static int update(Rule_t *r)
 {
-	List_t*			x;
-	Buf_t*			buf;
-
-	static char		cmd[] = "${MAMAKE} -C ";
-	static char		arg[] = " ${MAMAKEARGS}";
+	List_t	*x;
+	Buf_t	*buf;
 
 	/* topological sort */
 	r->flags |= RULE_made;
@@ -2292,9 +2231,11 @@ update(Rule_t* r)
 	}
 
 	/* do */
-	substitute(buf, cmd);
+	append(buf, getval(state.vars, "MAMAKE"));
+	append(buf, " -C ");
 	append(buf, r->name);
-	substitute(buf, arg);
+	add(buf, ' ');
+	append(buf, getval(state.vars, "MAMAKEARGS"));
 	run(r, use(buf));
 	drop(buf);
 	return 0;
@@ -2304,14 +2245,12 @@ update(Rule_t* r)
  * scan Mamfile prereqs
  */
 
-static int
-scan(Dict_item_t* item, void* handle)
+static int scan(Dict_item_t *item, void *handle)
 {
-	Rule_t*			r = (Rule_t*)item->value;
-	char*			s;
-	char*			t;
-	Rule_t*			q;
-	Buf_t*			buf;
+	Rule_t	*r = item->value;
+	char	*s, *t;
+	Rule_t	*q;
+	Buf_t	*buf;
 
 	/*
 	 * drop non-leaf rules
@@ -2365,10 +2304,9 @@ scan(Dict_item_t* item, void* handle)
  * descend into op and its prereqs
  */
 
-static int
-descend(Dict_item_t* item, void* handle)
+static int descend(Dict_item_t *item, void *handle)
 {
-	Rule_t*	r = (Rule_t*)item->value;
+	Rule_t	*r = item->value;
 
 	if (!state.active && (!(r->flags & RULE_active) || !(r = getval(state.leaf, r->name))))
 		return 0;
@@ -2379,10 +2317,9 @@ descend(Dict_item_t* item, void* handle)
  * append the non-leaf active targets to state.opt
  */
 
-static int
-active(Dict_item_t* item, void* handle)
+static int active(Dict_item_t *item, void *handle)
 {
-	Rule_t*	r = (Rule_t*)item->value;
+	Rule_t *r = item->value;
 
 	if (r->flags & RULE_active)
 	{
@@ -2401,14 +2338,11 @@ active(Dict_item_t* item, void* handle)
  * recurse on mamfiles in subdirs matching pattern
  */
 
-static int
-recurse(char* pattern)
+static int recurse(char *pattern)
 {
-	char*		s;
-	char*		t;
-	Rule_t*		r;
-	Buf_t*		buf;
-	Buf_t*		tmp;
+	char		*s, *t;
+	Rule_t		*r;
+	Buf_t		*buf, *tmp;
 	struct stat	st;
 
 	/*
@@ -2469,15 +2403,11 @@ recurse(char* pattern)
 	return 0;
 }
 
-int
-main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-	char**		e;
-	char*		s;
-	char*		t;
-	char*		v;
-	Buf_t*		tmp;
-	int		c;
+	char	**e, *s, *t, *v;
+	Buf_t	*tmp;
+	int	c;
 
 	/*
 	 * initialize the state

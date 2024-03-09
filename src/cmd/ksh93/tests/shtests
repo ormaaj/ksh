@@ -332,7 +332,7 @@ else	echo "$0: cannot grep shopt.h" >&2
 	exit 1
 fi
 
-[[ -n $SHOPT_MULTIBYTE ]] || SHOPT_MULTIBYTE=$( LC_ALL=C.UTF-8; x=$'\xc3\xa9'; print $(( ${#x}==1 )) )
+SHOPT_MULTIBYTE=$( LC_ALL=C.UTF-8; x=$'\xc3\xa9'; print $(( ${#x}==1 )) )
 if	(( !SHOPT_MULTIBYTE && utf8 && !posix && !compile ))
 then	echo "-u/--utf8 is unavailable because multibyte support was not compiled in." >&2
 	exit 1

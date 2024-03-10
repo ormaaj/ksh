@@ -2996,7 +2996,20 @@ void nv_newattr (Namval_t *np, unsigned newatts, int size)
 					ap->nelem |= ARRAY_SCAN;
 			}
 			if(size==0 && !(newatts&NV_INTEGER) && (newatts&NV_HOST)!=NV_HOST && (newatts&(NV_LJUST|NV_RJUST|NV_ZFILL)))
+			{	/*
+				 * Calculate the default terminal width for -L, -R, -Z if no numeric option-argument was given.
+				 * Note: we count terminal positions, not characters (double-width adds 2, control char adds 0)
+				 */
+				char *cq = cp;
+				wchar_t c;
+				int w;
+				n = 0;
+				mbinit();
+				while(c = mbchar(cq))
+					if ((w = mbwidth(c)) > 0)
+						n += w;
 				size = n;
+			}
 		}
 		else if(!trans)
 			_nv_unset(np,NV_EXPORT);

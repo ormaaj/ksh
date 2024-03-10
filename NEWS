@@ -7,6 +7,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a longstanding bug where the default terminal width for typeset -L, -R,
   or -Z, if not given, was miscalculated for multibyte or control characters.
 
+- Fixed a crash on redefining an array inherited from the parent environment
+  in a subshell.
+
 2024-03-07:
 
 - Fixed a bug that caused some systems to corrupt the display of multibyte

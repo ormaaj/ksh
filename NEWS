@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-03-12:
+
+- Fixed a regression in the 'printf' built-in, introduced on 2023-05-17,
+  where each instance of '\0' or '%Z' in the format operand caused a string
+  argument to be incorrectly skipped.
+
 2024-03-10:
 
 - Fixed a longstanding bug where the default terminal width for typeset -L, -R,

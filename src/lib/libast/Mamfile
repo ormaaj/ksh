@@ -229,6 +229,7 @@ make install virtual
 
 	make ast_tty.h implicit
 		make FEATURE/tty implicit
+			prev ast_lib.h
 			prev features/tty
 			exec - invoke_iffe ${<}
 		done

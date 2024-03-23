@@ -8,7 +8,7 @@ setv INSTALLROOT ../../..
 setv PACKAGE_ast_INCLUDE ${INSTALLROOT}/include/ast
 setv CC cc
 setv AR ${mam_cc_AR} ${mam_cc_AR_ARFLAGS}
-setv mam_cc_FLAGS ${mam_cc_TARGET} ${mam_cc_DLL} ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?} ${mam_cc_NOSTRICTALIASING}
+setv mam_cc_FLAGS ${mam_cc_TARGET} ${mam_cc_DLL} ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?}
 setv CCFLAGS
 setv IFFEFLAGS
 setv LDFLAGS
@@ -103,7 +103,7 @@ make install virtual
 	bind -last
 	make dll.req
 		prev ${INSTALLROOT}/bin/mkreq
-		exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} : ${LDFLAGS} : dll dl dld ast
+		exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} : ${LDFLAGS} : dll dl dld ast
 	done
 
 	note *
@@ -115,7 +115,8 @@ make install virtual
 		make dlldefs.h implicit
 			make FEATURE/dll
 				prev features/dll
-				exec - iffe ${IFFEFLAGS} -v -c '${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}' \
+				exec - iffe ${IFFEFLAGS} -v -c '${CC} ${mam_cc_FLAGS} ${CCFLAGS} \
+				exec -  ${mam_cc_NOSTRICTALIASING} ${LDFLAGS}' \
 				exec -	ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} \
 				exec -	-I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include \
 				exec -	${mam_libdl} ${mam_libast} : run ${<}
@@ -175,7 +176,7 @@ make install virtual
 		loop OBJ dlfcn dllopen dllfind dllplug dll_lib dllnext dlllook dllscan dllcheck dllerror
 			make ${OBJ}.o
 				prev ${OBJ}.c
-				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} -I. -I${PACKAGE_ast_INCLUDE} -D_BLD_dll -c ${<}
+				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} -I. -I${PACKAGE_ast_INCLUDE} -D_BLD_dll -c ${<}
 			done
 		done
 		exec - if	test -f ${@}

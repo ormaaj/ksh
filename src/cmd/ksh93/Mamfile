@@ -8,7 +8,7 @@ setv INSTALLROOT ../../..
 setv PACKAGE_ast_INCLUDE ${INSTALLROOT}/include/ast
 setv CC cc
 setv AR ${mam_cc_AR} ${mam_cc_AR_ARFLAGS}
-setv mam_cc_FLAGS ${mam_cc_TARGET} ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?} ${mam_cc_NOSTRICTALIASING}
+setv mam_cc_FLAGS ${mam_cc_TARGET} ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?}
 setv CCFLAGS
 setv CCLDFLAGS ${-strip-symbols?1?${mam_cc_LD_STRIP}??}
 setv IFFEFLAGS
@@ -167,7 +167,7 @@ make install virtual
 
 	make shell.req
 		prev ${INSTALLROOT}/bin/mkreq
-		exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} : ${LDFLAGS} : \
+		exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} : ${LDFLAGS} : \
 		exec -		shell dll cmd ast m jobs i socket nsl secdb network
 	done
 
@@ -175,7 +175,7 @@ make install virtual
 	note * Feature tests
 	note *
 
-	setv iffe_run iffe ${IFFEFLAGS} -v -c '${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${LDFLAGS}' ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run
+	setv iffe_run iffe ${IFFEFLAGS} -v -c '${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} ${LDFLAGS}' ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} -I${INSTALLROOT}/include ${mam_libdll} ${mam_libcmd} ${mam_libast} ${mam_libm} ${mam_libnsl} : run
 
 	make features/time
 		prev ${PACKAGE_ast_INCLUDE}/times.h
@@ -1141,7 +1141,7 @@ make install virtual
 	note * Set common compiler invocation arguments
 	note *
 
-	setv compile ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${DEBUG+-DDEBUG=${DEBUG}} -DSH_DICT=${SH_DICT} ${SH_CMDLIB_DIR+-DSH_CMDLIB_DIR=${SH_CMDLIB_DIR}} -I. -Iinclude -I${PACKAGE_ast_INCLUDE} -D_API_ast=20100309 -DERROR_CONTEXT_T=Error_context_t -c
+	setv compile ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} ${DEBUG+-DDEBUG=${DEBUG}} -DSH_DICT=${SH_DICT} ${SH_CMDLIB_DIR+-DSH_CMDLIB_DIR=${SH_CMDLIB_DIR}} -I. -Iinclude -I${PACKAGE_ast_INCLUDE} -D_API_ast=20100309 -DERROR_CONTEXT_T=Error_context_t -c
 
 	note *
 	note * Build the library

@@ -207,6 +207,28 @@ then
 	export FPATH
 	autoload autocd cd dirs man mcd popd pushd
 
+	# Workaround for "System Integrity Protection" on macOS which filters
+	# out DYLD_* env vars whenever anything in /bin or /usr/bin is run,
+	# which kills env "$SHELL" for a preinstalled dynamically linked $SHELL
+	case $HOSTTYPE,${DYLD_LIBRARY_PATH+s} in
+	darwin.*,s)
+		function env
+		{
+			typeset -a opts
+			typeset -si i=0
+			while	[[ $1 == -* && $1 != -- ]]
+			do	opts[i++]=$1
+				case $1 in
+				-u | -S | -P)
+					(($# > 1)) && opts[i++]=$2 && shift ;;
+				esac
+				shift
+			done
+			command -p env "${opts[@]}" "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH" "$@"
+		}
+		;;
+	esac
+
 	# Print welcome message
 	set -- ${.sh.version}
 	print -r "${.rc.fmt[bold]}Welcome to ksh ${.rc.fmt[red]}$3 ${.rc.fmt[blue]}$4${.rc.fmt[reset]} on ${.rc.fmt[bold]}${.rc.host} (${.rc.tty})${.rc.fmt[reset]}"

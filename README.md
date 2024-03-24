@@ -35,6 +35,11 @@ The compiled binaries are stored in the `arch` directory, in a subdirectory
 that corresponds to your architecture. The command `bin/package host type`
 outputs the name of this subdirectory.
 
+Dynamically linked binaries, if supported for your system, are stored in
+`dyn/bin` and `dyn/lib` subdirectories of your architecture directory.
+If built, they are built in addition to the statically linked versions.
+Export `AST_NO_DYLIB` to deactivate building dyanmically linked versions.
+
 If you have trouble or want to tune the binaries, you may pass additional
 compiler and linker flags. It is usually best to export these as environment
 variables *before* running `bin/package` as they could change the name of
@@ -100,6 +105,13 @@ available, is installed in `share/man`.
 
 Destination directories with whitespace or shell pattern characters in their
 pathnames are not yet supported.
+
+If a dynamically linked version of ksh and associated commands has been
+built, then the `install` subcommand will prefer that: commands, dynamic
+libraries and associated header files will be installed then. To install the
+statically linked version instead (and skip the header files), either delete
+the `dyn` subdirectory, or export `AST_NO_DYLIB=y` before building to prevent
+it from being created in the first place.
 
 ## What is ksh93?
 

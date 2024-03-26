@@ -5048,6 +5048,17 @@ make install virtual
 		exec - (set +f; exec rm -rf ${INSTALLROOT}/bin/${@} ${INSTALLROOT}/bin/${@}.*)
 		exec - cp ${@} ${INSTALLROOT}/bin/${@}
 	done
+
+	note *
+	note * Dynamically linked version, if supported
+	note *
+
+	make ${INSTALLROOT}/dyn/bin/mamake dontcare
+		prev mamake
+		prev ${INSTALLROOT}/lib/lib/ast
+		exec - export LDFLAGS='${LDFLAGS} ${CCLDFLAGS} ${mam_cc_LD_NOASNEEDED}'
+		exec - dylink -e mamake ${mam_libutil} $(cat ${INSTALLROOT}/lib/lib/ast) mamake.o
+	done
 done install
 
 make test dontcare virtual

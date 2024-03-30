@@ -2,6 +2,14 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-03-30:
+
+- A regression was fixed in ordinal specifiers in 'printf %T' date
+  specifications. For example,
+	printf '%(%F)T\n' '4th tuesday in march 2016'
+  wrongly printed '2016-04-09' and now again correctly prints '2016-03-22'.
+  This regression was introduded with the printf fixes on 2023-05-18.
+
 2024-03-24:
 
 - We now support building a dynamically linked ksh 93u+m with libast,

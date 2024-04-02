@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-03-20"
+#define RELEASE_DATE "2024-04-02"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast

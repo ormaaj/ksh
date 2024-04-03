@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-03-03:
+
+- Fixed incorrect behaviour of {n1..n2..incr} range brace expansions, which
+  sometimes occurred if the value of n1 multiplied by incr falls outside of
+  the INT_MIN..INT_MAX range. For instance, {1696512000..1696512000..300}
+  now correctly outputs only 1696512000.
+
 2024-03-30:
 
 - A regression was fixed in ordinal specifiers in 'printf %T' date

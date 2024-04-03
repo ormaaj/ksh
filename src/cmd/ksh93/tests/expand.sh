@@ -2,7 +2,7 @@
 #                                                                      #
 #               This software is part of the ast package               #
 #          Copyright (c) 1982-2011 AT&T Intellectual Property          #
-#          Copyright (c) 2020-2023 Contributors to ksh 93u+m           #
+#          Copyright (c) 2020-2024 Contributors to ksh 93u+m           #
 #                      and is licensed under the                       #
 #                 Eclipse Public License, Version 2.0                  #
 #                                                                      #
@@ -88,6 +88,7 @@ set -- \
 	'{0..10%s}'				'{0..10%s}' \
 	'{0..10%dl}'				'{0..10%dl}' \
 	'{a,b}{0..3%02..2u}{y,z}'		'a00y a00z a01y a01z a10y a10z a11y a11z b00y b00z b01y b01z b10y b10z b11y b11z' \
+	'{1696512000..1696512000..300}'		'1696512000' \
 
 while (($#>1))
 do	((Line++))

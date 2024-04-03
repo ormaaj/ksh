@@ -405,7 +405,7 @@ endloop1:
 				*(rescan - 1) = '}';
 				*(cp = end) = 0;
 			}
-			if(incr*(first+incr) > last*incr)
+			if(incr < 0 ? (first + incr < last) : (first + incr > last))
 				*cp = '}';
 			else
 				first += incr;

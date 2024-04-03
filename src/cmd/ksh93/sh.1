@@ -2511,19 +2511,11 @@ as well as any fields resulting from
 (see above),
 are checked to see if they contain one or more of the brace patterns
 .BR {*,*} ,
-.BI { l1 .. l2 }
-,
-.BI { n1 .. n2 }
-,
-.BI { n1 .. n2 %
-.IB fmt }
-,
-.BI { n1 .. n2
-.BI  .. n3 }
-, or
-.BI { n1 .. n2
-.BI  .. n3 % fmt }
-, where
+\f3{\fP\f2l1\fP\f3..\fP\f2l2\fP\f3}\fP,
+\f3{\fP\f2n1\fP\f3..\fP\f2n2\fP\f3}\fP,
+\f3{\fP\f2n1\fP\f3..\fP\f2n2\fP\f3%\fP\f2fmt\fP\f3}\fP,
+\f3{\fP\f2n1\fP\f3..\fP\f2n2\fP\f3..\fP\f2n3\fP\f3}\fP, or
+\f3{\fP\f2n1\fP\f3..\fP\f2n2\fP\f3..\fP\f2n3\fP\f3%\fP\f2fmt\fP\f3}\fP, where
 .B *
 represents any character,
 .IR l1\^ , l2\^
@@ -2573,7 +2565,7 @@ with
 .B *
 must be quoted.
 .PP
-In the seconds form,
+In the second form,
 .I l1\^
 and
 .I l2\^
@@ -2592,6 +2584,16 @@ incrementing
 .I n1\^
 by
 .IR n3\^ .
+The values of
+.IR n1\^ ,
+.I n2\^
+and
+.I n3\^
+are limited to the standard integer range as output by
+.B "getconf INT_MIN"
+and
+.BR "getconf INT_MAX" ;
+the behavior is undefined if this range is exceeded.
 The cases where
 .I n3\^
 is not specified behave as if

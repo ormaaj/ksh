@@ -266,7 +266,7 @@ command -p mkdir bin
 print 'print ok' > bin/tst
 command -p chmod +x bin/tst
 exp=ok
-got=$(PATH=$PWD/bin tst 2>&1)
+got=$(set +x; PATH=$PWD/bin tst 2>&1)
 if	[[ $exp != "$got" ]]
 then	err_exit '"PATH=$PWD/bin tst" does not run $PWD/bin/tst' \
 	"(expected $exp, got $(printf %q "$got"))"
@@ -1009,7 +1009,7 @@ then	got=$(PATH=/opt/ast/bin:$PATH "$SHELL" -c 'command -x cat /dev/null; whence
 	        "(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 	# https://github.com/ksh93/ksh/issues/609
 	exp=$(builtin -d cat; whence -p cat)
-	got=$(PATH=/opt/ast/bin:$PATH "$SHELL" -c 'command -vx cat; command -x cat /dev/null' 2>&1)
+	got=$(set +x; PATH=/opt/ast/bin:$PATH "$SHELL" -c 'command -vx cat; command -x cat /dev/null' 2>&1)
 	[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "'command -vx' breakage" \
 		"(expected status 0, $(printf %q "$exp"); got status $e, $(printf %q "$got"))"
 fi

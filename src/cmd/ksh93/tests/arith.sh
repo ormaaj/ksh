@@ -1000,7 +1000,7 @@ got=$(set +x; eval 'got=$( ((y=1<<4)); echo $y )' 2>&1; echo $got) \
 # ======
 # https://github.com/ksh93/ksh/issues/623
 function .sh.math.add x y { .sh.value=x+y; }
-got=$(PATH=/dev/null; typeset -i z; redirect 2>&1; z='add(2 , 3)'; echo $z)
+got=$(PATH=/dev/null; typeset -i z; set +x; redirect 2>&1; z='add(2 , 3)'; echo $z)
 [[ e=$? -eq 0 && $got == '5' ]] || err_exit ".sh.math.* function parsing: got status $e and $(printf %q "$got")"
 
 # ======

@@ -825,7 +825,7 @@ if kill -0 "$procsub_pid" 2>/dev/null; then
 	err_exit "process substitutions loop or linger after parent shell finishes"
 fi
 (true <(true) >(true) <(true) >(true); wait) &
-sleep .1
+sleep .2
 if kill -0 $! 2> /dev/null; then
 	kill -TERM $!
 	err_exit "process substitutions linger when unused"

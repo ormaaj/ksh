@@ -26,6 +26,7 @@ fi
 
 integer Line=$LINENO+1
 set -- \
+	'a{0,1}z'				'a0z a1z' \
 	'ff{c,b,a}'				'ffc ffb ffa' \
 	'f{d,e,f}g'				'fdg feg ffg' \
 	'{l,n,m}xyz'				'lxyz nxyz mxyz' \
@@ -92,14 +93,11 @@ set -- \
 
 while (($#>1))
 do	((Line++))
-	pattern=$1
-	shift
-	expected=$1
-	shift
-	got=$(eval print -r -- "$pattern")
-	[[ $got == $expected ]] || err_exit "'$pattern' failed -- expected '$expected' got '$got'"
-	#print -r -- "	'$pattern'			'$got' \\"
+	got=${ eval "print -r -- $1"; }
+	[[ $got == "$2" ]] || err_exit "[$Line] '$1': expected '$2', got '$got'"
+	shift 2
 done
+unset Line
 
 # ~(N) no expand glob pattern option
 set -- ~(N)/dev/null

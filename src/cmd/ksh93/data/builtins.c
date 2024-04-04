@@ -393,7 +393,7 @@ const char sh_optalias[] =
 "[+NAME?alias - define or display aliases]"
 "[+DESCRIPTION?\balias\b creates or redefines alias definitions "
 	"or writes the existing alias definitions to standard output. "
-	"An alias definitions provides a string value that will replace "
+	"An alias definition provides a string value that will replace "
 	"a command name when the command is read. Alias names can "
 	"contain any printable character which is not special to the shell. "
 	"If an alias value ends in a space or tab, then the word "

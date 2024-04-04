@@ -1068,7 +1068,7 @@ The length of string constructed by \f3sfprints()\fP, \f3sfsprintf()\fP, or
 .PP
 The standard patterns are:
 \f3n, s, c, %, h, i, d, p, u, o, x, X, g, G, e, E, f\fP and \f3!\fP.
-Except for \f3!\fP which shall be described below,
+Except for \f3!\fP (which is described under \f3%! and Sffmt_t\fP above),
 see the ANSI C specification of \f3fprintf(3)\fP for details on the other patterns.
 Let \f3z\fP be some pattern type. A formatting pattern is defined as below:
 .nf
@@ -1083,7 +1083,8 @@ This is done via \f3pos$\fP where \f3pos\fP is the argument position.
 Arguments are numbered so that the first argument after \f3format\fP is at position 1.
 If \f3pos\fP is not specified, the argument following the most recently used one
 will be used.
-The pattern \f3%!\fP (see below) cannot be used subsequent to a usage of \f3pos$\fP.
+The pattern \f3%!\fP (see \f3%! and Sffmt_t\fP above)
+cannot be used subsequent to a usage of \f3pos$\fP.
 Doing so may cause unexpected behaviors.
 .Tp
 \f3flag\fP:
@@ -1273,7 +1274,7 @@ This is useful to avoid blocking when scanning typed inputs.
 .PP
 The standard scan patterns are:
 \f3i, d, u, o, x, X, p, n, f, e, E, g, G, c, %, s, []\fP and \f3!\fP.
-Except for \f3!\fP which shall be described below,
+Except for \f3!\fP (which is described under \f3%! and Sffmt_t\fP above),
 see the ANSI C specification of \f3fscanf(3)\fP for details on other patterns.
 Let \f3z\fP be some pattern type. A formatting pattern is specified as below:
 .nf
@@ -1288,7 +1289,8 @@ This is done via \f3pos$\fP where \f3pos\fP is the argument position.
 Arguments are numbered so that the first argument after \f3format\fP is at position 1.
 If \f3pos\fP is not specified, the argument following the most recently used one
 will be used.
-The pattern \f3%!\fP (see below) cannot be used subsequent to a usage of \f3pos$\fP.
+The pattern \f3%!\fP (see \f3%! and Sffmt_t\fP above)
+cannot be used subsequent to a usage of \f3pos$\fP.
 .Tp
 \f3*:\fP
 This discards the corresponding scanned item.

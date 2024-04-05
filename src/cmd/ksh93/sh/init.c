@@ -554,18 +554,6 @@ static void put_ifs(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	}
 }
 
-/* Invalidate IFS state table */
-void sh_invalidate_ifs(void)
-{
-	Namval_t *np = sh_scoped(IFSNOD);
-	if(np)
-	{
-		struct ifs *ip = (struct ifs*)np->nvfun;
-		if(ip)
-			ip->ifsnp = 0;
-	}
-}
-
 /*
  * This is the lookup function for IFS
  * It keeps the sh.ifstable up to date
@@ -1015,6 +1003,19 @@ static const Namdisc_t SH_VERSION_disc	= {  0, 0, get_version, nget_version };
 
 
 static const Namdisc_t IFS_disc		= {  sizeof(struct ifs), put_ifs, get_ifs };
+
+/* Invalidate IFS state table */
+void sh_invalidate_ifs(void)
+{
+	Namval_t *np = sh_scoped(IFSNOD);
+	if(np)
+	{
+		struct ifs *ip = (struct ifs*)nv_hasdisc(np, &IFS_disc);
+		if(ip)
+			ip->ifsnp = 0;
+	}
+}
+
 const Namdisc_t RESTRICTED_disc	= {  sizeof(Namfun_t), put_restricted };
 static const Namdisc_t CDPATH_disc	= {  sizeof(Namfun_t), put_cdpath }; 
 #if SHOPT_VSH || SHOPT_ESH

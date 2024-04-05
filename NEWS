@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-03-05:
+
+- Fixed a corner case bug causing incorrect field splitting behaviour of a
+  repeated whitespace character in the IFS variable. The behaviour was
+  incorrect when the posix option was changed while xtrace was on, and when a
+  shell discipline function was defined for IFS. Bug introduced on 2022-03-05.
+
 2024-03-03:
 
 - Fixed incorrect behaviour of {n1..n2..incr} range brace expansions, which

@@ -119,6 +119,7 @@ int sh_argopts(int argc,char *argv[])
 #endif
 	Shopt_t		newflags;
 	int		defaultflag=0, setflag=0, action=0, trace=(int)sh_isoption(SH_XTRACE);
+	int		invalidate_ifs = 0;
 	Namval_t	*np = NULL;
 	const char	*cp;
 	int		verbose, f;
@@ -175,7 +176,7 @@ int sh_argopts(int argc,char *argv[])
 					{
 						off_option(&newflags,o);
 						if(o==SH_POSIX)
-							sh_invalidate_ifs();
+							invalidate_ifs = 1;
 					}
 				}
 			}
@@ -251,7 +252,7 @@ int sh_argopts(int argc,char *argv[])
 				off_option(&newflags,SH_BRACEEXPAND);
 #endif
 				on_option(&newflags,SH_LETOCTAL);
-				sh_invalidate_ifs();
+				invalidate_ifs = 1;
 			}
 			on_option(&newflags,o);
 			off_option(&sh.offoptions,o);
@@ -269,7 +270,7 @@ int sh_argopts(int argc,char *argv[])
 				on_option(&newflags,SH_BRACEEXPAND);
 #endif
 				off_option(&newflags,SH_LETOCTAL);
-				sh_invalidate_ifs();
+				invalidate_ifs = 1;
 			}
 			if(o==SH_XTRACE)
 				trace = 0;
@@ -294,6 +295,9 @@ int sh_argopts(int argc,char *argv[])
 	}
 	if(trace)
 		sh_trace(argv,1);
+	/* Invalidating the IFS state table must be done after sh_trace, because xtrace reads IFS */
+	if(invalidate_ifs)
+		sh_invalidate_ifs();
 	argc -= opt_info.index;
 	argv += opt_info.index;
 	if(action==PRINT)

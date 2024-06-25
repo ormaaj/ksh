@@ -7959,7 +7959,12 @@ class characters in the
 .B IFS
 variable;
 .IP \[bu]
-causes file descriptors > 2 to be left open when invoking another program;
+causes
+.B redirect
+and
+.B exec
+to open file descriptors > 2 without the close-on-exec flag,
+so that they are left open when invoking another program;
 .IP \[bu]
 disables the \fB&>\fR redirection shorthand;
 .IP \[bu]

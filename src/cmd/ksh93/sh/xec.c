@@ -2996,9 +2996,9 @@ int sh_funscope(int argn, char *argv[],int(*fun)(void*),void *arg,int execflg)
 	sh.st.save_tree = sh.var_tree;
 	if(!fun)
 	{
-		if(sh_isoption(SH_FUNCTRACE) && is_option(&options,SH_XTRACE) || nv_isattr(fp->node,NV_TAGGED))
+		if(nv_isattr(fp->node,NV_TAGGED))
 			sh_onoption(SH_XTRACE);
-		else
+		else if(!sh_isoption(SH_FUNCTRACE))
 			sh_offoption(SH_XTRACE);
 	}
 	sh.st.cmdname = argv[0];

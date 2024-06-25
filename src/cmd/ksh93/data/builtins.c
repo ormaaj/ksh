@@ -1740,7 +1740,7 @@ const char sh_optshift[] =
 	"positional parameters remaining will be reduced by the "
 	"number of places that are shifted.]" 
 "[+?If \an\a is given, it will be evaluated as an arithmetic expression "
-	"to determinate the number of places to shift. It is an error "
+	"to determine the number of places to shift. It is an error "
 	"to shift more than the number of positional parameters or a "
 	"negative number of places.]"
 "\n"

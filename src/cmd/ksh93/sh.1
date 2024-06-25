@@ -4044,6 +4044,18 @@ syntax and called by name execute in the same process as the caller and
 share all files
 and present working directory with the
 caller.
+All changes to shell options are local to the function call.
+The
+.B errexit
+option is turned off in the function's scope.
+The same applies to the
+.B xtrace
+option, unless the
+.B functrace
+shell option is set
+or the function was tagged using
+.BR "typeset \-f \-t" .
+The state of all other shell options is inherited from the caller.
 Traps caught by the caller are reset to their default action
 inside the function.
 A trap condition that is not caught or ignored by the
@@ -4079,7 +4091,7 @@ syntax and functions defined with the
 syntax that are invoked with the \f3\s+2.\s-2\fP
 special built-in
 are executed in the caller's
-environment and share all variables
+environment and share all variables, options
 and traps with the caller.
 Errors within these function executions cause the script that contains
 them to abort.

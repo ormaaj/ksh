@@ -2,7 +2,7 @@
 #                                                                      #
 #               This software is part of the ast package               #
 #          Copyright (c) 1982-2012 AT&T Intellectual Property          #
-#          Copyright (c) 2020-2023 Contributors to ksh 93u+m           #
+#          Copyright (c) 2020-2024 Contributors to ksh 93u+m           #
 #                      and is licensed under the                       #
 #                 Eclipse Public License, Version 2.0                  #
 #                                                                      #
@@ -636,6 +636,14 @@ do
 	[[ $got == "$exp" ]] || err_exit "shell did not wait for entire pipeline with -o $opt" \
 		"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 done
+
+# ======
+# showme only printed the first redirection in a list
+# https://github.com/ksh93/ksh/issues/753
+got=$(set +x --showme; eval ';true >/dev/null 2>&1 3>&1 4>&3' 2>&1)
+exp=$'+ true\n+ 1> /dev/null 2>& 1 3>& 1 4>& 3'
+[[ $got == "$exp" ]] || err_exit "showme doesn't print redirects properly" \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
 exit $((Errors<125?Errors:125))

@@ -1402,7 +1402,7 @@ int	sh_redirect(struct ionod *iop, int flag)
 				sfprintf(sfstderr,"%s %s%s%c",io_op,fname,after,iop->ionxt?' ':'\n');
 			}
 			if(flag==SH_SHOWME)
-				return indx;
+				continue;
 			if(trace && fname)
 			{
 				char *argv[7], **av=argv;

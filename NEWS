@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-06-26:
+
+- Fixed: when the --showme option was used with a command containing multiple
+  redirections, only the first redirection was shown, without a newline. This
+  bug was introduced along with --showme in ksh 93s- 2006-09-12.
+
 2024-03-05:
 
 - Fixed a corner case bug causing incorrect field splitting behaviour of a

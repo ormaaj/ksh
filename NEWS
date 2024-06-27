@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-06-27:
+
+- Fixed: a builtin activated with the 'builtin' command was not found if
+  invoked within a namespace block on the same line as the 'builtin' command.
+
 2024-06-26:
 
 - Fixed: when the --showme option was used with a command containing multiple

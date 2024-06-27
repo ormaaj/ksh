@@ -1110,13 +1110,14 @@ int sh_exec(const Shnode_t *t, int flags)
 					sfsync(sh.outpool);
 				if(!np && !sh_isstate(SH_EXEC))
 				{
-					if(*com0 == '/' && !sh_isoption(SH_RESTRICTED))
+					if(!sh_isoption(SH_RESTRICTED) || !strchr(com0,'/'))
 					{
-						/* Check for path-bound builtin referenced by absolute canonical path, in
-						   case the parser didn't provide a pointer (e.g. '$(whence -p cat) foo') */
+						/* Search for a built-in again (including, unless restricted, a path-bound
+						 * builtin referenced by canonical path) in case no node pointer was found
+						 * above or at parse time */
 						np = nv_search(com0, sh.bltin_tree, 0);
 					}
-					else if(strchr(com0,'/'))
+					if(np || strchr(com0,'/'))
 					{
 						/* Do nothing */
 					}

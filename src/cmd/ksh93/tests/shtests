@@ -8,7 +8,7 @@ valgrindflags='--xml=yes --log-file=/dev/null --track-origins=yes --read-var-inf
 
 USAGE=$'
 [-s8?
-@(#)$Id: shtests (ksh 93u+m) 2024-03-12 $
+@(#)$Id: shtests (ksh 93u+m) 2024-06-28 $
 ]
 [-author?David Korn <dgk@research.att.com>]
 [-author?Glenn Fowler <gsf@research.att.com>]
@@ -280,7 +280,7 @@ then	echo "$0: cannot continue: INSTALLROOT must be set" >&2
 	exit 1
 fi
 PATH=$INSTALLROOT/bin:$PATH
-if	[[ ${SHELL%/*} != $INSTALLROOT/bin ]]
+if	[[ ${SHELL%/*} != $INSTALLROOT/bin && ${SHELL%/*} != $INSTALLROOT/dyn/bin ]]
 then	PATH=${SHELL%/*}:$PATH
 fi
 if	[[ ! $SHCOMP ]]
@@ -292,6 +292,11 @@ then	s=${SHELL:##*sh}
 	then	SHCOMP=${s%-g}
 	else	SHCOMP=shcomp
 	fi
+fi
+
+# when testing a shell outside of INSTALLROOT, make sure libraries in INSTALLROOT are not loaded
+if	! [[ ${SHELL%/*} -ef $INSTALLROOT/bin || ${SHELL%/*} -ef $INSTALLROOT/dyn/bin ]]
+then	unset -v LD_LIBRARY_PATH LIBPATH SHLIB_PATH DYLD_LIBRARY_PATH _RLD_ROOT
 fi
 
 tmp=$(

@@ -31,7 +31,7 @@ make install virtual
 		make ${INSTALLROOT}/bin/${SCRIPT}
 			make ${SCRIPT}
 				prev ${@}.sh
-				exec - cp ${<} ${@} && ${STDCHMOD} u+w,+x ${@}
+				exec - cp ${<} ${@} && chmod u+w,+x ${@}
 			done
 			exec - cp -f ${<} ${@}
 		done

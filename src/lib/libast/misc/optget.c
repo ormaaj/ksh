@@ -2532,7 +2532,7 @@ opthelp(const char* oopts, const char* what)
 				}
 			}
 			if (isatty(sffileno(sfstderr)) && (x = getenv("TERM"))
-			&& strmatch(x, "(ansi|cons|dtterm|linux|screen|sun|vt???|wsvt|xterm)*"))
+			&& strmatch(x, "(ansi|cons|dtterm|linux|qansi|rxvt|screen|sun|vt[1-5][0-4][0125]|wsvt|xterm)*"))
 				state.emphasis = 1;
 		}
 		break;

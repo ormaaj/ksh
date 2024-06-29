@@ -118,7 +118,7 @@ namespace man
 		case $pager in
 		'')	pager="less $lessopt" ;;
 		less | */less | less[[:blank:]]* | */less[[:blank:]]*)
-			pager+=" -$lessopt" ;;
+			pager+=" $lessopt" ;;
 		esac
 		command -- $pager
 	}

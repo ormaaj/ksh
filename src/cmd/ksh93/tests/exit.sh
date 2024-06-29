@@ -44,7 +44,7 @@ if builtin getconf 2> /dev/null; then
 	) \
 	LD_LIBRARY_PATH=\$LD_LIBRARY_PATH LIBPATH=\$LIBPATH SHLIB_PATH=\$SHLIB_PATH DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH exec -c -a -ksh ${ABSHELL} -c "exit 1" 1>/dev/null 2>&1
 !
-	status=$(echo $?)
+	status=$?
 	if	[[ -o noprivileged && $status != 0 ]]
 	then	err_exit 'exit in .profile is ignored'
 	elif	[[ -o privileged && $status == 0 ]]

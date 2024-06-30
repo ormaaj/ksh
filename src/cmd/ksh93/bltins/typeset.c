@@ -766,7 +766,7 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 			if(troot==sh.track_tree && tp->aflag=='-')
 			{
 				sh_offstate(SH_DEFPATH);  /* 'command -p hash foo' should work to create 'foo=/bin/foo' */
-				path_settrackedalias(name,path_absolute(name,NULL,0));
+				path_settrackedalias(name,path_absolute(name,NULL,2));
 				continue;
 			}
 			if(troot==sh.alias_tree && sh.subshell && !sh.subshare && strchr(name,'='))

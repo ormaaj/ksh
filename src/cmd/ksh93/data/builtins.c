@@ -410,9 +410,7 @@ const char sh_optalias[] =
 	"be executed before the command that references the alias is read.]"
 "[p?Causes the output to be in the form of alias commands that can be used "
 	"as input to the shell to recreate the current aliases.]"
-"[t?Each \aname\a is looked up as a command in \b$PATH\b and its path is "
-	"added to the hash table as a 'tracked alias'. If no \aname\a is "
-	"given, this prints the hash table. See \bhash(1)\b.]"
+"[t?Same as \bhash\b(1).]"
 "[x?This option is obsolete. In most contexts the \b-x\b option is ignored, "
 	"although when it's combined with \b-t\b it will make \balias\b do "
 	"nothing.]"
@@ -995,14 +993,15 @@ _JOB_
 ;
 
 const char sh_opthash[] =
-"[-1c?\n@(#)$Id: hash (ksh 93u+m) 2021-01-07 $\n]"
+"[-1c?\n@(#)$Id: hash (ksh 93u+m) 2024-06-30 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?hash - display the locations of recently used programs]"
 "[+DESCRIPTION?\bhash\b displays or modifies the hash table with the "
 	"locations of recently used programs. If given no arguments, it lists "
 	"all command/path associations (a.k.a. 'tracked aliases') in the hash "
 	"table. Otherwise, \bhash\b performs a \bPATH\b search for each "
-	"\autility\a supplied and adds the result to the hash table.]"
+	"\autility\a supplied and adds the result to the hash table. "
+	"Any \autility\a that is not found is silently ignored.]"
 "[r?Empty the hash table. This can also be achieved by resetting \bPATH\b.]"
 "\n"
 "\n[utility...]\n"

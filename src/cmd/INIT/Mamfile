@@ -36,6 +36,12 @@ make install virtual
 			exec - cp -f ${<} ${@}
 		done
 	done
+	make ${INSTALLROOT}/bin/mamprobe
+		note * the probe.sh dependency is needed for mamake to redo the probe when C+probe or make.probe is edited
+		prev probe.sh
+		prev mamprobe.sh
+		exec - cp ${<} ${@} && chmod u+w,+x ${@}
+	done
 
 	note *
 	note * probe initialization

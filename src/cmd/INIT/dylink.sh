@@ -47,10 +47,12 @@ do_link()
 }
 
 # Basic sanity check.
-case ${HOSTTYPE:+H}${AST_NO_DYLIB+n} in
-H)	;;
-*)	echo "$0: building dynamic libraries was not enabled; skipping" >&2
+case ${HOSTTYPE:+H}${INSTALLROOT:+I}${AST_NO_DYLIB+n} in
+HI)	;;
+HIn)	note "Building dynamic libraries was disabled; skipping"
 	exit 0  # continue build
+	;;
+*)	err_out "Required environment missing"
 	;;
 esac
 

@@ -186,7 +186,7 @@ int    b_alias(int argc,char *argv[],Shbltin_t *context)
 	if(flag&NV_TAGGED)
 	{
 		if(xflag)
-			return 0;		/* do nothing for 'alias -tx' */
+			return 0;			/* do nothing for 'alias -tx' */
 		if(tdata.pflag)
 		{
 			troot = sh_subtracktree(0);	/* use existing hash table */

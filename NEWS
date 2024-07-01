@@ -22,7 +22,7 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
 - Fixed a corner case bug causing incorrect field splitting behaviour of a
   repeated whitespace character in the IFS variable. The behaviour was
-  incorrect when the posix option was changed while xtrace was on, and when a
+  incorrect when the posix option was changed while xtrace was on, or when a
   shell discipline function was defined for IFS. Bug introduced on 2022-03-05.
 
 2024-03-03:
@@ -77,7 +77,7 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a crash on redefining an array inherited from the parent environment
   in a subshell.
 
-- Fixed corner case breakage of univese handling in the 'echo' command: it
+- Fixed corner case breakage of universe handling in the 'echo' command: it
   broke when used in a namespace block before being used anywhere else, and
   only if _AST_FEATURES was not exported first. The bug caused _AST_FEATURES to
   be incorrectly placed in that namespace. Bug introduced on 2023-06-02.

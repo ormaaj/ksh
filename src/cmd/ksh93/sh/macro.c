@@ -1621,6 +1621,7 @@ retry1:
 		}
 		else
 		{
+			/* type==M_SIZE: ${#var} */
 			if(!isastchar(mode))
 				c = charlen(v,vsize);
 			else if(dolg>0)

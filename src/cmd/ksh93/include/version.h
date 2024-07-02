@@ -17,7 +17,7 @@
 #include <releaseflags.h>
 
 #define SH_RELEASE_FORK	"93u+m"		/* only change if you develop a new ksh93 fork */
-#define SH_RELEASE_SVER	"1.0.9-beta"	/* semantic version number: https://semver.org */
+#define SH_RELEASE_SVER	"1.0.9"		/* semantic version number: https://semver.org */
 #define SH_RELEASE_DATE	"2024-07-02"	/* must be in this format for $((.sh.version)) */
 #define SH_RELEASE_CPYR	"(c) 2020-2024 Contributors to ksh " SH_RELEASE_FORK
 

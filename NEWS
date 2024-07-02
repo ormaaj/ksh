@@ -4,6 +4,8 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
 2024-07-02:
 
+- Release 1.0.9.
+
 - Support for UNC paths (//server/dir) is now enabled by default on Cygwin.
 
 2024-06-30:

@@ -1,9 +1,9 @@
 #
 # posix { getconf limits } macro table
 #
-# @(#)conf.tab (AT&T Research) 2010-06-28
+# @(#)conf.tab (ksh 93u+m) 2024-07-01
 #
-# name standard section call flags [ header ... ] [ value ... ]
+# name standard call section flags [ header ... ] [ value ... ]
 #
 # name:		sans prefix
 # standard:	AST, C, POSIX, SVID, XOPEN, <vendor> { SCO, SGI, SUN, ... }
@@ -341,6 +341,12 @@ PASS_MAX			SVID	SC 1 CDLMU	8
 PATH				AST	CS 1 MU		sh{
 	# DEFPATH should have been exported from package(1)
 	echo "\\"$DEFPATH\\""
+}
+PATH_LEADING_SLASHES		AST	CS 1 M		sh{
+	# HOSTTYPE should have been exported from package(1)
+	case $HOSTTYPE in
+	cygwin.*)	echo "\\"1\\"" ;;  # support UNC paths (with two leading slashes)
+	esac
 }
 PATH_MAX			POSIX	PC 1 CDLMUX	MAXPATHLEN 1024
 PBS				POSIX	SC 2 FUW

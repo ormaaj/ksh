@@ -91,7 +91,7 @@ At strict level 2 and up, it is left unexpanded even if it is not a valid
 By default, the expansion of MAM variable references is recursive,
 i.e., the value may itself contain other variable references.
 Beware: there is no reference loop detection; any variable referencing
-itself directly or indirectly will cause mamake to crash.
+itself directly or indirectly will cause `mamake` to crash.
 At strict level 2 and up, this (mis)feature is disabled and
 variables always expand to their literal values,
 and variable references in `setv` only work for previously defined variables.
@@ -259,7 +259,7 @@ double quotes (`"`), those quotes are discarded,
 though double quotes elsewhere in the value are not treated specially.
 The value is otherwise taken entirely literally.
 
-When the *variable* is `CC`, mamake runs the `mamprobe` script
+When the *variable* is `CC`, `mamake` runs the `mamprobe` script
 to probe the C compiler for flags and features,
 or uses that script's stored results if not outdated.
 The results are stored as a series of `setv` commands
@@ -432,6 +432,14 @@ if the contained make target names are modified by the expansion of the
 iteration *variable*.
 
 `loop` requires a seekable input file (i.e.: not a pipe).
+
+## Debugging mamake ##
+
+If the environment variable `MAMAKE_DEBUG_PREFIX` is exported, its value is
+split into whitespace-separated command arguments and inserted before every
+`mamake` invocation. This allows debugging `mamake` with tools like
+`valgrind`, `strace`, or `dtruss`, which are used by passing a command to
+them as a set of operands.
 
 ## Appendix: Main changes from the AT&T version ##
 

@@ -43,6 +43,7 @@ the language to facilitate human maintenance of the `Mamfile`s.
         * […while scanning and sorting leaf directories](#user-content-while-scanning-and-sorting-leaf-directories)
         * […while building the current directory](#user-content-while-building-the-current-directory)
     * [Repeatedly iterating through a block](#user-content-repeatedly-iterating-through-a-block)
+* [Debugging mamake](#user-content-debugging-mamake)
 * [Appendix: Main changes from the AT&T version](#user-content-appendix-main-changes-from-the-att-version)
 
 ## General overview of the MAM language ##

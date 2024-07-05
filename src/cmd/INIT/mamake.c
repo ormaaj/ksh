@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-07-04"
+#define RELEASE_DATE "2024-07-05"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -166,8 +166,8 @@ static const char usage[] =
 #define delimiter(c)	(isspace(c)||(c)==';'||(c)=='('||(c)==')'||(c)=='`'||(c)=='|'||(c)=='&'||(c)=='=')
 
 #define add(b,c)	(((b)->nxt >= (b)->end) ? append(b, "") : NULL, *(b)->nxt++ = (c))
-#define get(b)		((b)->nxt-(b)->buf)
-#define set(b,o)	((b)->nxt=(b)->buf+(o))
+#define getsize(b)	((b)->nxt-(b)->buf)
+#define setsize(b,o)	((b)->nxt=(b)->buf+(o))
 #define use(b)		(*(b)->nxt=0,(b)->nxt=(b)->buf)
 
 #define CHUNK		4096
@@ -259,7 +259,7 @@ typedef struct Stream_s			/* input file stream stack	*/
 typedef struct View_s			/* viewpath level		*/
 {
 	struct View_s	*next;		/* next level in viewpath	*/
-	int		node;		/* viewpath node path length	*/
+	size_t		node;		/* viewpath node path length	*/
 #if __STDC_VERSION__ >= 199901L
 	char		dir[];		/* viewpath level dir prefix	*/
 #else
@@ -459,10 +459,9 @@ static void drop(Buf_t *buf)
  * append str length n to buffer and return the buffer base
  */
 
-static char *appendn(Buf_t *buf, char *str, int n)
+static char *appendn(Buf_t *buf, char *str, size_t n)
 {
-	int	m;
-	int	i;
+	size_t	m, i;
 
 	if ((n + 1) >= (buf->end - buf->nxt))
 	{
@@ -499,7 +498,7 @@ static char *append(Buf_t *buf, char *str)
 static char *reduplicate(char *orig, char *s)
 {
 	char	*t;
-	int	n;
+	size_t	n;
 
 	n = strlen(s);
 	if (n == 0)
@@ -679,7 +678,7 @@ static Rule_t *rule(char *name)
 	if (!(r = getval(state.rules, name)))
 	{
 		Dict_item_t *rnode;
-		int n;
+		size_t n;
 		if (!(r = newof(0, Rule_t, 1, 0)))
 			report(3, "out of memory [rule]", name, 0);
 		rnode = search(state.rules, name, 1);
@@ -724,7 +723,8 @@ static void view(void)
 {
 	char		*s, *t, *p;
 	View_t		*vp, *zp;
-	int		c, n;
+	int		c;
+	size_t		n;
 	Stat_t		st, ts;
 	char		buf[CHUNK];
 	Dict_item_t	*vnode;
@@ -1059,7 +1059,7 @@ static char *expand(Buf_t *buf, char *s)
  * stat() with .exe check
  */
 
-static char *status(Buf_t *buf, int off, char *path, struct stat *st)
+static char *status(Buf_t *buf, size_t off, char *path, struct stat *st)
 {
 	int	r;
 	char	*s;
@@ -1073,7 +1073,7 @@ static char *status(Buf_t *buf, int off, char *path, struct stat *st)
 		off = 0;
 	}
 	if (off)
-		set(tmp, off);
+		setsize(tmp, off);
 	else
 		append(tmp, path);
 	append(tmp, ".exe");
@@ -1101,7 +1101,8 @@ static char *find(Buf_t *buf, char *file, struct stat *st)
 {
 	char	*s;
 	View_t	*vp;
-	int	node, c, o;
+	int	node, c;
+	size_t	o;
 
 	if (s = status(buf, 0, file, st))
 	{
@@ -1142,7 +1143,7 @@ static char *find(Buf_t *buf, char *file, struct stat *st)
 					append(buf, "/");
 				}
 				append(buf, file);
-				o = get(buf);
+				o = getsize(buf);
 				s = use(buf);
 				if (s = status(buf, o, s, st))
 				{
@@ -1215,23 +1216,13 @@ static int push(char *file, Stdio_t *fp, int flags)
 	else if (++state.sp >= &state.streams[elementsof(state.streams)])
 		report(3, "input stream stack overflow", NULL, 0);
 	if (state.sp->fp = fp)
-	{
-		if (state.sp->file)
-			free(state.sp->file);
-		state.sp->file = strdup("pipeline");
-		if (!state.sp->file)
-			report(3, "out of memory [push]", NULL, 0);
-	}
+		state.sp->file = reduplicate(state.sp->file, "pipeline");
 	else if (flags & STREAM_PIPE)
 		report(3, "pipe error", file, 0);
 	else if (!file || !strcmp(file, "-") || !strcmp(file, "/dev/stdin"))
 	{
 		flags |= STREAM_KEEP;
-		if (state.sp->file)
-			free(state.sp->file);
-		state.sp->file = strdup("/dev/stdin");
-		if (!state.sp->file)
-			report(3, "out of memory [push]", NULL, 0);
+		state.sp->file = reduplicate(state.sp->file, "/dev/stdin");
 		state.sp->fp = stdin;
 	}
 	else
@@ -1374,7 +1365,7 @@ static unsigned long run(Rule_t *r, char *s)
 			/* Also subject the user-set shim to viewpathing
 			 * (plus other code preprended above, but it should not contain anything viewpathable) */
 			char	*pre = use(buf);
-			long	n = strlen(pre);
+			size_t	n = strlen(pre);
 			if (!(tofree = malloc(n + strlen(s) + 1)))
 				report(3, "out of memory [run]", NULL, 0);
 			strcpy(tofree, pre);
@@ -1481,7 +1472,8 @@ static unsigned long run(Rule_t *r, char *s)
 static char *path(Buf_t *buf, char *s, int must)
 {
 	char	*p, *d, *x, *e;
-	int	c, t, o;
+	int	c, t;
+	size_t	o;
 	Stat_t	st;
 
 	for (e = s; *e && !isspace(*e); e++);
@@ -1506,7 +1498,7 @@ static char *path(Buf_t *buf, char *s, int must)
 		append(buf, s);
 		if (t)
 			*e = t;
-		o = get(buf);
+		o = getsize(buf);
 		x = use(buf);
 		if ((x = status(buf, o, x, &st)) && (st.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)))
 			return x;
@@ -1575,7 +1567,7 @@ static void probe(void)
 static void attributes(Rule_t *r, char *s)
 {
 	char	*t;
-	int	n;
+	size_t	n;
 
 	for (;;)
 	{
@@ -1760,7 +1752,7 @@ static char *require(char *lib, int dontcare)
 static void update_allprev(Rule_t *r, char *all, char *upd)
 {
 	char		*name = r->name;
-	unsigned long	n = strlen(name), nn;
+	size_t		n = strlen(name), nn;
 	/* set ${<} */
 	auto_prev->value = reduplicate(auto_prev->value, name);
 	/* restore ${^}, append to it */
@@ -1907,7 +1899,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			if (cmd && state.active && (state.force || r->time < modtime || !r->time && !modtime))
 			{
 				char	*fname = state.sp->file, *rname = r->name, *rnamepre = "", *val;
-				int	len;
+				size_t	len;
 
 				/* show a nice trace header */
 				/* ...mamfile path: make relative to ${PACKAGEROOT} */
@@ -1964,7 +1956,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				append(cmd, expand(buf, v));
 			}
 			/* if a shim is buffered, get it ready and reset the buffer */
-			if (get(state.shim_buf))
+			if (getsize(state.shim_buf))
 			{
 				state.shim = use(state.shim_buf);
 				/* a single 'shim -' deactivates the shim */
@@ -2213,7 +2205,7 @@ static int update(Rule_t *r)
 	/* announce */
 	{
 		char	*p, *q;
-		int	n;
+		size_t	n;
 		append(buf, state.pwd);
 		add(buf, '/');
 		append(buf, r->name);
@@ -2457,7 +2449,7 @@ int main(int argc, char **argv)
 		case 'K':
 			continue;
 		case 'V':
-			write(1, id + 10, strlen(id) - 12);
+			(void)write(1, id + 10, strlen(id) - 12);
 			putchar('\n');
 			exit(0);
 		case 'f':
@@ -2574,7 +2566,7 @@ int main(int argc, char **argv)
 				setval(state.vars, "-strip-symbols", "1");
 				continue;
 			case 'V':
-				write(1, id + 10, strlen(id) - 12);
+				(void)write(1, id + 10, strlen(id) - 12);
 				putchar('\n');
 				exit(0);
 			case 'f':

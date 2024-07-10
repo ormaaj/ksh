@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-07-08"
+#define RELEASE_DATE "2024-07-10"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -2229,7 +2229,7 @@ static int update(Rule_t *r)
 	}
 
 	/* do */
-	append(buf, "${MAMAKE_DEBUG_PREFIX-} ");
+	append(buf, "$MAMAKE_DEBUG_PREFIX ");
 	append(buf, getval(state.vars, "MAMAKE"));
 	append(buf, " -C ");
 	append(buf, r->name);

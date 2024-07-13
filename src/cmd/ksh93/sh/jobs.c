@@ -13,6 +13,7 @@
 *                  David Korn <dgk@research.att.com>                   *
 *                  Martijn Dekker <martijn@inlv.org>                   *
 *            Johnothan King <johnothanking@protonmail.com>             *
+*               Vincent Mihalkovic <vmihalko@redhat.com>               *
 *                                                                      *
 ***********************************************************************/
 /*
@@ -437,7 +438,7 @@ int job_reap(int sig)
 			pw->p_flag &= ~P_NOTIFY;
 		if(job.jobcontrol && pid==pw->p_fgrp && pid==tcgetpgrp(JOBTTY))
 		{
-			px = job_byjid((int)pw->p_job);
+			px = job_byjid(pw->p_job);
 			for(; px && (px->p_flag&P_DONE); px=px->p_nxtproc);
 			if(!px)
 				tcsetpgrp(JOBTTY,job.mypid);
@@ -1528,7 +1529,7 @@ int job_switch(struct process *pw,int bgflag)
 {
 	const char *msg;
 	job_lock();
-	if(!pw || !(pw=job_byjid((int)pw->p_job)))
+	if(!pw || !(pw=job_byjid(pw->p_job)))
 	{
 		job_unlock();
 		return 1;
@@ -1542,7 +1543,7 @@ int job_switch(struct process *pw,int bgflag)
 	}
 	if(bgflag=='b')
 	{
-		sfprintf(outfile,"[%d]\t",(int)pw->p_job);
+		sfprintf(outfile,"[%d]\t",pw->p_job);
 		sh.bckpid = pw->p_pid;
 		pw->p_flag |= P_BG;
 		msg = "&";
@@ -1623,7 +1624,7 @@ static struct process *job_unpost(struct process *pwtop,int notify)
 	sfprintf(sfstderr,"ksh: job line %4d: drop PID=%lld critical=%d PID=%d env=%u\n",__LINE__,(Sflong_t)sh.current_pid,job.in_critical,pwtop->p_pid,pwtop->p_env);
 	sfsync(sfstderr);
 #endif /* DEBUG */
-	pwtop = pw = job_byjid((int)pwtop->p_job);
+	pwtop = pw = job_byjid(pwtop->p_job);
 	if(!pw)
 		return NULL;
 #if SHOPT_BGX
@@ -1664,7 +1665,7 @@ static struct process *job_unpost(struct process *pwtop,int notify)
 	sfprintf(sfstderr,"ksh: job line %4d: free PID=%lld critical=%d job=%d\n",__LINE__,(Sflong_t)sh.current_pid,job.in_critical,pwtop->p_job);
 	sfsync(sfstderr);
 #endif /* DEBUG */
-	job_free((int)pwtop->p_job);
+	job_free(pwtop->p_job);
 	return NULL;
 }
 

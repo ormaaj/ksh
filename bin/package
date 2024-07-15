@@ -2521,7 +2521,7 @@ checkaout()	# cmd ...
 				# To allow relinking the binary against libast later, add a _bootstrap suffix and create
 				# a symlink to it. The symlink can be removed/renamed instead of the _bootstrap binary.
 				$exec $CC -O $CCFLAGS $LDFLAGS -o "$INSTALLROOT/bin/${i}_bootstrap" "$INITROOT/$i.c" || return
-				$exec ln -s "${i}_bootstrap" "$INSTALLROOT/bin/$i" || return
+				$exec ln -sf "${i}_bootstrap" "$INSTALLROOT/bin/$i" || return
 				;;
 			*)	$exec $CC -O $CCFLAGS $LDFLAGS -o "$INSTALLROOT/bin/$i" "$INITROOT/$i.c" || return
 				;;

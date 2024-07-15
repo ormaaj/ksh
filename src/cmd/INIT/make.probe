@@ -980,6 +980,7 @@ esac
 
 case $hosttype in
 cygwin.*|os2.*)
+	sd=.dll
 	Lflag=1
 	;;
 *)	if	$cc -c doti.$src

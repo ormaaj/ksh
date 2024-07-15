@@ -57,7 +57,7 @@ HIn)	note "Building dynamic libraries was disabled; skipping"
 esac
 
 # Parse options.
-exec_file= module_name= l_flags= version= prefix= suffix=
+unset exec_file module_name l_flags version prefix suffix
 while getopts 'e:m:l:v:p:s:' opt
 do	case $opt in
 	e)	exec_file=$OPTARG ;;
@@ -77,7 +77,7 @@ case ${exec_file:+e}${module_name:+m} in
 e | m)	;;
 *)	err_out "Either -e or -m should be specified" ;;
 esac
-case ${module_name:+m}${prefix:+p}${suffix:+s}${version:+v} in
+case ${module_name:+m}${prefix+p}${suffix+s}${version:+v} in
 '' | mpsv )
 	;;
 *)	err_out "-m requires -v/-p/-s and vice versa" ;;

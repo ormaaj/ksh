@@ -13,7 +13,7 @@ setv CCLDFLAGS ${-strip-symbols?1?${mam_cc_LD_STRIP}??}
 setv IFFEFLAGS
 setv LDFLAGS
 setv SH_DICT \"libshell\"
-setv DYLIB_PRE ${mam_cc_PREFIX_DYNAMIC-${mam_cc_PREFIX_SHARED}}
+setv DYLIB_PRE ${mam_cc_SUFFIX_DYNAMIC?*?${mam_cc_PREFIX_DYNAMIC}?${mam_cc_PREFIX_SHARED}?}
 setv DYLIB_SUF ${mam_cc_SUFFIX_DYNAMIC-${mam_cc_SUFFIX_SHARED}}
 setv DYLIB_VERSION 2.0
 

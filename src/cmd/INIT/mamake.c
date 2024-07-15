@@ -956,7 +956,7 @@ static void substitute(Buf_t *buf, char *s)
 				else if (q == t)
 					v = s;
 				t = cond(q);
-				if (v)
+				if (v && *v)
 				{
 					if (t > q)
 					{

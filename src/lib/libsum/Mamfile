@@ -5,7 +5,6 @@ note *
 
 setv MAMAKE_STRICT 3
 setv INSTALLROOT ../../..
-setv PACKAGE_ast_INCLUDE ${INSTALLROOT}/include/ast
 setv CC cc
 setv AR ${mam_cc_AR} ${mam_cc_AR_ARFLAGS}
 setv mam_cc_FLAGS ${mam_cc_TARGET} ${mam_cc_DLL} ${mam_cc_PIC} ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?}
@@ -14,79 +13,6 @@ setv IFFEFLAGS
 setv LDFLAGS
 
 make install virtual
-	note *
-	note * AST header dependencies
-	note * TODO: verify and centralise
-	note *
-
-	make ${PACKAGE_ast_INCLUDE}/endian.h implicit
-		make ${PACKAGE_ast_INCLUDE}/bytesex.h implicit
-			make ${PACKAGE_ast_INCLUDE}/ast_common.h implicit
-				prev ${PACKAGE_ast_INCLUDE}/ast_map.h implicit
-			done
-		done
-	done
-	make ${PACKAGE_ast_INCLUDE}/fnv.h implicit
-		prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-	done
-	make ${PACKAGE_ast_INCLUDE}/swap.h implicit
-		prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-	done
-	make ${PACKAGE_ast_INCLUDE}/ast.h implicit
-		prev ${PACKAGE_ast_INCLUDE}/ast_api.h implicit
-		make ${PACKAGE_ast_INCLUDE}/vmalloc.h implicit
-			prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-			make ${PACKAGE_ast_INCLUDE}/ast_std.h implicit
-				make ${PACKAGE_ast_INCLUDE}/regex.h implicit
-					prev ${PACKAGE_ast_INCLUDE}/ast_api.h
-					make ${PACKAGE_ast_INCLUDE}/ast_wchar.h implicit
-						make ${PACKAGE_ast_INCLUDE}/wctype.h implicit
-							make ${PACKAGE_ast_INCLUDE}/ast_wctype.h implicit
-								prev ${PACKAGE_ast_INCLUDE}/endian.h
-								make ${PACKAGE_ast_INCLUDE}/wchar.h implicit
-									note * TODO * circular dependency
-									note # prev ${PACKAGE_ast_INCLUDE}/ast_wchar.h
-								done
-							done
-						done
-						make ${PACKAGE_ast_INCLUDE}/stdio.h implicit
-							make ${PACKAGE_ast_INCLUDE}/ast_stdio.h implicit
-								prev ${PACKAGE_ast_INCLUDE}/sfio_s.h implicit
-								note * TODO * circular dependency
-								note # prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-							done
-						done
-						prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-					done
-					prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-				done
-				make ${PACKAGE_ast_INCLUDE}/getopt.h implicit
-					prev ${PACKAGE_ast_INCLUDE}/ast_getopt.h implicit
-				done
-				prev ${PACKAGE_ast_INCLUDE}/ast_map.h
-				prev ${PACKAGE_ast_INCLUDE}/ast_botch.h implicit
-				prev ${PACKAGE_ast_INCLUDE}/ast_limits.h implicit
-				make ${PACKAGE_ast_INCLUDE}/ast_fcntl.h implicit
-					prev ${PACKAGE_ast_INCLUDE}/ast_fs.h implicit
-				done
-				prev ${PACKAGE_ast_INCLUDE}/ast_getopt.h
-				make ${PACKAGE_ast_INCLUDE}/ast_sys.h implicit
-					prev ${PACKAGE_ast_INCLUDE}/getopt.h
-					prev ${PACKAGE_ast_INCLUDE}/endian.h
-				done
-				prev ${PACKAGE_ast_INCLUDE}/ast_lib.h implicit
-				prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-			done
-		done
-		make ${PACKAGE_ast_INCLUDE}/sfio.h implicit
-			prev ${PACKAGE_ast_INCLUDE}/sfio_s.h
-			prev ${PACKAGE_ast_INCLUDE}/ast_common.h
-			prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-		done
-		prev ${PACKAGE_ast_INCLUDE}/ast_std.h
-	done
-	prev ${PACKAGE_ast_INCLUDE}/hashpart.h implicit
-
 	note *
 	note * Library dependencies
 	note *
@@ -105,13 +31,13 @@ make install virtual
 		make sumlib.o
 			make sumlib.c
 				make sum-sha2.c implicit
-					prev ${PACKAGE_ast_INCLUDE}/endian.h
+					prev ${INCLUDE_AST}/endian.h
 				done
 				prev sum-sha1.c implicit
 				prev sum-md5.c implicit
 				prev sum-lmd.c implicit
 				make sum-prng.c implicit
-					prev ${PACKAGE_ast_INCLUDE}/fnv.h
+					prev ${INCLUDE_AST}/fnv.h
 				done
 				prev sum-bsd.c implicit
 				prev sum-ast4.c implicit
@@ -119,23 +45,23 @@ make install virtual
 					prev features/sum
 					exec - iffe ${IFFEFLAGS} -v -c \
 					exec -  '${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} ${LDFLAGS}' \
-					exec -	ref ${mam_cc_L+-L${INSTALLROOT}/lib} -I${PACKAGE_ast_INCLUDE} \
+					exec -	ref ${mam_cc_L+-L${INSTALLROOT}/lib} -I${INCLUDE_AST} \
 					exec -	-I${INSTALLROOT}/include ${mam_libast} : run ${<}
 				done
-				prev ${PACKAGE_ast_INCLUDE}/hashpart.h
-				prev ${PACKAGE_ast_INCLUDE}/swap.h
-				prev ${PACKAGE_ast_INCLUDE}/endian.h
+				prev ${INCLUDE_AST}/hashpart.h
+				prev ${INCLUDE_AST}/swap.h
+				prev ${INCLUDE_AST}/endian.h
 				make sum.h implicit
-					prev ${PACKAGE_ast_INCLUDE}/ast.h
+					prev ${INCLUDE_AST}/ast.h
 				done
 				make sum-att.c implicit
-					prev ${PACKAGE_ast_INCLUDE}/ast.h
+					prev ${INCLUDE_AST}/ast.h
 				done
 				make sum-crc.c implicit
-					prev ${PACKAGE_ast_INCLUDE}/ast.h
+					prev ${INCLUDE_AST}/ast.h
 				done
 			done
-			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} -I. -I${PACKAGE_ast_INCLUDE} -c ${<}
+			exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} -I. -I${INCLUDE_AST} -c ${<}
 		done sumlib.o
 		exec - ${AR} rc ${@} ${<} || exit
 		exec - ranlib ${@} >/dev/null 2>&1 || true
@@ -145,7 +71,7 @@ make install virtual
 	note * pre-install
 	note *
 
-	loop DIR ${INSTALLROOT}/lib/lib ${PACKAGE_ast_INCLUDE}
+	loop DIR ${INSTALLROOT}/lib/lib ${INCLUDE_AST}
 		make ${DIR}
 			exec - mkdir -p ${@}
 		done
@@ -159,10 +85,17 @@ make install virtual
 		prev sum.req
 		exec - cp -f ${<} ${@}
 	done
-	make ${PACKAGE_ast_INCLUDE}/sum.h
-		prev sum.h
-		exec - cp -f ${<} ${@}
-	done
+	note * public headers
+	make ${INSTALLROOT}/lib/mam/sum
+		make ${INCLUDE_AST}/sum.h
+			prev sum.h
+			exec - cp -f ${<} ${@}
+		done
+		note * generate header dependency rules
+		exec - mkdeps -lsum -last ${^} > ${@}
+		prev ${INSTALLROOT}/bin/mkdeps
+		prev sum.req
+	done ${INSTALLROOT}/lib/mam/sum
 done install
 
 make test dontcare virtual

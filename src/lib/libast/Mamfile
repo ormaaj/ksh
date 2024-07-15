@@ -6,6 +6,7 @@ note *
 setv MAMAKE_STRICT 3
 setv INSTALLROOT ../../..
 setv PACKAGEROOT ../../../../..
+setv INCLUDE_AST ${INSTALLROOT}/include/ast
 setv CC cc
 setv AR ${mam_cc_AR} ${mam_cc_AR_ARFLAGS}
 setv mam_cc_FLAGS ${mam_cc_TARGET} ${mam_cc_DLL} -D_BLD_ast ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?}
@@ -4923,7 +4924,7 @@ make install virtual
 	note *
 
 	note * ensure preinstallation directories exist
-	loop DIR include/ast lib/lib lib/file man/man3
+	loop DIR include/ast lib/lib lib/mam lib/file man/man3
 		make ${INSTALLROOT}/${DIR}
 			exec - mkdir -p ${@}
 		done
@@ -4949,34 +4950,39 @@ make install virtual
 	done
 
 	note * #include headers
-	note * ...generated headers
-	loop HDR releaseflags ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_botch ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_wait ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
-		make ${INSTALLROOT}/include/ast/${HDR}.h
-			prev ${HDR}.h
-			exec - cp -f ${<} ${@}
+	make ${INSTALLROOT}/lib/mam/ast
+		note * ...main AST headers
+		loop HDR ast ast_dir ast_getopt ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok usage vdb vmalloc wait magicid fnv aso
+			make ${INCLUDE_AST}/${HDR}.h
+				prev include/${HDR}.h
+				exec - cp -f ${<} ${@}
+			done
 		done
-	done
-	note * ...main AST headers
-	loop HDR ast ast_dir ast_getopt ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok usage vdb vmalloc wait magicid fnv aso
-		make ${INSTALLROOT}/include/ast/${HDR}.h
-			prev include/${HDR}.h
-			exec - cp -f ${<} ${@}
+		note * ...comp(atibility)
+		loop HDR ftw getopt re_comp regexp wordexp fnmatch
+			make ${INCLUDE_AST}/${HDR}.h
+				prev comp/${HDR}.h
+				exec - cp -f ${<} ${@}
+			done
 		done
-	done
-	note * ...comp(atibility)
-	loop HDR ftw getopt re_comp regexp wordexp fnmatch
-		make ${INSTALLROOT}/include/ast/${HDR}.h
-			prev comp/${HDR}.h
-			exec - cp -f ${<} ${@}
+		note * ...std
+		loop HDR bytesex endian dirent iconv nl_types stdio wchar wctype
+			make ${INCLUDE_AST}/${HDR}.h
+				prev std/${HDR}.h
+				exec - cp -f ${<} ${@}
+			done
 		done
-	done
-	note * ...std
-	loop HDR bytesex endian dirent iconv nl_types stdio wchar wctype
-		make ${INSTALLROOT}/include/ast/${HDR}.h
-			prev std/${HDR}.h
-			exec - cp -f ${<} ${@}
+		note * ...generated headers
+		loop HDR releaseflags ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_botch ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_wait ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
+			make ${INCLUDE_AST}/${HDR}.h
+				prev ${HDR}.h
+				exec - cp -f ${<} ${@}
+			done
 		done
-	done
+		note * generate header dependency rules
+		exec - mkdeps -last ${^} > ${@}
+		prev ${INSTALLROOT}/bin/mkdeps
+	done ${INSTALLROOT}/lib/mam/ast
 
 	note * misc stuff
 	make ${INSTALLROOT}/lib/file/magic
@@ -4993,7 +4999,7 @@ make install virtual
 		exec - for src in comp/fmtmsg.h comp/libgen.h
 		exec - do	hdr=$(basename "$src" .h)
 		exec -		grep -q "define[ $CCt][ $CCt]*_[hl][di][rb]_$hdr" ast_lib.h && continue
-		exec -		dst=${INSTALLROOT}/include/ast/$hdr.h
+		exec -		dst=${INCLUDE_AST}/$hdr.h
 		exec -		if	! cmp -s "$src" "$dst"
 		exec -		then	cp -f "$src" "$dst" || exit
 		exec -		fi
@@ -5007,14 +5013,14 @@ make install virtual
 	note *
 
 	make mamake
+		bind -last
 		make mamake.o
 			make ${PACKAGEROOT}/src/cmd/INIT/mamake.c
-				prev ${INSTALLROOT}/include/ast/error.h
-				prev ${INSTALLROOT}/include/ast/ast.h
+				prev ${INCLUDE_AST}/error.h
+				prev ${INCLUDE_AST}/ast.h
 			done
 			exec - compile ${<} -D_PACKAGE_ast
 		done
-		bind -last
 		exec - ${CC} ${CCLDFLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} ${LDFLAGS} -o ${@} ${<} ${mam_libast} || exit
 		note *
 		note * We purposely do not have a make target of ${INSTALLROOT}/bin/mamake here;

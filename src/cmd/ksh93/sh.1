@@ -4683,9 +4683,9 @@ command (see \f2Built-in Commands\fP below).
 .PP
 History expansions begin with the character \f3!\fP.
 They may begin anywhere in the input.
-The \f3!\fP may be preceded by a \f3\\\fP or enclosed in single quotes
-to prevent its special meaning.
-A \f3!\fP is also passed unchanged when it is followed by
+The \f3!\fP is passed unchanged with its special meaning disabled
+when preceded by \f3\\\fP or \f3${\fP,
+enclosed in single quotes, or followed by
 a space, tab, newline, \f3=\fP or \f3(\fP.
 History expansions do not nest.
 They are parsed separately before the shell parser is invoked,

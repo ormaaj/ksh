@@ -197,7 +197,7 @@ int hist_expand(const char *ln, char **xp)
 		if((*cp != hc[0] && *cp != hc[1] && *cp != hc[2]) 
 		   || (*cp == hc[1] && cp != ln))
 		{
-			if(*cp == '\\')	/* skip escaped designators */
+			if(*cp == '\\' || (cp > ln && cp[-1]=='$' && *cp == '{')) /* skip escaped designators */
 				sfputc(sh.stk,*cp++);
 			else if(*cp == '\'') /* skip quoted designators */
 			{

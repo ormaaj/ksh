@@ -203,6 +203,13 @@ test 010 -eq 10 || err_exit "'test' not ignoring leading octal zero in --posix"
 [[ 010 -eq 8 ]] || err_exit "'[[' ignoring leading octal zero in --posix"
 (set --noposix; [[ 010 -eq 10 ]]) || err_exit "'[[' not ignoring leading octal zero in --noposix"
 
+exp=': arithmetic syntax error'
+for v in 08 028 089 09 029 098 012345678
+do	got=$(eval ": \$(($v))" 2>&1)
+	[[ e=$? -eq 1 && $got == *"$exp" ]] || err_exit "invalid leading-zero octal number $v not an error" \
+		"(expected status 1 and match of *'$exp', got status $e and '$got')"
+done
+
 # disables zero-padding of seconds in the output of the time and times built-ins;
 case ${.sh.version} in
 *93u+m/1.0.*)	exp=$'^user\t0m0.[0-9]{2}s\nsys\t0m0.[0-9]{2}s\n0m0.[0-9]{3}s 0m0.[0-9]{3}s\n0m0.000s 0m0.000s$' ;;

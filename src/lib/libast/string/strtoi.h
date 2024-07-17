@@ -59,7 +59,7 @@
  *	base:		nnn#		base nnn
  *			0[xX]		hex
  *			0		octal
- *			[1-9]		decimal
+ *			(omitted)	decimal
  *
  *	number:		[0-9a-zA-Z]*
  *
@@ -271,7 +271,7 @@ S2I_function(const char* a, char** e, int base)
 					k = s += 2;
 					base = 16;
 				}
-				else if (c >= '0' && c <= '7')
+				else
 				{
 					s++;
 					base = 8;

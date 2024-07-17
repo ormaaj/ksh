@@ -2,6 +2,17 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-07-17:
+
+- Fixed: if the --posix or --letoctal option was turned on, octal numbers
+  designated by the leading-zero octal prefix enabled by these options but
+  containing the invalid digits 8 or 9 (e.g., $((09)) or let "09") failed
+  to throw an error and were instead incorrectly reinterpreted as decimal.
+
+- Fixed: invalid leading zeros in the '0x' hexadecimal prefix or in ksh
+  arithmetic base specifiers, e.g., 00x2F or 016#2F (instead of 0x2F or 16#2F),
+  failed to throw an arithmetic syntax error.
+
 2024-07-16:
 
 - The history expansion character ('!' by default) is now not processed when

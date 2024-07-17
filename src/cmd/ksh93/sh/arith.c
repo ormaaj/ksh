@@ -435,15 +435,10 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 			char	lastbase=0, *val = xp, oerrno = errno;
 			lvalue->eflag = 0;
 			errno = 0;
-			if(!sh_isoption(sh.bltinfun==b_let ? SH_LETOCTAL : SH_POSIX))
-			{
-				/* Skip leading zeros to avoid parsing as octal */
-				while(*val=='0' && isdigit(val[1]))
-					val++;
-			}
 			r = strtonll(val,&str, &lastbase,-1);
-			if(*str=='8' || *str=='9')
+			if(lastbase==8 && *val=='0' && !sh_isoption(sh.bltinfun==b_let ? SH_LETOCTAL : SH_POSIX))
 			{
+				/* disable leading-0 octal by reparsing as decimal */
 				lastbase=10;
 				errno = 0;
 				r = strtonll(val,&str, &lastbase,-1);

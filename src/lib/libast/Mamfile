@@ -1081,19 +1081,6 @@ make install virtual
 			exec - compile ${<}
 		done
 
-		make pathprobe.o
-			make path/pathprobe.c
-				prev ast_api.h
-				make include/proc.h implicit
-					prev include/ast.h
-				done
-				prev include/ls.h
-				prev include/error.h
-				prev include/ast.h
-			done
-			exec - compile ${<} -DHOSTTYPE=\""${mam_cc_HOSTTYPE}"\"
-		done
-
 		make pathrepl.o
 			make path/pathrepl.c
 				prev ast_api.h
@@ -1381,7 +1368,9 @@ make install virtual
 		make systrace.o
 			make misc/systrace.c
 				prev include/debug.h
-				prev include/proc.h
+				make include/proc.h implicit
+					prev include/ast.h
+				done
 				prev include/error.h
 				prev include/ast.h
 			done

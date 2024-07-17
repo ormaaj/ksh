@@ -8,7 +8,7 @@ api ast 20120411 cmdopen
 
 api ast 20110505 cmdopen
 
-api ast 20100601 pathaccess pathcanon pathcat pathkey pathpath pathprobe pathrepl
+api ast 20100601 pathaccess pathcanon pathcat pathkey pathpath pathrepl
 
 api ast 20000308 sfkeyprintf
 

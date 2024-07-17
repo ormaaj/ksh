@@ -201,8 +201,6 @@ main(void)
 	printf("#define pathpath	_ast_pathpath\n");
 	printf("#undef	pathposix\n");
 	printf("#define pathposix	_ast_pathposix\n");
-	printf("#undef	pathprobe\n");
-	printf("#define pathprobe	_ast_pathprobe\n");
 	printf("#undef	pathprog\n");
 	printf("#define pathprog	_ast_pathprog\n");
 	printf("#undef	pathrepl\n");

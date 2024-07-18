@@ -1019,7 +1019,7 @@ Namval_t *nv_search(const char *name, Dt_t *root, int mode)
 			while(next=dtvnext(root))
 				root = next;
 		}
-		np = (Namval_t*)dtinstall(root,newnode(name));
+		np = (Namval_t*)dtinsert(root,newnode(name));
 	}
 	if(dp)
 		dtview(root,dp);

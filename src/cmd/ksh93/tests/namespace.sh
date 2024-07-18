@@ -267,4 +267,11 @@ exp='  version         basename (*) ????-??-??'
 	"(expected match of $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
+gpt=$(namespace foo { echo OK | read _DeFiNiTeLy_nOnExIsTeNt_vAr_; } 2>&1)
+got=$(set +x; namespace foo { echo OK | read _DeFiNiTeLy_nOnExIsTeNt_vAr_; } 2>&1) ||
+	err_exit "read fails in namespace (got $(printf %q "$got"))"
+got=$(set +x; namespace foo { export "_dEfInItElY_NoNeXiStEnT_VaR_=1"; } 2>&1) ||
+	err_exit "export with quoted assignment-argument fails in namespace (got $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

@@ -687,7 +687,7 @@ noreturn void sh_done(int sig)
 	sfsync((Sfio_t*)sfstdout);
 	if((sh.chldexitsig && sh.realsubshell) || (savxit&SH_EXITSIG && (savxit&SH_EXITMASK) == savlastsig))
 		sig = savxit&SH_EXITMASK;
-	if(sig && !(sh.realsubshell && sig==SIGPIPE))
+	if(sig)
 	{
 		/* generate fault termination code */
 		if(RLIMIT_CORE!=RLIMIT_UNKNOWN)
@@ -711,7 +711,7 @@ noreturn void sh_done(int sig)
 		kiaclose((Lex_t*)sh.lex_context);
 #endif /* SHOPT_KIA */
 	/* Exit with portable 8-bit status (128 + signum) if last child process exits due to signal */
-	if(sig || sh.chldexitsig)
+	if(sh.chldexitsig)
 		savxit = savxit & ~SH_EXITSIG | 0200;
 	exit(savxit&SH_EXITMASK);
 }

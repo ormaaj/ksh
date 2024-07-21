@@ -2593,40 +2593,6 @@ make install virtual
 			exec - compile ${<}
 		done
 
-		make execlp.o
-			make comp/execlp.c
-				prev include/ast.h
-				prev ast_lib.h
-			done
-			exec - compile ${<}
-		done
-
-		make execve.o
-			make comp/execve.c
-				prev include/error.h
-				prev include/wait.h
-				prev sig.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make execvp.o
-			make comp/execvp.c
-				prev include/ast.h
-				prev ast_lib.h
-			done
-			exec - compile ${<}
-		done
-
-		make execvpe.o
-			make comp/execvpe.c
-				prev include/ast.h
-				prev ast_lib.h
-			done
-			exec - compile ${<}
-		done
-
 		make spawnveg.o
 			make comp/spawnveg.c
 				prev ast_tty.h

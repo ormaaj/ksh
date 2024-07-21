@@ -71,11 +71,6 @@ main(void)
 	printf("#undef	eaccess\n");
 	printf("#define eaccess		_ast_eaccess\n");
 #endif
-#if !_lib_execvpe
-	printf("#undef	execvpe\n");
-	printf("#define execvpe		_ast_execvpe\n");
-	printf("extern int		execvpe(const char*, char* const[], char* const[]);\n");
-#endif
 	printf("#undef	fnmatch\n");
 	printf("#define fnmatch		_ast_fnmatch\n");
 	printf("#undef	fts_children\n");

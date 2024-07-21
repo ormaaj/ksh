@@ -329,10 +329,6 @@ extern char		**environ;
 
 #if !_PACKAGE_ast
 
-#if defined(NeXT) || defined(__NeXT)
-#define getcwd(a,b)	getwd(a)
-#endif
-
 /*
  * emit usage message and exit
  */

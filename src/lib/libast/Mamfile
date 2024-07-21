@@ -255,17 +255,6 @@ make install virtual
 		exec - cp -f ${<} ${@}
 	done
 
-	make ast_botch.h implicit
-		make FEATURE/botch
-			make features/botch.c
-				prev FEATURE/sys
-				prev FEATURE/lib
-			done
-			exec - invoke_iffe ${<} -I. -Icomp -Iinclude -Istd
-		done
-		exec - cp -f ${<} ${@}
-	done
-
 	make ast_wchar.h implicit
 		make FEATURE/wchar
 			prev std/wctype.h implicit
@@ -342,9 +331,6 @@ make install virtual
 				prev FEATURE/common
 				prev FEATURE/lib
 				prev FEATURE/standards
-				make comp/getopt.h implicit
-					prev include/ast_getopt.h implicit
-				done
 				make conflim.h implicit
 					prev FEATURE/standards
 					prev FEATURE/common
@@ -378,12 +364,9 @@ make install virtual
 				prev ast_wchar.h
 				prev ast_common.h
 			done
-			prev comp/getopt.h
 			prev ast_map.h
-			prev ast_botch.h
 			prev ast_limits.h
 			prev ast_fcntl.h
-			prev include/ast_getopt.h
 			prev ast_sys.h
 			prev ast_lib.h
 			prev ast_common.h
@@ -2612,13 +2595,6 @@ make install virtual
 			exec - compile ${<}
 		done
 
-		make getlogin.o
-			make comp/getlogin.c
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
 		make putenv.o
 			make comp/putenv.c
 				prev ast_map.h
@@ -2696,13 +2672,6 @@ make install virtual
 			exec - compile ${<}
 		done
 
-		make getpgrp.o
-			make comp/getpgrp.c
-				prev include/ast_std.h
-			done
-			exec - compile ${<}
-		done
-
 		make setpgid.o
 			make comp/setpgid.c
 				prev include/error.h
@@ -2747,13 +2716,6 @@ make install virtual
 			exec - compile ${<} -Idir
 		done
 
-		make getwd.o
-			make comp/getwd.c
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
 		make dup2.o
 			make comp/dup2.c
 				prev include/error.h
@@ -2764,14 +2726,6 @@ make install virtual
 
 		make errno.o
 			make comp/errno.c
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make getgroups.o
-			make comp/getgroups.c
-				prev include/error.h
 				prev include/ast.h
 			done
 			exec - compile ${<}
@@ -2962,23 +2916,6 @@ make install virtual
 				make comp/ftw.h implicit
 					prev include/ftwalk.h
 				done
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make getdate.o
-			make comp/getdate.c
-				prev ast_map.h
-				prev include/tm.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make getsubopt.o
-			make comp/getsubopt.c
-				prev include/error.h
 				prev include/ast.h
 			done
 			exec - compile ${<}
@@ -4613,26 +4550,6 @@ make install virtual
 			exec - compile ${<}
 		done
 
-		make getopt.o
-			make comp/getopt.c
-				prev include/option.h
-				prev include/error.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
-		make getoptl.o
-			make comp/getoptl.c
-				prev comp/getopt.h
-				prev include/option.h
-				prev include/error.h
-				prev include/ast_getopt.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
 		make aso.o
 			make aso/aso.c
 				prev std/stdio.h
@@ -4907,14 +4824,14 @@ make install virtual
 	note * #include headers
 	make ${INSTALLROOT}/lib/mam/ast
 		note * ...main AST headers
-		loop HDR ast ast_dir ast_getopt ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok usage vdb vmalloc wait magicid fnv aso
+		loop HDR ast ast_dir ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok usage vdb vmalloc wait magicid fnv aso
 			make ${INCLUDE_AST}/${HDR}.h
 				prev include/${HDR}.h
 				exec - cp -f ${<} ${@}
 			done
 		done
 		note * ...comp(atibility)
-		loop HDR ftw getopt re_comp regexp wordexp fnmatch
+		loop HDR ftw re_comp regexp wordexp fnmatch
 			make ${INCLUDE_AST}/${HDR}.h
 				prev comp/${HDR}.h
 				exec - cp -f ${<} ${@}
@@ -4928,7 +4845,7 @@ make install virtual
 			done
 		done
 		note * ...generated headers
-		loop HDR releaseflags ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_botch ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_wait ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
+		loop HDR releaseflags ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_wait ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
 			make ${INCLUDE_AST}/${HDR}.h
 				prev ${HDR}.h
 				exec - cp -f ${<} ${@}

@@ -65,7 +65,6 @@
 #undef	_SGIAPI
 #define _SGIAPI		0
 
-#include "FEATURE/lib"
 #include "FEATURE/common"
 
 #include <unistd.h>

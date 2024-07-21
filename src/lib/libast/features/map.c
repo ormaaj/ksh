@@ -98,32 +98,6 @@ main(void)
 	printf("#define getcwd		_ast_getcwd\n");
 	printf("extern char*		getcwd(char*, size_t);\n");
 #endif
-	printf("#undef	getdate\n");
-	printf("#define getdate		_ast_getdate\n");
-#endif
-	/* libast always provides its own getopt implementation */
-	printf("#undef	getopt\n");
-	printf("#define getopt		_ast_getopt\n");
-#if _map_libc
-#if _lib_getopt || _lib_getsubopt || _lib_getopt_long || _lib_getopt_long_only
-	printf("#undef	getsubopt\n");
-	printf("#define getsubopt       _ast_getsubopt\n");
-	printf("#undef	getopt_long\n");
-	printf("#define getopt_long	_ast_getopt_long\n");
-	printf("#undef	getopt_long_only\n");
-	printf("#define getopt_long_only _ast_getopt_long_only\n");
-	printf("#undef	optopt\n");
-	printf("#define optopt		_ast_optopt\n");
-	printf("#undef	optarg\n");
-	printf("#define optarg		_ast_optarg\n");
-	printf("#undef	optind\n");
-	printf("#define optind		_ast_optind\n");
-	printf("#undef	opterr\n");
-	printf("#define opterr		_ast_opterr\n");
-#endif
-	printf("#undef	getwd\n");
-	printf("#define getwd		_ast_getwd\n");
-	printf("extern char*		getwd(char*);\n");
 #endif
 	/* use the libast glob functions rather than the native versions */
 	printf("#undef	glob\n");

@@ -25,9 +25,8 @@ lib	BSDsetpgrp
 lib	_cleanup
 lib	bcopy,bzero,confstr,dirread,dup2
 lib	fchmod,fcntl,fmtmsg,fnmatch,fork,fsync
-lib	getconf,getdents,getdirentries,getdtablesize,getdate
-lib	getgroups,gethostname,getlogin,getpagesize,getrlimit,getuniverse
-lib	getopt,getsubopt,getopt_long,getopt_long_only
+lib	getconf,getdents,getdirentries,getdtablesize
+lib	gethostname,getpagesize,getrlimit,getuniverse
 lib	glob,iswblank,iswctype,killpg,link,localeconv,madvise
 lib	mbtowc,mbrtowc,memalign,memchr,memcpy,memdup,memmove,memset
 lib	mkdir,mkfifo,mktemp,mktime

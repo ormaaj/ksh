@@ -64,10 +64,8 @@ struct _sfio_s;
 #error In 2022, libast joined the 21st century and started requiring fork(2).
 #endif
 #include <ast_sys.h>
-#include <ast_getopt.h>	/* <stdlib.h> does this */
 #include <ast_fcntl.h>
 #include <ast_limits.h>
-#include <ast_botch.h>
 
 #ifdef	_SKIP_SFSTDIO_H
 #undef	_SKIP_SFSTDIO_H
@@ -294,12 +292,6 @@ extern int		remove(const char*);
 extern int		rename(const char*, const char*);
 #endif
 
-/* and now introducing prototypes botched by the standard(s) */
-
-#undef	getpgrp
-#define	getpgrp()	_ast_getpgrp()
-extern int		_ast_getpgrp(void);
-
 /*
  * and finally, standard interfaces hijacked by AST
  * _AST_STD_I delays headers that require <ast_map.h>
@@ -308,16 +300,6 @@ extern int		_ast_getpgrp(void);
 #include <ast_map.h>
 
 #undef	_AST_STD_I
-
-#if _AST_GETOPT_H < 0
-#undef	_AST_GETOPT_H
-#include <ast_getopt.h>
-#endif
-
-#if _GETOPT_H < 0
-#undef	_GETOPT_H
-#include <getopt.h>
-#endif
 
 #if _REGEX_H < 0
 #undef	_REGEX_H

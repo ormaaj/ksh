@@ -2645,16 +2645,6 @@ make install virtual
 			exec - compile ${<}
 		done
 
-		make gross.o
-			make comp/gross.c
-				prev comp/gross_sgi.h implicit
-				prev FEATURE/hack
-				prev include/ls.h
-				prev include/ast.h
-			done
-			exec - compile ${<}
-		done
-
 		make omitted.o
 			make comp/omitted.c
 				prev include/ast_windows.h

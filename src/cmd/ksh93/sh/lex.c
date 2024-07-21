@@ -480,6 +480,7 @@ int sh_lex(Lex_t* lp)
 					{
 						if(c==LPAREN)
 						{
+							int r;
 							/* Avoid misdetecting EXPRSYM in [[ ... ]] or compound assignments */
 							if(lp->lex.intest || lp->comp_assign)
 								return lp->token=c;
@@ -495,7 +496,14 @@ int sh_lex(Lex_t* lp)
 							lp->lastline = sh.inlineno;
 							lp->lexd.lex_state = ST_NESTED;
 							fcseek(1);
-							return sh_lex(lp);
+							r = sh_lex(lp);
+							if(r!=LPAREN && r!=EXPRSYM)
+							{	/* throw "`(' unmatched" error */
+								lp->lasttok = LPAREN;
+								lp->token = EOFSYM;
+								sh_syntax(lp);
+							}
+							return r;
 						}
 						c |= SYMREP;
 						/* Here document redirection operator '<<' */

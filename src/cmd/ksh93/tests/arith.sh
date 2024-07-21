@@ -1094,4 +1094,34 @@ got=$(let '016#F' 2>&1)
 	"(expected status 1 and match of *'$exp', got status $e and '$got')"
 
 # ======
+# Lexer tests. Unmatched `((' crashed ksh or caused incorrect behaviour until 2024-07-20.
+# https://github.com/ksh93/ksh/issues/764
+exp=": \`(' unmatched"
+got=$( ( ulimit -c 0; set +x; eval '{ (( $(( 1 )); }' ) 2>&1 )
+[[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 1" \
+	"(expected status 1 and match of *'$exp'," \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
+got=$( ( ulimit -c 0; set +x; eval 'x=$(( }; echo end' ) 2>&1 )
+[[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 2" \
+	"(expected status 1 and match of *'$exp'," \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
+got=$( ( ulimit -c 0; set +x; eval '{ x=$(( }; echo end; }' ) 2>&1 )
+[[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 3" \
+	"(expected status 1 and match of *'$exp'," \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
+got=$( ( ulimit -c 0; set +x; eval '(( }; echo end' ) 2>&1 )
+[[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 4" \
+	"(expected status 1 and match of *'$exp'," \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
+got=$( ( ulimit -c 0; set +x; eval '{ (( }; echo end; }' ) 2>&1 )
+[[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 5" \
+	"(expected status 1 and match of *'$exp'," \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
+
+got=$( ( ulimit -c 0; set +x; eval '{ (( $(( 1 )) )); }' ) 2>&1 )
+[[ e=$? -eq 0 && -z $got ]] || err_exit "matched '((' in compound command" \
+	"(expected status 0 and ''," \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

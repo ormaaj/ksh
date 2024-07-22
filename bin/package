@@ -97,7 +97,6 @@ export TMPDIR
 src="cmd contrib etc lib"
 use="/usr/common /exp /usr/local /usr/add-on /usr/addon /usr/tools /usr /opt"
 usr="/home"
-lib="" # need /usr/local/lib /usr/local/shlib
 ccs="/usr/kvm /usr/ccs/bin"
 org="gnu GNU"
 makefiles="Mamfile"  # ksh 93u+m no longer uses these: Nmakefile nmakefile Makefile makefile
@@ -115,7 +114,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2024-07-15 $
+@(#)$Id: '$command$' (ksh 93u+m) 2024-07-22 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -548,7 +547,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2024-07-15
+  version         package (ksh 93u+m) 2024-07-22
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -2005,151 +2004,69 @@ case $x in
 	EXECTYPE=$HOSTTYPE
 	EXECROOT=$INSTALLROOT
 	case $CROSS in
-	0) 	# dll hackery -- why is this so complicated?
-
-		abi=
-		case $HOSTTYPE in
-		sgi.mips[0123456789]*)
-			x=rld
-			if	executable /lib32/$x || executable /lib64/$x
-			then	case $INSTALLROOT in
-				*/sgi.mips[0123456789]*)
-					u=$(echo $INSTALLROOT | sed -e 's,-[^-/]*$,,' -e 's,.$,,')
-					;;
-				*)	u=
-					;;
-				esac
-				for a in "n=2 v= l=" "n=3 v=N32 l=lib32" "n=4-n32 v=N32 l=lib32" "n=4 v=64 l=lib64"
-				do	eval $a
-					case $v in
-					N32)	case $n:$HOSTTYPE in
-						*-n32:*-n32)	;;
-						*-n32:*)	continue ;;
-						*:*-n32)	continue ;;
-						esac
-						;;
-					esac
-					case $l in
-					?*)	if	executable ! /$l/$x
-						then	continue
-						fi
-						;;
-					esac
-					case $u in
-					'')	case $HOSTTYPE in
-						sgi.mips$n|sgi.mips$n-*)
-							abi="$abi 'd=$INSTALLROOT v=$v'"
-							;;
-						*)	continue
-							;;
-						esac
-						;;
-					*)	if	test -d $u$n
-						then	abi="$abi 'd=$u$n v=$v'"
-						fi
-						;;
-					esac
-				done
-			fi
-			;;
-		esac
-		case $abi in
-		'')	abi="'d=$INSTALLROOT v='" ;;
-		esac
-		p=0
-		eval "
-			for a in $abi
-			do	eval \$a
-				eval \"
-					case \\\$LD_LIBRARY\${v}_PATH: in
-					\\\$d/dyn/lib:*)
-						;;
-					*)	x=\\\$LD_LIBRARY\${v}_PATH
-						case \\\$x in
-						''|:*)	;;
-						*)	x=:\\\$x ;;
-						esac
-						LD_LIBRARY\${v}_PATH=\$d/dyn/lib\\\$x
-						export LD_LIBRARY\${v}_PATH
-						p=1
-						;;
-					esac
-				\"
-			done
-		"
-		case $LD_LIBRARY_PATH in
-		'')	;;
-		*)	for d in $lib
-			do	case $HOSTTYPE in
-				*64)	if	test -d ${d}64
-					then	d=${d}64
-					fi
-					;;
-				esac
-				case :$LD_LIBRARY_PATH: in
-				*:$d:*)	;;
-				*)	if	test -d $d
-					then	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$d
-						p=1
-					fi
-					;;
-				esac
-			done
-			;;
-		esac
-		case $p in
-		1)	$show LD_LIBRARY_PATH=$LD_LIBRARY_PATH
-			$show export LD_LIBRARY_PATH
-			export LD_LIBRARY_PATH
-			;;
-		esac
-		case $LIBPATH: in
-		$INSTALLROOT/dyn/bin:$INSTALLROOT/dyn/lib:*)
-			;;
-		*)	case $LIBPATH in
-			'')	LIBPATH=/usr/lib:/lib ;;
+	0)	case $action in
+		test | use)
+			# Allow loading dynamic libraries from $INSTALLROOT/dyn/lib by setting library
+			# path variables for various systems; instead of bothering to detect the system,
+			# just set them all. (Note: not needed and potentially harmful while building.)
+			case $LD_LIBRARY_PATH: in
+			$INSTALLROOT/dyn/lib:*)
+				;;
+			*)	LD_LIBRARY_PATH=$INSTALLROOT/dyn/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+				$show LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+				$show export LD_LIBRARY_PATH
+				export LD_LIBRARY_PATH
+				;;
 			esac
-			LIBPATH=$INSTALLROOT/dyn/bin:$INSTALLROOT/dyn/lib:$LIBPATH
-			$show LIBPATH=$LIBPATH
-			$show export LIBPATH
-			export LIBPATH
-			;;
-		esac
-		case $SHLIB_PATH: in
-		$INSTALLROOT/dyn/lib:*)
-			;;
-		*)	SHLIB_PATH=$INSTALLROOT/dyn/lib${SHLIB_PATH:+:$SHLIB_PATH}
-			$show SHLIB_PATH=$SHLIB_PATH
-			$show export SHLIB_PATH
-			export SHLIB_PATH
-			;;
-		esac
-		case $DYLD_LIBRARY_PATH: in
-		$INSTALLROOT/dyn/lib:*)
-			;;
-		*)	DYLD_LIBRARY_PATH=$INSTALLROOT/dyn/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}
-			$show DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
-			$show export DYLD_LIBRARY_PATH
-			export DYLD_LIBRARY_PATH
-			;;
-		esac
-		case $_RLD_ROOT in
-		$INSTALLROOT/arch*)	;;
-		':')	_RLD_ROOT=$INSTALLROOT/arch:/ ;;
-		/|*:/)	_RLD_ROOT=$INSTALLROOT/arch:$_RLD_ROOT ;;
-		*)	_RLD_ROOT=$INSTALLROOT/arch:$_RLD_ROOT:/ ;;
-		esac
-		$show _RLD_ROOT=$_RLD_ROOT
-		$show export _RLD_ROOT
-		export _RLD_ROOT
-		# Haiku
-		case $LIBRARY_PATH: in
-		$INSTALLROOT/dyn/lib:*)
-			;;
-		*)	LIBRARY_PATH=$INSTALLROOT/dyn/lib${LIBRARY_PATH:+:$LIBRARY_PATH}
-			$show LIBRARY_PATH=$LIBRARY_PATH
-			$show export LIBRARY_PATH
-			export LIBRARY_PATH
+			case $LIBPATH: in
+			$INSTALLROOT/dyn/bin:$INSTALLROOT/dyn/lib:*)
+				;;
+			*)	case $LIBPATH in
+				'')	LIBPATH=/usr/lib:/lib ;;
+				esac
+				LIBPATH=$INSTALLROOT/dyn/bin:$INSTALLROOT/dyn/lib:$LIBPATH
+				$show LIBPATH=$LIBPATH
+				$show export LIBPATH
+				export LIBPATH
+				;;
+			esac
+			case $SHLIB_PATH: in
+			$INSTALLROOT/dyn/lib:*)
+				;;
+			*)	SHLIB_PATH=$INSTALLROOT/dyn/lib${SHLIB_PATH:+:$SHLIB_PATH}
+				$show SHLIB_PATH=$SHLIB_PATH
+				$show export SHLIB_PATH
+				export SHLIB_PATH
+				;;
+			esac
+			case $DYLD_LIBRARY_PATH: in
+			$INSTALLROOT/dyn/lib:*)
+				;;
+			*)	DYLD_LIBRARY_PATH=$INSTALLROOT/dyn/lib${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}
+				$show DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH
+				$show export DYLD_LIBRARY_PATH
+				export DYLD_LIBRARY_PATH
+				;;
+			esac
+			case $_RLD_ROOT in
+			$INSTALLROOT/arch*)	;;
+			':')	_RLD_ROOT=$INSTALLROOT/arch:/ ;;
+			/|*:/)	_RLD_ROOT=$INSTALLROOT/arch:$_RLD_ROOT ;;
+			*)	_RLD_ROOT=$INSTALLROOT/arch:$_RLD_ROOT:/ ;;
+			esac
+			$show _RLD_ROOT=$_RLD_ROOT
+			$show export _RLD_ROOT
+			export _RLD_ROOT
+			# Haiku
+			case $LIBRARY_PATH: in
+			$INSTALLROOT/dyn/lib:*)
+				;;
+			*)	LIBRARY_PATH=$INSTALLROOT/dyn/lib${LIBRARY_PATH:+:$LIBRARY_PATH}
+				$show LIBRARY_PATH=$LIBRARY_PATH
+				$show export LIBRARY_PATH
+				export LIBRARY_PATH
+				;;
+			esac
 			;;
 		esac
 

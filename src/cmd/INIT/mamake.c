@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-07-15"
+#define RELEASE_DATE "2024-07-22"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -382,7 +382,7 @@ static void report(int level, char *text, char *item, unsigned long stamp)
 		if (level < 0)
 		{
 			fprintf(stderr, "debug%d: ", level);
-			for (i = 1; i < state.indent; i++)
+			for (i = 0; i < state.indent; i++)
 				fprintf(stderr, "  ");
 		}
 		else
@@ -1813,8 +1813,8 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 		{
 			if (!(r->flags & RULE_virtual))
 				modtime = bindfile(r);
-			state.indent++;
 			report(-1, r->name, "make", r->time);
+			state.indent++;
 		}
 	}
 	buf = buffer();
@@ -2132,9 +2132,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 					modtime = q->time;
 				if (q->flags & RULE_error)
 					r->flags |= RULE_error;
-				state.indent++;
 				report(-2, q->name, "prev", q->time);
-				state.indent--;
 			}
 			/* update ${<}, ${^} and ${?} */
 			update_allprev(q, auto_allprev->value, auto_updprev->value);
@@ -2198,8 +2196,8 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 		drop(cmd);
 	if (*r->name)
 	{
-		report(-1, r->name, "done", modtime);
 		state.indent--;
+		report(-1, r->name, "done", modtime);
 	}
 	if (r->flags & RULE_active)
 		state.active--;
@@ -2519,6 +2517,8 @@ int main(int argc, char **argv)
 			append(state.opt, " -D");
 			append(state.opt, opt_info.arg);
 			state.debug = -opt_info.num;
+			if (state.debug > 0)
+				state.debug = 0;
 			continue;
 		case 'G':
 			append(state.opt, " -G");
@@ -2647,6 +2647,8 @@ int main(int argc, char **argv)
 						append(state.opt, " -D");
 						append(state.opt, s);
 						state.debug = -atoi(s);
+						if (state.debug > 0)
+							state.debug = 0;
 						break;
 					}
 				break;

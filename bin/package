@@ -2633,7 +2633,6 @@ do_install() # dir [ command ... ]
 	if	test -d "dyn/lib"
 	then	trace mkdir -p "$libdir" "$man3dir" "$includedir"
 		# install libraries
-		# note: to copy symlinks with BSD cp, we need to specify -R as well as -P, contra POSIX
 		set +o noglob
 		for f in dyn/lib/*
 		do	set -o noglob

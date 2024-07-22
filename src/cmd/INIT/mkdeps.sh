@@ -115,14 +115,6 @@ do	case $opt in
 done
 shift $((OPTIND - 1))
 
-# Process library header dependencies.
-for f in $libdeps
-do	test -f "$INSTALLROOT/lib/mam/$f" || error_out "$f: header dependencies not found"
-	# assign state_NAME=made for each dependency header, so only prev commands are generated
-	f=$(sed -n 's|.*make \${INCLUDE_AST}/\([A-Za-z0-9_]*\)\.h.*|state_\1=made|p' "$INSTALLROOT/lib/mam/$f") || exit
-	eval "$f"
-done
-
 # Init state.
 ast=include/ast
 root=${INSTALLROOT?AST environment not initialised}/$ast
@@ -130,6 +122,14 @@ prevar="INCLUDE_AST"
 prefix="\${$prevar}/"
 cd "$root" || error_out "cd '$root' failed"
 indent=1
+
+# Process library header dependencies.
+for f in $libdeps
+do	test -f "$INSTALLROOT/lib/mam/$f" || error_out "$f: header dependencies not found"
+	# assign state_NAME=made for each dependency header, so only prev commands are generated
+	f=$(sed -n "s|.*make \\$prefix\([A-Za-z0-9_]*\)\.h.*|state_\1=made|p" "$INSTALLROOT/lib/mam/$f") || exit
+	eval "$f"
+done
 
 # Validate for 'eval' safety: header file names minus $root and .h must be valid variable name components.
 for f

@@ -4811,6 +4811,13 @@ make install virtual
 		done
 	done
 
+	note * install releaseflags.h outside the lib/ast/mam block below, so the mkdeps action is not triggered when
+	note * releaseflags.h changes every time that the git commit changes (it doesn't contain #includes anyway)
+	make ${INCLUDE_AST}/releaseflags.h
+		prev releaseflags.h
+		exec - cp -f ${<} ${@}
+	done
+
 	note * #include headers
 	make ${INSTALLROOT}/lib/mam/ast
 		note * ...main AST headers
@@ -4835,14 +4842,14 @@ make install virtual
 			done
 		done
 		note * ...generated headers
-		loop HDR releaseflags ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_wait ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
+		loop HDR ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_wait ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
 			make ${INCLUDE_AST}/${HDR}.h
 				prev ${HDR}.h
 				exec - cp -f ${<} ${@}
 			done
 		done
 		note * generate header dependency rules
-		exec - mkdeps -last ${^} > ${@}
+		exec - mkdeps -last ${INCLUDE_AST}/releaseflags.h ${^} > ${@}
 		prev ${INSTALLROOT}/bin/mkdeps
 	done ${INSTALLROOT}/lib/mam/ast
 

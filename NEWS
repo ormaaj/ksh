@@ -4,7 +4,7 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
 2024-07-21:
 
-- Fixed a long-stnading parsing bug: a '((' that was unmatched by
+- Fixed a long-standing parsing bug: a '((' that was unmatched by
   corresponding closing parentheses and enclosed within a compound command
   failed to throw a syntax error and could cause the shell to crash.
 

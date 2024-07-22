@@ -1099,23 +1099,23 @@ got=$(let '016#F' 2>&1)
 exp=": \`(' unmatched"
 got=$( ( ulimit -c 0; set +x; eval '{ (( $(( 1 )); }' ) 2>&1 )
 [[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 1" \
-	"(expected status 1 and match of *'$exp'," \
+	"(expected status 1 and match of *$(printf %q "$exp")," \
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 got=$( ( ulimit -c 0; set +x; eval 'x=$(( }; echo end' ) 2>&1 )
 [[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 2" \
-	"(expected status 1 and match of *'$exp'," \
+	"(expected status 1 and match of *$(printf %q "$exp")," \
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 got=$( ( ulimit -c 0; set +x; eval '{ x=$(( }; echo end; }' ) 2>&1 )
 [[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 3" \
-	"(expected status 1 and match of *'$exp'," \
+	"(expected status 1 and match of *$(printf %q "$exp")," \
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 got=$( ( ulimit -c 0; set +x; eval '(( }; echo end' ) 2>&1 )
 [[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 4" \
-	"(expected status 1 and match of *'$exp'," \
+	"(expected status 1 and match of *$(printf %q "$exp")," \
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 got=$( ( ulimit -c 0; set +x; eval '{ (( }; echo end; }' ) 2>&1 )
 [[ e=$? -eq 3 && $got == *"$exp" ]] || err_exit "unmatched '((', test 5" \
-	"(expected status 1 and match of *'$exp'," \
+	"(expected status 1 and match of *$(printf %q "$exp")," \
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 
 got=$( ( ulimit -c 0; set +x; eval '{ (( $(( 1 )) )); }' ) 2>&1 )

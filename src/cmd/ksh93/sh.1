@@ -4342,9 +4342,7 @@ like:
 indicating that the job which was started asynchronously was job number
 1 and had one (top-level) process, whose process ID was 1234.
 .PP
-This paragraph and the next require features that are
-not in all versions of UNIX and may not apply.
-If you are running a job and wish to do something else you may hit the key
+If you are running a job and wish to do something else, you may hit the key
 \fB^Z\fR (control-Z) which sends a STOP signal to the current job.
 The shell will then normally indicate that the job has been `Stopped',
 and print another prompt.
@@ -4409,6 +4407,9 @@ option of the
 command causes
 the shell to print these job change messages
 as soon as they occur.
+If this happens while you are typing a command with one of the
+built-in line editors active, the job change message appears
+above your input without disturbing your command entry.
 .PP
 When the
 .B monitor

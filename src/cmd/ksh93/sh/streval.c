@@ -351,7 +351,9 @@ Sfdouble_t	arith_exec(Arith_t *ep)
 				num = sp[-1]/num;
 				type = 1;
 			}
-			else if((Sfulong_t)(num)==0)
+			/* Avoid typecasting a negative float (Sfdouble_t) to an
+			 * unsigned integer (Sfulong_t), which is undefined behaviour */
+			else if((Sfulong_t)(num < 0 ? -num : num)==0)
 				arith_error(e_divzero,ep->expr,ep->emode);
 			else if(type==2 || tp[-1]==2)
 				num = U2F((Sfulong_t)(sp[-1]) / (Sfulong_t)(num));

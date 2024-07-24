@@ -1124,4 +1124,18 @@ got=$( ( ulimit -c 0; set +x; eval '{ (( $(( 1 )) )); }' ) 2>&1 )
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 
 # ======
+# On ARM systems, division by negative threw an incorrect "divide by zero" error!
+# https://github.com/ksh93/ksh/issues/770
+got=$(let "10 / -10 == -1 && 10 / -1 == -10 && 10 / -2 == -5" 2>&1) || err_exit "division by negative (got $(printf %q "$got"))"
+# Also, from 2024-01-21 to 2024-07-24, the return value of assigning negative to unsigned int was 0 on ARM
+if	! exp=$(PATH=/opt/ast/bin:$PATH; getconf UINT_MAX 2>/dev/null)
+then	warning "getconf UINT_MAX failed; skipping issue 770 test"
+else	typeset -ui i
+	got=$((i = -1))
+	[[ $i == "$exp" ]] || err_exit "unsigned int wrap-around of -1 (expected '$exp', got '$i')"
+	[[ $got == "$exp" ]] || err_exit "return value of assigning -1 to unsigned int (expected '$exp', got '$got')"
+	unset i
+fi
+
+# ======
 exit $((Errors<125?Errors:125))

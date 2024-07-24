@@ -268,12 +268,14 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 			r = (float)n;
 		else if((attr & NV_DOUBLE)==NV_DOUBLE)		/* normal float */
 			r = (double)n;
+		/* Avoid typecasting a negative float (Sfdouble_t) to an
+		 * unsigned integer (uint*_t), which is undefined behaviour */
 		else if((attr & NV_UINT64)==NV_UINT64)		/* long unsigned integer */
-			r = (uintmax_t)n;
+			r = n < 0 ? -((uintmax_t)(-n)) : (uintmax_t)n;
 		else if((attr & NV_UINT16)==NV_UINT16)		/* short unsigned integer */
-			r = (uint16_t)n;
+			r = n < 0 ? -((uint16_t)(-n)) : (uint16_t)n;
 		else if((attr & NV_UINT32)==NV_UINT32)		/* normal unsigned integer */
-			r = (uint32_t)n;
+			r = n < 0 ? -((uint32_t)(-n)) : (uint32_t)n;
 		else if((attr & NV_INT64)==NV_INT64)		/* long signed integer */
 			r = (intmax_t)n;
 		else if((attr & NV_INT16)==NV_INT16)		/* short signed integer */

@@ -371,7 +371,7 @@ setbuf:
 	/* set up new buffer */
 	f->size = size;
 	f->next = f->data = f->endr = f->endw = (uchar*)buf;
-	f->endb = (f->mode&SFIO_READ) ? f->data : f->data+size;
+	f->endb = buf ? ((f->mode&SFIO_READ) ? f->data : f->data+size) : NULL;
 	if(f->flags&SFIO_STRING)
 	{	/* these fields are used to test actual size - see sfseek() */
 		f->extent = (!sf_malloc &&

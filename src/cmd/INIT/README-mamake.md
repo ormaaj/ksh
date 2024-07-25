@@ -1,7 +1,7 @@
 # mamake and the MAM language #
 
 MAM (Make Abstract Machine) is a simple rule-based make language
-that is implemented in just seven four-letter commands and five attributes,
+that is implemented in just eight four-letter commands and five attributes,
 yet allows unlimited flexibility as it can execute arbitrary shell code.
 The program implementing MAM, `mamake`,
 is a portable C90 program written in a single file, `mamake.c`.
@@ -13,13 +13,12 @@ without any other dependencies or complications.
 MAM was originally designed by Glenn Fowler at AT&T and intended as an
 abstraction layer for `make` implementations such as AT&T `nmake`.
 The [original documentation](https://web.archive.org/web/20041227143022/http://www2.research.att.com/~gsf/mam/mam.html)
-for MAM specified a more extensive and slightly different language
+for MAM specified a more extensive and markedly different language
 than was actually implemented in `mamake.c`.
-Notably, the `bind` command described there is completely different.
-This file documents the MAM implementation that is actually in use.
+This file documents the MAM implementation that is currently in use.
 
 Since fixing and maintaining AT&T `nmake` proved impractical, `mamake` is
-used here as a full `make` replacement, gradually adding some features to
+used here as a full `make` replacement, with some features gradually added to
 the language to facilitate human maintenance of the `Mamfile`s.
 
 ## Table of contents ##
@@ -32,7 +31,8 @@ the language to facilitate human maintenance of the `Mamfile`s.
 * [Commands](#user-content-commands)
     * [Comments](#user-content-comments)
     * [Rules](#user-content-rules)
-    * [Referencing prerequisites or previously defined rules](#user-content-referencing-prerequisites-or-previously-defined-rules)
+    * [Simple prerequisite rules](#user-content-simple-prerequisite-rules)
+    * [Referencing previously defined rules](#user-content-referencing-previously-defined-rules)
     * [Setting MAM variables](#user-content-setting-mam-variables)
     * [Shell actions](#user-content-shell-actions)
         * [Viewpathing](#user-content-viewpathing)
@@ -76,36 +76,41 @@ higher than the previous highest one; details of those changes are documented
 throughout this file and listed in the appendix below.
 This makes it possible to test or backport old code using the current build
 system. Current Mamfiles should use the highest strict level available.
-The current highest available strict level is **3**.
+The current highest available strict level is **4**.
 
 ## MAM variables ##
 
 MAM variables are imported from the environment
 or set via `setv` (see below).
-They are referenced using a `${`...`}` syntax not dissimilar to `sh`(1),
-though the braces are *not* optional.
-If an undefined variable is expanded and the variable name is valid in `sh`(1)
-syntax, the expansion is left in place unexpanded, otherwise it is removed.
-At strict level 2 and up, it is left unexpanded even if it is not a valid
-`sh`(1) variable name; this allows POSIX shell expansions like `${foo#*bar}`.
+They are referenced and expanded using the syntax `%{`*variable_name*`}`.
+Except for the special expansion syntax described below,
+it is an error to reference an undefined variable using a `%` expansion.
 
-By default, the expansion of MAM variable references is recursive,
-i.e., the value may itself contain other variable references.
-Beware: there is no reference loop detection; any variable referencing
-itself directly or indirectly will cause `mamake` to crash.
-At strict level 2 and up, this (mis)feature is disabled and
-variables always expand to their literal values,
-and variable references in `setv` only work for previously defined variables.
+> *Obsolete:* At strict levels 3 and below, expansions may start with `${`
+> instead of `%{`, making the syntax similar to `sh`(1), though the braces are
+> *not* optional. This syntax potentially conflicts with the expansion of shell
+> variables in shell actions. If an undefined MAM variable is expanded with the
+> `$` syntax and the variable name is valid in `sh`(1) syntax, the expansion is
+> left in place unexpanded, otherwise it is removed. At strict level 2 and 3,
+> it is left unexpanded even if it is not a valid `sh`(1) variable name; this
+> allows POSIX shell expansions like `${foo#*bar}` in shell actions.
+> Old `$` and new `%` syntax may be mixed.
+
+Variables always expand to their literal values, and variable references
+(including in `setv` values) only work for previously defined variables.
+
+> *Obsolete:* At strict levels 1 and 0, the expansion of MAM variable references
+> is recursive, i.e., the value may itself contain other variable references.
+> Beware: there is no reference loop detection; any variable referencing itself
+> directly or indirectly will cause `mamake` to crash.
 
 Note that, in shell actions (see `exec` below), MAM variables are expanded
 before the script ever reaches the shell. Consequently, the use of single
-shell quotes `'`…`'` does not stop their expansion as you might expect;
-in fact, they ensure that only MAM variable expansion happens,
-avoiding any potential conflicts with the shell expansion syntax.
+shell quotes `'`…`'` does not stop their expansion as you might expect.
 
 ### Special expansion syntax ###
 
-In `${`*variable*`?`*str*`?`*x*`?`*y*`?}`,
+In `%{`*variable*`?`*str*`?`*x*`?`*y*`?}`,
 if the string value of the *variable* is identical to *str*,
 then the value *x* is substituted, otherwise *y*.
 A *str* of `*` is treated specially: if the *variable* is set to a
@@ -113,9 +118,9 @@ non-empty string, then the value *x* is substituted, otherwise *y*.
 The *x* and *y* values may result from nested variable references.
 The last `?` is optional.
 
-In `${`*variable*`-`*x*`}`, the value of *variable* is substituted
+In `%{`*variable*`-`*x*`}`, the value of *variable* is substituted
 if it is defined and non-empty, otherwise the value of *x* is substituted.
-In `${`*variable*`+`*x*`}`, *x* is substituted if the value of
+In `%{`*variable*`+`*x*`}`, *x* is substituted if the value of
 *variable* is defined and non-empty, otherwise the reference is removed.
 Note that, unlike in `sh`(1), no distinction is made between an undefined
 variable and a defined variable with an empty value.
@@ -126,15 +131,15 @@ The following variables are set and updated automatically.
 They are inspired by similar variables in `make` implementations,
 but since `mamake` is different, so are these variables.
 
-`${@}` is the name of the rule currently being made.
+`%{@}` is the name of the rule currently being made.
 
-`${<}` is the name of the prerequisite rule (`make`…`done` or `prev`)
+`%{<}` is the name of the prerequisite rule (`make`…`done` or `prev`)
 that was *last* processed within the current rule.
 
-`${^}` is a space-separated list of names of all the current rule's
+`%{^}` is a space-separated list of names of all the current rule's
 previously processed prerequisites.
 
-`${?}` is a space-separate list of the current rule's previously processed
+`%{?}` is a space-separate list of the current rule's previously processed
 prerequisites that have been updated by a shell action (see `exec` below)
 during the current `mamake` run. Prequisites that were already up to date,
 or prerequisites that do not contain a shell action, are not included.
@@ -157,10 +162,10 @@ In the legacy mode, `info` and `meta` are also ignored.
 
 ### Rules ###
 
-`make` *target* [ *attribute* ... ]    
+`make` *target* [ *attribute* … ]    
 `done` [ *target* ]
 
-A `make`...`done` block defines the rule named *target* using the other commands described here.
+A `make`…`done` block defines the rule named *target* using the other commands described here.
 Unless the `virtual` attribute is used, *target* names the pathname of the file generated or referenced by the rule.
 
 `mamake` processes the commands within the block if the *target* is out
@@ -172,17 +177,17 @@ any mismatch will produce a "mismatched done statement" error.
 If it is omitted, the current `make` *target* is assumed.
 
 Dependencies may be defined in two ways:
-1. By nesting `make`...`done` blocks:
+1. By nesting `make`…`done` blocks:
    the enclosing rule is the parent
    and the enclosed rules are the prerequisites.
 2. By using the `prev` command (see **Referencing previously defined rules** below)
-   to reference a previous `make`...`done` block.
+   to reference a previous `make`…`done` block.
    The dependency is defined as if that block were repeated at the `prev` command's location.
 
 If the block contains one or more `exec` commands (see **Shell actions** below),
 the `done` command executes the shell script defined by them.
 
-A `make`...`done` block may lack any `exec` action and, if it does not have any
+A `make`…`done` block may lack any `exec` action and, if it does not have any
 dependencies of its own, it may even be empty; this has the effect of merely
 declaring a dependency on a prerequisite file, such as a source code file that
 comes with the distribution or a file generated by a previously run Mamfile.
@@ -199,54 +204,57 @@ The following *attribute*s are available:
   If the file exists then its last-modified timestamp is checked and propagated,
   otherwise it is silently ignored. 
 * `ignore`: The timestamp associated with the *target* is ignored in dependency resolution.
-* `implicit`: Marks the current rule as an implicit prerequisite of the enclosing parent rule.
-  An implicit prerequisite can make the parent rule out of date without triggering the parent action.
-  Implicit prerequisites usually correspond to `#include` prerequisites.
-  For example, if `foo.o` is generated from `foo.c` and `foo.c` includes `foo.h`,
-  then `foo.h` should be marked as an implicit prerequisite of `foo.c`
-  so that touching `foo.h` does not make `foo.c` out of date while making `foo.o` out of date.
 * `notrace`: Disables echoing (xtrace) of shell action commands.
   This does not disable the trace header for the containing rule (see *Shell actions* below).
 * `virtual`: Marks a rule that is not associated with any file.
   The commands within are executed every time the rule is processed.
   By convention, a virtual rule with target `install` performs pre-installation.
 
-At strict level 1 and up, specifying the following *attribute*s is
-deprecated and will produce a warning; at strict level 2 and up,
-specifying these is an error.
+> *Obsolete:*
+> At strict level 4 and up, the following *attribute* is not available.
+> * `implicit`: Equivalent to `dontcare`.
+> 
+> At strict level 1 and up, specifying the following *attribute*s is
+> deprecated and will produce a warning; at strict level 2 and up,
+> specifying these is an error.
+> * `archive`: Ignored.
+>   Historically used to mark the generation of an `ar`(1) archive.
+> * `generated`: Marks rules that produce output files generated by a shell action.
+>   The explicit assignment of this attribute is ignored at strict level 1.
+>   The `exec` command implicitly assigns this attribute.
+>   If a rule has this attribute, other rules dependent on this rule
+>   will avoid applying viewpathing based on this rule.
+> * `joint`: Ignored.
+>   Historically used to mark one of a group of rules that are built by a single shell action.
 
-* `archive`: Ignored.
-  Historically used to mark the generation of an `ar`(1) archive.
-* `generated`: Marks rules that produce output files generated by a shell action.
-  The explicit assignment of this attribute is ignored at strict level 1.
-  The `exec` command implicitly assigns this attribute.
-  If a rule has this attribute, other rules dependent on this rule
-  will avoid applying viewpathing based on this rule.
-* `joint`: Ignored.
-  Historically used to mark one of a group of rules that are built by a single shell action.
+### Simple prerequisite rules ###
 
-### Referencing prerequisites or previously defined rules ###
+`makp` *target* [ *attribute* … ]
 
-`prev` *target* [ *attribute* ... ]
+`makp` creates a rule that declares a dependency on a prerequisite file named
+by *target* in a manner equivalent to an empty `make` *target*/`done` block,
+with the optional *attribute*s applied to the new rule. A nonexistent
+prerequisite is an error unless a `virtual` or `dontcare` attribute is given.
+Declaring a dependency on a prerequisite that is currently being made (i.e.:
+directly or indirectly within that prerequisite's block) is an error.
 
-The `prev` command is used in two ways:
+### Referencing previously defined rules ###
 
-1. If *target* matches a previously defined rule, `prev` adds a dependency on that rule to the current rule.
-   This can be used to make a rule a prerequisite of multiple `make`...`done` blocks without repeating the rule.
-   No attributes should be given for this use of `prev`, because the attributes of the referenced rule are used.
-   Superfluous attributes are an error at strict level >= 1 and ignored in the legacy mode.
+`prev` *target*
 
-2. If *target* does not match a previously defined rule, the following applies.
-   In the legacy mode, `prev` creates an empty dummy
-   rule and ignores the *attribute*s; this is for backward compatibility.
-   At strict level 1 and up,
-   `prev` creates a rule that declares a dependency on a prerequisite file named by *target*
-   in a manner equivalent to an empty `make`...`done` block,
-   with the optional *attribute*s applied to the new rule, and
-   a nonexistent prerequisite is an error unless a `virtual` or `dontcare` attribute is given.
-   Declaring a dependency on a prerequisite that is currently being made
-   (i.e.: directly or indirectly within that prerequisite's block) produces
-   a warning; at strict level 3 and up, this is an error.
+If *target* matches a previously defined rule, `prev` adds a dependency on
+that rule to the current rule. This is used to make a rule a prerequisite of
+multiple `make`…`done` blocks without repeating the rule. It is an error
+to specify attributes, because the attributes of the referenced rule are used.
+In the legacy mode, attributes are silently ignored.
+
+> *Obsolete:* If the strict level is \< 4, and if *target* does not match a
+> previously defined rule, then the following applies. In the legacy mode,
+> `prev` creates an empty dummy rule and ignores the *attribute*s; this is
+> for backward compatibility. At strict levels 1 and up, `prev` in this
+> context is equivalent to `makp` (see above). Declaring a dependency on a
+> prerequisite that is currently being made produces a warning; at strict
+> level 3, this is an error.
 
 ### Setting MAM variables ###
 
@@ -256,18 +264,19 @@ Defines a new MAM *variable*, optionally assigning the initial *defaultvalue*.
 If the variable already has a value, the `setv` command is ignored; assigning a new value is not possible.
 When `mamake` starts, it imports all environment variables as MAM variables,
 so any variable's default value can be overridden by exporting an environment variable by its name.
+Any leading and trailing whitespace is stripped from the value. The value is
+otherwise taken entirely literally, with no parsing of quotes, etc.
 
-If the strict level is less than 2 and the *defaultvalue* begins and ends with
-double quotes (`"`), those quotes are discarded,
-though double quotes elsewhere in the value are not treated specially.
-The value is otherwise taken entirely literally.
+> *Obsolete:* If the strict level is less than 2 and the *defaultvalue*
+> begins and ends with double quotes (`"`), those quotes are discarded,
+> though double quotes elsewhere in the value are not treated specially.
 
 When the *variable* is `CC`, `mamake` runs the `mamprobe` script
 to probe the C compiler for flags and features,
 or uses that script's stored results if not outdated.
 The results are stored as a series of `setv` commands
-in a file in the directory `${INSTALLROOT}/lib/probe/C/mam`,
-the file name being a hash of full path to the compiler indicated by `${CC}`.
+in a file in the directory `%{INSTALLROOT}/lib/probe/C/mam`,
+the file name being a hash of full path to the compiler indicated by `%{CC}`.
 That results file is then read and included in the current Mamfile
 as if it followed the `setv CC` command.
 
@@ -275,7 +284,7 @@ as if it followed the `setv CC` command.
 
 `exec` `-` *code*
 
-One or more `exec` commands within a `make`...`done` block
+One or more `exec` commands within a `make`…`done` block
 define a shell script that is run to generate the *target*.
 The argument following `exec` is ignored; by convention it is `-`.
 Each `exec` command appends a line of code to the shell script for the current rule.
@@ -292,7 +301,7 @@ of the line in the rule.
 #### Viewpathing ####
 
 After MAM variable expansion, *viewpathing* is applied.
-The first colon-separated element of `${VPATH}` is considered
+The first colon-separated element of `%{VPATH}` is considered
 the object code directory and the second the source code directory;
 viewpathing provides the first with a vew to the second.
 Viewpathing applies two transformations.
@@ -300,7 +309,7 @@ Viewpathing applies two transformations.
 The first is *prerequisite replacement*.
 Each word (separated by whitespace, `;`, `(`, `)`, `` ` ``, `|`, `&` or `=`)
 is searched for in the current rule's prerequisites,
-and if it matches the name of a non-generated prerequisite,
+and if it matches the name of a prerequisite that was not generated by a shell action,
 it is replaced by the canonical path to it in the source directory,
 ensuring that things like prerequisite headers are found.
 
@@ -405,7 +414,7 @@ The `mam_lib`*libraryname* variable will not be regenerated when repeating a `bi
 
 There is also a mechanism to communicate library dependency information across Mamfiles and `mamake` invocations.
 If a file named *libraryname*`.req` in the current directory
-or an `${INSTALLROOT}/lib/lib/`*libraryname* file
+or an `%{INSTALLROOT}/lib/lib/`*libraryname* file
 exists, `mamake` processes each of the words in the form `-l`*libraryname* in its contents
 as if they were arguments to `bind` commands
 and the resulting values are appended to the value of `mam_lib`*libraryname*
@@ -419,25 +428,25 @@ if this fails, the `mam_lib`*libraryname* variable will be emptied.
 
 Cross-directory dependencies on AST library headers (preinstalled in
 `$INSTALLROOT/include/ast`) are similarly communicated via a file with
-the path `${INSTALLROOT}/lib/mam/`*libraryname*.
+the path `%{INSTALLROOT}/lib/mam/`*libraryname*.
 The `bind` command automatically includes this file as necessary.
 Note that this may have side effects on the automatic variables.
 The `INIT` package preinstalls the `mkdeps` script that Mamfile shell
 actions should use to generate this file while building each library.
 The generated file is expected to:
-1. set the `INCLUDE_AST` variable to `${INSTALLROOT}/include/ast`;
+1. set the `INCLUDE_AST` variable to `%{INSTALLROOT}/include/ast`;
 2. define a single virtual rule by the name of `_hdrdeps_lib`*libraryname*`_`
    which contains all the rules that define the library's public `include/ast`
    headers and how they depend on each other.
 This way, Mamfiles can declare a dependency on a single header and all its
-dependencies using a simple `prev ${INCLUDE_AST}/`*headername*`.h` command.
+dependencies using a simple `prev %{INCLUDE_AST}/`*headername*`.h` command.
 Any `bind -l`*libraryname* command will automatically apply the dependencies
 defined in the corresponding file to the context of the current rule.
 The non-existence of this file is not an error and is silently ignored.
 
 ### Repeatedly iterating through a block ###
 
-`loop` *variable* *word* [ *word* ... ]    
+`loop` *variable* *word* [ *word* … ]    
 `done`
 
 `loop` reads the lines contained between it and the corresponding `done`
@@ -477,7 +486,7 @@ maintain Mamfiles by hand. The following lists the important changes.
   This also applies to the `bind` command with an argument not starting with `-l`.
 * It has been made optional to repeat the `make` target after `done`.
 * The `notrace` attribute was added to disable xtrace for a rule's shell action.
-* The automatic variables `${@}`, `${<}`, `${^}` and `${?}` have been added.
+* The automatic variables `%{@}`, `%{<}`, `%{^}` and `%{?}` have been added.
 * An iteration block command, `loop`…`done`, has been added.
 * A command to set common code for shell actions, `shim`, has been added.
 * The `bind` command now reads library header dependency rules from a central
@@ -485,14 +494,17 @@ maintain Mamfiles by hand. The following lists the important changes.
   `mkdeps` script.
 * Attempting to make a rule that has already been made produces a warning.
 * Attempting to declare a dependency on a rule currently being made produces a warning.
+* MAM expansions may start with `%{` instead of `${`, avoiding conflicts
+  and confusion with the shell's `${` syntax in shell actions.
+* The `makp` command may be used instead of an empty `make`…`done`
+  block to declare a simple prerequisite with optional attributes.
 * **At strict level 1 and up:**
     * Appending attributes to `done` instead of `make` is deprecated
       and produces a warning.
     * The ignored `archive` and `joint` attributes are deprecated.
     * Explicitly specifying the `generated` attribute is deprecated.
     * The dummy `info` and `meta` commands are unavailable instead of ignored.
-    * The `prev` command may be used instead of an empty `make`...`done`
-      block to declare a simple prerequisite with possible attributes.
+    * The `prev` may be used as an equivalent of `makp`.
     * When `prev` references a previously processed target,
       attributes are an error instead of being ignored.
     * The legacy `silent` and `ignore` command prefixes are unavailable.
@@ -507,3 +519,7 @@ maintain Mamfiles by hand. The following lists the important changes.
 * **At strict level 3 and up:**
     * Attempting to make a rule that has already been made is an error.
     * Attempting to declare a dependency on a rule currently being made is an error.
+* **At strict level 4 and up:**
+    * MAM expansions can no longer start with `${`. Only `%{` is recognized.
+    * The `prev` command may no longer be used as an equivalent of `makp`.
+    * The `implicit` attribute is not available.

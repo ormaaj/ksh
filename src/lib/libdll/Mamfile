@@ -3,17 +3,17 @@ note * This build script is in an extended Make Abstract Machine (MAM)
 note * language. Documentation is at: src/cmd/INIT/README-mamake.md
 note *
 
-setv MAMAKE_STRICT 3
+setv MAMAKE_STRICT 4
 setv INSTALLROOT ../../..
 setv CC cc
-setv AR ${mam_cc_AR} ${mam_cc_AR_ARFLAGS}
-setv mam_cc_FLAGS ${mam_cc_TARGET} ${mam_cc_DLL} ${-debug-symbols?1?${mam_cc_DEBUG} -D_BLD_DEBUG?${mam_cc_OPTIMIZE}?}
+setv AR %{mam_cc_AR} %{mam_cc_AR_ARFLAGS}
+setv mam_cc_FLAGS %{mam_cc_TARGET} %{mam_cc_DLL} %{-debug-symbols?1?%{mam_cc_DEBUG} -D_BLD_DEBUG?%{mam_cc_OPTIMIZE}?}
 setv CCFLAGS
 setv IFFEFLAGS
 setv LDFLAGS
 setv CCLDFLAGS
-setv DYLIB_PRE ${mam_cc_SUFFIX_DYNAMIC?*?${mam_cc_PREFIX_DYNAMIC}?${mam_cc_PREFIX_SHARED}?}
-setv DYLIB_SUF ${mam_cc_SUFFIX_DYNAMIC-${mam_cc_SUFFIX_SHARED}}
+setv DYLIB_PRE %{mam_cc_SUFFIX_DYNAMIC?*?%{mam_cc_PREFIX_DYNAMIC}?%{mam_cc_PREFIX_SHARED}?}
+setv DYLIB_SUF %{mam_cc_SUFFIX_DYNAMIC-%{mam_cc_SUFFIX_SHARED}}
 setv DYLIB_VERSION 2.0
 
 make install virtual
@@ -24,8 +24,8 @@ make install virtual
 	bind -ldl dontcare
 	bind -last
 	make dll.req
-		prev ${INSTALLROOT}/bin/mkreq
-		exec - mkreq ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} : ${LDFLAGS} : dll dl dld ast
+		makp %{INSTALLROOT}/bin/mkreq
+		exec - mkreq %{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} : %{LDFLAGS} : dll dl dld ast
 	done
 
 	note *
@@ -33,31 +33,31 @@ make install virtual
 	note *
 
 	make dlfcn.c
-		prev ${INCLUDE_AST}/error.h
-		make dlldefs.h implicit
+		prev %{INCLUDE_AST}/error.h
+		make dlldefs.h
 			make FEATURE/dll
-				prev features/dll
-				exec - iffe ${IFFEFLAGS} -v -c \
-				exec -  '${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} ${LDFLAGS}' \
-				exec -	ref ${mam_cc_L+-L.} ${mam_cc_L+-L${INSTALLROOT}/lib} \
-				exec -	-I${INCLUDE_AST} -I${INSTALLROOT}/include \
-				exec -	${mam_libdl} ${mam_libast} : run ${<}
+				makp features/dll
+				exec - iffe %{IFFEFLAGS} -v -c \
+				exec -  '%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}' \
+				exec -	ref %{mam_cc_L+-L.} %{mam_cc_L+-L%{INSTALLROOT}/lib} \
+				exec -	-I%{INCLUDE_AST} -I%{INSTALLROOT}/include \
+				exec -	%{mam_libdl} %{mam_libast} : run %{<}
 			done
-			exec - cp -f ${<} ${@}
+			exec - cp -f %{<} %{@}
 		done
-		prev ${INCLUDE_AST}/ast.h
+		prev %{INCLUDE_AST}/ast.h
 	done
 	make dllopen.c
-		make dlllib.h implicit
-			prev ${INCLUDE_AST}/error.h
+		make dlllib.h
+			prev %{INCLUDE_AST}/error.h
 			prev dlldefs.h
-			prev ${INCLUDE_AST}/ast.h
+			prev %{INCLUDE_AST}/ast.h
 		done
 	done
 	make dllfind.c
-		prev ${INCLUDE_AST}/error.h
+		prev %{INCLUDE_AST}/error.h
 		prev dlldefs.h
-		prev ${INCLUDE_AST}/ast.h
+		prev %{INCLUDE_AST}/ast.h
 	done
 	make dllplug.c
 		prev dlllib.h
@@ -67,21 +67,21 @@ make install virtual
 	done
 	make dllnext.c
 		prev dlldefs.h
-		prev ${INCLUDE_AST}/ast.h
+		prev %{INCLUDE_AST}/ast.h
 	done
 	make dlllook.c
 		prev dlldefs.h
-		prev ${INCLUDE_AST}/error.h
-		prev ${INCLUDE_AST}/ast.h
+		prev %{INCLUDE_AST}/error.h
+		prev %{INCLUDE_AST}/ast.h
 	done
 	make dllscan.c
 		prev dlldefs.h
-		prev ${INCLUDE_AST}/vmalloc.h
-		prev ${INCLUDE_AST}/fts.h
-		prev ${INCLUDE_AST}/error.h
-		prev ${INCLUDE_AST}/endian.h
-		prev ${INCLUDE_AST}/cdt.h
-		prev ${INCLUDE_AST}/ast.h
+		prev %{INCLUDE_AST}/vmalloc.h
+		prev %{INCLUDE_AST}/fts.h
+		prev %{INCLUDE_AST}/error.h
+		prev %{INCLUDE_AST}/endian.h
+		prev %{INCLUDE_AST}/cdt.h
+		prev %{INCLUDE_AST}/ast.h
 	done
 	make dllcheck.c
 		prev dlllib.h
@@ -96,61 +96,61 @@ make install virtual
 
 	make libdll.a
 		loop OBJ dlfcn dllopen dllfind dllplug dll_lib dllnext dlllook dllscan dllcheck dllerror
-			make ${OBJ}.o
-				prev ${OBJ}.c
-				exec - ${CC} ${mam_cc_FLAGS} ${CCFLAGS} ${mam_cc_NOSTRICTALIASING} -I. -I${INCLUDE_AST} -D_BLD_dll -c ${<}
+			make %{OBJ}.o
+				prev %{OBJ}.c
+				exec - %{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} -I. -I%{INCLUDE_AST} -D_BLD_dll -c %{<}
 			done
 		done
-		exec - if	test -f ${@}
-		exec - then	${AR} rc ${@} ${?}  # add changed *.o
-		exec - else	${AR} rc ${@} ${^}  # add all *.o
+		exec - if	test -f %{@}
+		exec - then	%{AR} rc %{@} %{?}  # add changed *.o
+		exec - else	%{AR} rc %{@} %{^}  # add all *.o
 		exec - fi || exit
-		exec - ranlib ${@} >/dev/null 2>&1 || true
+		exec - ranlib %{@} >/dev/null 2>&1 || true
 
 		note * save for dylink
-		setv _libdll_object_files_ ${^}
+		setv _libdll_object_files_ %{^}
 	done libdll.a
 
 	note *
 	note * Dynamically linked version, if supported
 	note *
 
-	make ${INSTALLROOT}/dyn/lib/${DYLIB_PRE}dll${DYLIB_SUF} dontcare
+	make %{INSTALLROOT}/dyn/lib/%{DYLIB_PRE}dll%{DYLIB_SUF} dontcare
 		prev libdll.a
 		prev dll.req
-		exec - export LDFLAGS='${LDFLAGS} ${CCLDFLAGS} ${mam_cc_LD_NOASNEEDED}'
-		exec - dylink -m dll -v ${DYLIB_VERSION} -p '${DYLIB_PRE}' -s '${DYLIB_SUF}' $(sed 1d dll.req) ${_libdll_object_files_}
+		exec - export LDFLAGS='%{LDFLAGS} %{CCLDFLAGS} %{mam_cc_LD_NOASNEEDED}'
+		exec - dylink -m dll -v %{DYLIB_VERSION} -p '%{DYLIB_PRE}' -s '%{DYLIB_SUF}' $(sed 1d %{<}) %{_libdll_object_files_}
 	done
 
 	note *
 	note * pre-install
 	note *
 
-	loop DIR ${INSTALLROOT}/lib/lib ${INCLUDE_AST}
-		make ${DIR}
-			exec - mkdir -p ${@}
+	loop DIR %{INSTALLROOT}/lib/lib %{INCLUDE_AST}
+		make %{DIR}
+			exec - mkdir -p %{@}
 		done
 	done
-	make ${INSTALLROOT}/lib/libdll.a
+	make %{INSTALLROOT}/lib/libdll.a
 		prev libdll.a
-		exec - cp -f ${<} ${@} || exit
-		exec - ranlib ${@} >/dev/null 2>&1 || true
+		exec - cp -f %{<} %{@} || exit
+		exec - ranlib %{@} >/dev/null 2>&1 || true
 	done
-	make ${INSTALLROOT}/lib/lib/dll
+	make %{INSTALLROOT}/lib/lib/dll
 		prev dll.req
-		exec - cp -f ${<} ${@}
+		exec - cp -f %{<} %{@}
 	done
 	note * public headers
-	make ${INSTALLROOT}/lib/mam/dll
-		make ${INCLUDE_AST}/dlldefs.h
+	make %{INSTALLROOT}/lib/mam/dll
+		make %{INCLUDE_AST}/dlldefs.h
 			prev dlldefs.h
-			exec - cp -f ${<} ${@}
+			exec - cp -f %{<} %{@}
 		done
 		note * generate header dependency rules
-		exec - mkdeps -ldll -last ${^} > ${@}
-		prev ${INSTALLROOT}/bin/mkdeps
+		exec - mkdeps -ldll -last %{^} > %{@}
+		makp %{INSTALLROOT}/bin/mkdeps
 		prev dll.req
-	done ${INSTALLROOT}/lib/mam/dll
+	done %{INSTALLROOT}/lib/mam/dll
 done install
 
 make test dontcare virtual

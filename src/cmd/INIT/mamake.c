@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-07-22"
+#define RELEASE_DATE "2024-07-25"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -187,11 +187,10 @@ static const char usage[] =
 #define RULE_exists	0x0008		/* target file exists		*/
 #define RULE_generated	0x0010		/* generated target		*/
 #define RULE_ignore	0x0020		/* ignore time			*/
-#define RULE_implicit	0x0040		/* implicit prerequisite	*/
-#define RULE_made	0x0080		/* already made			*/
-#define RULE_virtual	0x0100		/* not a file			*/
-#define RULE_notrace	0x0200		/* do not xtrace shell action	*/
-#define RULE_updated	0x0400		/* rule was outdated and remade */
+#define RULE_made	0x0040		/* already made			*/
+#define RULE_virtual	0x0080		/* not a file			*/
+#define RULE_notrace	0x0100		/* do not xtrace shell action	*/
+#define RULE_updated	0x0200		/* rule was outdated and remade */
 
 #define STREAM_KEEP	0x0001		/* don't fclose() on pop()	*/
 #define STREAM_MUST	0x0002		/* push() file must exist	*/
@@ -860,11 +859,14 @@ static void substitute(Buf_t *buf, char *s)
 	int	c, n;
 	int	found_AR = 0;	/* 1 if ${AR} encountered */
 	int	valid_sh_name;	/* if set, the variable name is valid in sh(1) */
+	int	newexp;		/* if set, %{...}, otherwise ${...} */
+	char	*vnterm;	/* pointer to byte following variable name */
 
 	while (c = *s++)
 	{
-		if (c == '$' && *s == '{')
+		if ((c == '%' || (c == '$' && state.strict < 4)) && *s == '{')
 		{
+			newexp = (c == '%');
 			b = s - 1;
 			t = ++s;
 			n = *t == '-' ? 0 : '-';
@@ -873,19 +875,18 @@ static void substitute(Buf_t *buf, char *s)
 				(c != '?' || s == t) &&
 				c != '+' &&
 				c != n &&
-				c != ':' &&
-				c != '=' &&
-				c != '[' &&
+				(c != ':' && c != '=' && c != '[' || newexp) &&
 				c != '}' )
 			{
 				s++;
 				if (!isalnum(c) && c != '_')
 					valid_sh_name = 0;
 			}
+			vnterm = s;
 
 			/* Zero-terminate the variable name */
 
-			*s = 0;
+			*vnterm = 0;
 
 			/* Keep unexpanded if it looks like a ksh array expansion ${var[subscript]} */
 
@@ -918,12 +919,12 @@ static void substitute(Buf_t *buf, char *s)
 
 			/* A really absurd hack, see check for found_AR further below */
 
-			if (strcmp(t, "AR") == 0)
+			if (!newexp && strcmp(t, "AR") == 0)
 				found_AR = 1;
 
 			/* Un-terminate the variable name */
 
-			*s = c;
+			*vnterm = c;
 
 			/* Find the ending '}', dealing with nesting */
 
@@ -1029,6 +1030,11 @@ static void substitute(Buf_t *buf, char *s)
 						/* Sanity at long last. Variables expand to their literal values. */
 						append(buf, v);
 					}
+				}
+				else if (newexp)
+				{
+					*vnterm = 0;
+					report(3, "undefined variable", t, 0);
 				}
 				else if (valid_sh_name || state.strict >= 2)
 				{
@@ -1593,8 +1599,8 @@ static void attributes(Rule_t *r, char *s)
 		case 'i':
 			if (n == 6 && !strncmp(t, "ignore", n))
 				flag = RULE_ignore;
-			else if (n == 8 && !strncmp(t, "implicit", n))
-				flag = RULE_implicit;
+			else if (state.strict < 4 && n == 8 && !strncmp(t, "implicit", n))
+				flag = RULE_dontcare;
 			break;
 		case 'v':
 			if (n == 7 && !strncmp(t, "virtual", n))
@@ -1670,7 +1676,7 @@ static char *require(char *lib, int dontcare)
 				r = lib;
 				break;
 			}
-			s = "${INSTALLROOT}/lib/";
+			s = "%{INSTALLROOT}/lib/";
 			if (dynamic)
 			{
 				append(buf, s);
@@ -1697,7 +1703,7 @@ static char *require(char *lib, int dontcare)
 		append(tmp, ".req");
 		if (!(f = fopen(use(tmp), "r")))
 		{
-			append(tmp, "${INSTALLROOT}/lib/lib/");
+			append(tmp, "%{INSTALLROOT}/lib/lib/");
 			append(tmp, lib + 2);
 			f = fopen(expand(buf, use(tmp)), "r");
 		}
@@ -1726,8 +1732,8 @@ static char *require(char *lib, int dontcare)
 		}
 		else if (dontcare)
 		{
-			append(tmp, "echo 'int main(void){return 0;}' > libtest.$$.c\n"
-				"${CC} ${CCFLAGS} -o libtest.$$.x libtest.$$.c ");
+			append(tmp, "echo 'int main(void){return 0;}' > libtest.$$.c\n" \
+				"%{CC} %{CCFLAGS} -o libtest.$$.x libtest.$$.c ");
 			append(tmp, r);
 			append(tmp, " >/dev/null 2>&1\n"
 				"c=$?\n"
@@ -1985,7 +1991,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				r->flags |= RULE_updated;
 			}
 			r->flags |= RULE_made;
-			if (!(r->flags & (RULE_dontcare|RULE_error|RULE_exists|RULE_generated|RULE_implicit|RULE_virtual)))
+			if (!(r->flags & (RULE_dontcare|RULE_error|RULE_exists|RULE_generated|RULE_virtual)))
 				dont(r, 0, state.keepgoing);
 			break;
 
@@ -2103,29 +2109,42 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			continue;
 		}
 
+		case KEY('m','a','k','p'):
 		case KEY('p','r','e','v'):
 		{
+			const int makp = (u[0] == 'm');
 			char *name = expand(buf, t);
-			if (!state.strict)
-				q = rule(name); /* for backward compat */
-			else if (!(q = getval(state.rules, name)))
-			{	/*
-				 * 'prev' on a nonexistent rule, i.e., without a preceding 'make'...'done':
-				 * special-case this as a way to declare a simple source file prerequisite
-				 */
+			q = getval(state.rules, name);
+			if (!q && !makp && !state.strict)
+				rule(name); /* for backward compat */
+			else if (!q && (makp || state.strict < 4))
+			{
+				/* declare a simple source file prerequisite */
 				attributes(q = rule(name), v);
 				if (!(q->flags & RULE_virtual))
 				{
-					bindfile(q);
+					x = bindfile(q);
 					if (!(q->flags & (RULE_dontcare | RULE_exists)))
 						dont(q, 0, state.keepgoing);
+					if (modtime < x)
+						modtime = x;
+					if (q->flags & RULE_error)
+						r->flags |= RULE_error;
 				}
 				q->flags |= RULE_made;
+				report(-2, q->name, "makp", q->time);
 			}
+			else if (makp)
+			{
+				if (q->flags & RULE_made)
+					report(3, name, "rule already made", 0);
+			}
+			else if (!q)
+				report(3, name, "prev: rule not made", 0);
 			else if (*v)
-				report(3, v, "prev: superfluous attributes", 0);
-			if (q->making)
-				report(state.strict < 3 ? 1 : 3, "rule already being made", name, 0);
+				report(3, v, "prev: attributes not allowed", 0);
+			else if (q->making)
+				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", name, 0);
 			else
 			{
 				if (!(q->flags & RULE_ignore) && modtime < q->time)

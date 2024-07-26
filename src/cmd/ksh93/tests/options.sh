@@ -646,4 +646,11 @@ exp=$'+ true\n+ 1> /dev/null 2>& 1 3>& 1 4>& 3'
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
+# pipefail did not set 9th bit in exit status if a process got signalled
+# https://github.com/ksh93/ksh/discussions/755#discussioncomment-9925394
+got=$(set --pipefail; "$SHELL" -c 'kill -s PIPE $$' | true; echo $?)
+exp=$(( ${ kill -l PIPE; } + 256 ))
+[[ $got == "$exp" ]] || err_exit "status of signalled process in pipe with pipefail (expected $exp, got $got)"
+
+# ======
 exit $((Errors<125?Errors:125))

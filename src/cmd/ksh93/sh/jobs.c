@@ -1640,8 +1640,13 @@ static struct process *job_unpost(struct process *pwtop,int notify)
 	job_unlink(pwtop);
 	for(pw=pwtop; pw; pw=pw->p_nxtproc)
 	{
+		/* save the exit status for the pipefail option */
 		if(pw && pw->p_exitval)
+		{
 			*pw->p_exitval = pw->p_exit;
+			if(pw->p_flag&P_SIGNALLED)
+				*pw->p_exitval |= SH_EXITSIG;
+		}	
 		/* save the exit status for background jobs */
 		if((pw->p_flag&P_EXITSAVE) ||  pw->p_pid==sh.spid)
 		{

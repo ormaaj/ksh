@@ -9,6 +9,10 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   parent/main shell, in some cases causing a script to abort. Bug introduced
   on 2022-07-02.
 
+- Fixed a bug in the pipefail shell option where the status of a signalled
+  non-rightmost process in a pipeline was just the signal number, instead of
+  that number + 256. Bug introduced in ksh 93u+ 2011-04-15.
+
 2024-07-24:
 
 - Fixed a serious bug in the arithmetic subsystem that was triggered on

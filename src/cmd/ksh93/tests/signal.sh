@@ -607,11 +607,4 @@ do	for cmd in kill $(whence -p kill)
 done
 
 # ======
-# signal handling breakage when SIGPIPE occurs in a subshell, introduced in 93u+m/1.0.0
-got=$("$SHELL" -c 'x=$(fn(){ return 9; };echo ok|fn); echo exited $?' 2>&1)
-exp='exited 9'
-[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "regression involving SIGPIPE in subshell" \
-	"(expected status 0 and $(printf %q "$exp"), got status $e and $(printf %q "$got"))"
-
-# ======
 exit $((Errors<125?Errors:125))

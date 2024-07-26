@@ -1208,4 +1208,16 @@ got=$(
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
+# return from a function in a pipe within a comsub could incorrectly trigger signal (race condition)
+# bug introduced on 2022-07-02
+exp='exited 9'
+got=$("$SHELL" -c 'x=$(fn(){ return 9; };echo ok|fn); echo exited $?' 2>&1)
+[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "regression involving SIGPIPE in subshell" \
+	"(expected status 0 and $(printf %q "$exp"), got status $e and $(printf %q "$got"))"
+# a status > 255 is trimmed to 8 bits when exiting a subshell (comsub included)
+got=$("$SHELL" -c 'x=$(fn(){ return 265; };echo ok|fn); echo exited $?' 2>&1)
+[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "regression involving SIGPIPE in subshell" \
+	"(expected status 0 and $(printf %q "$exp"), got status $e and $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

@@ -1450,8 +1450,7 @@ int	job_wait(pid_t pid)
 						if(px->p_flag&P_SIGNALLED)
 						{
 							sh.exitval |= SH_EXITSIG;
-							if(!(sh.realsubshell && px->p_exit==SIGPIPE))
-								sh.chldexitsig = 1;
+							sh.chldexitsig = 1;
 						}
 						if(intr)
 							px->p_flag &= ~P_EXITSAVE;

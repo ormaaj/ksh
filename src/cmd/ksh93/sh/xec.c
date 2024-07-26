@@ -1718,20 +1718,20 @@ int sh_exec(const Shnode_t *t, int flags)
 				free_list(buffp->olist);
 			if(type&FPIN)
 			{
+				int e = sh.exitval, c = sh.chldexitsig;
 				job.waitall = waitall;
-				type = sh.exitval;
-				if(!(type&SH_EXITSIG))
+				if(!(e & SH_EXITSIG))
 				{
 					/* wait for remainder of pipeline */
 					if(sh.pipepid>1)
 					{
 						job_wait(sh.pipepid);
-						type = sh.exitval;
+						e = sh.exitval, c = sh.chldexitsig;
 					}
 					else
 						job_wait(waitall?pid:0);
-					if(type || !sh_isoption(SH_PIPEFAIL))
-						sh.exitval = type;
+					if(e || !sh_isoption(SH_PIPEFAIL))
+						sh.exitval = e, sh.chldexitsig = c;
 				}
 				sh.pipepid = 0;
 				sh.st.ioset = 0;
@@ -1790,7 +1790,8 @@ int sh_exec(const Shnode_t *t, int flags)
 			int	savepipe = pipejob;
 			int	savelock = nlock;
 			int	showme = t->tre.tretyp&FSHOWME;
-			int	n,waitall,savewaitall=job.waitall;
+			int	e, c;
+			int	waitall, savewaitall = job.waitall;
 			int	savejobid = job.curjobid;
 			int	*exitval=0,*saveexitval = job.exitval;
 			pid_t	savepgid = job.curpgid;
@@ -1858,7 +1859,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				job_unlock();
 			if((pipejob = savepipe) && nlock<savelock)
 				pipejob = 1;
-			n = sh.exitval;
+			e = sh.exitval, c = sh.chldexitsig;
 			if(job.waitall = waitall)
 			{
 				if(sh_isstate(SH_MONITOR))
@@ -1870,18 +1871,19 @@ int sh_exec(const Shnode_t *t, int flags)
 					sh.intrap--;
 				}
 			}
-			if(n==0 && exitval)
+			if(e==0 && exitval)
 			{
 				while(exitval <= --job.exitval)
 				{
 					if(*job.exitval)
 					{
-						n = *job.exitval;
+						e = *job.exitval;
+						c = 0;
 						break;
 					}
 				}
 			}
-			sh.exitval = n;
+			sh.exitval = e, sh.chldexitsig = c;
 			if(!pipejob && sh_isstate(SH_MONITOR) && job.jobcontrol)
 				tcsetpgrp(JOBTTY,sh.pid);
 			job.curpgid = savepgid;

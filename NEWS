@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-07-26:
+
+- Fixed a regression where a broken pipe signal (SIGPIPE), when occurring in
+  a pipe construct within a subshell, caused incorrect signal handling in the
+  parent/main shell, in some cases causing a script to abort. Bug introduced
+  on 2022-07-02.
+
 2024-07-24:
 
 - Fixed a serious bug in the arithmetic subsystem that was triggered on
@@ -19,13 +26,6 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a long-standing parsing bug: a '((' that was unmatched by
   corresponding closing parentheses and enclosed within a compound command
   failed to throw a syntax error and could cause the shell to crash.
-
-2024-07-20:
-
-- Fixed a regression where a broken pipe signal (SIGPIPE), when occurring in
-  a pipe construct within a subshell, caused incorrect signal handling in the
-  parent/main shell, in some cases causing a script to abort. Bug introduced
-  on 2022-07-02.
 
 2024-07-18:
 

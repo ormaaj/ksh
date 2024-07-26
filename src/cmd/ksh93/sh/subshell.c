@@ -691,9 +691,9 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 		{
 			if(sh.spid)
 			{
-				int e = sh.exitval;
+				int e = sh.exitval, c = sh.chldexitsig;
 				job_wait(sh.spid);
-				sh.exitval = e;
+				sh.exitval = e, sh.chldexitsig = c;
 				if(sh.pipepid==sh.spid)
 					sh.spid = 0;
 				sh.pipepid = 0;

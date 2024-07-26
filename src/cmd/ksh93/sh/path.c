@@ -174,6 +174,8 @@ static pid_t command_xargs(const char *path, char *argv[],char *const envp[], in
 			}
 			job_post(pid,0);
 			job_wait(pid);
+			if(sh.chldexitsig)
+				break;
 			if(sh.exitval>exitval)
 				exitval = sh.exitval;
 			if(saveargs)

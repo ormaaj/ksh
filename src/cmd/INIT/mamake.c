@@ -1965,11 +1965,11 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				&& (val = getval(state.vars, "PACKAGEROOT")) && (len = strlen(val))
 				&& strncmp(fname, val, len) == 0 && fname[len] == '/' && fname[++len])
 					fname += len;
-				/* ...rule name: change install root path prefix back to '${INSTALLROOT}' for brevity */
+				/* ...rule name: change install root path prefix back to '%{INSTALLROOT}' for brevity */
 				if (*rname == '/'
 				&& (val = getval(state.vars, "INSTALLROOT")) && (len = strlen(val))
 				&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
-					rname += len, rnamepre = "${INSTALLROOT}";
+					rname += len, rnamepre = "%{INSTALLROOT}";
 				fprintf(stderr, "\n# %s: %lu-%lu: make %s%s\n",
 					fname, r->line, state.sp->line, rnamepre, rname);
 

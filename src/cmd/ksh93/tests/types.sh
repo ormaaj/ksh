@@ -846,4 +846,10 @@ got=$(f 2>&1)
 }
 
 # ======
+got=$("$SHELL" -c '(typeset -T echo=(typeset TYPEVAR); echo V; print $V); echo OK' 2>&1)
+exp=$'( typeset TYPEVAR )\nOK'
+[[ $got == "$exp" ]] || err_exit 'type definition overriding regular built-in' \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

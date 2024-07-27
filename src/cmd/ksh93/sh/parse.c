@@ -237,23 +237,35 @@ static void check_typedef(struct comnod *tp, char intypeset)
 	}
 	if(cp)
 	{
+		Dt_t *tp = sh.bltin_tree;
 		if(!dcl_tree)
 		{
 			dcl_tree = dtopen(&_Nvdisc, Dtoset);
 			dtview(sh.bltin_tree, dcl_tree);
 		}
+		sh.bltin_tree = dcl_tree;
 		nv_onattr(sh_addbuiltin(cp, b_dummy, NULL), NV_BLTIN|BLT_DCL);
+		sh.bltin_tree = tp;
 	}
 }
 /*
- * (De)activate an internal declaration built-ins tree into which check_typedef() can pre-add dummy type
- * declaration command nodes, allowing correct parsing of assignment-arguments with parentheses for custom
- * type declaration commands before actually executing the commands that create those commands.
+ * Hack to avoid an inconsistent state if a 'typeset -T' or 'enum' declaration is parsed but not executed:
  *
- * A viewpath from the main built-ins tree to this internal tree is added, unifying the two for search
- * purposes and causing new nodes to be added to the internal tree. When parsing is done, we close that
- * viewpath. This hides those pre-added nodes at execution time, avoiding an inconsistent state if a type
- * creation command is parsed but not executed.
+ * The parser needs to know about to-be-created type built-ins before their declarations are executed,
+ * otherwise assignment-arguments with parenteses -- e.g., Type_t foo=(bar baz) -- are a syntax error if
+ * parsed within the same pass as the 'typeset -T Type_t=(...)' declaration. This would be especially bad
+ * in dot scripts, which are completely parsed in one single sh_parse() call before execution.
+ *
+ * Previously, to cope with this, ksh simply added preliminary dummy versions of the built-ins to
+ * sh.bltin_tree at parse time, avoiding the syntax error. The idea is that these dummies get overwritten
+ * by nv_addtype() in nvtype.c at execution time. But if the 'typeset -T' declaration was parsed but not
+ * executed (due to 'if', etc.), only the dummy built-in was left, which crashed the shell when run.
+ *
+ * To fix this, we now (de)activate an internal declaration built-ins tree, dcl_tree, into which
+ * check_typedef() can pre-add those dummies. A viewpath from the main built-ins tree to this internal tree
+ * is added, unifying the two for search purposes. When parsing is done, we close that viewpath and (unless
+ * compiling with shcomp) clear out the dummy nodes, leaving no trace after parsing and before executing.
+ * The real type built-in can then safely be either added or not added at execution time.
  */
 static void dcl_hacktivate(void)
 {

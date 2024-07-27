@@ -259,12 +259,6 @@ make install virtual
 			prev cmd.h
 		done
 		setv _c_source_files_ %{^}
-		note * vmstate treated specially below; exclude from _c_source_files_
-		make vmstate.c
-			prev %{INCLUDE_AST}/sfdisc.h
-			prev %{INCLUDE_AST}/vmalloc.h
-			prev cmd.h
-		done
 	done c_sources
 
 	make cmdext.h
@@ -286,11 +280,6 @@ make install virtual
 		exec -	-e 's/.*/extern int	b_&(int, char**, Shbltin_t*);/' \
 		exec -	%{_c_source_files_} |
 		exec -	sort -u
-		exec - cat <<!
-		exec - #if _AST_vmalloc
-		exec - extern int	b_vmstate(int, char**, Shbltin_t*);
-		exec - #endif
-		exec - !
 		exec - } > %{@}
 	done
 
@@ -299,7 +288,7 @@ make install virtual
 	note *
 
 	make libcmd.a
-		loop OBJ cmdinit basename cat chgrp chmod chown cksum cmp comm cp cut dirname date expr fds fmt fold getconf head id join ln logname md5sum mkdir mkfifo mktemp mv paste pathchk pids rev rm rmdir stty sum sync tail tee tty uname uniq vmstate wc revlib wclib lib
+		loop OBJ cmdinit basename cat chgrp chmod chown cksum cmp comm cp cut dirname date expr fds fmt fold getconf head id join ln logname md5sum mkdir mkfifo mktemp mv paste pathchk pids rev rm rmdir stty sum sync tail tee tty uname uniq wc revlib wclib lib
 			make %{OBJ}.o
 				prev %{OBJ}.c
 				exec - %{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} -I. -I%{INCLUDE_AST} -DERROR_CATALOG=\""libcmd"\" -DHOSTTYPE=\""%{mam_cc_HOSTTYPE}"\" -D_BLD_cmd -c %{<}
@@ -376,11 +365,6 @@ make install virtual
 				exec -	-e 's/.*/CMDLIST(&)/' \
 				exec -	%{_c_source_files_} |
 				exec -	sort -u
-				exec - cat <<!
-				exec - #if _AST_vmalloc
-				exec - CMDLIST(vmstate)
-				exec - #endif
-				exec - !
 				exec - } > %{@}
 			done cmdlist.h
 			exec - cp -f %{<} %{@}

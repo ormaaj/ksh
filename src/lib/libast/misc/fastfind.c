@@ -150,13 +150,9 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 	int		q;
 	int		fd;
 	int		uid;
-	Vmalloc_t*	vm;
 	Type_t*		tp;
 	struct stat	st;
 
-
-	if (!(vm = vmopen(Vmdcheap, Vmbest, 0)))
-		goto nomemory;
 
 	/*
 	 * NOTE: searching for FIND_CODES would be much simpler if we
@@ -169,9 +165,8 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 		findcodes[1] = getenv(FIND_CODES_ENV);
 	if (disc->flags & FIND_GENERATE)
 	{
-		if (!(fp = (Find_t*)vmnewof(vm, 0, Find_t, 1, sizeof(Encode_t) - sizeof(Code_t))))
+		if (!(fp = calloc(1, sizeof(Find_t) + sizeof(Encode_t) - sizeof(Code_t))))
 			goto nomemory;
-		fp->vm = vm;
 		fp->id = lib;
 		fp->disc = disc;
 		fp->generate = 1;
@@ -353,12 +348,8 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 		if (!pattern || !*pattern)
 			pattern = "*";
 		i += (j = 2 * (strlen(pattern) + 1));
-		if (!(fp = (Find_t*)vmnewof(vm, 0, Find_t, 1, i)))
-		{
-			vmclose(vm);
+		if (!(fp = (Find_t*)calloc(1, sizeof(Find_t) + i)))
 			return NULL;
-		}
-		fp->vm = vm;
 		fp->id = lib;
 		fp->disc = disc;
 		if (disc->flags & FIND_ICASE)
@@ -496,9 +487,9 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 					k = 0;
 				if (k)
 				{
-					if (!(fp->dirs = vmnewof(fp->vm, 0, char*, 2 * k + 1, 0)))
+					if (!(fp->dirs = calloc(2 * k + 1, sizeof(char*))))
 						goto drop;
-					if (!(fp->lens = vmnewof(fp->vm, 0, int, 2 * k, 0)))
+					if (!(fp->lens = calloc(2 * k, sizeof(int))))
 						goto drop;
 					p = 0;
 					b = fp->decode.temp;
@@ -522,7 +513,7 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 						s = pathcanon(b, sizeof(fp->decode.temp), 0);
 						*s = '/';
 						*(s + 1) = 0;
-						if (!(fp->dirs[q] = vmstrdup(fp->vm, b)))
+						if (!(fp->dirs[q] = strdup(b)))
 							goto nomemory;
 						if (j)
 							(fp->dirs[q])[s - b] = 0;
@@ -533,7 +524,7 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 						*(s + 1) = 0;
 						if (!strneq(b, fp->dirs[q - 1], s - b))
 						{
-							if (!(fp->dirs[q] = vmstrdup(fp->vm, b)))
+							if (!(fp->dirs[q] = strdup(b)))
 								goto nomemory;
 							if (j)
 								(fp->dirs[q])[s - b] = 0;
@@ -647,13 +638,8 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
  nomemory:
 	if (disc->errorf)
 		(*fp->disc->errorf)(fp, fp->disc, 2, "out of memory");
-	if (!vm)
-		return NULL;
 	if (!fp)
-	{
-		vmclose(vm);
 		return NULL;
-	}
 	goto drop;
  invalid:
 	if (fp->disc->errorf)
@@ -663,7 +649,6 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 		regfree(&fp->decode.re);
 	if (fp->fp)
 		sfclose(fp->fp);
-	vmclose(fp->vm);
 	return NULL;
 }
 
@@ -1274,6 +1259,5 @@ findclose(Find_t* fp)
 	}
 	if (fp->fp)
 		sfclose(fp->fp);
-	vmclose(fp->vm);
 	return n;
 }

@@ -40,21 +40,6 @@
 static char	indone;
 static int	cursig = -1;
 
-#if !_std_malloc
-#   include	<vmalloc.h>
-#endif
-#if  defined(VMFL)
-    /*
-     * This exception handler is called after vmalloc() unlocks the region
-     */
-    static int malloc_done(Vmalloc_t* vm, int type, void* val, Vmdisc_t* dp)
-    {
-	dp->exceptf = 0;
-	sh_exit(SH_EXITSIG);
-	return 0;
-    }
-#endif
-
 /*
  * Most signals caught or ignored by the shell come here
 */
@@ -145,16 +130,6 @@ void	sh_fault(int sig)
 			sh.trapnote |= SH_SIGSET;
 			if(sig <= sh.sigmax)
 				sh.sigflag[sig] |= SH_SIGSET;
-#if  defined(VMFL)
-			if(abortsig(sig))
-			{
-				/* abort inside malloc, process when malloc returns */
-				/* VMFL defined when using vmalloc() */
-				Vmdisc_t* dp = vmdisc(Vmregion,0);
-				if(dp)
-					dp->exceptf = malloc_done;
-			}
-#endif
 			goto done;
 		}
 	}

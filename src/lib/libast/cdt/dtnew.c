@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -27,7 +27,6 @@ typedef struct Dc_s
 {
 	Dtdisc_t	ndisc;
 	Dtdisc_t*	odisc;
-	Vmalloc_t*	vm;
 } Dc_t;
 
 static int
@@ -44,15 +43,16 @@ eventf(Dt_t* dt, int op, void* data, Dtdisc_t* disc)
 static void*
 memoryf(Dt_t* dt, void* addr, size_t size, Dtdisc_t* disc)
 {
-	return vmresize(((Dc_t*)disc)->vm, addr, size, VM_RSMOVE);
+	/* TODO: work out if new bytes need to be initialised to zero */
+	return realloc(addr, size);
 }
 
 /*
- * open a dictionary using disc->memoryf if set or vm otherwise
+ * open a dictionary using disc->memoryf if set or realloc otherwise
  */
 
 Dt_t*
-_dtnew(Vmalloc_t* vm, Dtdisc_t* disc, Dtmethod_t* meth, unsigned long version)
+_dtnew(Dtdisc_t* disc, Dtmethod_t* meth, unsigned long version)
 {
 	Dt_t*		dt;
 	Dc_t		dc;
@@ -62,7 +62,6 @@ _dtnew(Vmalloc_t* vm, Dtdisc_t* disc, Dtmethod_t* meth, unsigned long version)
 	dc.ndisc.eventf = eventf;
 	if (!dc.ndisc.memoryf)
 		dc.ndisc.memoryf = memoryf;
-	dc.vm = vm;
 	if (dt = _dtopen(&dc.ndisc, meth, version))
 		dtdisc(dt, disc, DT_SAMECMP|DT_SAMEHASH);
 	return dt;
@@ -71,7 +70,7 @@ _dtnew(Vmalloc_t* vm, Dtdisc_t* disc, Dtmethod_t* meth, unsigned long version)
 #undef dtnew
 
 Dt_t*
-dtnew(Vmalloc_t* vm, Dtdisc_t* disc, Dtmethod_t* meth)
+dtnew(Dtdisc_t* disc, Dtmethod_t* meth)
 {
-	return _dtnew(vm, disc, meth, 20050420L);
+	return _dtnew(disc, meth, 20050420L);
 }

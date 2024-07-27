@@ -2331,29 +2331,6 @@ default_setlocale(int category, const char* locale)
 
 #endif
 
-/* <TODO> [2022-07-21]: remove this and _vmkeep? obsolete? */
-/*
- * workaround for Solaris and FreeBSD systems
- * they call free() with addresses that look like they came from the stack
- */
-
-extern int	_vmkeep(int);
-
-static char*
-_sys_setlocale(int category, const char* locale)
-{
-	char*	r;
-	int	k;
-
-	k = _vmkeep(1);
-	r = setlocale(category, locale);
-	(void)_vmkeep(k);
-	return r;
-}
-
-#define setlocale(a,b)	_sys_setlocale(a,b)
-/* </TODO> */
-
 /*
  * set a single AST_LC_* locale category
  * the caller must validate category

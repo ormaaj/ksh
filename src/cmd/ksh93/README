@@ -28,8 +28,7 @@ The options have the following defaults and meanings:
                      See README-AUDIT.md.
 
     ALL_LIBCMD   off Enables all of the available /opt/ast/bin builtin commands
-                     in src/lib/libcmd (excludes vmstate if vmalloc is not
-                     enabled).
+                     in src/lib/libcmd.
 
     AUDIT        on  For auditing specific users.
                      Noted by "A" in the version string when enabled.

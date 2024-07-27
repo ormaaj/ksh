@@ -28,7 +28,6 @@
 #include "FEATURE/lib"
 #include "FEATURE/mmap"
 #include "FEATURE/options"
-#include "FEATURE/vmalloc"
 #include "FEATURE/eaccess"
 #include "FEATURE/api"
 #include <sig.h>
@@ -112,8 +111,6 @@ main(void)
 #if _map_libc
 	printf("#undef	memdup\n");
 	printf("#define memdup		_ast_memdup\n");
-	printf("#undef	memfatal\n");
-	printf("#define memfatal	_ast_memfatal\n");
 	printf("#undef	memhash\n");
 	printf("#define memhash		_ast_memhash\n");
 	printf("#undef	memsum\n");
@@ -371,54 +368,6 @@ main(void)
 	printf("#define wordfree	_ast_wordfree\n");
 	printf("#undef	unsetenv\n");
 	printf("#define unsetenv	_ast_unsetenv\n");
-#endif
-#if _std_malloc
-	printf("\n");
-	printf("/* no local malloc override */\n");
-	printf("#define	_std_malloc	1\n");
-#else
-#if _map_malloc
-	printf("\n");
-	printf("/* cannot override local malloc */\n");
-	printf("#define	_map_malloc	1\n");
-	printf("#undef	calloc\n");
-	printf("#define calloc		_ast_calloc\n");
-	printf("extern void*		calloc(size_t, size_t);\n");
-	printf("#undef	cfree\n");
-	printf("#define cfree		_ast_cfree\n");
-	printf("extern void		cfree(void*);\n");
-	printf("#undef	free\n");
-	printf("#define free		_ast_free\n");
-	printf("extern void		free(void*);\n");
-	printf("#undef	malloc\n");
-	printf("#define malloc		_ast_malloc\n");
-	printf("extern void*		malloc(size_t);\n");
-#if _lib_mallopt
-	printf("#undef	mallopt\n");
-	printf("#define mallopt		_ast_mallopt\n");
-#endif
-#if _lib_memalign
-	printf("#undef	memalign\n");
-	printf("#define memalign	_ast_memalign\n");
-	printf("extern void*		memalign(size_t, size_t);\n");
-#endif
-#if _lib_mstats
-	printf("#undef	mstats\n");
-	printf("#define mstats		_ast_mstats\n");
-#endif
-#if _lib_pvalloc
-	printf("#undef	pvalloc\n");
-	printf("#define pvalloc		_ast_pvalloc\n");
-#endif
-	printf("#undef	realloc\n");
-	printf("#define realloc		_ast_realloc\n");
-	printf("extern void*		realloc(void*, size_t);\n");
-#if _lib_valloc
-	printf("#undef	valloc\n");
-	printf("#define valloc		_ast_valloc\n");
-	printf("extern void*		valloc(size_t);\n");
-#endif
-#endif
 #endif
 	/* we always use the libast strdup implementation */
 	printf("#undef	strdup\n");

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2022 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -21,11 +21,10 @@
 #define _DT_H		1
 
 #include <cdt.h>
-#include <vmalloc.h>
 
-extern Dt_t*		dtnew(Vmalloc_t*, Dtdisc_t*, Dtmethod_t*);
-extern Dt_t*		_dtnew(Vmalloc_t*, Dtdisc_t*, Dtmethod_t*, unsigned long);
+extern Dt_t*		dtnew(Dtdisc_t*, Dtmethod_t*);
+extern Dt_t*		_dtnew(Dtdisc_t*, Dtmethod_t*, unsigned long);
 
-#define dtnew(v,d,m)	_dtnew(v,d,m,CDT_VERSION)
+#define dtnew(d,m)	_dtnew(d,m,CDT_VERSION)
 
 #endif

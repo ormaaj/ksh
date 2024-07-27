@@ -264,12 +264,6 @@ int job_reap(int sig)
 	int nochild = 0, oerrno = errno, wstat;
 	Waitevent_f waitevent = sh.waitevent;
 	static int wcontinued = WCONTINUED;
-	if (vmbusy())
-	{
-		errormsg(SH_DICT,ERROR_warn(0),"vmbusy() inside job_reap() -- should not happen");
-		if (getenv("_AST_KSH_VMBUSY_ABORT"))
-			abort();
-	}
 #ifdef DEBUG
 	if(sfprintf(sfstderr,"ksh: job line %4d: reap PID=%lld critical=%d signal=%d\n",__LINE__,(Sflong_t)sh.current_pid,job.in_critical,sig) <=0)
 		write(2,"waitsafe\n",9);
@@ -490,7 +484,7 @@ int job_reap(int sig)
  */
 static void job_waitsafe(int sig)
 {
-	if(job.in_critical || vmbusy())
+	if(job.in_critical)
 	{
 		job.savesig = sig;
 		job.waitsafe++;

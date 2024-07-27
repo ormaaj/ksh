@@ -21,18 +21,8 @@
 . "${SHTESTS_COMMON:-${0%/*}/_common}"
 
 # Determine method for running tests.
-# The 'vmstate' builtin can be used if ksh was compiled with vmalloc.
-# (Pass -D_AST_vmalloc in CCFLAGS; for testing only as it's deprecated)
-if	builtin vmstate 2>/dev/null &&
-	n=$(vmstate --format='%(busy_size)u') &&
-	let "($n) == ($n) && n > 0"	# non-zero number?
-then	vmalloc=enabled
-	getmem()
-	{
-		print $(( $(vmstate --format='%(busy_size)u') / 1024 ))
-	}
 # On Linux, we can use /proc to get byte granularity for vsize (field 23).
-elif	[[ -f /proc/$$/stat && $(uname) == Linux ]]
+if	[[ -f /proc/$$/stat && $(uname) == Linux ]]
 then	getmem()
 	{
 		print $(( $(cut -f 23 -d ' ' </proc/$$/stat ) / 1024 ))
@@ -243,10 +233,6 @@ DONE
 # Multiple leaks when using arrays in functions (Red Hat #921455)
 # Fix based on: https://src.fedoraproject.org/rpms/ksh/blob/642af4d6/f/ksh-20120801-memlik.patch
 
-# TODO: When ksh is compiled with vmalloc, both of these tests still leak (although much less
-# after the patch) when run in a non-C locale.
-[[ $vmalloc == enabled ]] && saveLANG=$LANG && LANG=C	# comment out to test remaining leak (1/2)
-
 TEST	title='associative array in function'
 	function _hash
 	{
@@ -268,8 +254,6 @@ TEST	title='indexed array in function'
 DO
 	_array
 DONE
-
-[[ $vmalloc == enabled ]] && LANG=$saveLANG	# comment out to test remaining leak (2/2)
 
 # ======
 # Memory leak in typeset (Red Hat #1036470)

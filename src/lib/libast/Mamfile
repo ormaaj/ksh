@@ -154,12 +154,6 @@ make install virtual
 		exec - cp -f %{<} %{@}
 	done
 
-	make FEATURE/vmalloc
-		prev FEATURE/mmap
-		makp features/vmalloc
-		exec - invoke_iffe %{<}
-	done
-
 	make FEATURE/options
 		makp features/options
 		exec - invoke_iffe %{<}
@@ -171,7 +165,6 @@ make install virtual
 				prev sig.h
 				prev FEATURE/api
 				prev FEATURE/eaccess
-				prev FEATURE/vmalloc
 				prev FEATURE/options
 				prev FEATURE/mmap
 				prev FEATURE/lib
@@ -374,10 +367,6 @@ make install virtual
 		done include/ast_std.h
 		make include/sfio.h
 			makp include/sfio_s.h
-			prev ast_common.h
-			prev include/ast_std.h
-		done
-		make include/vmalloc.h
 			prev ast_common.h
 			prev include/ast_std.h
 		done
@@ -634,7 +623,6 @@ make install virtual
 			make misc/fastfind.c
 				make misc/findlib.h
 					makp include/find.h
-					prev include/vmalloc.h
 					prev include/regex.h
 					prev include/ls.h
 					prev include/error.h
@@ -1307,7 +1295,6 @@ make install virtual
 				prev include/error.h
 				prev include/modex.h
 				make include/dt.h
-					prev include/vmalloc.h
 					prev include/cdt.h
 				done
 				prev include/ccode.h
@@ -1495,7 +1482,6 @@ make install virtual
 				prev std/nl_types.h
 				prev include/mc.h
 				prev include/error.h
-				prev include/vmalloc.h
 				prev std/iconv.h
 				prev port/lclib.h
 				make sfio/sfhdr.h
@@ -2765,16 +2751,6 @@ make install virtual
 		make tmdata.o
 			make tm/tmdata.c
 				prev include/tm.h
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
-		make memfatal.o
-			make disc/memfatal.c
-				prev FEATURE/vmalloc
-				prev include/vmalloc.h
-				prev include/error.h
 				prev include/ast.h
 			done
 			exec - compile %{<}
@@ -4604,166 +4580,6 @@ make install virtual
 			exec - compile %{<} -Iaso
 		done
 
-		make vmbest.o
-			make vmalloc/vmbest.c
-				prev include/ast_windows.h
-				make vmalloc/vmhdr.h
-					prev include/vmalloc.h
-					prev include/ast_windows.h
-					prev include/aso.h
-					prev FEATURE/vmalloc
-					prev ast_common.h
-					prev sig.h
-					prev include/ast.h
-				done
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmclear.o
-			make vmalloc/vmclear.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmclose.o
-			make vmalloc/vmclose.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmdcheap.o
-			make vmalloc/vmdcheap.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmdebug.o
-			make vmalloc/vmdebug.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmdisc.o
-			make vmalloc/vmdisc.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmlast.o
-			make vmalloc/vmlast.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmopen.o
-			make vmalloc/vmopen.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmpool.o
-			make vmalloc/vmpool.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmprivate.o
-			make vmalloc/vmprivate.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmprofile.o
-			make vmalloc/vmprofile.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmregion.o
-			make vmalloc/vmregion.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmsegment.o
-			make vmalloc/vmsegment.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmset.o
-			make vmalloc/vmset.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmstat.o
-			make vmalloc/vmstat.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmstrdup.o
-			make vmalloc/vmstrdup.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmtrace.o
-			make vmalloc/vmtrace.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmwalk.o
-			make vmalloc/vmwalk.c
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmmopen.o
-			make vmalloc/vmmopen.c
-				prev std/stdio.h
-				prev vmalloc/vmhdr.h
-				prev FEATURE/vmalloc
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make malloc.o
-			make vmalloc/malloc.c
-				prev include/ast_windows.h
-				prev std/stdio.h
-				prev vmalloc/vmhdr.h
-			done
-			exec - compile %{<} -Ivmalloc
-		done
-
-		make vmgetmem.o
-			make vmalloc/vmgetmem.c
-				prev include/vmalloc.h
-			done
-			exec - compile %{<}
-		done
-
 		note *
 		note * Link the library
 		note *
@@ -4812,7 +4628,7 @@ make install virtual
 	done
 
 	note * section 3 manual pages
-	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 magic mem mime modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc streval strgid strmatch stropt strperm strsignal strsort strtape strton struid swap tab tm tmx tok touch tv vmalloc
+	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 magic mem mime modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc streval strgid strmatch stropt strperm strsignal strsort strtape strton struid swap tab tm tmx tok touch tv
 		make %{INSTALLROOT}/man/man3/%{SECT3MAN}.3
 			makp man/%{SECT3MAN}.3
 			exec - cp -f %{<} %{@}
@@ -4829,7 +4645,7 @@ make install virtual
 	note * #include headers
 	make %{INSTALLROOT}/lib/mam/ast
 		note * ...main AST headers
-		loop HDR ast ast_dir ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok vdb vmalloc wait magicid fnv aso
+		loop HDR ast ast_dir ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok vdb wait magicid fnv aso
 			make %{INCLUDE_AST}/%{HDR}.h
 				prev include/%{HDR}.h
 				exec - cp -f %{<} %{@}

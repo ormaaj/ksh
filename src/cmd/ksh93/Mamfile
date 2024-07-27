@@ -262,7 +262,6 @@ make install virtual
 	done
 
 	make include/jobs.h
-		prev %{INCLUDE_AST}/vmalloc.h
 		prev include/terminal.h
 		prev %{INCLUDE_AST}/aso.h
 		prev %{INCLUDE_AST}/sfio.h
@@ -616,7 +615,6 @@ make install virtual
 	done
 
 	make sh/fault.c
-		prev %{INCLUDE_AST}/vmalloc.h
 		prev include/ulimit.h
 		prev include/builtins.h
 		prev include/path.h
@@ -859,7 +857,6 @@ make install virtual
 	done
 
 	make sh/xec.c
-		prev %{INCLUDE_AST}/vmalloc.h
 		prev include/streval.h
 		prev FEATURE/locale
 		prev FEATURE/externs

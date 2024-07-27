@@ -40,10 +40,6 @@
 #include	"FEATURE/locale"
 #include	"streval.h"
 
-#if !_std_malloc
-#   include	<vmalloc.h>
-#endif
-
 #if _lib_getrusage && !defined(RUSAGE_SELF)
 #   include <sys/resource.h>
 #endif
@@ -2814,9 +2810,6 @@ pid_t _sh_fork(pid_t parent,int flags,int *jobid)
 			*jobid = myjob;
 		return parent;
 	}
-#if !_std_malloc
-	vmtrace(-1);
-#endif
 	/* This is the child process */
 	sh.current_ppid = sh.current_pid;
 	sh.current_pid = getpid();  /* ${.sh.pid} */

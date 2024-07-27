@@ -342,7 +342,6 @@ extern char*		fmttime(const char*, time_t);
 extern char*		fmtuid(int);
 extern char*		fmtversion(unsigned long);
 extern void*		memdup(const void*, size_t);
-extern void		memfatal(void);
 extern unsigned int	memhash(const void*, int);
 extern unsigned long	memsum(const void*, int, unsigned long);
 extern char*		pathaccess(char*, const char*, const char*, const char*, int);
@@ -424,22 +423,6 @@ extern int		wc2utf8(char*, uint32_t);
 #define	environ		__DYNAMIC__(environ)
 #else
 extern char**		environ;
-#endif
-
-/*
- * really handy malloc()/free() (__FILE__,__LINE__,__FUNCTION__) tracing
- * make with VMDEBUG==1 or debug=1 or CCFLAGS=$(CC.DEBUG)
- * VMDEBUG==0 disables
- * at runtime export VMALLOC_OPTIONS per vmalloc.3
- * to list originating call locations
- */
-
-#if !_std_malloc && !defined(VMFL) && !defined(_VMHDR_H) && \
-	(VMDEBUG || !defined(VMDEBUG) && _BLD_DEBUG)
-
-#define VMFL	1
-#include <vmalloc.h>
-
 #endif
 
 #include <ast_api.h>

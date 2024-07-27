@@ -95,22 +95,11 @@ struct jobs
 
 extern struct jobs job;
 
-#if !_std_malloc
-#include <vmalloc.h>
-#ifdef vmlocked
-#define vmbusy()	vmlocked(Vmregion)
-#else
-#define vmbusy()	(vmstat(0,0)!=0)
-#endif
-#else
-#define vmbusy()	0
-#endif
-
 #define job_lock()	asoincint(&job.in_critical)
 #define job_unlock()	\
 	do { \
 		int	_sig; \
-		if (asogetint(&job.in_critical) == 1 && (_sig = job.savesig) && !vmbusy()) \
+		if (asogetint(&job.in_critical) == 1 && (_sig = job.savesig)) \
 		    job_reap(_sig); \
 		asodecint(&job.in_critical); \
 	} while(0)

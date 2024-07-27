@@ -32,7 +32,7 @@ static const char lib[] = "libast:magic";
 #include <ast.h>
 #include <ctype.h>
 #include <ccode.h>
-#include <dt.h>
+#include <cdt.h>
 #include <modex.h>
 #include <error.h>
 #include <regex.h>
@@ -1105,7 +1105,7 @@ cklang(Magic_t* mp, const char* file, char* buf, char* end, struct stat* st)
 							}
 						if (!mp->idtab)
 						{
-							if (mp->idtab = dtnew(&mp->dtdisc, Dtset))
+							if (mp->idtab = dtopen(&mp->dtdisc, Dtset))
 								for (q = 0; q < elementsof(dict); q++)
 									dtinsert(mp->idtab, &dict[q]);
 							else if (mp->disc->errorf)
@@ -2264,7 +2264,7 @@ magicopen(Magicdisc_t* disc)
 	mp->redisc.re_resizehandle = 0;
 	mp->dtdisc.key = offsetof(Info_t, name);
 	mp->dtdisc.link = offsetof(Info_t, link);
-	if (!(mp->tmp = sfstropen()) || !(mp->infotab = dtnew(&mp->dtdisc, Dtoset)))
+	if (!(mp->tmp = sfstropen()) || !(mp->infotab = dtopen(&mp->dtdisc, Dtoset)))
 		goto bad;
 	for (n = 0; n < elementsof(info); n++)
 		dtinsert(mp->infotab, &info[n]);

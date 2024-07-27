@@ -1294,9 +1294,7 @@ make install virtual
 				prev include/regex.h
 				prev include/error.h
 				prev include/modex.h
-				make include/dt.h
-					prev include/cdt.h
-				done
+				prev include/cdt.h
 				prev include/ccode.h
 				prev include/ast.h
 			done
@@ -3234,13 +3232,6 @@ make install virtual
 			exec - compile %{<} -Icdt
 		done
 
-		make dtnew.o
-			make cdt/dtnew.c
-				prev include/dt.h
-			done
-			exec - compile %{<}
-		done
-
 		make dtcomp.o
 			make cdt/dtcomp.c
 				prev include/cdt.h
@@ -4645,7 +4636,7 @@ make install virtual
 	note * #include headers
 	make %{INSTALLROOT}/lib/mam/ast
 		note * ...main AST headers
-		loop HDR ast ast_dir ast_std ast_windows ccode cdt cmdarg debug dt error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok vdb wait magicid fnv aso
+		loop HDR ast ast_dir ast_std ast_windows ccode cdt cmdarg debug error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok vdb wait magicid fnv aso
 			make %{INCLUDE_AST}/%{HDR}.h
 				prev include/%{HDR}.h
 				exec - cp -f %{<} %{@}

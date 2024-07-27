@@ -114,7 +114,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2024-07-22 $
+@(#)$Id: '$command$' (ksh 93u+m) 2024-07-27 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -547,7 +547,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2024-07-22
+  version         package (ksh 93u+m) 2024-07-27
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -2602,9 +2602,9 @@ do_install() # dir [ command ... ]
 	# and off we go
 	trace mkdir -p "$bindir" "$man1dir" || exit
 	for f
-	do	# macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
+	do	# macOS throws code signature error if in-use Mach-O binary is overwritten or deleted; must rename first
 		if	test -e "$bindir/$f"
-		then	rm -f "$bindir/$f" || exit
+		then	trace mv "$bindir/$f" "$bindir/$f.old" || exit
 		fi
 		# install executable
 		if	test -f "dyn/bin/$f"
@@ -2636,12 +2636,13 @@ do_install() # dir [ command ... ]
 		set +o noglob
 		for f in dyn/lib/*
 		do	set -o noglob
-			# macOS throws code signature error if 'cp' overwrites Mach-O binary; must remove first
-			if	test -e "$libdir/$f"
-			then	rm -f "$libdir/$f" || exit
+			# macOS throws code signature error if in-use Mach-O binary is overwritten or deleted; must rename first
+			fi=$libdir/${f##*/}
+			if	test -e "$fi" && ! test -L "$fi"
+			then	trace mv "$fi" "$fi.old" || exit
 			fi
-			# cp -P is not yet universally supported, but cp -R also preserves symlinks
-			trace cp -R "$f" "$libdir"/
+			# the extra -R is needed as a workaround for /bin/cp to copy a symlink on (at least) macOS 12.7.5
+			trace cp -PR "$f" "$libdir"/ || exit
 		done
 		# install developer stuff
 		test -d "$includedir/ast" && trace rm -rf -- "$includedir/ast"

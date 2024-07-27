@@ -2160,7 +2160,7 @@ Namfun_t	*nv_mapchar(Namval_t *np,const char *name)
 	if(!trans)
 		return NULL;
 	if(!np)
-		return ((Namfun_t*)0) + 1;
+		return ((Namfun_t*)1);  /* non-dereferenceable non-NULL result to use as boolean true */
 	if((low=strcmp(name,e_tolower)) && strcmp(name,e_toupper))
 		n += strlen(name)+1;
 	if(mp)

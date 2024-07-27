@@ -380,7 +380,7 @@ setbuf:
 
 		/* read+string stream should have all data available */
 		if((f->mode&SFIO_READ) && !sf_malloc)
-			f->endb = f->data+size;
+			f->endb = f->data ? f->data+size : NULL;
 	}
 
 	f->flags = (f->flags & ~SFIO_MALLOC)|sf_malloc;

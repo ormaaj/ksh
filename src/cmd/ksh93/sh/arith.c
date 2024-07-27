@@ -279,9 +279,9 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 		else if((attr & NV_INT64)==NV_INT64)		/* long signed integer */
 			r = (intmax_t)n;
 		else if((attr & NV_INT16)==NV_INT16)		/* short signed integer */
-			r = (int16_t)n;
+			r = (int16_t)((intmax_t)n);
 		else if((attr & NV_INT32)==NV_INT32)		/* normal signed integer */
-			r = (int32_t)n;
+			r = (int32_t)((intmax_t)n);
 #if _AST_release
 		else	r = n;					/* should never happen */
 #else

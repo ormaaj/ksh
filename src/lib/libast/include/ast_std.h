@@ -271,16 +271,8 @@ extern _Ast_info_t	_ast_info;
 
 /* direct macro access for bsd crossover */
 
-#if !defined(memcpy) && !defined(_lib_memcpy) && defined(_lib_bcopy)
-#define memcpy(t,f,n)	(bcopy(f,t,n),(t))
-#endif
-
 #if !defined(memzero) && !defined(_lib_memzero)
-#if defined(_lib_memset) || !defined(_lib_bzero)
 #define memzero(b,n)	memset(b,0,n)
-#else
-#define memzero(b,n)	(bzero(b,n),(b))
-#endif
 #endif
 
 #if !defined(remove)

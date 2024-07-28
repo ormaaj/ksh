@@ -80,14 +80,8 @@ char* sfgetr(Sfio_t*	f,	/* stream to read from	*/
 			}
 		}
 
-#if _lib_memchr
 		if(!(s = (uchar*)memchr((char*)s,rc,n)))
 			s = ends;
-#else
-		while(*s != rc)
-			if((s += 1) == ends)
-				break;
-#endif
 	do_copy:
 		if(s < ends) /* found separator */
 		{	s += 1;		/* include the separator */

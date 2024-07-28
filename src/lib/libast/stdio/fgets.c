@@ -46,30 +46,10 @@ _stdgets(Sfio_t* f, char* us, int n, int isgets)
 		if(p > n)
 			p = n;
 
-#if _lib_memccpy
 		if((ps = (uchar*)memccpy((char*)is,(char*)ps,'\n',p)) != NULL)
 			p = ps-is;
 		is += p;
 		ps  = f->next+p;
-#else
-		if(!(f->flags&(SFIO_BOTH|SFIO_MALLOC)))
-		{	while(p-- && (*is++ = *ps++) != '\n')
-				;
-			p = ps-f->next;
-		}
-		else
-		{	int	c = ps[p-1];
-			if(c != '\n')
-				ps[p-1] = '\n';
-			while((*is++ = *ps++) != '\n')
-				;
-			if(c != '\n')
-			{	f->next[p-1] = c;
-				if((ps-f->next) >= p)
-					is[-1] = c;
-			}
-		}
-#endif
 
 		/* gobble up read data and continue */
 		f->next = ps;

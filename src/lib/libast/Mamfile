@@ -2262,50 +2262,8 @@ make install virtual
 			exec - compile %{<}
 		done
 
-		make memccpy.o
-			make comp/memccpy.c
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
-		make memchr.o
-			make comp/memchr.c
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
-		make memcmp.o
-			make comp/memcmp.c
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
-		make memcpy.o
-			make comp/memcpy.c
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
 		make memdup.o
 			make string/memdup.c
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
-		make memmove.o
-			make comp/memmove.c
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
-		make memset.o
-			make comp/memset.c
 				prev include/ast.h
 			done
 			exec - compile %{<}

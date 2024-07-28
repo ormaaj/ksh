@@ -412,18 +412,18 @@ static void report(int level, char *text, char *item, unsigned long stamp)
  * don't know how to make or exit code making
  */
 
-static void dont(Rule_t *r, int code, int keepgoing)
+static void error_making(Rule_t *r, int code)
 {
 	identify(stderr);
 	if (!code)
-		report(keepgoing ? 1 : 3, "missing prerequisite", r->name, 0);
+		report(state.keepgoing ? 1 : 3, "missing prerequisite", r->name, 0);
 	else
 	{
 		fprintf(stderr, "*** exit code %d making %s%s\n", code, r->name, state.ignore ? " ignored" : "");
 		unlink(r->name);
 		if (state.ignore)
 			return;
-		if (!keepgoing)
+		if (!state.keepgoing)
 			exit(1);
 		state.errors = 1;
 	}
@@ -645,16 +645,16 @@ static void *getval(Dict_t *dict, char *name)
  * low level for walk()
  */
 
-static int apply(Dict_t *dict, Dict_item_t *item, int (*func)(Dict_item_t *, void *), void *handle)
+static int apply(Dict_t *dict, Dict_item_t *item, int (*func)(Dict_item_t *))
 {
 	Dict_item_t	*right;
 
 	do
 	{
 		right = item->right;
-		if (item->left && apply(dict, item->left, func, handle))
+		if (item->left && apply(dict, item->left, func))
 			return -1;
-		if ((*func)(item, handle))
+		if ((*func)(item))
 			return -1;
 	} while (item = right);
 	return 0;
@@ -664,9 +664,9 @@ static int apply(Dict_t *dict, Dict_item_t *item, int (*func)(Dict_item_t *, voi
  * apply func to each dictionary item
  */
 
-static int walk(Dict_t *dict, int (*func)(Dict_item_t *, void *), void *handle)
+static int walk(Dict_t *dict, int (*func)(Dict_item_t *))
 {
-	return dict->root ? apply(dict, dict->root, func, handle) : 0;
+	return dict->root ? apply(dict, dict->root, func) : 0;
 }
 
 /*
@@ -1453,7 +1453,7 @@ static unsigned long run(Rule_t *r, char *s)
 	if (x)
 	{
 		if (c = execute(s))
-			dont(r, c, state.keepgoing);
+			error_making(r, c);
 		if (status(NULL, 0, r->name, &st))
 		{
 			r->time = st.st_mtime;
@@ -1992,7 +1992,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			}
 			r->flags |= RULE_made;
 			if (!(r->flags & (RULE_dontcare|RULE_error|RULE_exists|RULE_generated|RULE_virtual)))
-				dont(r, 0, state.keepgoing);
+				error_making(r, 0);
 			break;
 
 		case KEY('e','x','e','c'):
@@ -2125,7 +2125,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				{
 					x = bindfile(q);
 					if (!(q->flags & (RULE_dontcare | RULE_exists)))
-						dont(q, 0, state.keepgoing);
+						error_making(q, 0);
 					if (modtime < x)
 						modtime = x;
 					if (q->flags & RULE_error)
@@ -2228,12 +2228,12 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
  * verify that active targets were made
  */
 
-static int verify(Dict_item_t *item, void *handle)
+static int verify(Dict_item_t *item)
 {
 	Rule_t	*r = item->value;
 
 	if ((r->flags & (RULE_active|RULE_error|RULE_made)) == RULE_active)
-		dont(r, 0, 1);
+		error_making(r, 0);
 	return 0;
 }
 
@@ -2306,7 +2306,7 @@ static int update(Rule_t *r)
  * scan Mamfile prereqs
  */
 
-static int scan(Dict_item_t *item, void *handle)
+static int scan(Dict_item_t *item)
 {
 	Rule_t	*r = item->value;
 	char	*s, *t;
@@ -2365,7 +2365,7 @@ static int scan(Dict_item_t *item, void *handle)
  * descend into op and its prereqs
  */
 
-static int descend(Dict_item_t *item, void *handle)
+static int descend(Dict_item_t *item)
 {
 	Rule_t	*r = item->value;
 
@@ -2378,7 +2378,7 @@ static int descend(Dict_item_t *item, void *handle)
  * append the non-leaf active targets to state.opt
  */
 
-static int active(Dict_item_t *item, void *handle)
+static int active(Dict_item_t *item)
 {
 	Rule_t *r = item->value;
 
@@ -2445,7 +2445,7 @@ static int recurse(char *pattern)
 	if (!state.active)
 	{
 		state.active = 1;
-		walk(state.rules, active, NULL);
+		walk(state.rules, active);
 	}
 	setval(state.vars, "MAMAKEARGS", duplicate(use(state.opt) + 1));
 
@@ -2453,14 +2453,14 @@ static int recurse(char *pattern)
 	 * scan the Mamfile and descend
 	 */
 
-	walk(state.rules, scan, NULL);
+	walk(state.rules, scan);
 	while (state.view)
 	{
 		View_t *prev = state.view;
 		state.view = state.view->next;
 		free(prev);
 	}
-	walk(state.rules, descend, NULL);
+	walk(state.rules, descend);
 	return 0;
 }
 
@@ -2793,7 +2793,10 @@ int main(int argc, char **argv)
 	 */
 
 	if (!state.active && !state.verified)
-		walk(state.rules, verify, NULL);
+	{
+		state.keepgoing = 1;
+		walk(state.rules, verify);
+	}
 
 	/*
 	 * done

@@ -502,12 +502,14 @@ typedef struct Master_s
 	char*		nxt;		/* next line				*/
 	char*		end;		/* end of lines				*/
 	char*		max;		/* end of buf				*/
+	char*		bufunderflow;	/* FIXME: kludge to cope with underflow	*/
 	char*		buf;		/* current buffer			*/
 	char*		prompt;		/* peek prompt				*/
 	int		cursor;		/* cursor in buf, 0 if fresh line	*/
 	int		line;		/* prompt line number			*/
 	int		restore;	/* previous line save char		*/
 } Master_t;
+#define BUFUNDERFLOW	128		/* bytes of buffer underflow to allow	*/
 
 /*
  * read one line from the master
@@ -653,9 +655,10 @@ masterline(Sfio_t* mp, Sfio_t* lp, char* prompt, int must, int timeout, Master_t
 		r = bp->buf;
 		old_buf_size = bp->max - bp->buf + 1;
 		new_buf_size = roundof(old_buf_size + n, SFIO_BUFSIZE);
-		bp->buf = realloc(bp->buf, new_buf_size);
-		if (!bp->buf)
+		bp->bufunderflow = realloc(bp->bufunderflow, new_buf_size + BUFUNDERFLOW);
+		if (!bp->bufunderflow)
 			outofmemory();
+		bp->buf = bp->bufunderflow + BUFUNDERFLOW;
 		memset(bp->buf + old_buf_size, 0, new_buf_size - old_buf_size);
 		bp->max = bp->buf + new_buf_size - 1;
 		if (bp->buf != r)
@@ -697,8 +700,8 @@ masterline(Sfio_t* mp, Sfio_t* lp, char* prompt, int must, int timeout, Master_t
 	if (bp->cursor)
 	{
 		r -= bp->cursor; /* FIXME: r may now be before bp->buf */
-		if (r < bp->buf)
-			error(ERROR_PANIC, "pty.c:%d: internal error: r is %d bytes before bp->buf", __LINE__, bp->buf - r);
+		if (r < bp->bufunderflow)
+			error(ERROR_PANIC, "pty.c:%d: internal error: r is %d bytes before bp->bufunderflow", __LINE__, bp->bufunderflow - r);
 		bp->cursor = 0;
 	}
 	for (t = 0, n = 0; *s; s++)
@@ -791,8 +794,9 @@ dialogue(Sfio_t* mp, Sfio_t* lp, int delay, int timeout)
 
 	if (!(cond = calloc(1, sizeof(*cond))) ||
 	    !(master = calloc(1, sizeof(*master))) ||
-	    !(master->buf = calloc(2 * SFIO_BUFSIZE, sizeof(char))))
+	    !(master->bufunderflow = calloc(2 * SFIO_BUFSIZE + BUFUNDERFLOW, sizeof(char))))
 		outofmemory();
+	master->buf = master->bufunderflow + BUFUNDERFLOW;
 	master->cur = master->end = master->buf;
 	master->max = master->buf + 2 * SFIO_BUFSIZE - 1;
 	master->restore = -1;

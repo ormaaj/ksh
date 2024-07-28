@@ -165,7 +165,7 @@ static noreturn void outofmemory(void)
 		if(_pty_first[n-2]=='p' && (name[n-2]=='z' || name[n-2]=='Z'))
 		{
 			if(name[n-2]=='z')
-				name[n-2]=='P';
+				name[n-2]='P';
 			else
 				return NULL;
 		}
@@ -649,13 +649,15 @@ masterline(Sfio_t* mp, Sfio_t* lp, char* prompt, int must, int timeout, Master_t
 	error(-2, "b \"%s\"", fmtnesq(s, "\"", n));
 	if ((bp->max - bp->end) < n)
 	{
-		ssize_t	new_buf_size;
+		size_t	old_buf_size, new_buf_size;
 		r = bp->buf;
-		new_buf_size = roundof(bp->max - bp->buf + n, SFIO_BUFSIZE);
+		old_buf_size = bp->max - bp->buf + 1;
+		new_buf_size = roundof(old_buf_size + n, SFIO_BUFSIZE);
 		bp->buf = realloc(bp->buf, new_buf_size);
 		if (!bp->buf)
 			outofmemory();
-		bp->max = bp->buf + new_buf_size;
+		memset(bp->buf + old_buf_size, 0, new_buf_size - old_buf_size);
+		bp->max = bp->buf + new_buf_size - 1;
 		if (bp->buf != r)
 		{
 			d = bp->buf - r;
@@ -694,7 +696,9 @@ masterline(Sfio_t* mp, Sfio_t* lp, char* prompt, int must, int timeout, Master_t
 	s = r;
 	if (bp->cursor)
 	{
-		r -= bp->cursor;
+		r -= bp->cursor; /* FIXME: r may now be before bp->buf */
+		if (r < bp->buf)
+			error(ERROR_PANIC, "pty.c:%d: internal error: r is %d bytes before bp->buf", __LINE__, bp->buf - r);
 		bp->cursor = 0;
 	}
 	for (t = 0, n = 0; *s; s++)

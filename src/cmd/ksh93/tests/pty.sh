@@ -402,6 +402,9 @@ r history
 !
 fi
 
+# FIXME: following test temporarily disabled; it causes pty.c to throw an internal
+# error to avoid a crash (see the FIXME in pty.c). Re-enable it to debug pty.c.
+: <<'__disabled__'
 if	[[ $(id -u) == 0 ]]
 then	warning "running as root: skipping test POSIX sh 251(C)"
 else
@@ -448,6 +451,7 @@ c n
 r echo repeat-3
 !
 fi
+__disabled__
 
 # This test freezes the 'less' pager on OpenBSD, which is not a ksh bug.
 : <<\disabled

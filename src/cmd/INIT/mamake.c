@@ -1169,7 +1169,7 @@ static char *find(Buf_t *buf, char *file, struct stat *st)
  * bind r to a file and return the modify time
  */
 
-static unsigned long bindfile(Rule_t *r)
+static void bindfile(Rule_t *r)
 {
 	char		*s;
 	Buf_t		*buf;
@@ -1184,7 +1184,6 @@ static unsigned long bindfile(Rule_t *r)
 		r->flags |= RULE_exists;
 	}
 	drop(buf);
-	return r->time;
 }
 
 /*
@@ -1318,7 +1317,7 @@ static int execute(char *s)
  * run action s to update r
  */
 
-static unsigned long run(Rule_t *r, char *s)
+static void run(Rule_t *r, char *s)
 {
 	Rule_t	*q;
 	char	*t;
@@ -1327,7 +1326,7 @@ static unsigned long run(Rule_t *r, char *s)
 	Buf_t	*buf;
 
 	if (r->flags & RULE_error)
-		return r->time;
+		return;
 	buf = buffer();
 	if (!strncmp(s, "mamake -r ", 10))
 	{
@@ -1471,7 +1470,6 @@ static unsigned long run(Rule_t *r, char *s)
 		r->flags |= RULE_exists;
 	}
 	drop(buf);
-	return r->time;
 }
 
 /*
@@ -1788,6 +1786,18 @@ static void update_allprev(Rule_t *r, char *all, char *upd)
 }
 
 /*
+ * propagate last-modified timestamp and error flag from child rule to current rule
+ */
+
+static void propagate(Rule_t *q, Rule_t *r, unsigned long *modtime)
+{
+	if (!(q->flags & RULE_ignore) && *modtime < q->time)
+		*modtime = q->time;
+	if (r && (q->flags & RULE_error))
+		r->flags |= RULE_error;
+}
+
+/*
  * input() until `done r'
  *
  * This function is called recursively for both 'make' and 'loop'. The inloop
@@ -1803,7 +1813,6 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 	char		*t;	/* argument word */
 	char		*v;	/* operand string */
 	Rule_t		*q;	/* new rule */
-	unsigned long	x;	/* new modtime */
 	Buf_t		*buf;	/* scratch buffer */
 	Buf_t		*cmd;	/* shell action */
 
@@ -1818,7 +1827,10 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 		if (*r->name)
 		{
 			if (!(r->flags & RULE_virtual))
-				modtime = bindfile(r);
+			{
+				bindfile(r);
+				modtime = r->time;
+			}
 			report(-1, r->name, "make", r->time);
 			state.indent++;
 		}
@@ -1872,11 +1884,8 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 					{
 						q = rule(expand(buf, t));
 						attributes(q, v);
-						x = bindfile(q);
-						if (modtime < x)
-							modtime = x;
-						if (q->flags & RULE_error)
-							r->flags |= RULE_error;
+						bindfile(q);
+						propagate(q, r, &modtime);
 						report(-1, q->name, "bind: file", q->time);
 					}
 					if (!s)
@@ -1905,10 +1914,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				if ((q = getval(state.rules, use(buf))) && (q->flags & RULE_made))
 				{
 					/* ...then do a 'prev _hdrdeps_libNAME_' */
-					if (!(q->flags & RULE_ignore) && modtime < q->time)
-						modtime = q->time;
-					if (q->flags & RULE_error)
-						r->flags |= RULE_error;
+					propagate(q, r, &modtime);
 					report(-2, q->name, "bind: prev", q->time);
 					continue;
 				}
@@ -1985,9 +1991,8 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				}
 
 				/* run the shell action */
-				x = run(r, use(cmd));
-				if (modtime < x)
-					modtime = x;
+				run(r, use(cmd));
+				propagate(r, NULL, &modtime);
 				r->flags |= RULE_updated;
 			}
 			r->flags |= RULE_made;
@@ -2092,11 +2097,8 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			{
 				/* make the target */
 				attributes(q, v);
-				x = make(q, 0, 0, NULL);
-				if (!(q->flags & RULE_ignore) && modtime < x)
-					modtime = x;
-				if (q->flags & RULE_error)
-					r->flags |= RULE_error;
+				make(q, 0, 0, NULL);
+				propagate(q, r, &modtime);
 			}
 			/* update ${<}, restore/update ${^} and ${?} */
 			if (auto_allprev->value != empty)
@@ -2123,13 +2125,10 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				attributes(q = rule(name), v);
 				if (!(q->flags & RULE_virtual))
 				{
-					x = bindfile(q);
+					bindfile(q);
 					if (!(q->flags & (RULE_dontcare | RULE_exists)))
 						error_making(q, 0);
-					if (modtime < x)
-						modtime = x;
-					if (q->flags & RULE_error)
-						r->flags |= RULE_error;
+					propagate(q, r, &modtime);
 				}
 				q->flags |= RULE_made;
 				report(-2, q->name, "makp", q->time);
@@ -2147,10 +2146,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", name, 0);
 			else
 			{
-				if (!(q->flags & RULE_ignore) && modtime < q->time)
-					modtime = q->time;
-				if (q->flags & RULE_error)
-					r->flags |= RULE_error;
+				propagate(q, r, &modtime);
 				report(-2, q->name, "prev", q->time);
 			}
 			/* update ${<}, ${^} and ${?} */

@@ -1,4 +1,4 @@
-lib	lstat,mknod,sync sys/types.h sys/stat.h
+lib	mknod,sync sys/types.h sys/stat.h
 mac	fstat,lstat,stat,mknod sys/types.h sys/stat.h
 
 header	sys/stat.h

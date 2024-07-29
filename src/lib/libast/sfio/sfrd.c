@@ -97,7 +97,7 @@ ssize_t sfrd(Sfio_t* f, void* buf, size_t n, Sfdisc_t* disc)
 
 		dc = disc;
 		if(f->flags&SFIO_STRING)
-		{	if(f->data && (r = (f->data+f->extent) - f->next) < 0)
+		{	if(!f->data || (r = (f->data+f->extent) - f->next) < 0)
 				r = 0;
 			if(r <= 0)
 				goto do_except;

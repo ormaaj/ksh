@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-07-25"
+#define RELEASE_DATE "2024-07-29"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -63,8 +63,6 @@ static const char usage[] =
 "[+?\bmamprobe\b(1) is called to probe and generate system specific variable"
 "	definitions. The probe information is regenerated when it is older"
 "	than the \bmamprobe\b command.]"
-"[+?For compatibility with \bnmake\b(1) the \b-K\b option and the"
-"	\brecurse\b and \bcc-*\b command line targets are ignored.]"
 "[e:?Explain reason for triggering action. Ignored if -F is on.]"
 "[f:?Read \afile\a instead of the default.]:[file:=Mamfile]"
 "[i:?Ignore action errors.]"
@@ -82,7 +80,6 @@ static const char usage[] =
 "[D:?Set the debug trace level to \alevel\a. Higher levels produce more"
 "	output.]#[level]"
 "[F:?Force all targets to be out of date.]"
-"[K:?Ignored.]"
 "[N:?Like \b-n\b but recursion actions (see \b-r\b) are also disabled.]"
 "[V:?Print the program version and exit.]"
 "[G:debug-symbols?Compile and link with debugging symbol options enabled.]"
@@ -92,8 +89,7 @@ static const char usage[] =
 "\n[ target ... ] [ name=value ... ]\n"
 "\n"
 
-"[+SEE ALSO?\bgmake\b(1), \bmake\b(1), \bmamprobe\b(1),"
-"	\bnmake\b(1), \bsh\b(1)]"
+"[+SEE ALSO?\bmamprobe\b(1), \bsh\b(1)]"
 ;
 
 #else
@@ -335,7 +331,7 @@ extern char		**environ;
 static void usage(void)
 {
 	fprintf(stderr, "Usage: %s"
-		" [-iknFKNV]"
+		" [-iknFNV]"
 		" [-f Mamfile]"
 		" [-r pattern]"
 		" [-C directory]"
@@ -2513,8 +2509,6 @@ int main(int argc, char **argv)
 			append(state.opt, " -F");
 			state.force = 1;
 			continue;
-		case 'K':
-			continue;
 		case 'V':
 			return !(write(1, id + 10, strlen(id) - 12) > 0 && putchar('\n') == '\n');
 		case 'f':
@@ -2625,8 +2619,6 @@ int main(int argc, char **argv)
 			case 'G':
 				append(state.opt, " -G");
 				setval(state.vars, "-debug-symbols", "1");
-				continue;
-			case 'K':
 				continue;
 			case 'S':
 				append(state.opt, " -S");
@@ -2741,14 +2733,6 @@ int main(int argc, char **argv)
 		}
 		if (!*t)
 		{
-			/*
-			 * handle a few targets for nmake compatibility
-			 */
-
-			if (*s == 'e' && !strncmp(s, "error 0 $(MAKEVERSION:", 22))
-				exit(1);
-			if (*s == 'r' && !strcmp(s, "recurse") || *s == 'c' && !strncmp(s, "cc-", 3))
-				continue;
 			rule(s)->flags |= RULE_active;
 			state.active = 0;
 			if (state.recurse)

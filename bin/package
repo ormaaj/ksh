@@ -88,6 +88,23 @@ checksh()
 	"$1" -c "$min_posix" 2>/dev/null || return 1
 }
 
+# simple shell-quoting function
+# usage: shellquote VARNAME
+# NOTE: a valid variable name is assumed
+shellquote()
+{
+	eval "_q_=\${$1}"
+	case ${_q_} in
+	*\'*)	# change every ' to '\''
+		# protect final linefeeds from being stripped by the $(comsub) by adding a trailing X
+		_q_=$(printf '%sX' "${_q_}" | sed "s/'/'\\\\''/g") || exit
+		# remove the trailing X
+		_q_=${_q_%X} ;;
+	esac
+	# add leading/trailing ' and store back in given variable
+	eval "$1=\\'\${_q_}\\'"
+}
+
 LC_ALL=C
 export LC_ALL
 
@@ -114,7 +131,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2024-07-27 $
+@(#)$Id: '$command$' (ksh 93u+m) 2024-07-30 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -547,7 +564,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2024-07-27
+  version         package (ksh 93u+m) 2024-07-30
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -623,51 +640,58 @@ assign=
 assign_CCFLAGS=
 for i
 do	case $i in
-	*:*=*)	args="$args $i"
-		continue
-		;;
-	*=*)	n=${i%%=*} v=${i#*=}
-		;;
-	esac
-	case $i in
-	AR=*|LD=*|NM=*)
-		assign="$assign $n='$v'"
-		eval $n='$'v
-		;;
-	CC=*)	eval $n='$'v
-		;;
-	CCFLAGS=*)
-		eval $n='$'v
-		assign_CCFLAGS="CCFLAGS=\"\$CCFLAGS\""
-		;;
-	HOSTTYPE=*)
-		eval $n='$'v
-		case $HOSTTYPE in
-		?*)	KEEP_HOSTTYPE=1 ;;
-		esac
-		;;
-	PACKAGEROOT=*)
-		eval $n='$'v
-		case $PACKAGEROOT in
-		?*)	KEEP_PACKAGEROOT=1 ;;
-		esac
-		;;
-	SHELL=*)eval $n='$'v
-		case $SHELL in
-		?*)	KEEP_SHELL=2 ;;
-		esac
-		;;
-	VPATH=*)eval USER_$n='$'v
-		;;
 	'debug=1')
 		makeflags="$makeflags --debug-symbols -e"
 		;;
 	'strip=1')
 		makeflags="$makeflags --strip-symbols"
 		;;
-	*=*)	assign="$assign $n='$v'"
+	*=*)	# treat as assignment if the variable name is valid
+		n=${i%%=*} v=${i#*=}
+		case $n in
+		[!A-Za-z_]* | *[!A-Za-z0-9_]*)
+			# if not, it's just a regular argument
+			shellquote i
+			args="$args $i"
+			;;
+		esac
+		shellquote v
+		case $n in
+		AR | LD | NM)
+			assign="$assign $n=$v"
+			eval "$n=\$v"
+			;;
+		CC)	eval "$n=\$v"
+			;;
+		CCFLAGS)
+			eval "$n=\$v"
+			assign_CCFLAGS="CCFLAGS=\"\$CCFLAGS\""
+			;;
+		HOSTTYPE)
+			eval "$n=\$v"
+			case $HOSTTYPE in
+			?*)	KEEP_HOSTTYPE=1 ;;
+			esac
+			;;
+		PACKAGEROOT)
+			eval "$n=\$v"
+			case $PACKAGEROOT in
+			?*)	KEEP_PACKAGEROOT=1 ;;
+			esac
+			;;
+		SHELL)	eval "$n=\$v"
+			case $SHELL in
+			?*)	KEEP_SHELL=2 ;;
+			esac
+			;;
+		VPATH)	eval "USER_$n=\$v"
+			;;
+		*)	assign="$assign $n=$v"
+			;;
+		esac
 		;;
-	*)	args="$args $i"
+	*)	shellquote i
+		args="$args $i"
 		;;
 	esac
 done
@@ -1790,7 +1814,7 @@ host)	eval u=$package_use
 		fi
 		;;
 	esac
-	hostinfo $args
+	eval "hostinfo $args"
 	echo $_hostinfo_
 	exit 0
 	;;
@@ -1803,10 +1827,10 @@ export|setup|use)
 	$PACKAGE_USE)
 		case :$PATH: in
 		*:$INSTALLROOT/bin:*)
-			case $LIBPATH: in
-			$INSTALLROOT/bin:$INSTALLROOT/lib:*)
-				case $SHLIB_PATH: in
-				$INSTALLROOT/lib:*)
+			case $LD_LIBRARY_PATH: in
+			$INSTALLROOT/dyn/lib:*)
+				case $DYLD_LIBRARY_PATH: in
+				$INSTALLROOT/dyn/lib:*)
 					x=1
 					;;
 				esac
@@ -1831,7 +1855,7 @@ case $x in
 			case $show in
 			echo)	exec=echo make=echo show=echo ;;
 			esac
-			set -- $args
+			eval "set -- $args"
 			case $# in
 			0)	;;
 			*)	case $1 in
@@ -2216,7 +2240,7 @@ esac
 
 PACKAGEBIN=$INSTALLROOT/lib/package
 case $action:$run in
-use:-)	set -- $args
+use:-)	eval "set -- $args"
 	case $# in
 	0)	;;
 	*)	shift ;;
@@ -2329,28 +2353,29 @@ view() # [test] [-|type] [src|bin|all] file
 	return 1
 }
 
-# determine the package and targets
+# determine the targets
 
-case $action in
-*)	package=
-	target=
-	set -- $args
-	while	test "$#" -gt 0
-	do	case $1 in
-		''|-)	target="$target $package"
-			package=
-			;;
-		*)	if	view - src "lib/package/$1.pkg"
-			then	package="$package $1"
-			else	target="$target $package $1"
-				package=
-			fi
-			;;
-		esac
-		shift
-	done
-	;;
-esac
+eval "set -- $args"
+# skip and save mamake(1) options in makeflags
+# (if mamake learns/forgets an option, replace the option string below with the output of 'mamake --posix')
+OPTIND=1 target=
+while	getopts 'ef:iknr:C:D:FKNVGS' o
+do	case $o in
+	'?')	exit 2
+		;;
+	f | r | C | D)
+		shellquote OPTARG
+		makeflags="$makeflags -$o $OPTARG"
+		;;
+	*)	makeflags="$makeflags -$o"
+		;;
+	esac
+done
+shift $((OPTIND - 1))
+for	i
+do	shellquote i
+	target="$target $i"
+done
 
 # check that cmd args are up to date a.out's
 
@@ -2458,22 +2483,9 @@ capture() # file command ...
 {
 	tee_pid=
 	case $make:$noexec in
-	:)	case $action in
-		install|make|view)
-			o=$action
-			;;
-		*)	case $package in
-			''|*' '*)
-				o=$action
-				;;
-			*)	o=$package
-				;;
-			esac
-			;;
-		esac
-		d=$PACKAGEBIN/gen
+	:)	d=$PACKAGEBIN/gen
 		test -d $d || $exec mkdir $d
-		o=$d/$o
+		o=$d/$action
 		case $o in
 		$output)o=$o.out
 			s=
@@ -2547,6 +2559,7 @@ capture() # file command ...
 				done
 				;;
 			esac
+			(PS4="$action: executing"; set -o xtrace; : "$@")
 			"$@"
 		} < /dev/null > $o 2>&1
 		;;
@@ -2700,7 +2713,7 @@ export)	case $INSTALLROOT in
 	0)	v='$i=' ;;
 	*)	v= ;;
 	esac
-	set -- $target $package
+	eval "set -- $target"
 	test "$#" -eq 0 && set -- $env
 	while	test "$#" -gt 0
 	do	i=$1
@@ -2710,9 +2723,8 @@ export)	case $INSTALLROOT in
 	;;
 
 install)cd $PACKAGEROOT
-	# TODO: breaks on directories with spaces or glob characters; make arguments handling robust
 	test -n "$args" || err_out "Usage: $0 install ROOTDIR [ COMMANDNAME ... ]"
-	capture do_install $args
+	eval "capture do_install $args"
 	;;
 
 make|view)
@@ -3047,22 +3059,6 @@ make|view)
 		;;
 	esac
 
-	# separate flags from target list
-
-	case $target in
-	*-*)	a=
-		for t in $target
-		do	case $t in
-			-*)	makeflags="$makeflags $t"
-				;;
-			*)	a="$a $t"
-				;;
-			esac
-		done
-		target=$a
-		;;
-	esac
-
 	# transition - TODO: remove when dust settles
 
 	rm -f "$INSTALLROOT/bin/.paths" &
@@ -3114,7 +3110,7 @@ make|view)
 	case $target in
 	'')	target="install" ;;
 	esac
-	eval capture \$MAMAKE_DEBUG_PREFIX mamake \$makeflags \$noexec \$target $assign
+	eval "capture \$MAMAKE_DEBUG_PREFIX mamake $makeflags \$noexec $target $assign"
 
 	case $HOSTTYPE in
 	darwin.*)
@@ -3158,7 +3154,7 @@ make|view)
 	esac
 	;;
 
-results)set -- $target
+results)eval "set -- $target"
 	def=make
 	dir=$PACKAGEBIN/gen
 	case $verbose in
@@ -3301,7 +3297,7 @@ test)	# run all available default regression tests, using our newly compiled she
 	fi
 	export SHELL
 	set -f
-	set -- ${args:-src}
+	eval "set -- ${args:-src}"
 	cd "$1" || exit
 	capture $MAMAKE_DEBUG_PREFIX mamake test
 	;;

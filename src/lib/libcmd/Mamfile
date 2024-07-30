@@ -34,7 +34,7 @@ make install virtual
 	note * Header dependencies and feature tests
 	note *
 
-	setv run_iffe iffe %{IFFEFLAGS} -v -c "%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}" ref %{mam_cc_L+-L%{INSTALLROOT}/lib} -I%{INCLUDE_AST} -I%{INSTALLROOT}/include %{mam_libutil} %{mam_libast} : run
+	setv run_iffe iffe %{IFFEFLAGS} -v -c "%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}" ref -I%{INCLUDE_AST} -I%{INSTALLROOT}/include %{mam_libutil} %{mam_libast} : run
 
 	make c_sources virtual
 		make cmdinit.c

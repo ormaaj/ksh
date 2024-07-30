@@ -39,8 +39,7 @@ make install virtual
 				makp features/dll
 				exec - iffe %{IFFEFLAGS} -v -c \
 				exec -  '%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}' \
-				exec -	ref %{mam_cc_L+-L.} %{mam_cc_L+-L%{INSTALLROOT}/lib} \
-				exec -	-I%{INCLUDE_AST} -I%{INSTALLROOT}/include \
+				exec -	ref -I%{INCLUDE_AST} -I%{INSTALLROOT}/include \
 				exec -	%{mam_libdl} %{mam_libast} : run %{<}
 			done
 			exec - cp -f %{<} %{@}

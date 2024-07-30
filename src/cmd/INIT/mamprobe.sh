@@ -42,10 +42,9 @@ case `(getopts '[-][123:xyz]' opt --xyz; echo 0$opt) 2>/dev/null` in
 	of \acc-path\a. Any \ainfo-file\a directories are created if needed.
 	If \ainfo-file\a is \b-\b then the probe information is written to
 	the standard output.]
-[+?The probed variable names get a \bmam_\b prefix.
+[+?The probed variable names get a \bmam_cc_\b prefix.
 	Additional variables are:]{
 		[+_hosttype_?the \bpackage\b(1) host type]
-		[+mam_cc_L?\b-L\b\adir\a supported]
 		[+STDCAT?command to execute for \bcat\b(1)]
 		[+STDCHMOD?command to execute for \bchmod\b(1)]
 		[+STDCMP?command to execute for \bcmp\b(1)]

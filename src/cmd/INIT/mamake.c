@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-07-29"
+#define RELEASE_DATE "2024-07-30"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1635,11 +1635,7 @@ static void attributes(Rule_t *r, char *s)
 
 static char *require(char *lib, int dontcare)
 {
-	static int	dynamic = -1;
 	char		*s, *r, varname[64];
-
-	if (dynamic < 0)
-		dynamic = (s = getval(state.vars, "mam_cc_L")) ? atoi(s) : 0;
 
 	if (strlen(lib + 2) > sizeof(varname) - sizeof(LIB_VARPREFIX))
 		report(3, "-lname too long", lib, 0);
@@ -1671,21 +1667,6 @@ static char *require(char *lib, int dontcare)
 				break;
 			}
 			s = "%{INSTALLROOT}/lib/";
-			if (dynamic)
-			{
-				append(buf, s);
-				if (r = getval(state.vars, "mam_cc_PREFIX_SHARED"))
-					append(buf, r);
-				append(buf, lib + 2);
-				if (r = getval(state.vars, "mam_cc_SUFFIX_SHARED"))
-					append(buf, r);
-				r = expand(tmp, use(buf));
-				if (!stat(r, &st))
-				{
-					r = lib;
-					break;
-				}
-			}
 		}
 		if (r != lib)
 		{

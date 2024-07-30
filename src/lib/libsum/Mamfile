@@ -45,8 +45,7 @@ make install virtual
 					makp features/sum
 					exec - iffe %{IFFEFLAGS} -v -c \
 					exec -  '%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}' \
-					exec -	ref %{mam_cc_L+-L%{INSTALLROOT}/lib} -I%{INCLUDE_AST} \
-					exec -	-I%{INSTALLROOT}/include %{mam_libast} : run %{<}
+					exec -	ref -I%{INCLUDE_AST} -I%{INSTALLROOT}/include %{mam_libast} : run %{<}
 				done
 				prev %{INCLUDE_AST}/hashpart.h
 				prev %{INCLUDE_AST}/swap.h

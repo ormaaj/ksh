@@ -813,6 +813,7 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 			break;
 		case 'T':
 			fe->fmt = 'd';
+			tm_info.flags = 0;
 			value->ll = tmxgettime();
 			break;
 		case '.':

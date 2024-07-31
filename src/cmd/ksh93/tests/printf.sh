@@ -551,4 +551,13 @@ got=$(printf '%s%c%c' 1 $'\0' $'\n' 2 $'\0' $'\n' 3 $'\0' $'\n' 4 $'\0' $'\n' | 
 [[ $got == "$exp" ]] || err_exit "regression involving %c as \$'\0' (expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
+# until 2024-07-31, TZ=UTC 'stuck' even if another TZ is set later
+(
+	ulimit -c 0	# if we have the bug, forking makes it local to the subshell
+	TZ=UTC printf -v one '%(%H)T'
+	TZ=Europe/Amsterdam printf -v two '%(%H)T'
+	[[ $one != "$two" ]]
+) || err_exit "printf %T: TZ=UTC sticks after changing TZ"
+
+# ======
 exit $((Errors<125?Errors:125))

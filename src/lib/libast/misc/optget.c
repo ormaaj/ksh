@@ -4122,21 +4122,27 @@ optusage(const char* opts)
  * i.e., it looks octal but isn't, to meet
  * POSIX Utility Argument Syntax -- use
  * 0x.* or <base>#* for alternate bases
+ *
+ * NOTE: none of the pointer arguments may be NULL
  */
 
 static intmax_t     
 optnumber(const char* s, char** t, int* e)
 {
 	intmax_t	n;
-	int		oerrno;
+	const int	oerrno = errno;
+	char		lastbase = 0;
 
-	while (*s == '0' && isdigit(*(s + 1)))
-		s++;
-	oerrno = errno;
 	errno = 0;
-	n = strtonll(s, t, NULL, 0);
-	if (e)
-		*e = errno;
+	n = strtonll(s, t, &lastbase, 0);
+	if (lastbase == 8 && *s == '0')
+	{
+		/* disable leading-0 octal by reparsing as decimal */
+		lastbase = 10;
+		errno = 0;
+		n = strtonll(s, t, &lastbase, 0);
+	}
+	*e = errno;
 	errno = oerrno;
 	return n;
 }

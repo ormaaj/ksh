@@ -26,7 +26,7 @@
  */
 
 static const char usage[] =
-"+[-?\n@(#)$Id: tail (AT&T Research) 2013-09-19 $\n]"
+"+[-?\n@(#)$Id: tail (ksh 93u+m) 2024-07-31 $\n]"
 "[--catalog?" ERROR_CATALOG "]"
 "[+NAME?tail - output trailing portion of one or more files ]"
 "[+DESCRIPTION?\btail\b copies one or more input files to standard output "
@@ -365,6 +365,7 @@ num(const char* s, char** e, int* f, int o)
 	intmax_t	number;
 	char*		t;
 	int		c;
+	char		lastbase;
 
 	*f &= ~(ERROR|NEGATIVE|POSITIVE);
 	if ((c = *s) == '-')
@@ -377,10 +378,16 @@ num(const char* s, char** e, int* f, int o)
 		*f |= POSITIVE;
 		s++;
 	}
-	while (*s == '0' && isdigit(*(s + 1)))
-		s++;
+	lastbase = 0;
 	errno = 0;
-	number = strtonll(s, &t, NULL, 0);
+	number = strtonll(s, &t, &lastbase, 0);
+	if (lastbase == 8 && *s == '0')
+	{
+		/* disable leading-0 octal by reparsing as decimal */
+		lastbase = 10;
+		errno = 0;
+		number = strtonll(s, &t, &lastbase, 0);
+	}
 	if (t == s)
 		number = DEFAULT;
 	if (o && *t)

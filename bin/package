@@ -655,10 +655,11 @@ do	case $i in
 			args="$args $i"
 			;;
 		esac
-		shellquote v
+		vq=$v
+		shellquote vq
 		case $n in
 		AR | LD | NM)
-			assign="$assign $n=$v"
+			assign="$assign $n=$vq"
 			eval "$n=\$v"
 			;;
 		CC)	eval "$n=\$v"
@@ -686,7 +687,7 @@ do	case $i in
 			;;
 		VPATH)	eval "USER_$n=\$v"
 			;;
-		*)	assign="$assign $n=$v"
+		*)	assign="$assign $n=$vq"
 			;;
 		esac
 		;;

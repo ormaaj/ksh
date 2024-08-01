@@ -33,7 +33,7 @@ esac
 set -o noglob
 
 command=iffe
-version=2024-03-20
+version=2024-08-02
 
 # DEFPATH should be inherited from package(1)
 case $DEFPATH in
@@ -573,36 +573,7 @@ reallystatictest=
 regress=
 static=.
 statictest=
-case $COTEMP in
-"")	case $HOSTNAME in
-	""|?|??|???|????|????)
-		tmp=${HOSTNAME}
-		;;
-	*)	tmp=${HOSTNAME%${HOSTNAME#????}}
-		;;
-	esac
-	tmp=${tmp}$$
-	;;
-*)	tmp=x${COTEMP}
-	;;
-esac
-COTEMP=${tmp}
-export COTEMP
-case $tmp in
-./*)	;;
-??????????*)
-	tmp=${tmp%${tmp#?????????}}
-	;;
-?????????)
-	;;
-????????)
-	tmp=F$tmp
-	;;
-esac
-case $tmp in
-./*)	;;
-*)	tmp=./$tmp ;;
-esac
+tmp=./$command.$$
 undef=0
 verbose=0
 vers=

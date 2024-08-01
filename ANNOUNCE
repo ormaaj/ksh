@@ -1,16 +1,18 @@
-Announcing: KornShell 93u+m/1.0.9
+Announcing: KornShell 93u+m/1.0.10
 https://github.com/ksh93/ksh
 
-Here is the ninth ksh 93u+m/1.0 bugfix release. This release contains many
-fixes of old and not-so-old bugs (including a couple of regressions in the
-printf built-in introduced in 93u+m/1.0.5), adds Android/Termux as a
-supported platform, and reintroduces the ability to build a dynamically
-linked ksh (with libast, libdll, libcmd, and libshell available for other
-applications to use) on most supported platforms.
+Here is the tenth ksh 93u+m/1.0 bugfix release -- exactly two years after
+93u+m/1.0.0 and twelve years after 93u+. Unfortunately, we're not done
+fixing bugs yet, but progress continues steadily.
 
-Further below is an overview of the main changes. For greater detail, see
-the NEWS file in the distribution. For complete detail, see the git(1)
-commit log, which has full documentation of every significant change.
+This release fixes a serious bug in the arithmetic subsystem that was
+triggered on non-Intel processors (such as ARM): any division of an integer
+by a negative integer threw a spurious "divide by zero" error. This bug has
+been in ksh since 2005. There are other bug fixes as well; see below.
+
+For greater detail, see the NEWS file in the distribution. For complete
+detail, see the git(1) commit log, which has full documentation of every
+significant change.
 
 ### HOW TO GET IT ###
 
@@ -71,6 +73,24 @@ Feel free to use Discussions to introduce yourself to the community.
 
 You can also join the mailing list/Google group at:
 https://groups.google.com/g/korn-shell
+
+### MAIN CHANGES between ksh 93u+m/1.0.9 and 93u+m/1.0.10 ###
+
+- Fixed a serious and longstanding bug in the arithmetic subsystem that was
+  triggered on non-Intel processors (such as ARM): any division of an
+  integer by a negative integer threw a spurious "divide by zero" error.
+- Fixed a regression where a broken pipe signal (SIGPIPE), when occurring in
+  a pipe construct within a subshell, caused incorrect signal handling in the
+  parent/main shell, in some cases causing a script to abort.
+- Fixed a bug where printf %T, after having printed the time in UTC once
+  with the TZ variable set to "UTC", would always print the time in UTC from
+  then on, even if the TZ variable was changed to another time zone.
+- The history expansion character ('!' by default) is now not processed when
+  immediately following '${'. This makes it psosible to use expansion syntax
+  like ${!varname} and ${!prefix@} on the interactive command line with the
+  histexpand option on; these no longer trigger an "event not found" error.
+- The shell is now capable of handling more than 32767 simultaneous
+  background jobs, subject to system limitations.
 
 ### MAIN CHANGES between ksh 93u+m/1.0.8 and 93u+m/1.0.9 ###
 

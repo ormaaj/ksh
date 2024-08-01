@@ -1,13 +1,10 @@
-The following bugs and issues are known for ksh 93u+m 1.0.9:
+The following bugs and issues are known for ksh 93u+m 1.0.10:
 
 Memory leak when initialising associative array in subshell
 https://github.com/ksh93/ksh/issues/94
 
 command substitution botches output of non-waited-for child processes
 https://github.com/ksh93/ksh/issues/124
-
-typeset -L/-R: string length breaks on multibyte characters
-https://github.com/ksh93/ksh/issues/189
 
 Segfault with very large extended glob patterns
 https://github.com/ksh93/ksh/issues/207
@@ -48,7 +45,7 @@ https://github.com/ksh93/ksh/issues/672
 bogus typeset -p output for compounds with disciplines
 https://github.com/ksh93/ksh/issues/729
 
-test a = a b: undetected error bug 
+test a = a b: undetected error
 https://github.com/ksh93/ksh/issues/739
 
 Occasional "write error" when writing to pipe
@@ -56,3 +53,7 @@ https://github.com/ksh93/ksh/issues/741
 
 sleep 10 | read hangs interactive shell after ^Z
 https://github.com/ksh93/ksh/issues/750
+
+Shell arithmetic is broken for integer values beyond the system's maximum
+float precision
+https://github.com/ksh93/ksh/issues/771

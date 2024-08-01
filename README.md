@@ -31,6 +31,16 @@ bin/package make
 To suppress compiler output, use `quiet make` instead of `make`.
 In some non-POSIX shells you might need to prepend `sh` to all calls to `bin/package`.
 
+Parallel building is supported by appending `-j` followed by the
+desired maximum number of concurrent jobs, e.g., `bin/package make -j4`.
+This speeds up building on systems with more than one CPU core.
+(Type `bin/package host cpu` to find out how many CPU cores your system has.)
+But it also causes log output to be chaotic and hard to decipher as multiple
+jobs write output all at once.
+The command `bin/package results` can help you find any warnings or errors.
+**Note:** The parallel building option is new as of 2024-08-01 and is still
+being tested. If you experience problems, please report them. Thanks :-)
+
 The compiled binaries are stored in the `arch` directory, in a subdirectory
 that corresponds to your architecture. The command `bin/package host type`
 outputs the name of this subdirectory.

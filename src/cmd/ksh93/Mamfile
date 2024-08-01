@@ -3,7 +3,7 @@ note * This build script is in an extended Make Abstract Machine (MAM)
 note * language. Documentation is at: src/cmd/INIT/README-mamake.md
 note *
 
-setv MAMAKE_STRICT 4
+setv MAMAKE_STRICT 5
 setv INSTALLROOT ../../..
 setv CC cc
 setv AR %{mam_cc_AR} %{mam_cc_AR_ARFLAGS}
@@ -40,6 +40,14 @@ make install virtual
 
 	setv iffe_run iffe %{IFFEFLAGS} -v -c '%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}' ref -I%{INCLUDE_AST} -I%{INSTALLROOT}/include %{mam_libdll} %{mam_libcmd} %{mam_libast} %{mam_libm} %{mam_libnsl} : run
 
+	make FEATURE/math
+		make features/math.sh
+			prev %{INCLUDE_AST}/ast_float.h
+			makp data/math.tab
+		done
+		exec - %{iffe_run} %{<} data/math.tab
+	done
+
 	make FEATURE/time
 		make features/time
 			prev %{INCLUDE_AST}/times.h
@@ -59,14 +67,6 @@ make install virtual
 			makp features/%{F}
 			exec - %{iffe_run} %{<}
 		done
-	done
-
-	make FEATURE/math
-		make features/math.sh
-			prev %{INCLUDE_AST}/ast_float.h
-			makp data/math.tab
-		done
-		exec - %{iffe_run} %{<} data/math.tab
 	done
 
 	note *
@@ -894,13 +894,6 @@ make install virtual
 		prev shopt.h
 	done
 
-	make data/strdata.c
-		prev FEATURE/math
-		prev include/streval.h
-		prev %{INCLUDE_AST}/ast_standards.h
-		prev shopt.h
-	done
-
 	make data/testops.c
 		prev include/test.h
 		prev include/defs.h
@@ -1035,11 +1028,23 @@ make install virtual
 			done
 		done
 
-		loop OBJ aliases builtins keywords lexstates limits msg options signals strdata testops variables
+		loop OBJ aliases builtins keywords lexstates limits msg options signals testops variables
 			make %{OBJ}.o
 				prev data/%{OBJ}.c
 				exec - %{compile} %{<}
 			done
+		done
+
+		note * postpone dependency on the huge FEATURE/math test to this late
+		note * stage, so that it can run in parallel for as long as possible
+		make strdata.o
+			make data/strdata.c
+				prev FEATURE/math
+				prev include/streval.h
+				prev %{INCLUDE_AST}/ast_standards.h
+				prev shopt.h
+			done
+			exec - %{compile} %{<}
 		done
 
 		note *
@@ -1054,6 +1059,17 @@ make install virtual
 		note * save for dylink
 		setv _libshell_object_files_ %{^}
 	done libshell.a
+
+	note *
+	note * Non-libshell object files
+	note *
+
+	loop OBJ pmain shcomp
+		make %{OBJ}.o
+			prev sh/%{OBJ}.c
+			exec - %{compile} %{<}
+		done
+	done
 
 	note *
 	note * Pre-install public headers & dependency rules early (before 'bind -lshell')
@@ -1095,45 +1111,41 @@ make install virtual
 
 	make ksh
 		bind -lshell
-		make pmain.o
-			prev sh/pmain.c
-			exec - %{compile} %{<}
-		done
-		exec - link_binary ksh pmain.o
+		prev pmain.o
+		exec - link_binary %{@} %{<}
 	done ksh
 
 	make shcomp
 		bind -lshell
-		make shcomp.o
-			prev sh/shcomp.c
-			exec - %{compile} %{<}
-		done
-		exec - link_binary shcomp shcomp.o
+		prev shcomp.o
+		exec - link_binary %{@} %{<}
 	done shcomp
 
 	note *
 	note * Dynamically linked version, if supported
 	note *
 
-	make %{INSTALLROOT}/dyn/lib/%{DYLIB_PRE}shell%{DYLIB_SUF} dontcare
+	setv dyn_libshell %{INSTALLROOT}/dyn/lib/%{DYLIB_PRE}shell%{DYLIB_SUF}
+
+	make %{dyn_libshell} dontcare
 		prev libshell.a
 		prev shell.req
 		exec - export LDFLAGS='%{LDFLAGS} %{CCLDFLAGS} %{mam_cc_LD_NOASNEEDED}'
-		exec - dylink -m shell -v %{DYLIB_VERSION} -p '%{DYLIB_PRE}' -s '%{DYLIB_SUF}' $(sed 1d %{<}) %{_libshell_object_files_}
+		exec - dylink -m shell -v %{DYLIB_VERSION} -p '%{DYLIB_PRE}' -s '%{DYLIB_SUF}' $(sed 1d shell.req) %{_libshell_object_files_}
 	done
 
 	make %{INSTALLROOT}/dyn/bin/ksh dontcare
 		prev ksh
-		prev shell.req
+		prev %{dyn_libshell}
 		exec - export LDFLAGS='%{LDFLAGS} %{CCLDFLAGS} %{mam_cc_LD_NOASNEEDED} %{mam_cc_EXPORT_DYNAMIC}'
-		exec - dylink -e ksh $(cat %{<}) %{mam_libnsl} %{mam_libm} pmain.o
+		exec - dylink -e ksh $(cat shell.req) %{mam_libnsl} %{mam_libm} pmain.o
 	done
 
 	make %{INSTALLROOT}/dyn/bin/shcomp dontcare
 		prev shcomp
-		prev shell.req
+		prev %{dyn_libshell}
 		exec - export LDFLAGS='%{LDFLAGS} %{CCLDFLAGS} %{mam_cc_LD_NOASNEEDED} %{mam_cc_EXPORT_DYNAMIC}'
-		exec - dylink -e shcomp $(cat %{<}) %{mam_libnsl} %{mam_libm} shcomp.o
+		exec - dylink -e shcomp $(cat shell.req) %{mam_libnsl} %{mam_libm} shcomp.o
 	done
 
 	note *

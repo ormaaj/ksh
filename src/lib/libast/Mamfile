@@ -3,7 +3,7 @@ note * This build script is in an extended Make Abstract Machine (MAM)
 note * language. Documentation is at: src/cmd/INIT/README-mamake.md
 note *
 
-setv MAMAKE_STRICT 4
+setv MAMAKE_STRICT 5
 setv INSTALLROOT ../../..
 setv PACKAGEROOT ../../../../..
 setv INCLUDE_AST %{INSTALLROOT}/include/ast
@@ -105,31 +105,37 @@ make install virtual
 	done
 
 	note * AST API versioning voodoo
-	make ast_api.h
-		make FEATURE/api
-			makp features/api
-			exec - invoke_iffe %{<}
-		done
-		exec - cp -f %{<} %{@}
+	make FEATURE/api
+		makp features/api
+		exec - invoke_iffe %{<}
 	done
 
 	note * Compiler features, basic system headers, backward compat, etc. -- included by just about everything
-	make ast_common.h
-		make FEATURE/common
-			makp features/common
-			exec - invoke_iffe %{<}
-		done
-		note * include <ast_map.h> from ast_common.h but not from FEATURE/common
-		exec - sed '/define _def_map_ast/d' < %{<} > %{@}
-	done ast_common.h
+	make FEATURE/common
+		makp features/common
+		exec - invoke_iffe %{<}
+	done
 
 	note * Main feature test for system libraries
-	make ast_lib.h
-		make FEATURE/lib
-			makp features/lib
-			exec - invoke_iffe %{<}
-		done
-		exec - cp -f %{<} %{@}
+	make FEATURE/lib
+		makp features/lib
+		exec - invoke_iffe %{<}
+	done
+	make FEATURE/eaccess
+		makp features/eaccess
+		exec - invoke_iffe %{<}
+	done
+	make FEATURE/mmap
+		makp features/mmap
+		exec - invoke_iffe %{<}
+	done
+	make FEATURE/options
+		makp features/options
+		exec - invoke_iffe %{<}
+	done
+	make FEATURE/fs
+		makp features/fs
+		exec - invoke_iffe %{<}
 	done
 
 	note * AST replacement for <signal.h>
@@ -141,22 +147,29 @@ make install virtual
 		exec - cp -f %{<} %{@}
 	done
 
-	make FEATURE/eaccess
-		makp features/eaccess
-		exec - invoke_iffe %{<}
-	done
-
-	make ast_mmap.h
-		make FEATURE/mmap
-			makp features/mmap
-			exec - invoke_iffe %{<}
-		done
+	note * Copy some of the FEATURE/* output scripts to canonical header files.
+	note * This is done separately from the 'make FEATURE/...' rules,
+	note * so that the iffe scripts may run in parallel.
+	make ast_api.h
+		prev FEATURE/api
 		exec - cp -f %{<} %{@}
 	done
-
-	make FEATURE/options
-		makp features/options
-		exec - invoke_iffe %{<}
+	make ast_common.h
+		prev FEATURE/common
+		note * include <ast_map.h> from ast_common.h but not from FEATURE/common
+		exec - sed '/define _def_map_ast/d' < %{<} > %{@}
+	done ast_common.h
+	make ast_lib.h
+		prev FEATURE/lib
+		exec - cp -f %{<} %{@}
+	done
+	make ast_mmap.h
+		prev FEATURE/mmap
+		exec - cp -f %{<} %{@}
+	done
+	make ast_fs.h
+		prev FEATURE/fs
+		exec - cp -f %{<} %{@}
 	done
 
 	make ast_map.h
@@ -174,6 +187,8 @@ make install virtual
 		exec - cp -f %{<} %{@}
 	done ast_map.h
 
+	note * Some of the feature tests below depend on this header,
+	note * and this header depends on some of the feature tests above.
 	make std/endian.h
 		make std/bytesex.h
 			prev ast_common.h
@@ -181,15 +196,11 @@ make install virtual
 		done std/bytesex.h
 	done std/endian.h
 
-
 	note * Checks for system headers, data types, and C library functions. Emits prorotypes if needed.
-	make ast_sys.h
-		make FEATURE/sys
-			makp features/sys
-			exec - invoke_iffe %{<}
-			prev std/endian.h
-		done
-		exec - cp -f %{<} %{@}
+	make FEATURE/sys
+		makp features/sys
+		exec - invoke_iffe %{<}
+		prev std/endian.h
 	done
 
 	note * Feature test for atomic integer operations
@@ -199,65 +210,70 @@ make install virtual
 		exec - invoke_iffe %{<}
 	done
 
+	make FEATURE/wait
+		makp features/wait
+		exec - invoke_iffe %{<}
+	done
+
+	make FEATURE/param
+		prev std/endian.h
+		makp features/param.sh
+		exec - invoke_iffe %{<}
+	done
+
+	make FEATURE/tty
+		prev ast_lib.h
+		makp features/tty
+		exec - invoke_iffe %{<}
+	done
+
+	make FEATURE/fcntl
+		prev ast_fs.h
+		make features/fcntl.c
+			prev FEATURE/tty
+			prev FEATURE/fs
+			prev FEATURE/lib
+			prev FEATURE/standards
+		done
+		exec - invoke_iffe %{<} -I. -Icomp -Iinclude -Istd
+	done
+
+	make FEATURE/wchar
+		makp std/wctype.h
+		makp std/stdio.h
+		prev ast_common.h
+		make features/wchar
+			prev ast_common.h
+		done
+		exec - invoke_iffe %{<}
+	done
+
+	note * Copy some of the FEATURE/* output scripts to canonical header files.
+	note * This is done separately from the 'make FEATURE/...' rules,
+	note * so that the iffe scripts may run in parallel.
+	make ast_sys.h
+		prev FEATURE/sys
+		exec - cp -f %{<} %{@}
+	done
 	make ast_wait.h
-		make FEATURE/wait
-			makp features/wait
-			exec - invoke_iffe %{<}
-		done
+		prev FEATURE/wait
 		exec - cp -f %{<} %{@}
 	done
-
 	make ast_param.h
-		make FEATURE/param
-			prev std/endian.h
-			makp features/param.sh
-			exec - invoke_iffe %{<}
-		done FEATURE/param
+		prev FEATURE/param
 		exec - cp -f %{<} %{@}
 	done
-
-	make ast_fs.h
-		make FEATURE/fs
-			makp features/fs
-			exec - invoke_iffe %{<}
-		done
-		exec - cp -f %{<} %{@}
-	done
-
 	make ast_tty.h
-		make FEATURE/tty
-			prev ast_lib.h
-			makp features/tty
-			exec - invoke_iffe %{<}
-		done
+		prev FEATURE/tty
 		exec - cp -f %{<} %{@}
 	done
-
 	make ast_fcntl.h
 		prev ast_fs.h
-		make FEATURE/fcntl
-			prev ast_fs.h
-			make features/fcntl.c
-				prev FEATURE/tty
-				prev FEATURE/fs
-				prev FEATURE/lib
-				prev FEATURE/standards
-			done
-			exec - invoke_iffe %{<} -I. -Icomp -Iinclude -Istd
-		done
+		prev FEATURE/fcntl
 		exec - cp -f %{<} %{@}
 	done
-
 	make ast_wchar.h
-		make FEATURE/wchar
-			makp std/wctype.h
-			makp std/stdio.h
-			prev ast_common.h
-			make features/wchar
-				prev ast_common.h
-			done
-			exec - invoke_iffe %{<}
-		done
+		prev FEATURE/wchar
 		exec - cp -f %{<} %{@}
 		prev std/stdio.h
 		prev ast_common.h
@@ -316,6 +332,10 @@ make install virtual
 	note * Probe all manner of configuration values from conf.tab
 	note * These are used for astconf(3) and the getconf(1) built-in
 	note *
+	note * Unfortunately, parallelising this has proved extremely challenging:
+	note * the whole conf.sh process is too intricate to split in several jobs,
+	note * and it depends on all of the above, and all of the below depends on it
+	note *
 
 	make ast_limits.h
 		make FEATURE/limits
@@ -338,12 +358,24 @@ make install virtual
 					makp comp/conf.tab
 					exec - conf -v %{<} %{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING}
 				done
+				make conftab.h
+					note * also generated by conf *
+					prev conflim.h
+					exec - test -f %{@}  # mark as generated
+				done
+				make conftab.c
+					note * also generated by conf *
+					prev conftab.h
+					prev FEATURE/param
+					prev FEATURE/common
+					prev FEATURE/standards
+					exec - test -f %{@}  # mark as generated
+				done
 			done features/limits.c
 			exec - invoke_iffe %{<} -I. -Icomp -Iinclude -Istd
 		done FEATURE/limits
 		exec - cp -f %{<} %{@}
 	done ast_limits.h
-
 
 	note *
 	note * Declare header dependencies
@@ -4386,7 +4418,7 @@ make install virtual
 					makp features/libpath.sh
 					exec - invoke_iffe %{<}
 				done
-				makp conftab.h
+				prev conftab.h
 				prev include/ls.h
 				prev include/proc.h
 				prev include/regex.h
@@ -4424,12 +4456,7 @@ make install virtual
 		done
 
 		make conftab.o
-			make conftab.c
-				prev conftab.h
-				prev FEATURE/param
-				prev FEATURE/common
-				prev FEATURE/standards
-			done
+			prev conftab.c
 			exec - compile %{<}
 		done
 

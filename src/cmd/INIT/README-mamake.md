@@ -43,6 +43,7 @@ the language to facilitate human maintenance of the `Mamfile`s.
         * […while scanning and sorting leaf directories](#user-content-while-scanning-and-sorting-leaf-directories)
         * […while building the current directory](#user-content-while-building-the-current-directory)
     * [Repeatedly iterating through a block](#user-content-repeatedly-iterating-through-a-block)
+* [Parallel processing](#user-content-parallel-processing)
 * [Debugging mamake](#user-content-debugging-mamake)
 * [Appendix: Main changes from the AT&T version](#user-content-appendix-main-changes-from-the-att-version)
 
@@ -76,7 +77,7 @@ higher than the previous highest one; details of those changes are documented
 throughout this file and listed in the appendix below.
 This makes it possible to test or backport old code using the current build
 system. Current Mamfiles should use the highest strict level available.
-The current highest available strict level is **4**.
+The current highest available strict level is **5**.
 
 ## MAM variables ##
 
@@ -468,6 +469,28 @@ iteration *variable*.
 
 `loop` requires a seekable input file (i.e.: not a pipe).
 
+## Parallel processing ##
+
+As of strict level 5, `mamake` supports parallel building using the new
+`-j` *maxjobs* option (which can be passed via `bin/package make`).
+This can speed up the build on multiprocessor or multicore systems.
+
+Each `make`…`done` command containing a shell action (i.e., one or more
+`exec` commands) may have its shell action processed in parallel, with
+`mamake` continuing to process subsequent shell actions at the same or
+deeper nesting levels before the current one has finished.
+
+Each `done` command corresponding to a `make` rule will block any further
+reading of the Mamfile until all shell actions belonging to rules nested
+within the current rule have finished. The `prev` command will similarly
+block until the shell action belonging to the declared dependency has
+finished. The `bind` command, when binding to a static library built within
+the same Mamfile, will block until the library has finished linking.
+
+Mamfiles at strict level 5 or higher are expected to be compatible with
+parallel processing by declaring these blocking dependencies correctly and
+explicitly, without assuming sequential processing.
+
 ## Debugging mamake ##
 
 If the environment variable `MAMAKE_DEBUG_PREFIX` is exported, its value is
@@ -527,3 +550,7 @@ maintain Mamfiles by hand. The following lists the important changes.
     * MAM expansions can no longer start with `${`. Only `%{` is recognized.
     * The `prev` command may no longer be used as an equivalent of `makp`.
     * The `implicit` attribute is not available.
+* **At strict level 5 and up:**
+    * The new `-j` option for parallel building is allowed to take effect.
+      Mamfile dependency declarations (`prev`, nested `make`…`done`)
+      are expected to be compatible with parallel processing.

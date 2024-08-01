@@ -2360,11 +2360,11 @@ eval "set -- $args"
 # skip and save mamake(1) options in makeflags
 # (if mamake learns/forgets an option, replace the option string below with the output of 'mamake --posix')
 OPTIND=1 target=
-while	getopts 'ef:iknr:C:D:FKNVGS' o
+while	getopts 'ef:ij:knr:C:D:FNVGS' o
 do	case $o in
 	'?')	exit 2
 		;;
-	f | r | C | D)
+	f | j | r | C | D)
 		shellquote OPTARG
 		makeflags="$makeflags -$o $OPTARG"
 		;;

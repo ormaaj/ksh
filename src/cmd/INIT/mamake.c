@@ -27,13 +27,16 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-07-30"
+#define RELEASE_DATE "2024-08-01"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
+
+#include <assert.h>
 
 #if _PACKAGE_ast
 
 #include <ast.h>
 #include <error.h>
+#include <sig.h>
 
 static const char usage[] =
 "[-?\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\n]"
@@ -66,6 +69,8 @@ static const char usage[] =
 "[e:?Explain reason for triggering action. Ignored if -F is on.]"
 "[f:?Read \afile\a instead of the default.]:[file:=Mamfile]"
 "[i:?Ignore action errors.]"
+"[j:?Execute up to \amaxjobs\a shell actions in parallel."
+"	Ignored if \bMAMAKE_STRICT\b is unset or less than 5.]#[maxjobs]"
 "[k:?Continue after error with sibling prerequisites.]"
 "[n:?Print actions but do not execute. Recursion actions (see \b-r\b) are still"
 "	executed. Use \b-N\b to disable recursion actions too.]"
@@ -155,6 +160,7 @@ static const char usage[] =
 
 #if !_PACKAGE_ast
 #include <errno.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #endif
@@ -248,6 +254,7 @@ typedef struct Rule_s			/* rule item			*/
 	int		making;		/* currently make()ing		*/
 	unsigned long	time;		/* modification time		*/
 	unsigned long	line;		/* starting line in Mamfile	*/
+	pid_t		pid;		/* PID of parallel bg job	*/
 } Rule_t;
 
 typedef struct Stream_s			/* input file stream stack	*/
@@ -268,6 +275,13 @@ typedef struct View_s			/* viewpath level		*/
 	char		dir[1];		/* viewpath level dir prefix	*/
 #endif
 } View_t;
+
+typedef struct Makestate_s		/* make() shareable state	*/
+{
+	unsigned long	modtime;	/* current rule's last-mod time	*/
+	Buf_t		*cmd;		/* shell action			*/
+	List_t		*bg;		/* list of rules with bg jobs	*/
+} Makestate_t;
 
 static struct				/* program state		*/
 {
@@ -291,7 +305,7 @@ static struct				/* program state		*/
 
 	int		active;		/* targets currently active	*/
 	int		debug;		/* negative of debug level	*/
-	int		errors;		/* some error(s) occurred	*/
+	int		exitstatus;	/* > 0 if error(s) occurred	*/
 	int		exec;		/* execute actions		*/
 	int		explain;	/* explain actions		*/
 	int		force;		/* all targets out of date	*/
@@ -301,6 +315,7 @@ static struct				/* program state		*/
 	int		never;		/* never execute		*/
 	int		probed;		/* probe already done		*/
 	int		verified;	/* don't bother with verify()	*/
+	int		jobs, maxjobs;	/* for parallel sh execution	*/
 
 	Stream_t	streams[4];	/* input file stream stack	*/
 	Stream_t	*sp;		/* input stream stack pointer	*/
@@ -309,7 +324,8 @@ static struct				/* program state		*/
 	Buf_t		*shim_buf;	/* shim being built up		*/
 } state;
 
-static unsigned long	make(Rule_t *, int, unsigned long, Buf_t **);
+static void		make(Rule_t*, Makestate_t*);
+static void		exit_wait(int);
 
 static char		mamfile[] = "Mamfile";
 static char		sh[] = "/bin/sh";
@@ -333,6 +349,7 @@ static void usage(void)
 	fprintf(stderr, "Usage: %s"
 		" [-eiknFNVGS]"
 		" [-f file]"
+		" [-j maxjobs]"
 		" [-r pattern]"
 		" [-C directory]"
 		" [-D level]"
@@ -390,8 +407,8 @@ static void report(int level, char *text, char *item, unsigned long stamp)
 			}
 			if (level == 1)
 				fprintf(stderr, "warning: ");
-			else if (level > 1)
-				state.errors = 1;
+			else if (level > 1 && !state.exitstatus)
+				state.exitstatus = 1;
 		}
 		if (item)
 			fprintf(stderr, "%s: ", item);
@@ -400,7 +417,7 @@ static void report(int level, char *text, char *item, unsigned long stamp)
 			fprintf(stderr, " %10lu", stamp);
 		fprintf(stderr, "\n");
 		if (level > 2)
-			exit(level - 2);
+			exit_wait(level - 2);
 	}
 }
 
@@ -420,8 +437,9 @@ static void error_making(Rule_t *r, int code)
 		if (state.ignore)
 			return;
 		if (!state.keepgoing)
-			exit(1);
-		state.errors = 1;
+			exit_wait(code);
+		if (code > state.exitstatus)
+			state.exitstatus = code;
 	}
 	r->flags |= RULE_error;
 }
@@ -599,10 +617,8 @@ static Dict_item_t *search(Dict_t *dict, char *name, int create)
 	else if (create)
 	{
 		if (!(root = newof(0, Dict_item_t, 1, strlen(name) + 1)))
-		{
 			report(3, "out of memory [dictionary]", name, 0);
-			abort();
-		}
+		assert(root);
 		strcpy(root->name, name);
 	}
 	if (root)
@@ -786,8 +802,7 @@ static void view(void)
 				}
 			}
 			n = strlen(s);
-			if (!p)
-				abort();
+			assert(p);
 			if (!(vp = newof(0, View_t, 1, strlen(p) + n + 2)))
 				report(3, "out of memory [view]", s, 0);
 			vp->node = n + 1;
@@ -1277,12 +1292,78 @@ static char *input(void)
 }
 
 /*
+ * flag==0: wait for and reap a rule's background process, if one is running
+ * flag==WNOHANG: do nothing if the process is still running
+ */
+
+static int reap(Rule_t *r, int flag)
+{
+	int		pstat, e;
+	struct stat	fstat;
+	char		*s;
+
+	if ((flag & WNOHANG) && r && !r->pid)
+		return 1;
+	if (!r || !r->pid || !waitpid(r->pid, &pstat, flag))
+		return 0;
+	report(-4, r->name, "reap", r->pid);
+	if (WIFSIGNALED(pstat))
+		e = WTERMSIG(pstat) + 128;
+	else if (WIFEXITED(pstat))
+		e = WEXITSTATUS(pstat);
+	else
+		e = 128;
+	if (e > state.exitstatus)
+		state.exitstatus = e;
+	if (s = (r->flags & RULE_virtual) ? NULL : status(NULL, 0, r->name, &fstat))
+	{
+		r->time = fstat.st_mtime;
+		r->flags |= RULE_exists;
+	}
+	r->pid = 0;
+	assert(state.jobs > 0);
+	state.jobs--;
+	if (e || !(s || r->flags & (RULE_dontcare | RULE_virtual)))
+		error_making(r, e);
+	return 1;
+}
+
+/*
+ * reap one rule's bg job (if any) via walk()
+ */
+
+static int wreap(Dict_item_t *item)
+{
+	reap(item->value, 0);
+	return 0;
+}
+
+/*
+ * reap one rule's bg job (if any, and if finished) via walk()
+ */
+
+static int wreap_nowait(Dict_item_t *item)
+{
+	reap(item->value, WNOHANG);
+	return 0;
+}
+
+/*
+ * dummy SIGCHLD handler to make sleep() interruptable
+ */
+
+static void dummy(int sig)
+{
+	return;
+}
+
+/*
  * pass shell action s to ${SHELL:-/bin/sh}
  * the -c wrapper ensures that scripts are run in the selected shell
  * even on systems that otherwise demand #! magic (can you say Cygwin)
  */
 
-static int execute(char *s)
+static int execute(Rule_t *r, char *s)
 {
 	int	stat;
 	pid_t	pid;
@@ -1301,6 +1382,27 @@ static int execute(char *s)
 		exit(126);
 	}
 	/* parent */
+	/* run job in background if wanted & possible (never for -r) */
+	if (r && state.maxjobs > 1 && state.strict >= 5 && !state.recurse)
+	{
+		/* if we're at maxjobs, wait for some to finish */
+		assert(state.jobs <= state.maxjobs);
+		if (state.jobs == state.maxjobs)
+			walk(state.rules, wreap_nowait);
+		while (state.jobs == state.maxjobs)
+		{
+			signal(SIGCHLD, dummy); /* make SIGCHLD interrupt sleep() */
+			sleep(1);		/* max 1 second in case we don't receive SIGCHLD */
+			signal(SIGCHLD, SIG_DFL);
+			walk(state.rules, wreap_nowait);
+		}
+		assert(state.jobs < state.maxjobs);
+		/* let it run in parallel */
+		state.jobs++;
+		r->pid = pid;
+		return 0;
+	}
+	/* good old-fashioned sequential execution */
 	waitpid(pid, &stat, 0);
 	if (WIFEXITED(stat))
 		return WEXITSTATUS(stat);
@@ -1447,7 +1549,7 @@ static void run(Rule_t *r, char *s)
 	}
 	if (x)
 	{
-		if (c = execute(s))
+		if (c = execute(r, s))
 			error_making(r, c);
 		if (status(NULL, 0, r->name, &st))
 		{
@@ -1551,7 +1653,7 @@ static void probe(void)
 		append(tmp, s);
 		add(tmp, ' ');
 		append(tmp, cc);
-		if (execute(use(tmp)))
+		if (execute(NULL, use(tmp)))
 			report(3, "cannot generate probe info", s, 0);
 		drop(tmp);
 		if (!push(s, NULL, 0))
@@ -1559,7 +1661,7 @@ static void probe(void)
 	}
 	drop(pro);
 	drop(buf);
-	make(rule(""), 0, 0, NULL);
+	make(rule(""), NULL);
 	pop();
 }
 
@@ -1647,6 +1749,7 @@ static char *require(char *lib, int dontcare)
 		int		c, tofree = 0;
 		FILE		*f;
 		struct stat	st;
+		Rule_t		*rp;
 
 		s = 0;
 		for (;;)
@@ -1659,6 +1762,9 @@ static char *require(char *lib, int dontcare)
 			if (r = getval(state.vars, "mam_cc_SUFFIX_ARCHIVE"))
 				append(buf, r);
 			r = expand(tmp, use(buf));
+			/* we may need to wait for it to finish linking */
+			if (rp = getval(state.rules, r))
+				reap(rp, 0);
 			if (!stat(r, &st))
 				break;
 			if (s)
@@ -1714,7 +1820,7 @@ static char *require(char *lib, int dontcare)
 				"c=$?\n"
 				"exec rm -rf libtest.$$.* &\n"  /* also remove artefacts like *.dSYM dir (macOS) */
 				"exit $c\n");
-			if (execute(expand(buf, use(tmp))))
+			if (execute(NULL, expand(buf, use(tmp))))
 			{
 				if (tofree)
 					free(r);
@@ -1768,6 +1874,7 @@ static void update_allprev(Rule_t *r, char *all, char *upd)
 
 static void propagate(Rule_t *q, Rule_t *r, unsigned long *modtime)
 {
+	report(-5, q->name, "propagate", *modtime);
 	if (!(q->flags & RULE_ignore) && *modtime < q->time)
 		*modtime = q->time;
 	if (r && (q->flags & RULE_error))
@@ -1775,29 +1882,41 @@ static void propagate(Rule_t *q, Rule_t *r, unsigned long *modtime)
 }
 
 /*
- * input() until `done r'
- *
- * This function is called recursively for both 'make' and 'loop'. The inloop
- * parameter is nonzero while processing a loop, in which case modtime and
- * cmd are passed on from the caller and updated in the caller upon return.
- * If inloop==0, modtime must be initialised to zero and parentcmd is ignored.
+ * wait for all background jobs, then exit with their highest status or e
  */
 
-static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **parentcmd)
+static void exit_wait(int e)
 {
+	state.keepgoing = 1;
+	walk(state.rules, wreap);
+	if (state.exitstatus > e)
+		e = state.exitstatus;
+	exit(e);
+}
+
+/*
+ * input() until `done r'
+ *
+ * This function is called recursively for both 'make' and 'loop'. The parentstate
+ * parameter is nonzero while processing a loop, in which case parentstate
+ * variables are passed on from the caller and updated in the caller on return.
+ */
+
+static void make(Rule_t *r, Makestate_t *parentstate)
+{
+	Makestate_t	st;	/* shareable state */
 	char		*s;
 	char		*u;	/* command name */
 	char		*t;	/* argument word */
 	char		*v;	/* operand string */
 	Rule_t		*q;	/* new rule */
 	Buf_t		*buf;	/* scratch buffer */
-	Buf_t		*cmd;	/* shell action */
 
-	if (inloop)
-		cmd = *parentcmd;
+	if (parentstate)
+		st = *parentstate;
 	else
 	{
-		cmd = NULL;
+		memset(&st, 0, sizeof st);
 		r->making++;
 		if (r->flags & RULE_active)
 			state.active++;
@@ -1806,7 +1925,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			if (!(r->flags & RULE_virtual))
 			{
 				bindfile(r);
-				modtime = r->time;
+				st.modtime = r->time;
 			}
 			report(-1, r->name, "make", r->time);
 			state.indent++;
@@ -1862,7 +1981,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 						q = rule(expand(buf, t));
 						attributes(q, v);
 						bindfile(q);
-						propagate(q, r, &modtime);
+						propagate(q, r, &st.modtime);
 						report(-1, q->name, "bind: file", q->time);
 					}
 					if (!s)
@@ -1891,7 +2010,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				if ((q = getval(state.rules, use(buf))) && (q->flags & RULE_made))
 				{
 					/* ...then do a 'prev _hdrdeps_libNAME_' */
-					propagate(q, r, &modtime);
+					propagate(q, r, &st.modtime);
 					report(-2, q->name, "bind: prev", q->time);
 					continue;
 				}
@@ -1905,14 +2024,14 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 				if (push(s, NULL, 0))
 				{
 					report(-1, s, "bind: include", 0);
-					make(rule(""), 0, 0, NULL);
+					make(rule(""), NULL);
 					pop();
 				}
 			}
 			continue;
 
 		case KEY('d','o','n','e'):
-			if (inloop)
+			if (parentstate)
 			{
 				if (*t)
 					report(3, "superflous arguments", u, 0);
@@ -1937,7 +2056,16 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 					attributes(r, v);
 				}
 			}
-			if (cmd && state.active && (state.force || r->time < modtime || !r->time && !modtime))
+			/* wait for all the child rules' background jobs to finish */
+			while (st.bg)
+			{
+				List_t	*prev = st.bg;
+				reap(st.bg->rule, 0);
+				propagate(st.bg->rule, r, &st.modtime);
+				st.bg = st.bg->next;
+				free(prev);
+			}
+			if (st.cmd && state.active && (state.force || r->time < st.modtime || !r->time && !st.modtime))
 			{
 				char	*fname = state.sp->file, *rname = r->name, *rnamepre = "", *val;
 				size_t	len;
@@ -1964,12 +2092,12 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 						fprintf(stderr, "target %s\n",
 							(r->flags & RULE_virtual) ? "is virtual" : "not found");
 					else
-						fprintf(stderr, "target [%lu] older than prerequisites [%lu]\n", r->time, modtime);
+						fprintf(stderr, "target [%lu] older than prerequisites [%lu]\n", r->time, st.modtime);
 				}
 
 				/* run the shell action */
-				run(r, use(cmd));
-				propagate(r, NULL, &modtime);
+				run(r, use(st.cmd));
+				propagate(r, NULL, &st.modtime);
 				r->flags |= RULE_updated;
 			}
 			r->flags |= RULE_made;
@@ -1987,13 +2115,13 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			}
 			if (state.active)
 			{
-				if (cmd)
-					add(cmd, '\n');
+				if (st.cmd)
+					add(st.cmd, '\n');
 				else
-					cmd = buffer();
+					st.cmd = buffer();
 				/* expand MAM vars now for each line, and not for the entire script at 'done',
 				 * to avoid confusing behaviour of automatic variables such as ${<} */
-				append(cmd, expand(buf, v));
+				append(st.cmd, expand(buf, v));
 			}
 			/* if a shim is buffered, get it ready and reset the buffer */
 			if (getsize(state.shim_buf))
@@ -2045,7 +2173,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 					state.sp->line = saveline;
 				}
 				/* (re)read the loop block until 'done', in the context of the current rule */
-				modtime = make(r, 1, modtime, &cmd);
+				make(r, &st);
 			}
 			vnode->value = save_value;
 			free(words);
@@ -2059,6 +2187,26 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			char *save_allprev = auto_allprev->value;
 			char *save_updprev = auto_updprev->value;
 			char *name = expand(buf, t);
+			/* before making this rule, reap any bg jobs that have finished and cut them out of the list */
+			if (st.bg)
+			{
+				List_t	*j, *next, *prev = NULL;
+				for (j = st.bg; j; j = next)
+				{
+					next = j->next;
+					if (reap(j->rule, WNOHANG))
+					{
+						propagate(j->rule, r, &st.modtime);
+						free(j);
+						if (prev)
+							prev->next = next;
+						else
+							st.bg = next;
+					}
+					else
+						prev = j;
+				}
+			}
 			if ((q = getval(state.rules, name)) && (q->flags & RULE_made))
 				report(state.strict < 3 ? 1 : 3, "rule already made", name, 0);
 			if (!q)
@@ -2074,8 +2222,18 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			{
 				/* make the target */
 				attributes(q, v);
-				make(q, 0, 0, NULL);
-				propagate(q, r, &modtime);
+				make(q, NULL);
+				if (q->pid)
+				{
+					/* add the rule to the bg list */
+					List_t	*j = malloc(sizeof(List_t));
+					if (!j)
+						report(3, "out of memory [list]", q->name, 0);
+					j->rule = q;
+					j->next = st.bg;
+					st.bg = j;
+				}
+				propagate(q, r, &st.modtime);
 			}
 			/* update ${<}, restore/update ${^} and ${?} */
 			if (auto_allprev->value != empty)
@@ -2105,7 +2263,7 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 					bindfile(q);
 					if (!(q->flags & (RULE_dontcare | RULE_exists)))
 						error_making(q, 0);
-					propagate(q, r, &modtime);
+					propagate(q, r, &st.modtime);
 				}
 				q->flags |= RULE_made;
 				report(-2, q->name, "makp", q->time);
@@ -2122,8 +2280,9 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 			else if (q->making)
 				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", name, 0);
 			else
-			{
-				propagate(q, r, &modtime);
+			{	/* we may need to wait for it to finish processing */
+				reap(q, 0);
+				propagate(q, r, &st.modtime);
 				report(-2, q->name, "prev", q->time);
 			}
 			/* update ${<}, ${^} and ${?} */
@@ -2179,22 +2338,22 @@ static unsigned long make(Rule_t *r, int inloop, unsigned long modtime, Buf_t **
 		break;
 	}
 	drop(buf);
-	if (inloop)
+	if (parentstate)
 	{
-		*parentcmd = cmd;
-		return modtime;
+		*parentstate = st;
+		return;
 	}
-	if (cmd)
-		drop(cmd);
+	if (st.cmd)
+		drop(st.cmd);
 	if (*r->name)
 	{
 		state.indent--;
-		report(-1, r->name, "done", modtime);
+		report(-1, r->name, "done", st.modtime);
 	}
 	if (r->flags & RULE_active)
 		state.active--;
 	r->making--;
-	return r->time = modtime;
+	r->time = st.modtime;
 }
 
 /*
@@ -2437,6 +2596,10 @@ static int recurse(char *pattern)
 	return 0;
 }
 
+/*
+ * -------- MAIN --------
+ */
+
 int main(int argc, char **argv)
 {
 	char	**e, *s, *t, *v;
@@ -2474,6 +2637,13 @@ int main(int argc, char **argv)
 		case 'i':
 			append(state.opt, " -i");
 			state.ignore = 1;
+			continue;
+		case 'j':
+			append(state.opt, " -j");
+			append(state.opt, opt_info.arg);
+			state.maxjobs = opt_info.num;
+			if (state.maxjobs < 1)
+				state.maxjobs = 0;
 			continue;
 		case 'k':
 			append(state.opt, " -k");
@@ -2608,6 +2778,7 @@ int main(int argc, char **argv)
 			case 'V':
 				return !(write(1, id + 10, strlen(id) - 12) > 0 && putchar('\n') == '\n');
 			case 'f':
+			case 'j':
 			case 'r':
 			case 'C':
 			case 'D':
@@ -2624,6 +2795,13 @@ int main(int argc, char **argv)
 						append(state.opt, " -f ");
 						append(state.opt, s);
 						state.file = s;
+						break;
+					case 'j':
+						append(state.opt, " -j");
+						append(state.opt, s);
+						state.maxjobs = atoi(s);
+						if (state.maxjobs < 1)
+							state.maxjobs = 0;
 						break;
 					case 'r':
 						state.recurse = s;
@@ -2746,7 +2924,7 @@ int main(int argc, char **argv)
 
 	setval(state.vars, "MAMAKEARGS", duplicate(use(state.opt) + 1));
 	push(state.file, NULL, STREAM_MUST);
-	make(rule(""), 0, 0, NULL);
+	make(rule(""), NULL);
 	pop();
 
 	/*
@@ -2763,5 +2941,5 @@ int main(int argc, char **argv)
 	 * done
 	 */
 
-	return state.errors != 0;
+	return state.exitstatus;
 }

@@ -1707,7 +1707,7 @@ On error, all three functions return a negative value which should be \f3-1\fP
 or the value returned by the exception handler.
 .Ss "STREAM CONTROL"
 .Ss "  int sfresize(Sfio_t* f, Sfoff_t size)"
-This function resizes the stream \f3f\P so that its extent is \f3size\fP.
+This function resizes the stream \f3f\fP so that its extent is \f3size\fP.
 If the stream corresponds to a file, the file size is set to \f3size\fP
 via the system call \f3ftruncate()\fP.
 When a stream is made larger, the new data space is filled with zero's.

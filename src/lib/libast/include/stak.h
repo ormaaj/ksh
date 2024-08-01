@@ -38,14 +38,14 @@
 #define stakputc(c)		sfputc(stkstd,(c))
 #define stakwrite(b,n)		sfwrite(stkstd,(b),(n))
 #define stakputs(s)		(sfputr(stkstd,(s),0),--stkstd->_next)
-#define stakseek(n)		stkseek(stkstd,n)
+#define stakseek(n)		((char*)stkseek(stkstd,n))
 #define stakcreate(n)		stkopen(n)
 #define stakinstall(s,f)	stkinstall(s,f)
 #define stakdelete(s)		stkclose(s)
 #define staklink(s)		stklink(s)
-#define stakalloc(n)		stkalloc(stkstd,n)
+#define stakalloc(n)		((char*)stkalloc(stkstd,n))
 #define stakcopy(s)		stkcopy(stkstd,s)
-#define stakset(c,n)		stkset(stkstd,c,n)
-#define stakfreeze(n)		stkfreeze(stkstd,n)
+#define stakset(c,n)		((char*)stkset(stkstd,c,n))
+#define stakfreeze(n)		((char*)stkfreeze(stkstd,n))
 
 #endif

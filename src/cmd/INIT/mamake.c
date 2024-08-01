@@ -331,13 +331,13 @@ extern char		**environ;
 static void usage(void)
 {
 	fprintf(stderr, "Usage: %s"
-		" [-iknFNV]"
-		" [-f Mamfile]"
+		" [-eiknFNVGS]"
+		" [-f file]"
 		" [-r pattern]"
 		" [-C directory]"
 		" [-D level]"
-		" [target ...]"
-		" [name=value ...]"
+		" [ target ... ]"
+		" [ name=value ... ]"
 		"\n", state.id);
 	exit(2);
 }

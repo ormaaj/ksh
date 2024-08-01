@@ -7,6 +7,7 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a bug where printf %T, after having printed the time in UTC once
   with the TZ variable set to "UTC", would always print the time in UTC from
   then on, even if the TZ variable was changed to another time zone.
+  Bug introduced in ksh 93t+ 2009-10-21.
 
 2024-07-26:
 

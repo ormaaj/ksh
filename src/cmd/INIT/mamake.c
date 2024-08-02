@@ -30,8 +30,6 @@
 #define RELEASE_DATE "2024-08-01"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
-#include <assert.h>
-
 #if _PACKAGE_ast
 
 #include <ast.h>
@@ -164,6 +162,9 @@ static const char usage[] =
 #include <stdlib.h>
 #include <string.h>
 #endif
+
+/* standard assert.h does not play well with libast headers on too many systems */
+#define assert(c)	if(!(c)) abort()
 
 /* backward compat for file offsets */
 #if _POSIX_VERSION < 200112L

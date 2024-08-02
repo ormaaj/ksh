@@ -371,9 +371,9 @@ tst	lib_utime_now note{ utime works with 0 time vector }end execute{
 
 tst	cross{
 	u=att
-	case `/bin/cat -s /dev/null/foo 2>&1` in
+	case $(env cat -s /dev/null/foo 2>&1) in
 	'')	;;
-	*)	case `/bin/echo '\\t'` in
+	*)	case $(env echo '\t') in
 		'\t')	u=ucb ;;
 		esac
 		;;

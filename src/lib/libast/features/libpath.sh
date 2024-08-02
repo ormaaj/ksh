@@ -42,7 +42,7 @@ do	case $i in
 done
 if	test "0" != "$ok"
 then	libpath=lib:LD_LIBRARY_PATH
-	case `package` in
+	case ${HOSTTYPE?} in
 	sgi.*)	if	test -d /lib32
 		then	libpath="lib32:LD_LIBRARYN32_PATH:sgi.mips3|sgi.*-n32,$libpath"
 		fi
@@ -62,7 +62,7 @@ elif	test -x /lib/dld.sl
 then	libpath=lib:SHLIB_PATH
 elif	test -x /usr/lib/dyld
 then	libpath=lib:DYLD_LIBRARY_PATH
-else	case `package` in
+else	case ${HOSTTYPE?} in
 	ibm.*|mvs.*)
 		libpath=lib:LIBPATH
 		;;

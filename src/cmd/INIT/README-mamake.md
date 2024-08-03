@@ -405,10 +405,7 @@ or, if the `dontcare` attribute is specified, possibly the empty string.
 Any library dependencies are also included (see below).
 This can be used both for AST libraries shipped with the distribution and for system libraries.
 
-If the current rule's name starts with `FEATURE/` or is `configure.h`, this
-is all that the `bind` command does. Otherwise, it also does the following.
-
-For each corresponding *.a library archive dependency built previously,
+In addition, for each corresponding *.a library archive dependency built previously,
 its time stamp is checked and the current target is marked as outdated if it is
 newer, as if a `prev` had been executed for it.
 The variable set by `bind` is global, but the marking of the target as
@@ -552,5 +549,5 @@ maintain Mamfiles by hand. The following lists the important changes.
     * The `implicit` attribute is not available.
 * **At strict level 5 and up:**
     * The new `-j` option for parallel building is allowed to take effect.
-      Mamfile dependency declarations (`prev`, nested `make`…`done`)
+      Mamfile dependency declarations (`prev`, nested `make`…`done`, `bind`)
       are expected to be compatible with parallel processing.

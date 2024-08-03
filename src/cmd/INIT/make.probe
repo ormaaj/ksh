@@ -3,7 +3,7 @@
 # Glenn Fowler
 # AT&T Research
 #
-# @(#)make.probe (ksh 93u+m) 2024-03-23
+# @(#)make.probe (ksh 93u+m) 2024-08-03
 #
 # C probe for make
 #
@@ -2141,3 +2141,6 @@ echo CC.WARN = $CC_WARN
 for i in $CC_ATTRIBUTES
 do	eval echo CC.$i = \$$i
 done
+
+# for backward compat
+echo CC.SHELLMAGIC =

@@ -1830,6 +1830,7 @@ static char *require(char *lib, int dontcare)
 		}
 		r = duplicate(r);
 		setval(state.vars, varname, r);
+		report(-4, r, varname, 0);
 		drop(tmp);
 		drop(buf);
 	}
@@ -1963,7 +1964,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			if (!(t[0] == '-' && t[1] == 'l'))
 				report(3, "bad -lname", t, 0);
 			s = require(t, !strcmp(v, "dontcare"));
-			if (s && strncmp(r->name, "FEATURE/", 8) && strcmp(r->name, "configure.h"))
+			if (s)
 			{
 				char *libname = t + 2;
 				/*
@@ -1979,7 +1980,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 					/* only bother if t is a path to a *.a we built (i.e. not -l...) */
 					if (t[0] && (t[0] != '-' || t[1] != 'l'))
 					{
-						q = rule(expand(buf, t));
+						q = rule(t);
 						attributes(q, v);
 						bindfile(q);
 						propagate(q, r, &st.modtime);
@@ -2011,8 +2012,8 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				if ((q = getval(state.rules, use(buf))) && (q->flags & RULE_made))
 				{
 					/* ...then do a 'prev _hdrdeps_libNAME_' */
-					propagate(q, r, &st.modtime);
 					report(-2, q->name, "bind: prev", q->time);
+					propagate(q, r, &st.modtime);
 					continue;
 				}
 				/* otherwise, include the rules file if it exists */
@@ -2276,15 +2277,15 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			}
 			else if (!q)
 				report(3, name, "prev: rule not made", 0);
-			else if (*v)
+			else if (*v && state.strict)
 				report(3, v, "prev: attributes not allowed", 0);
 			else if (q->making)
 				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", name, 0);
 			else
 			{	/* we may need to wait for it to finish processing */
 				reap(q, 0);
-				propagate(q, r, &st.modtime);
 				report(-2, q->name, "prev", q->time);
+				propagate(q, r, &st.modtime);
 			}
 			/* update ${<}, ${^} and ${?} */
 			update_allprev(q, auto_allprev->value, auto_updprev->value);

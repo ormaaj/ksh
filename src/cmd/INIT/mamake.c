@@ -302,7 +302,7 @@ static struct				/* program state		*/
 	char		*file;		/* first input file		*/
 	char		*pwd;		/* current directory		*/
 	char		*recurse;	/* recursion pattern		*/
-	char		*shell;		/* ${SHELL}			*/
+	char		*shell;		/* %{SHELL}			*/
 
 	int		active;		/* targets currently active	*/
 	int		debug;		/* negative of debug level	*/
@@ -332,10 +332,10 @@ static char		mamfile[] = "Mamfile";
 static char		sh[] = "/bin/sh";
 static char		empty[] = "";
 
-static Dict_item_t	*auto_making;	/* ${@} - name of rule being made */
-static Dict_item_t	*auto_prev;	/* ${<} - name of last prerequisite */
-static Dict_item_t	*auto_allprev;	/* ${^} - space-separated names of all prerequisites */
-static Dict_item_t	*auto_updprev;	/* ${?} - space-separated names of updated prerequisites */
+static Dict_item_t	*auto_making;	/* %{@} - name of rule being made */
+static Dict_item_t	*auto_prev;	/* %{<} - name of last prerequisite */
+static Dict_item_t	*auto_allprev;	/* %{^} - space-separated names of all prerequisites */
+static Dict_item_t	*auto_updprev;	/* %{?} - space-separated names of updated prerequisites */
 
 extern char		**environ;
 
@@ -955,7 +955,7 @@ static void substitute(Buf_t *buf, char *s)
 			switch (c)
 			{
 			case '?':
-				/* ${variable?c?x?y?} */
+				/* %{variable?c?x?y?} */
 				q = cond(t - 1);
 				if (v)
 				{
@@ -989,7 +989,7 @@ static void substitute(Buf_t *buf, char *s)
 				break;
 			case '+':
 			case '-':
-				/* ${variable+x}, ${variable-x} */
+				/* %{variable+x}, %{variable-x} */
 				if ((v == 0 || *v == 0) == (c == '-'))
 				{
 					c = *s;
@@ -1729,7 +1729,7 @@ static void attributes(Rule_t *r, char *s)
 }
 
 /*
- * define ${mam_libX} for library reference lib
+ * define %{mam_libX} for library reference lib
  *
  * lib is expected to be in the format "-lX"
  */
@@ -1838,16 +1838,16 @@ static char *require(char *lib, int dontcare)
 }
 
 /*
- * update ${<}, ${^} and ${?}
+ * update %{<}, %{^} and %{?}
  */
 
 static void update_allprev(Rule_t *r, char *all, char *upd)
 {
 	char		*name = r->name;
 	size_t		n = strlen(name), nn;
-	/* set ${<} */
+	/* set %{<} */
 	auto_prev->value = reduplicate(auto_prev->value, name);
-	/* restore ${^}, append to it */
+	/* restore %{^}, append to it */
 	if (nn = strlen(all))
 		(all = realloc(all, nn + n + 2)) && (all[nn++] = ' ');
 	else
@@ -1856,7 +1856,7 @@ static void update_allprev(Rule_t *r, char *all, char *upd)
 		report(3, "out of memory [upd_allprev]", NULL, 0);
 	strcpy(all + nn, name);
 	auto_allprev->value = all;
-	/* restore ${?}, append to it if rule was updated */
+	/* restore %{?}, append to it if rule was updated */
 	if (r->flags & RULE_updated)
 	{
 		if (nn = strlen(upd))
@@ -2122,7 +2122,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				else
 					st.cmd = buffer();
 				/* expand MAM vars now for each line, and not for the entire script at 'done',
-				 * to avoid confusing behaviour of automatic variables such as ${<} */
+				 * to avoid confusing behaviour of automatic variables such as %{<} */
 				append(st.cmd, expand(buf, v));
 			}
 			/* if a shim is buffered, get it ready and reset the buffer */
@@ -2213,7 +2213,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				report(state.strict < 3 ? 1 : 3, "rule already made", name, 0);
 			if (!q)
 				q = rule(name);
-			/* set ${@}; empty ${?}, ${^} and ${<} */
+			/* set %{@}; empty %{?}, %{^} and %{<} */
 			auto_making->value = q->name;
 			auto_updprev->value = empty;
 			auto_allprev->value = empty;
@@ -2237,13 +2237,13 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				}
 				propagate(q, r, &st.modtime);
 			}
-			/* update ${<}, restore/update ${^} and ${?} */
+			/* update %{<}, restore/update %{^} and %{?} */
 			if (auto_allprev->value != empty)
 				free(auto_allprev->value);
 			if (auto_updprev->value != empty)
 				free(auto_updprev->value);
 			update_allprev(q, save_allprev, save_updprev);
-			/* restore ${@} */
+			/* restore %{@} */
 			auto_making->value = save_making;
 			continue;
 		}
@@ -2287,7 +2287,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				report(-2, q->name, "prev", q->time);
 				propagate(q, r, &st.modtime);
 			}
-			/* update ${<}, ${^} and ${?} */
+			/* update %{<}, %{^} and %{?} */
 			update_allprev(q, auto_allprev->value, auto_updprev->value);
 			continue;
 		}

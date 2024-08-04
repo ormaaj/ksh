@@ -131,7 +131,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2024-07-30 $
+@(#)$Id: '$command$' (ksh 93u+m) 2024-08-03 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -564,7 +564,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2024-07-30
+  version         package (ksh 93u+m) 2024-08-03
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -2360,7 +2360,7 @@ eval "set -- $args"
 # skip and save mamake(1) options in makeflags
 # (if mamake learns/forgets an option, replace the option string below with the output of 'mamake --posix')
 OPTIND=1 target=
-while	getopts 'ef:ij:knr:C:D:FNVGS' o
+while	getopts 'cef:ij:knr:C:D:FNVGS' o
 do	case $o in
 	'?')	exit 2
 		;;

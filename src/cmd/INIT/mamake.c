@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-01"
+#define RELEASE_DATE "2024-08-03"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -64,10 +64,15 @@ static const char usage[] =
 "[+?\bmamprobe\b(1) is called to probe and generate system specific variable"
 "	definitions. The probe information is regenerated when it is older"
 "	than the \bmamprobe\b command.]"
+"[c:?Chaotic simultaneous output when executing shell actions in parallel."
+"	See \b-j\b below.]"
 "[e:?Explain reason for triggering action. Ignored if -F is on.]"
 "[f:?Read \afile\a instead of the default.]:[file:=Mamfile]"
 "[i:?Ignore action errors.]"
 "[j:?Execute up to \amaxjobs\a shell actions in parallel."
+"	Unless \b-c\b is given, each shell action's output is saved up and"
+"	then logged in one go when it finishes, avoiding chaotic logs."
+"	Rules with the \bvirtual\b attribute are never run in parallel."
 "	Ignored if \bMAMAKE_STRICT\b is unset or less than 5.]#[maxjobs]"
 "[k:?Continue after error with sibling prerequisites.]"
 "[n:?Print actions but do not execute. Recursion actions (see \b-r\b) are still"
@@ -183,6 +188,7 @@ static const char usage[] =
 #define CHUNK		4096
 #define KEY(a,b,c,d)	((((unsigned long)(a))<<24)|(((unsigned long)(b))<<16)|(((unsigned long)(c))<<8)|(((unsigned long)(d))))
 #define NOW		((unsigned long)time(NULL))
+#define PARALLEL(r)	(state.maxjobs > 1 && state.strict >= 5 && !((r)->flags & RULE_virtual))
 
 #define RULE_active	0x0001		/* active target		*/
 #define RULE_dontcare	0x0002		/* ok if not found		*/
@@ -255,7 +261,9 @@ typedef struct Rule_s			/* rule item			*/
 	int		making;		/* currently make()ing		*/
 	unsigned long	time;		/* modification time		*/
 	unsigned long	line;		/* starting line in Mamfile	*/
+	unsigned long	endline;	/* ending line in Mamfile	*/
 	pid_t		pid;		/* PID of parallel bg job	*/
+	char		*logtmp;	/* temp file for log output	*/
 } Rule_t;
 
 typedef struct Stream_s			/* input file stream stack	*/
@@ -303,8 +311,10 @@ static struct				/* program state		*/
 	char		*pwd;		/* current directory		*/
 	char		*recurse;	/* recursion pattern		*/
 	char		*shell;		/* %{SHELL}			*/
+	char		*installroot;	/* %{INSTALLROOT}		*/
 
 	int		active;		/* targets currently active	*/
+	int		chaos;		/* don't save up parallel logs	*/
 	int		debug;		/* negative of debug level	*/
 	int		exitstatus;	/* > 0 if error(s) occurred	*/
 	int		exec;		/* execute actions		*/
@@ -348,7 +358,7 @@ extern char		**environ;
 static void usage(void)
 {
 	fprintf(stderr, "Usage: %s"
-		" [-eiknFNVGS]"
+		" [-ceiknFNVGS]"
 		" [-f file]"
 		" [-j maxjobs]"
 		" [-r pattern]"
@@ -1046,7 +1056,7 @@ static void substitute(Buf_t *buf, char *s)
 				else if (newexp)
 				{
 					*vnterm = 0;
-					report(3, "undefined variable", t, 0);
+					report(3, "variable not defined", t, 0);
 				}
 				else if (valid_sh_name || state.strict >= 2)
 				{
@@ -1293,6 +1303,55 @@ static char *input(void)
 }
 
 /*
+ * nice trace header for shell actions, with optional explanation
+ */
+
+static void print_nice_hdr(Rule_t *r)
+{
+	if (!r)
+		return;
+	if (state.recurse)
+	{
+		char	*p;
+		size_t	n;
+		Buf_t	*buf = buffer();
+		int	testing = !strcmp(getval(state.vars, "MAMAKEARGS"), "test");
+		append(buf, state.pwd);
+		add(buf, '/');
+		append(buf, r->name);
+		p = use(buf);
+		/* show path relative to %{INSTALLROOT} */
+		if (strncmp(p, state.installroot, n = strlen(state.installroot)) == 0)
+			p += n + 1;
+		fprintf(stderr, "\n# ... %sing %s ...\n", testing ? "test" : "mak", p);
+		if (state.explain)
+			fprintf(stderr, "# reason: recursion\n");
+		drop(buf);
+	}
+	else
+	{
+		char	*fname = state.sp->file, *rname = r->name, *rnamepre = "", *val;
+		size_t	len;
+		/* mamfile path: make relative to %{PACKAGEROOT} */
+		if (*fname == '/'
+		&& (val = getval(state.vars, "PACKAGEROOT")) && (len = strlen(val))
+		&& strncmp(fname, val, len) == 0 && fname[len] == '/' && fname[++len])
+			fname += len;
+		/* rule name: change install root path prefix back to '%{INSTALLROOT}' for brevity */
+		if (*rname == '/'
+		&& (val = getval(state.vars, "INSTALLROOT")) && (len = strlen(val))
+		&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
+			rname += len, rnamepre = "%{INSTALLROOT}";
+		fprintf(stderr, "\n# %s: %lu-%lu: make %s%s\n",
+			fname, r->line, r->endline, rnamepre, rname);
+		/* -e option */
+		if (state.explain)
+			fprintf(stderr, "# reason: target %s\n", \
+				r->time ? "older than prerequisites" : (r->flags & RULE_virtual) ? "is virtual" : "not found");
+	}
+}
+
+/*
  * flag==0: wait for and reap a rule's background process, if one is running
  * flag==WNOHANG: do nothing if the process is still running
  */
@@ -1320,6 +1379,26 @@ static int reap(Rule_t *r, int flag)
 	{
 		r->time = fstat.st_mtime;
 		r->flags |= RULE_exists;
+	}
+	/* dump saved-up log output */
+	if (r->logtmp)
+	{
+		FILE	*logf;
+		print_nice_hdr(r);
+		if (logf = fopen(r->logtmp, "r"))
+		{
+			char	b[CHUNK];
+			size_t	r;
+			while ((r = fread(b, 1, CHUNK, logf)) > 0)
+				fwrite(b, 1, r, stdout);
+			fclose(logf);
+			fflush(stdout);
+		}
+		else
+			report(1, r->logtmp, "cannot open temp log", 0);
+		unlink(r->logtmp);
+		free(r->logtmp);
+		r->logtmp = NULL;
 	}
 	r->pid = 0;
 	assert(state.jobs > 0);
@@ -1383,8 +1462,8 @@ static int execute(Rule_t *r, char *s)
 		exit(126);
 	}
 	/* parent */
-	/* run job in background if wanted & possible (never for -r) */
-	if (r && state.maxjobs > 1 && state.strict >= 5 && !state.recurse)
+	/* run job in background if wanted & possible */
+	if (r && PARALLEL(r))
 	{
 		/* if we're at maxjobs, wait for some to finish */
 		assert(state.jobs <= state.maxjobs);
@@ -1436,6 +1515,18 @@ static void run(Rule_t *r, char *s)
 		x = state.exec;
 	if (x)
 	{
+		/* have the shell redirect parallel job output to a temp file */
+		if (PARALLEL(r) && !state.chaos)
+		{
+			static unsigned	serial;
+			char		logtmp[32];
+			sprintf(logtmp, ".mamake.%u.out", serial++);
+			append(buf, "exec >");
+			append(buf, logtmp);
+			append(buf, " 2>&1\n");
+			assert(r->logtmp == NULL);
+			r->logtmp = duplicate(logtmp);
+		}
 		/* stubs for backward compat */
 		if (!state.strict)
 			append(buf,
@@ -1638,9 +1729,7 @@ static void probe(void)
 	s = cc = path(pro, cc, 1);
 	for (h = 0; *s; s++)
 		h = h * 0x63c63cd9L + *s + 0x9c39c33dL;
-	if (!(s = getval(state.vars, "INSTALLROOT")))
-		report(3, "variable must be defined", "INSTALLROOT", 0);
-	append(buf, s);
+	append(buf, state.installroot);
 	append(buf, "/lib/probe/C/mam/");
 	for (h &= 0xffffffffL; h; h >>= 4)
 		add(buf, let[h & 0xf]);
@@ -2017,9 +2106,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 					continue;
 				}
 				/* otherwise, include the rules file if it exists */
-				if (!(s = getval(state.vars, "INSTALLROOT")))
-					report(3, "variable must be defined", "INSTALLROOT", 0);
-				append(buf, s);
+				append(buf, state.installroot);
 				append(buf, "/lib/mam/");
 				append(buf, libname);
 				s = use(buf);
@@ -2033,6 +2120,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			continue;
 
 		case KEY('d','o','n','e'):
+			r->endline = state.sp->line;
 			if (parentstate)
 			{
 				if (*t)
@@ -2069,34 +2157,9 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			}
 			if (st.cmd && state.active && (state.force || r->time < st.modtime || !r->time && !st.modtime))
 			{
-				char	*fname = state.sp->file, *rname = r->name, *rnamepre = "", *val;
-				size_t	len;
-
 				/* show a nice trace header */
-				/* ...mamfile path: make relative to ${PACKAGEROOT} */
-				if (*fname == '/'
-				&& (val = getval(state.vars, "PACKAGEROOT")) && (len = strlen(val))
-				&& strncmp(fname, val, len) == 0 && fname[len] == '/' && fname[++len])
-					fname += len;
-				/* ...rule name: change install root path prefix back to '%{INSTALLROOT}' for brevity */
-				if (*rname == '/'
-				&& (val = getval(state.vars, "INSTALLROOT")) && (len = strlen(val))
-				&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
-					rname += len, rnamepre = "%{INSTALLROOT}";
-				fprintf(stderr, "\n# %s: %lu-%lu: make %s%s\n",
-					fname, r->line, state.sp->line, rnamepre, rname);
-
-				/* -e option */
-				if (state.explain)
-				{
-					fprintf(stderr, "# reason: ");
-					if (!r->time)
-						fprintf(stderr, "target %s\n",
-							(r->flags & RULE_virtual) ? "is virtual" : "not found");
-					else
-						fprintf(stderr, "target [%lu] older than prerequisites [%lu]\n", r->time, st.modtime);
-				}
-
+				if (!PARALLEL(r) || state.chaos)
+					print_nice_hdr(r);
 				/* run the shell action */
 				run(r, use(st.cmd));
 				propagate(r, NULL, &st.modtime);
@@ -2224,6 +2287,8 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			{
 				/* make the target */
 				attributes(q, v);
+				if (q->flags & RULE_virtual)
+					walk(state.rules, wreap);
 				make(q, NULL);
 				if (q->pid)
 				{
@@ -2394,8 +2459,6 @@ static int update(Rule_t *r)
 {
 	List_t	*x;
 	Buf_t	*buf;
-	char	*args = getval(state.vars, "MAMAKEARGS");
-	int	testing = !strcmp(args, "test");
 
 	/* topological sort */
 	r->flags |= RULE_made;
@@ -2406,31 +2469,12 @@ static int update(Rule_t *r)
 			update(x->rule);
 
 	buf = buffer();
-
-	/* announce */
-	{
-		char	*p, *q;
-		size_t	n;
-		append(buf, state.pwd);
-		add(buf, '/');
-		append(buf, r->name);
-		p = use(buf);
-		/* show path relative to ${INSTALLROOT} */
-		q = getval(state.vars, "INSTALLROOT");
-		if (q && strncmp(p, q, n = strlen(q)) == 0)
-			p += n + 1;
-		fprintf(stderr, "\n# ... %sing %s ...\n", testing ? "test" : "mak", p);
-		if (state.explain)
-			fprintf(stderr, "# reason: recursion\n");
-	}
-
-	/* do */
 	append(buf, "$MAMAKE_DEBUG_PREFIX ");
 	append(buf, getval(state.vars, "MAMAKE"));
 	append(buf, " -C ");
 	append(buf, r->name);
 	add(buf, ' ');
-	append(buf, args);
+	append(buf, getval(state.vars, "MAMAKEARGS"));
 	run(r, use(buf));
 	drop(buf);
 	return 0;
@@ -2632,6 +2676,10 @@ int main(int argc, char **argv)
 	{
 		switch (optget(argv, usage))
 		{
+		case 'c':
+			append(state.opt, " -c");
+			state.chaos = 1;
+			continue;
 		case 'e':
 			append(state.opt, " -e");
 			state.explain = 1;
@@ -2644,8 +2692,6 @@ int main(int argc, char **argv)
 			append(state.opt, " -j");
 			append(state.opt, opt_info.arg);
 			state.maxjobs = opt_info.num;
-			if (state.maxjobs < 1)
-				state.maxjobs = 0;
 			continue;
 		case 'k':
 			append(state.opt, " -k");
@@ -2746,6 +2792,10 @@ int main(int argc, char **argv)
 			{
 			case 0:
 				break;
+			case 'c':
+				append(state.opt, " -c");
+				state.chaos = 1;
+				continue;
 			case 'e':
 				append(state.opt, " -e");
 				state.explain = 1;
@@ -2802,8 +2852,6 @@ int main(int argc, char **argv)
 						append(state.opt, " -j");
 						append(state.opt, s);
 						state.maxjobs = atoi(s);
-						if (state.maxjobs < 1)
-							state.maxjobs = 0;
 						break;
 					case 'r':
 						state.recurse = s;
@@ -2838,6 +2886,8 @@ int main(int argc, char **argv)
 
 	if (state.force)
 		state.explain = 0;
+	if (state.recurse)
+		state.maxjobs = 0;
 
 	/*
 	 * load the environment
@@ -2856,6 +2906,8 @@ int main(int argc, char **argv)
 			}
 		}
 	}
+	if (!(state.installroot = getval(state.vars, "INSTALLROOT")) || *state.installroot != '/')
+		report(3, "variable not defined", "INSTALLROOT", 0);
 
 	/*
 	 * initialize the automatic variables

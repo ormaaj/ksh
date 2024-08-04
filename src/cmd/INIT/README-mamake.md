@@ -212,7 +212,8 @@ The following *attribute*s are available:
 * `notrace`: Disables echoing (xtrace) of shell action commands.
   This does not disable the trace header for the containing rule (see *Shell actions* below).
 * `virtual`: Marks a rule that is not associated with any file.
-  The commands within are executed every time the rule is processed.
+  The associated shell action is executed every time the rule is processed.
+  It will not run in parallel with other jobs even if the `-j` option was given.
   By convention, a virtual rule with target `install` performs pre-installation.
 
 > *Obsolete:*
@@ -476,6 +477,8 @@ Each `make`…`done` command containing a shell action (i.e., one or more
 `exec` commands) may have its shell action processed in parallel, with
 `mamake` continuing to process subsequent shell actions at the same or
 deeper nesting levels before the current one has finished.
+There is one exception to this: shell actions belonging to rules with the
+attribute `virtual` never run in parallel (although their subrules will).
 
 Each `done` command corresponding to a `make` rule will block any further
 reading of the Mamfile until all shell actions belonging to rules nested

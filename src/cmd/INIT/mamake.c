@@ -260,6 +260,7 @@ typedef struct Rule_s			/* rule item			*/
 	int		flags;		/* RULE_* flags			*/
 	int		making;		/* currently make()ing		*/
 	unsigned long	time;		/* modification time		*/
+	unsigned long	oldtime;	/* mod time for -e(xplain)	*/
 	unsigned long	line;		/* starting line in Mamfile	*/
 	unsigned long	endline;	/* ending line in Mamfile	*/
 	pid_t		pid;		/* PID of parallel bg job	*/
@@ -1308,47 +1309,29 @@ static char *input(void)
 
 static void print_nice_hdr(Rule_t *r)
 {
+	char	*fname, *rname, *rnamepre, *val;
+	size_t	len;
 	if (!r)
 		return;
-	if (state.recurse)
-	{
-		char	*p;
-		size_t	n;
-		Buf_t	*buf = buffer();
-		int	testing = !strcmp(getval(state.vars, "MAMAKEARGS"), "test");
-		append(buf, state.pwd);
-		add(buf, '/');
-		append(buf, r->name);
-		p = use(buf);
-		/* show path relative to %{INSTALLROOT} */
-		if (strncmp(p, state.installroot, n = strlen(state.installroot)) == 0)
-			p += n + 1;
-		fprintf(stderr, "\n# ... %sing %s ...\n", testing ? "test" : "mak", p);
-		if (state.explain)
-			fprintf(stderr, "# reason: recursion\n");
-		drop(buf);
-	}
-	else
-	{
-		char	*fname = state.sp->file, *rname = r->name, *rnamepre = "", *val;
-		size_t	len;
-		/* mamfile path: make relative to %{PACKAGEROOT} */
-		if (*fname == '/'
-		&& (val = getval(state.vars, "PACKAGEROOT")) && (len = strlen(val))
-		&& strncmp(fname, val, len) == 0 && fname[len] == '/' && fname[++len])
-			fname += len;
-		/* rule name: change install root path prefix back to '%{INSTALLROOT}' for brevity */
-		if (*rname == '/'
-		&& (val = getval(state.vars, "INSTALLROOT")) && (len = strlen(val))
-		&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
-			rname += len, rnamepre = "%{INSTALLROOT}";
-		fprintf(stderr, "\n# %s: %lu-%lu: make %s%s\n",
-			fname, r->line, r->endline, rnamepre, rname);
-		/* -e option */
-		if (state.explain)
-			fprintf(stderr, "# reason: target %s\n", \
-				r->time ? "older than prerequisites" : (r->flags & RULE_virtual) ? "is virtual" : "not found");
-	}
+	fname = state.sp->file;
+	rname = r->name;
+	rnamepre = "";
+	/* mamfile path: make relative to %{PACKAGEROOT} */
+	if (*fname == '/'
+	&& (val = getval(state.vars, "PACKAGEROOT")) && (len = strlen(val))
+	&& strncmp(fname, val, len) == 0 && fname[len] == '/' && fname[++len])
+		fname += len;
+	/* rule name: change install root path prefix back to '%{INSTALLROOT}' for brevity */
+	if (*rname == '/'
+	&& (val = getval(state.vars, "INSTALLROOT")) && (len = strlen(val))
+	&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
+		rname += len, rnamepre = "%{INSTALLROOT}";
+	fprintf(stderr, "\n# %s: %lu-%lu: make %s%s\n",
+		fname, r->line, r->endline, rnamepre, rname);
+	/* -e option */
+	if (state.explain)
+		fprintf(stderr, "# reason: target %s\n", \
+			r->oldtime ? "older than prerequisites" : (r->flags & RULE_virtual) ? "is virtual" : "not found");
 }
 
 /*
@@ -2121,6 +2104,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 
 		case KEY('d','o','n','e'):
 			r->endline = state.sp->line;
+			r->oldtime = r->time;
 			if (parentstate)
 			{
 				if (*t)
@@ -2459,6 +2443,8 @@ static int update(Rule_t *r)
 {
 	List_t	*x;
 	Buf_t	*buf;
+	char	*args = getval(state.vars, "MAMAKEARGS");
+	int	testing = !strcmp(args, "test");
 
 	/* topological sort */
 	r->flags |= RULE_made;
@@ -2469,12 +2455,31 @@ static int update(Rule_t *r)
 			update(x->rule);
 
 	buf = buffer();
+
+	/* announce */
+	{
+		char    *p, *q;
+		size_t  n;
+		append(buf, state.pwd);
+		add(buf, '/');
+		append(buf, r->name);
+		p = use(buf);
+		/* show path relative to ${INSTALLROOT} */
+		q = getval(state.vars, "INSTALLROOT");
+		if (q && strncmp(p, q, n = strlen(q)) == 0)
+			p += n + 1;
+		fprintf(stderr, "\n# ... %sing %s ...\n", testing ? "test" : "mak", p);
+		if (state.explain)
+			fprintf(stderr, "# reason: recursion\n");
+	}
+
+	/* do */
 	append(buf, "$MAMAKE_DEBUG_PREFIX ");
 	append(buf, getval(state.vars, "MAMAKE"));
 	append(buf, " -C ");
 	append(buf, r->name);
 	add(buf, ' ');
-	append(buf, getval(state.vars, "MAMAKEARGS"));
+	append(buf, args);
 	run(r, use(buf));
 	drop(buf);
 	return 0;

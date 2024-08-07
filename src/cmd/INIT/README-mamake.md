@@ -120,9 +120,10 @@ The *x* and *y* values may result from nested variable references.
 The last `?` is optional.
 
 In `%{`*variable*`-`*x*`}`, the value of *variable* is substituted
-if it is defined and non-empty, otherwise the value of *x* is substituted.
+if it is defined and non-empty, otherwise *x* is substituted.
 In `%{`*variable*`+`*x*`}`, *x* is substituted if the value of
 *variable* is defined and non-empty, otherwise the reference is removed.
+In both cases, *x* may be empty.
 Note that, unlike in `sh`(1), no distinction is made between an undefined
 variable and a defined variable with an empty value.
 

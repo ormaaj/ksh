@@ -27,7 +27,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-03"
+#define RELEASE_DATE "2024-08-07"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -74,7 +74,9 @@ static const char usage[] =
 "	then logged in one go when it finishes, avoiding chaotic logs."
 "	Rules with the \bvirtual\b attribute are never run in parallel."
 "	Ignored if \bMAMAKE_STRICT\b is unset or less than 5.]#[maxjobs]"
-"[k:?Continue after error with sibling prerequisites.]"
+"[k:?If an error occurs, keep going and build as much as possible."
+"	Rules that depend on rules that had errors"
+"	will not have their actions executed.]"
 "[n:?Print actions but do not execute. Recursion actions (see \b-r\b) are still"
 "	executed. Use \b-N\b to disable recursion actions too.]"
 "[r:?Recursively make leaf directories matching \apattern\a. Only leaf"
@@ -103,7 +105,6 @@ static const char usage[] =
 #else
 
 #define elementsof(x)	(sizeof(x)/sizeof(x[0]))
-#define newof(p,t,n,x)	((p)?(t*)realloc((char*)(p),sizeof(t)*(n)+(x)):(t*)calloc(1,sizeof(t)*(n)+(x)))
 
 /*
  * For compatibility with compiler flags such as -std=c99, feature macros
@@ -187,7 +188,6 @@ static const char usage[] =
 
 #define CHUNK		4096
 #define KEY(a,b,c,d)	((((unsigned long)(a))<<24)|(((unsigned long)(b))<<16)|(((unsigned long)(c))<<8)|(((unsigned long)(d))))
-#define NOW		((unsigned long)time(NULL))
 #define PARALLEL(r)	(state.maxjobs > 1 && state.strict >= 5 && !((r)->flags & RULE_virtual))
 
 #define RULE_active	0x0001		/* active target		*/
@@ -200,6 +200,7 @@ static const char usage[] =
 #define RULE_virtual	0x0080		/* not a file			*/
 #define RULE_notrace	0x0100		/* do not xtrace shell action	*/
 #define RULE_updated	0x0200		/* rule was outdated and remade */
+#define RULE_preexisted	0x0400		/* the rule's target preexisted	*/
 
 #define STREAM_KEEP	0x0001		/* don't fclose() on pop()	*/
 #define STREAM_MUST	0x0002		/* push() file must exist	*/
@@ -216,9 +217,6 @@ static const char usage[] =
 #endif
 
 struct Rule_s;
-
-typedef struct stat Stat_t;
-typedef FILE Stdio_t;
 
 typedef struct Buf_s			/* buffer stream		*/
 {
@@ -259,19 +257,18 @@ typedef struct Rule_s			/* rule item			*/
 	struct Rule_s	*leaf;		/* recursion leaf alias		*/
 	int		flags;		/* RULE_* flags			*/
 	int		making;		/* currently make()ing		*/
-	unsigned long	time;		/* modification time		*/
-	unsigned long	oldtime;	/* mod time for -e(xplain)	*/
-	unsigned long	line;		/* starting line in Mamfile	*/
-	unsigned long	endline;	/* ending line in Mamfile	*/
+	time_t		time;		/* modification time		*/
+	unsigned int	line;		/* starting line in Mamfile	*/
+	unsigned int	endline;	/* ending line in Mamfile	*/
 	pid_t		pid;		/* PID of parallel bg job	*/
 	char		*logtmp;	/* temp file for log output	*/
 } Rule_t;
 
 typedef struct Stream_s			/* input file stream stack	*/
 {
-	Stdio_t		*fp;		/* read stream			*/
+	FILE		*fp;		/* read stream			*/
 	char		*file;		/* stream path			*/
-	unsigned long	line;		/* stream line			*/
+	unsigned int	line;		/* stream line			*/
 	int		flags;		/* stream flags			*/
 } Stream_t;
 
@@ -288,7 +285,7 @@ typedef struct View_s			/* viewpath level		*/
 
 typedef struct Makestate_s		/* make() shareable state	*/
 {
-	unsigned long	modtime;	/* current rule's last-mod time	*/
+	time_t		modtime;	/* preliminary last-mod time	*/
 	Buf_t		*cmd;		/* shell action			*/
 	List_t		*bg;		/* list of rules with bg jobs	*/
 } Makestate_t;
@@ -377,7 +374,7 @@ static void usage(void)
  * output error message identification
  */
 
-static void identify(Stdio_t * sp)
+static void identify(FILE * sp)
 {
 	if (state.directory)
 		fprintf(sp, "%s [%s]: ", state.id, state.directory);
@@ -395,7 +392,7 @@ static void identify(Stdio_t * sp)
  *	>2	exit(level-2)
  */
 
-static void report(int level, char *text, char *item, unsigned long stamp)
+static void report(int level, char *text, char *item, Rule_t *r)
 {
 	int	i;
 
@@ -415,7 +412,8 @@ static void report(int level, char *text, char *item, unsigned long stamp)
 			{
 				if (state.sp->file)
 					fprintf(stderr, "%s: ", state.sp->file);
-				fprintf(stderr, "%ld: ", state.sp->line);
+				/* do not use the current line when reporting an error from a background job */
+				fprintf(stderr, "%u: ", r && r->pid ? r->endline : state.sp->line);
 			}
 			if (level == 1)
 				fprintf(stderr, "warning: ");
@@ -425,12 +423,35 @@ static void report(int level, char *text, char *item, unsigned long stamp)
 		if (item)
 			fprintf(stderr, "%s: ", item);
 		fprintf(stderr, "%s", text);
-		if (stamp && state.debug <= -2)
-			fprintf(stderr, " %10lu", stamp);
+		if (r && r->time && state.debug <= -2)
+#if __STDC_VERSION__ >= 199901L
+			fprintf(stderr, " %10lld", (long long)r->time);
+#else
+			fprintf(stderr, " %10lu", (unsigned long)r->time);
+#endif
 		fprintf(stderr, "\n");
 		if (level > 2)
 			exit_wait(level - 2);
 	}
+}
+
+/*
+ * throw error and exit with status 1
+ */
+
+static void error_out(char *text, char *item)
+{
+	report(3, text, item, NULL);
+}
+
+/*
+ * out of memory error with stack trace
+ */
+
+static void out_of_memory(void)
+{
+	report(2, "out of memory", NULL, NULL);
+	abort();
 }
 
 /*
@@ -440,8 +461,11 @@ static void report(int level, char *text, char *item, unsigned long stamp)
 static void error_making(Rule_t *r, int code)
 {
 	identify(stderr);
-	if (!code)
-		report(state.keepgoing ? 1 : 3, "missing prerequisite", r->name, 0);
+	if (code <= 0)
+	{
+		report(state.keepgoing ? 2 : 3, code ? "target not generated" : "missing prerequisite", r->name, r);
+		code = 1;
+	}
 	else
 	{
 		fprintf(stderr, "*** exit code %d making %s%s\n", code, r->name, state.ignore ? " ignored" : "");
@@ -450,9 +474,9 @@ static void error_making(Rule_t *r, int code)
 			return;
 		if (!state.keepgoing)
 			exit_wait(code);
-		if (code > state.exitstatus)
-			state.exitstatus = code;
 	}
+	if (code > state.exitstatus)
+		state.exitstatus = code;
 	r->flags |= RULE_error;
 }
 
@@ -466,8 +490,8 @@ static Buf_t *buffer(void)
 
 	if (buf = state.old)
 		state.old = state.old->old;
-	else if (!(buf = newof(0, Buf_t, 1, 0)) || !(buf->buf = newof(0, char, CHUNK, 0)))
-		report(3, "out of memory [buffer]", NULL, 0);
+	else if (!(buf = calloc(1, sizeof(Buf_t))) || !(buf->buf = malloc(CHUNK)))
+		out_of_memory();
 	buf->end = buf->buf + CHUNK;
 	buf->nxt = buf->buf;
 	return buf;
@@ -495,8 +519,8 @@ static char *appendn(Buf_t *buf, char *str, size_t n)
 	{
 		i = buf->nxt - buf->buf;
 		m = (((buf->end - buf->buf) + n + CHUNK + 1) / CHUNK) * CHUNK;
-		if (!(buf->buf = newof(buf->buf, char, m, 0)))
-			report(3, "out of memory [buffer resize]", NULL, 0);
+		if (!(buf->buf = realloc(buf->buf, m)))
+			out_of_memory();
 		buf->end = buf->buf + m;
 		buf->nxt = buf->buf + i;
 	}
@@ -536,7 +560,7 @@ static char *reduplicate(char *orig, char *s)
 		return empty;
 	}
 	if (!(t = realloc(orig == empty ? NULL : orig, n + 1)))
-		report(3, "out of memory [duplicate]", s, 0);
+		out_of_memory();
 	strcpy(t, s);
 	return t;
 }
@@ -554,8 +578,8 @@ static Dict_t *dictionary(void)
 {
 	Dict_t	*dict;
 
-	if (!(dict = newof(0, Dict_t, 1, 0)))
-		report(3, "out of memory [dictionary]", NULL, 0);
+	if (!(dict = calloc(1, sizeof(Dict_t))))
+		out_of_memory();
 	return dict;
 }
 
@@ -628,9 +652,9 @@ static Dict_item_t *search(Dict_t *dict, char *name, int create)
 	}
 	else if (create)
 	{
-		if (!(root = newof(0, Dict_item_t, 1, strlen(name) + 1)))
-			report(3, "out of memory [dictionary]", name, 0);
-		assert(root);
+		if (!(root = malloc(sizeof(Dict_item_t) + strlen(name) + 1)))
+			out_of_memory();
+		root->value = NULL;
 		strcpy(root->name, name);
 	}
 	if (root)
@@ -705,8 +729,8 @@ static Rule_t *rule(char *name)
 	{
 		Dict_item_t *rnode;
 		size_t n;
-		if (!(r = newof(0, Rule_t, 1, 0)))
-			report(3, "out of memory [rule]", name, 0);
+		if (!(r = calloc(1, sizeof(Rule_t))))
+			out_of_memory();
 		rnode = search(state.rules, name, 1);
 		rnode->value = r;
 		r->name = rnode->name;
@@ -733,8 +757,8 @@ static void cons(Rule_t *r, Rule_t *p)
 	for (x = r->prereqs; x && x->rule != p; x = x->next);
 	if (!x)
 	{
-		if (!(x = newof(0, List_t, 1, 0)))
-			report(3, "out of memory [list]", r->name, 0);
+		if (!(x = calloc(1, sizeof(List_t))))
+			out_of_memory();
 		x->rule = p;
 		x->next = r->prereqs;
 		r->prereqs = x;
@@ -751,12 +775,12 @@ static void view(void)
 	View_t		*vp, *zp;
 	int		c;
 	size_t		n;
-	Stat_t		st, ts;
+	struct stat	st, ts;
 	char		buf[CHUNK];
 	Dict_item_t	*vnode;
 
 	if (stat(".", &st))
-		report(3, "cannot stat", ".", 0);
+		error_out("cannot stat", ".");
 	vnode = search(state.vars, "PWD", 1);
 	if ((s = vnode->value) && !stat(s, &ts) &&
 	    ts.st_dev == st.st_dev && ts.st_ino == st.st_ino)
@@ -764,7 +788,7 @@ static void view(void)
 	if (!state.pwd)
 	{
 		if (!getcwd(buf, sizeof(buf) - 1))
-			report(3, "cannot determine PWD", NULL, 0);
+			error_out("cannot determine PWD", NULL);
 		state.pwd = duplicate(buf);
 		vnode->value = state.pwd;
 	}
@@ -784,9 +808,9 @@ static void view(void)
 				 */
 
 				if (stat(s, &st))
-					report(3, "cannot stat top view", s, 0);
+					error_out("cannot stat top view", s);
 				if (stat(state.pwd, &ts))
-					report(3, "cannot stat", state.pwd, 0);
+					error_out("cannot stat", state.pwd);
 				if (ts.st_dev == st.st_dev && ts.st_ino == st.st_ino)
 					p = ".";
 				else
@@ -797,10 +821,10 @@ static void view(void)
 						if (*--p == '/')
 						{
 							if (p == state.pwd)
-								report(3, ". not under VPATH", s, 0);
+								error_out(". not under VPATH", s);
 							*p = 0;
 							if (stat(state.pwd, &ts))
-								report(3, "cannot stat", state.pwd, 0);
+								error_out("cannot stat", state.pwd);
 							*p = '/';
 							if (ts.st_dev == st.st_dev && ts.st_ino == st.st_ino)
 							{
@@ -810,18 +834,19 @@ static void view(void)
 						}
 					}
 					if (p <= state.pwd)
-						report(3, "cannot determine viewpath offset", s, 0);
+						error_out("cannot determine viewpath offset", s);
 				}
 			}
 			n = strlen(s);
 			assert(p);
-			if (!(vp = newof(0, View_t, 1, strlen(p) + n + 2)))
-				report(3, "out of memory [view]", s, 0);
+			if (!(vp = malloc(sizeof(View_t) + strlen(p) + n + 2)))
+				out_of_memory();
+			vp->next = NULL;
 			vp->node = n + 1;
 			strcpy(vp->dir, s);
 			*(vp->dir + n) = '/';
 			strcpy(vp->dir + n + 1, p);
-			report(-4, vp->dir, "view", 0);
+			report(-4, vp->dir, "view", NULL);
 			if (!state.view)
 				state.view = zp = vp;
 			else
@@ -1057,7 +1082,7 @@ static void substitute(Buf_t *buf, char *s)
 				else if (newexp)
 				{
 					*vnterm = 0;
-					report(3, "variable not defined", t, 0);
+					error_out("variable not defined", t);
 				}
 				else if (valid_sh_name || state.strict >= 2)
 				{
@@ -1138,7 +1163,7 @@ static char *find(Buf_t *buf, char *file, struct stat *st)
 
 	if (s = status(buf, 0, file, st))
 	{
-		report(-3, s, "find", 0);
+		report(-3, s, "find", NULL);
 		return s;
 	}
 	if (vp = state.view)
@@ -1179,7 +1204,7 @@ static char *find(Buf_t *buf, char *file, struct stat *st)
 				s = use(buf);
 				if (s = status(buf, o, s, st))
 				{
-					report(-3, s, "find", 0);
+					report(-3, s, "find", NULL);
 					return s;
 				}
 			} while (vp = vp->next);
@@ -1218,7 +1243,7 @@ static int pop(void)
 	int	r;
 
 	if (!state.sp)
-		report(3, "input stack underflow", NULL, 0);
+		error_out("input stack underflow", NULL);
 	if (!state.sp->fp || (state.sp->flags & STREAM_KEEP))
 		r = 0;
 	else if (state.sp->flags & STREAM_PIPE)
@@ -1236,7 +1261,7 @@ static int pop(void)
  * push file onto the input stack
  */
 
-static int push(char *file, Stdio_t *fp, int flags)
+static int push(char *file, FILE *fp, int flags)
 {
 	char		*path;
 	Buf_t		*buf;
@@ -1245,11 +1270,11 @@ static int push(char *file, Stdio_t *fp, int flags)
 	if (!state.sp)
 		state.sp = state.streams;
 	else if (++state.sp >= &state.streams[elementsof(state.streams)])
-		report(3, "input stream stack overflow", NULL, 0);
+		error_out("input stream stack overflow", NULL);
 	if (state.sp->fp = fp)
 		state.sp->file = reduplicate(state.sp->file, "pipeline");
 	else if (flags & STREAM_PIPE)
-		report(3, "pipe error", file, 0);
+		error_out("pipe error", file);
 	else if (!file || !strcmp(file, "-") || !strcmp(file, "/dev/stdin"))
 	{
 		flags |= STREAM_KEEP;
@@ -1262,7 +1287,7 @@ static int push(char *file, Stdio_t *fp, int flags)
 		if (path = find(buf, file, &st))
 		{
 			if (!(state.sp->fp = fopen(path, "r")))
-				report(3, "cannot read", path, 0);
+				error_out("cannot read", path);
 			state.sp->file = reduplicate(state.sp->file, path);
 			drop(buf);
 		}
@@ -1271,7 +1296,7 @@ static int push(char *file, Stdio_t *fp, int flags)
 			drop(buf);
 			pop();
 			if (flags & STREAM_MUST)
-				report(3, "not found", file, 0);
+				error_out("not found", file);
 			return 0;
 		}
 	}
@@ -1290,11 +1315,11 @@ static char *input(void)
 	char		*e;
 
 	if (!state.sp)
-		report(3, "no input file stream", NULL, 0);
+		error_out("no input file stream", NULL);
 	if (!fgets(input, sizeof(input), state.sp->fp))
 	{
 		if (ferror(state.sp->fp))
-			report(3, "read error", NULL, 0);
+			error_out("read error", NULL);
 		return NULL;
 	}
 	if (*input && *(e = input + strlen(input) - 1) == '\n')
@@ -1326,12 +1351,35 @@ static void print_nice_hdr(Rule_t *r)
 	&& (val = getval(state.vars, "INSTALLROOT")) && (len = strlen(val))
 	&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
 		rname += len, rnamepre = "%{INSTALLROOT}";
-	fprintf(stderr, "\n# %s: %lu-%lu: make %s%s\n",
+	fprintf(stderr, "\n# %s: %u-%u: make %s%s\n",
 		fname, r->line, r->endline, rnamepre, rname);
 	/* -e option */
 	if (state.explain)
 		fprintf(stderr, "# reason: target %s\n", \
-			r->oldtime ? "older than prerequisites" : (r->flags & RULE_virtual) ? "is virtual" : "not found");
+			r->flags & RULE_preexisted ? "older than prerequisites" : \
+				r->flags & RULE_virtual ? "is virtual" : "not found");
+}
+
+/*
+ * check and propagate results of shell action
+ */
+
+static void check_shellaction(Rule_t *r, int e)
+{
+	struct stat	fstat;
+	if (e)						/* action failed? */
+		error_making(r, e);
+	else if (r->flags & RULE_virtual)		/* rule does not generate a file? */
+		;
+	else if (status(NULL, 0, r->name, &fstat))	/* target file exists? */
+	{
+		r->time = fstat.st_mtime;
+		r->flags |= RULE_exists;
+	}
+	else if (!(r->flags & RULE_dontcare))
+		error_making(r, -1);			/* "target not generated" */
+	if (e > state.exitstatus)
+		state.exitstatus = e;
 }
 
 /*
@@ -1339,30 +1387,24 @@ static void print_nice_hdr(Rule_t *r)
  * flag==WNOHANG: do nothing if the process is still running
  */
 
-static int reap(Rule_t *r, int flag)
+static void reap(Rule_t *r, int flag)
 {
 	int		pstat, e;
-	struct stat	fstat;
-	char		*s;
 
-	if ((flag & WNOHANG) && r && !r->pid)
-		return 1;
 	if (!r || !r->pid || !waitpid(r->pid, &pstat, flag))
-		return 0;
-	report(-4, r->name, "reap", r->pid);
+		return;
+	if (state.debug <= -4)
+	{
+		char b[64];
+		sprintf(b, "reaping PID %lu", (unsigned long)r->pid);
+		report(-4, r->name, b, r);
+	}
 	if (WIFSIGNALED(pstat))
 		e = WTERMSIG(pstat) + 128;
 	else if (WIFEXITED(pstat))
 		e = WEXITSTATUS(pstat);
 	else
 		e = 128;
-	if (e > state.exitstatus)
-		state.exitstatus = e;
-	if (s = (r->flags & RULE_virtual) ? NULL : status(NULL, 0, r->name, &fstat))
-	{
-		r->time = fstat.st_mtime;
-		r->flags |= RULE_exists;
-	}
 	/* dump saved-up log output */
 	if (r->logtmp)
 	{
@@ -1378,17 +1420,15 @@ static int reap(Rule_t *r, int flag)
 			fflush(stdout);
 		}
 		else
-			report(1, r->logtmp, "cannot open temp log", 0);
+			report(1, r->logtmp, "cannot open temp log", r);
 		unlink(r->logtmp);
 		free(r->logtmp);
 		r->logtmp = NULL;
 	}
+	check_shellaction(r, e);
 	r->pid = 0;
 	assert(state.jobs > 0);
 	state.jobs--;
-	if (e || !(s || r->flags & (RULE_dontcare | RULE_virtual)))
-		error_making(r, e);
-	return 1;
 }
 
 /*
@@ -1435,10 +1475,10 @@ static int execute(Rule_t *r, char *s)
 		state.shell = sh;
 	pid = fork();
 	if (pid < 0)
-		report(3, strerror(errno), "fork() failed", 0);
+		error_out(strerror(errno), "fork() failed");
 	if (pid == 0)
 	{	/* child */
-		report(-5, s, "exec", 0);
+		report(-5, s, "exec", NULL);
 		execl(state.shell, "sh", "-c", s, (char*)0);
 		if (errno == ENOENT)
 			exit(127);
@@ -1463,7 +1503,7 @@ static int execute(Rule_t *r, char *s)
 		/* let it run in parallel */
 		state.jobs++;
 		r->pid = pid;
-		return 0;
+		return -1;
 	}
 	/* good old-fashioned sequential execution */
 	waitpid(pid, &stat, 0);
@@ -1483,7 +1523,6 @@ static void run(Rule_t *r, char *s)
 	Rule_t	*q;
 	char	*t;
 	int	c, i, j, x;
-	Stat_t	st;
 	Buf_t	*buf;
 
 	if (r->flags & RULE_error)
@@ -1548,7 +1587,7 @@ static void run(Rule_t *r, char *s)
 			char	*pre = use(buf);
 			size_t	n = strlen(pre);
 			if (!(tofree = malloc(n + strlen(s) + 1)))
-				report(3, "out of memory [run]", NULL, 0);
+				out_of_memory();
 			strcpy(tofree, pre);
 			strcpy(tofree + n, s);
 			s = tofree;
@@ -1624,22 +1663,16 @@ static void run(Rule_t *r, char *s)
 	}
 	if (x)
 	{
-		if (c = execute(r, s))
-			error_making(r, c);
-		if (status(NULL, 0, r->name, &st))
-		{
-			r->time = st.st_mtime;
-			r->flags |= RULE_exists;
-		}
-		else
-			r->time = NOW;
+		int e = execute(r, s);
+		if (e >= 0)
+			check_shellaction(r, e);
 	}
 	else
 	{
 		fprintf(stdout, "%s\n", s);
 		if (state.debug)
 			fflush(stdout);
-		r->time = NOW;
+		r->time = time(NULL); /* now */
 		r->flags |= RULE_exists;
 	}
 	drop(buf);
@@ -1651,17 +1684,17 @@ static void run(Rule_t *r, char *s)
 
 static char *path(Buf_t *buf, char *s, int must)
 {
-	char	*p, *d, *x, *e;
-	int	c, t;
-	size_t	o;
-	Stat_t	st;
+	char		*p, *d, *x, *e;
+	int		c, t;
+	size_t		o;
+	struct stat	st;
 
 	for (e = s; *e && !isspace(*e); e++);
 	t = *e;
 	if ((x = status(buf, 0, s, &st)) && (st.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)))
 		return x;
 	if (!(p = getval(state.vars, "PATH")))
-		report(3, "variable not defined", "PATH", 0);
+		error_out("variable not defined", "PATH");
 	do
 	{
 		for (d = p; *p && *p != ':'; p++);
@@ -1684,7 +1717,7 @@ static char *path(Buf_t *buf, char *s, int must)
 			return x;
 	} while (*p++);
 	if (must)
-		report(3, "command not found", s, 0);
+		error_out("command not found", s);
 	return NULL;
 }
 
@@ -1693,10 +1726,11 @@ static char *path(Buf_t *buf, char *s, int must)
  * done on the first `setv CC ...'
  */
 
-static void probe(void)
+static void probe(Rule_t *r, Makestate_t *stp)
 {
 	char		*cc, *s;
-	unsigned long	h, q;
+	unsigned long	h;
+	time_t		cmd_time, output_time;
 	Buf_t		*buf, *pro, *tmp;
 	struct stat	st;
 
@@ -1707,7 +1741,7 @@ static void probe(void)
 		cc = "cc";
 	buf = buffer();
 	s = path(buf, cmd, 1);
-	q = stat(s, &st) ? 0 : (unsigned long)st.st_mtime;
+	cmd_time = stat(s, &st) ? 0 : st.st_mtime;
 	pro = buffer();
 	s = cc = path(pro, cc, 1);
 	for (h = 0; *s; s++)
@@ -1717,8 +1751,8 @@ static void probe(void)
 	for (h &= 0xffffffffL; h; h >>= 4)
 		add(buf, let[h & 0xf]);
 	s = use(buf);
-	h = stat(s, &st) ? 0 : (unsigned long)st.st_mtime;
-	if (h < q || !push(s, NULL, 0))
+	output_time = stat(s, &st) ? 0 : st.st_mtime;
+	if (output_time < cmd_time || !push(s, NULL, 0))
 	{
 		tmp = buffer();
 		append(tmp, cmd);
@@ -1727,14 +1761,14 @@ static void probe(void)
 		add(tmp, ' ');
 		append(tmp, cc);
 		if (execute(NULL, use(tmp)))
-			report(3, "cannot generate probe info", s, 0);
+			error_out("cannot generate probe info", s);
 		drop(tmp);
 		if (!push(s, NULL, 0))
-			report(3, "cannot read probe info", s, 0);
+			error_out("cannot read probe info", s);
 	}
 	drop(pro);
 	drop(buf);
-	make(rule(""), NULL);
+	make(r, stp);
 	pop();
 }
 
@@ -1793,11 +1827,22 @@ static void attributes(Rule_t *r, char *s)
 		else if (flag == 0 || state.strict >= 2)
 		{
 			t[n] = '\0';
-			report(3, "unknown attribute", t, 0);
+			error_out("unknown attribute", t);
 		}
 		else if (state.strict)
-			report(1, "deprecated", t, 0);
+			report(1, "deprecated", t, NULL);
 	}
+}
+
+/*
+ * append libNAME.a to the given buffer
+ */
+
+void append_ar_name(Buf_t *buf, char *name)
+{
+	append(buf, "lib");
+	append(buf, name);
+	append(buf, ".a");
 }
 
 /*
@@ -1813,7 +1858,7 @@ static char *require(char *lib, int dontcare)
 	char		*s, *r, varname[64];
 
 	if (strlen(lib + 2) > sizeof(varname) - sizeof(LIB_VARPREFIX))
-		report(3, "-lname too long", lib, 0);
+		error_out("-lname too long", lib);
 	sprintf(varname, LIB_VARPREFIX "%s", lib + 2);
 
 	if (!(r = getval(state.vars, varname)))
@@ -1822,30 +1867,20 @@ static char *require(char *lib, int dontcare)
 		int		c, tofree = 0;
 		FILE		*f;
 		struct stat	st;
-		Rule_t		*rp;
 
-		s = 0;
-		for (;;)
+		for (c = 0; ; c++)
 		{
-			if (s)
-				append(buf, s);
-			if (r = getval(state.vars, "mam_cc_PREFIX_ARCHIVE"))
-				append(buf, r);
-			append(buf, lib + 2);
-			if (r = getval(state.vars, "mam_cc_SUFFIX_ARCHIVE"))
-				append(buf, r);
-			r = expand(tmp, use(buf));
-			/* we may need to wait for it to finish linking */
-			if (rp = getval(state.rules, r))
-				reap(rp, 0);
+			append_ar_name(buf, lib + 2);
+			r = use(buf);
 			if (!stat(r, &st))
 				break;
-			if (s)
+			if (c)
 			{
 				r = lib;
 				break;
 			}
-			s = "%{INSTALLROOT}/lib/";
+			append(buf, state.installroot);
+			append(buf, "/lib/");
 		}
 		if (r != lib)
 		{
@@ -1857,9 +1892,10 @@ static char *require(char *lib, int dontcare)
 		append(tmp, ".req");
 		if (!(f = fopen(use(tmp), "r")))
 		{
-			append(tmp, "%{INSTALLROOT}/lib/lib/");
+			append(tmp, state.installroot);
+			append(tmp, "/lib/lib/");
 			append(tmp, lib + 2);
-			f = fopen(expand(buf, use(tmp)), "r");
+			f = fopen(use(tmp), "r");
 		}
 		if (f)
 		{
@@ -1886,14 +1922,19 @@ static char *require(char *lib, int dontcare)
 		}
 		else if (dontcare)
 		{
-			append(tmp, "echo 'int main(void){return 0;}' > libtest.$$.c\n" \
-				"%{CC} %{CCFLAGS} -o libtest.$$.x libtest.$$.c ");
+			append(tmp, "echo 'int main(void){return 0;}' > libtest.$$.c\n");
+			if (!(s = getval(state.vars, "CC")))
+				error_out("variable not defined", "CC");
+			append(tmp, s), add(tmp, ' ');
+			if (s = getval(state.vars, "CCFLAGS"))
+				append(tmp, s), add(tmp, ' ');
+			append(tmp, "-o libtest.$$.x libtest.$$.c ");
 			append(tmp, r);
 			append(tmp, " >/dev/null 2>&1\n"
 				"c=$?\n"
 				"exec rm -rf libtest.$$.* &\n"  /* also remove artefacts like *.dSYM dir (macOS) */
 				"exit $c\n");
-			if (execute(NULL, expand(buf, use(tmp))))
+			if (execute(NULL, use(tmp)))
 			{
 				if (tofree)
 					free(r);
@@ -1902,7 +1943,7 @@ static char *require(char *lib, int dontcare)
 		}
 		r = duplicate(r);
 		setval(state.vars, varname, r);
-		report(-4, r, varname, 0);
+		report(-4, r, varname, NULL);
 		drop(tmp);
 		drop(buf);
 	}
@@ -1925,7 +1966,7 @@ static void update_allprev(Rule_t *r, char *all, char *upd)
 	else
 		all = malloc(n + 1);
 	if (!all)
-		report(3, "out of memory [upd_allprev]", NULL, 0);
+		out_of_memory();
 	strcpy(all + nn, name);
 	auto_allprev->value = all;
 	/* restore %{?}, append to it if rule was updated */
@@ -1936,7 +1977,7 @@ static void update_allprev(Rule_t *r, char *all, char *upd)
 		else
 			upd = malloc(n + 1);
 		if (!upd)
-			report(3, "out of memory [upd_allprev]", NULL, 0);
+			out_of_memory();
 		strcpy(upd + nn, name);
 	}
 	auto_updprev->value = upd;
@@ -1946,9 +1987,9 @@ static void update_allprev(Rule_t *r, char *all, char *upd)
  * propagate last-modified timestamp and error flag from child rule to current rule
  */
 
-static void propagate(Rule_t *q, Rule_t *r, unsigned long *modtime)
+static void propagate(Rule_t *q, Rule_t *r, time_t *modtime)
 {
-	report(-5, q->name, "propagate", *modtime);
+	report(-5, q->name, "propagate", q);
 	if (!(q->flags & RULE_ignore) && *modtime < q->time)
 		*modtime = q->time;
 	if (r && (q->flags & RULE_error))
@@ -1966,6 +2007,23 @@ static void exit_wait(int e)
 	if (state.exitstatus > e)
 		e = state.exitstatus;
 	exit(e);
+}
+
+/*
+ * wait for all the child rules' background jobs to finish,
+ * then propagate their timestamps and error flags
+ */
+
+void clearout_bg(Rule_t *r, Makestate_t *stp)
+{
+	while (stp->bg)
+	{
+		List_t	*prev = stp->bg;
+		reap(stp->bg->rule, 0);
+		propagate(stp->bg->rule, r, &stp->modtime);
+		stp->bg = stp->bg->next;
+		free(prev);
+	}
 }
 
 /*
@@ -2001,7 +2059,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				bindfile(r);
 				st.modtime = r->time;
 			}
-			report(-1, r->name, "make", r->time);
+			report(-1, r->name, "make", r);
 			state.indent++;
 		}
 	}
@@ -2029,14 +2087,20 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			t = v = s;
 		/* enforce 4-letter lowercase command name */
 		if (u[0]<'a' || u[0]>'z' || u[1]<'a' || u[1]>'z' || u[2]<'a' || u[2]>'z' || u[3]<'a' || u[3]>'z' || u[4] && !isspace(u[4]))
-			report(3, "not a command name", u, 0);
+			error_out("not a command name", u);
 		switch (KEY(u[0], u[1], u[2], u[3]))
 		{
 		case KEY('b','i','n','d'):
 			if (!(t[0] == '-' && t[1] == 'l'))
-				report(3, "bad -lname", t, 0);
-			s = require(t, !strcmp(v, "dontcare"));
-			if (s)
+				error_out("bad -lname", t);
+			/* make sure it's finished linking before calling require() */
+			append_ar_name(buf, t + 2);
+			if (q = getval(state.rules, use(buf)))
+			{
+				reap(q, 0);
+				propagate(q, r, &st.modtime);
+			}
+			if (s = require(t, !strcmp(v, "dontcare")))
 			{
 				char *libname = t + 2;
 				/*
@@ -2044,6 +2108,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				 */
 				for (;;)
 				{
+					Rule_t	*rp;
 					for (t = s; *s && !isspace(*s); s++);
 					if (*s)
 						*s = 0;
@@ -2052,11 +2117,11 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 					/* only bother if t is a path to a *.a we built (i.e. not -l...) */
 					if (t[0] && (t[0] != '-' || t[1] != 'l'))
 					{
-						q = rule(t);
-						attributes(q, v);
-						bindfile(q);
-						propagate(q, r, &st.modtime);
-						report(-1, q->name, "bind: file", q->time);
+						rp = rule(t);
+						attributes(rp, v);
+						bindfile(rp);
+						propagate(rp, r, &st.modtime);
+						report(-1, rp->name, "bind: file", rp);
 					}
 					if (!s)
 						break;
@@ -2068,10 +2133,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				 * ...but not for a library that was just made in the same Mamfile; its header
 				 * dependencies will already have been made as part of building that library
 				 */
-				append(buf, "lib");
-				append(buf, libname);
-				append(buf, ".a");
-				if ((q = getval(state.rules, use(buf))) && (q->flags & RULE_made))
+				if (q && (q->flags & RULE_made))
 					continue;
 				/*
 				 * The _hdrdeps_libNAME_ rule is generated by mkdeps; if its
@@ -2084,7 +2146,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				if ((q = getval(state.rules, use(buf))) && (q->flags & RULE_made))
 				{
 					/* ...then do a 'prev _hdrdeps_libNAME_' */
-					report(-2, q->name, "bind: prev", q->time);
+					report(-2, q->name, "bind: prev", q);
 					propagate(q, r, &st.modtime);
 					continue;
 				}
@@ -2095,8 +2157,8 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				s = use(buf);
 				if (push(s, NULL, 0))
 				{
-					report(-1, s, "bind: include", 0);
-					make(rule(""), NULL);
+					report(-1, s, "bind: include", NULL);
+					make(r, &st);
 					pop();
 				}
 			}
@@ -2104,13 +2166,14 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 
 		case KEY('d','o','n','e'):
 			r->endline = state.sp->line;
-			r->oldtime = r->time;
 			if (parentstate)
 			{
+				/* loop block done */
 				if (*t)
-					report(3, "superflous arguments", u, 0);
+					error_out("superflous arguments", u);
 				break;
 			}
+			/* make block done */
 			if (*t)
 			{	/* target is optional; use it for sanity check if present */
 				q = rule(expand(buf, t));
@@ -2119,34 +2182,30 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 					append(buf,q->name);
 					append(buf," != ");
 					append(buf,r->name);
-					report(3, "mismatched done statement", use(buf), 0);
+					error_out("mismatched done statement", use(buf));
 				}
 				if (*v)
 				{
 					if (state.strict >= 2)
-						report(3, "superfluous arguments", u, 0);
+						error_out("superfluous arguments", u);
 					else if (state.strict)
-						report(1, "attributes deprecated, move to 'make'", u, 0);
+						report(1, "attributes deprecated, move to 'make'", u, NULL);
 					attributes(r, v);
 				}
 			}
-			/* wait for all the child rules' background jobs to finish */
-			while (st.bg)
-			{
-				List_t	*prev = st.bg;
-				reap(st.bg->rule, 0);
-				propagate(st.bg->rule, r, &st.modtime);
-				st.bg = st.bg->next;
-				free(prev);
-			}
+			clearout_bg(r, &st);
 			if (st.cmd && state.active && (state.force || r->time < st.modtime || !r->time && !st.modtime))
 			{
+				/* flag for -e */
+				if (r->time)
+					r->flags |= RULE_preexisted;
 				/* show a nice trace header */
-				if (!PARALLEL(r) || state.chaos)
+				if ((!PARALLEL(r) || state.chaos) && !(r->flags & RULE_error))
 					print_nice_hdr(r);
 				/* run the shell action */
 				run(r, use(st.cmd));
-				propagate(r, NULL, &st.modtime);
+				if (!r->pid)
+					propagate(r, NULL, &st.modtime);
 				r->flags |= RULE_updated;
 			}
 			r->flags |= RULE_made;
@@ -2187,13 +2246,13 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			off_t		saveoff;
 			char		*vname, *words, *w, *nextw, *cp, *save_value;
 			Dict_item_t	*vnode;
-			unsigned long	saveline = state.sp->line;
+			unsigned int	saveline = state.sp->line;
 
 			if (!*v)
-				report(3, "syntax error", u, 0);
+				error_out("syntax error", u);
 			/* remember current offset for repeated reading */
 			if ((saveoff = ftello(state.sp->fp)) < 0)
-				report(3, "unseekable input", u, 0);
+				error_out("unseekable input", u);
 			/* iterate through one or more whitespace-separated words */
 			vname = duplicate(expand(buf, t));
 			w = words = duplicate(expand(buf, v));
@@ -2218,7 +2277,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				if (w != words)
 				{
 					if (fseeko(state.sp->fp, saveoff, SEEK_SET) < 0)
-						report(3, "fseek failed", u, 0);
+						error_out("fseek failed", u);
 					state.sp->line = saveline;
 				}
 				/* (re)read the loop block until 'done', in the context of the current rule */
@@ -2236,28 +2295,8 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			char *save_allprev = auto_allprev->value;
 			char *save_updprev = auto_updprev->value;
 			char *name = expand(buf, t);
-			/* before making this rule, reap any bg jobs that have finished and cut them out of the list */
-			if (st.bg)
-			{
-				List_t	*j, *next, *prev = NULL;
-				for (j = st.bg; j; j = next)
-				{
-					next = j->next;
-					if (reap(j->rule, WNOHANG))
-					{
-						propagate(j->rule, r, &st.modtime);
-						free(j);
-						if (prev)
-							prev->next = next;
-						else
-							st.bg = next;
-					}
-					else
-						prev = j;
-				}
-			}
 			if ((q = getval(state.rules, name)) && (q->flags & RULE_made))
-				report(state.strict < 3 ? 1 : 3, "rule already made", name, 0);
+				report(state.strict < 3 ? 1 : 3, "rule already made", name, NULL);
 			if (!q)
 				q = rule(name);
 			/* set %{@}; empty %{?}, %{^} and %{<} */
@@ -2266,25 +2305,26 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			auto_allprev->value = empty;
 			auto_prev->value = reduplicate(auto_prev->value, empty);
 			if (q->making)
-				report(state.strict < 3 ? 1 : 3, "rule already being made", name, 0);
+				report(state.strict < 3 ? 1 : 3, "rule already being made", name, NULL);
 			else
 			{
 				/* make the target */
 				attributes(q, v);
 				if (q->flags & RULE_virtual)
-					walk(state.rules, wreap);
+					clearout_bg(r, &st);
 				make(q, NULL);
 				if (q->pid)
 				{
 					/* add the rule to the bg list */
 					List_t	*j = malloc(sizeof(List_t));
 					if (!j)
-						report(3, "out of memory [list]", q->name, 0);
+						out_of_memory();
 					j->rule = q;
 					j->next = st.bg;
 					st.bg = j;
 				}
-				propagate(q, r, &st.modtime);
+				else
+					propagate(q, r, &st.modtime);
 			}
 			/* update %{<}, restore/update %{^} and %{?} */
 			if (auto_allprev->value != empty)
@@ -2317,23 +2357,23 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 					propagate(q, r, &st.modtime);
 				}
 				q->flags |= RULE_made;
-				report(-2, q->name, "makp", q->time);
+				report(-2, q->name, "makp", q);
 			}
 			else if (makp)
 			{
 				if (q->flags & RULE_made)
-					report(3, name, "rule already made", 0);
+					error_out(name, "rule already made");
 			}
 			else if (!q)
-				report(3, name, "prev: rule not made", 0);
+				error_out(name, "prev: rule not made");
 			else if (*v && state.strict)
-				report(3, v, "prev: attributes not allowed", 0);
+				error_out(v, "prev: attributes not allowed");
 			else if (q->making)
-				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", name, 0);
+				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", name, NULL);
 			else
 			{	/* we may need to wait for it to finish processing */
 				reap(q, 0);
-				report(-2, q->name, "prev", q->time);
+				report(-2, q->name, "prev", q);
 				propagate(q, r, &st.modtime);
 			}
 			/* update %{<}, %{^} and %{?} */
@@ -2361,7 +2401,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			if (!state.probed && strcmp(t, "CC") == 0)
 			{
 				state.probed = 1;
-				probe();
+				probe(r, &st);
 			}
 			continue;
 
@@ -2384,7 +2424,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			/* FALLTHROUGH */
 
 		default:
-			report(3, "unknown command", u, 0);
+			error_out("unknown command", u);
 		}
 		break;
 	}
@@ -2396,15 +2436,15 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 	}
 	if (st.cmd)
 		drop(st.cmd);
+	r->time = st.modtime;
 	if (*r->name)
 	{
 		state.indent--;
-		report(-1, r->name, "done", st.modtime);
+		report(-1, r->name, "done", r);
 	}
 	if (r->flags & RULE_active)
 		state.active--;
 	r->making--;
-	r->time = st.modtime;
 }
 
 /*
@@ -2582,7 +2622,7 @@ static int active(Dict_item_t *item)
  * recurse on mamfiles in subdirs matching pattern
  */
 
-static int recurse(char *pattern)
+static void recurse(void)
 {
 	char		*s, *t;
 	Rule_t		*r;
@@ -2598,7 +2638,7 @@ static int recurse(char *pattern)
 	state.exec = !state.never;
 	state.leaf = dictionary();
 	append(buf, "ls -d ");
-	append(buf, pattern);
+	append(buf, state.recurse);
 	s = use(buf);
 	push("recurse", popen(s, "r"), STREAM_PIPE);
 	while (s = input())
@@ -2644,7 +2684,6 @@ static int recurse(char *pattern)
 		free(prev);
 	}
 	walk(state.rules, descend);
-	return 0;
 }
 
 /*
@@ -2842,7 +2881,7 @@ int main(int argc, char **argv)
 				t = s;
 				if (!*++s && !(s = *++argv))
 				{
-					report(2, "option value expected", t, 0);
+					report(2, "option value expected", t, NULL);
 					usage();
 				}
 				else
@@ -2874,7 +2913,7 @@ int main(int argc, char **argv)
 					}
 				break;
 			default:
-				report(2, "unknown option", s, 0);
+				report(2, "unknown option", s, NULL);
 				/* FALLTHROUGH */
 			case '?':
 				usage();
@@ -2912,7 +2951,7 @@ int main(int argc, char **argv)
 		}
 	}
 	if (!(state.installroot = getval(state.vars, "INSTALLROOT")) || *state.installroot != '/')
-		report(3, "variable not defined", "INSTALLROOT", 0);
+		error_out("variable not defined", "INSTALLROOT");
 
 	/*
 	 * initialize the automatic variables
@@ -2967,7 +3006,7 @@ int main(int argc, char **argv)
 	 */
 
 	if (state.directory && chdir(state.directory))
-		report(3, "cannot change working directory", NULL, 0);
+		error_out("cannot change working directory", NULL);
 	view();
 
 	/*
@@ -2975,7 +3014,10 @@ int main(int argc, char **argv)
 	 */
 
 	if (state.recurse)
-		return recurse(state.recurse);
+	{
+		recurse();
+		return state.exitstatus;
+	}
 
 	/*
 	 * read the mamfile(s) and bring the targets up to date

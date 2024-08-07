@@ -37,12 +37,6 @@
 #ifndef SIGCHLD
 #   error ksh 93u+m requires SIGCHLD
 #endif
-#ifdef FIOLOOKLD
-	/* Ninth edition */
-	extern int tty_ld, ntty_ld;
-#	define OTTYDISC	tty_ld
-#	define NTTYDISC	ntty_ld
-#endif /* FIOLOOKLD */
 
 struct process
 {
@@ -117,10 +111,6 @@ extern const char	e_terminate[];
 extern const char	e_no_jctl[];
 extern const char	e_signo[];
 extern const char	e_no_start[];
-#ifdef NTTYDISC
-   extern const char	e_newtty[];
-   extern const char	e_oldtty[];
-#endif /* NTTYDISC */
 
 /*
  * The following are defined in jobs.c

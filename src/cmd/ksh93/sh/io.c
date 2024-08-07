@@ -2165,17 +2165,6 @@ static int	io_prompt(Sfio_t *iop,int flag)
 		{
 			int c;
 			sh_lexopen(sh.lex_context, 0);   /* reset lexer state */
-#if defined(TIOCLBIC) && defined(LFLUSHO)
-			if(!sh_isoption(SH_VI) && !sh_isoption(SH_EMACS) && !sh_isoption(SH_GMACS))
-			{
-				/*
-				 * re-enable output in case the user has
-				 * disabled it.  Not needed with edit mode
-				 */
-				int mode = LFLUSHO;
-				ioctl(sffileno(sfstderr),TIOCLBIC,&mode);
-			}
-#endif	/* TIOCLBIC */
 			cp = sh_mactry(nv_getval(sh_scoped(PS1NOD)));
 			sh.exitval = 0;  /* avoid sending a signal on termination */
 			for(;c= *cp;cp++)

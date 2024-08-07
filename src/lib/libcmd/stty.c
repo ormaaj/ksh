@@ -61,9 +61,6 @@ static const char usage[] =
 #include	<ccode.h>
 #include	<ctype.h>
 #include	<ast_tty.h>
-#if _sys_ioctl
-#include	<sys/ioctl.h>
-#endif
 
 #define C(x)	ERROR_catalog(x)
 

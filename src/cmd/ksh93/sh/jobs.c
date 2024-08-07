@@ -183,10 +183,6 @@ static char		*job_string;
     static void		job_unstop(struct process*, int);
     static void		job_fgrp(struct process*, int);
 
-#ifndef OTTYDISC
-#   undef NTTYDISC
-#endif /* OTTYDISC */
-
 typedef int (*Waitevent_f)(int,long,int);
 
 #if SHOPT_BGX
@@ -506,25 +502,6 @@ void job_init(int lflag)
 		init_savelist();
 	if(!sh_isoption(SH_INTERACTIVE))
 		return;
-	/* use new line discipline when available */
-#ifdef NTTYDISC
-#   ifdef FIOLOOKLD
-	if((job.linedisc = ioctl(JOBTTY, FIOLOOKLD, 0)) <0)
-#   else
-	if(ioctl(JOBTTY,TIOCGETD,&job.linedisc) !=0)
-#   endif /* FIOLOOKLD */
-		return;
-	if(job.linedisc!=NTTYDISC && job.linedisc!=OTTYDISC)
-	{
-		/* no job control when running with MPX */
-#   if SHOPT_VSH
-		sh_onoption(SH_VIRAW);
-#   endif /* SHOPT_VSH */
-		return;
-	}
-	if(job.linedisc==NTTYDISC)
-		job.linedisc = -1;
-#endif /* NTTYDISC */
 	job.mypgid = getpgrp();
 	/* some systems have job control, but not initialized */
 	if(job.mypgid<=0)
@@ -563,32 +540,7 @@ void job_init(int lflag)
 			}
 		}
 	}
-#ifdef NTTYDISC
-	/* set the line discipline */
-	if(job.linedisc>=0)
-	{
-		int linedisc = NTTYDISC;
-#   ifdef FIOPUSHLD
-		tty_get(JOBTTY,&my_stty);
-		if (ioctl(JOBTTY, FIOPOPLD, 0) < 0)
-			return;
-		if (ioctl(JOBTTY, FIOPUSHLD, &linedisc) < 0)
-		{
-			ioctl(JOBTTY, FIOPUSHLD, &job.linedisc);
-			return;
-		}
-		tty_set(JOBTTY,TCSANOW,&my_stty);
-#   else
-		if(ioctl(JOBTTY,TIOCSETD,&linedisc) !=0)
-			return;
-#   endif /* FIOPUSHLD */
-		if(lflag==0)
-			errormsg(SH_DICT,0,e_newtty);
-		else
-			job.linedisc = -1;
-	}
-#endif /* NTTYDISC */
-	if(!possible)
+	else
 		return;
 	/* make sure that we are a process group leader */
 	setpgid(0,sh.pid);
@@ -668,28 +620,6 @@ int job_close(void)
 	job_unlock();
 	if(job.jobcontrol && setpgid(0,job.mypgid)>=0)
 		tcsetpgrp(job.fd,job.mypgid);
-#   ifdef NTTYDISC
-	if(job.linedisc>=0)
-	{
-		/* restore old line discipline */
-#	ifdef FIOPUSHLD
-		tty_get(job.fd,&my_stty);
-		if (ioctl(job.fd, FIOPOPLD, 0) < 0)
-			return 0;
-		if (ioctl(job.fd, FIOPUSHLD, &job.linedisc) < 0)
-		{
-			job.linedisc = NTTYDISC;
-			ioctl(job.fd, FIOPUSHLD, &job.linedisc);
-			return 0;
-		}
-		tty_set(job.fd,TCSAFLUSH,&my_stty);
-#	else
-		if(ioctl(job.fd,TIOCSETD,&job.linedisc) !=0)
-			return 0;
-#	endif /* FIOPUSHLD */
-		errormsg(SH_DICT,0,e_oldtty);
-	}
-#   endif /* NTTYDISC */
 #   ifdef CNSUSP
 	if(possible && job.suspend==CNSUSP)
 	{

@@ -25,9 +25,11 @@ To build ksh with a custom configuration of features, edit
 [`src/cmd/ksh93/SHOPT.sh`](https://github.com/ksh93/ksh/blob/1.0/src/cmd/ksh93/SHOPT.sh).
 
 Then `cd` to the top directory and run:
-```sh
+
+```
 bin/package make
 ```
+
 To suppress compiler output, use `quiet make` instead of `make`.
 In some non-POSIX shells you might need to prepend `sh` to all calls to `bin/package`.
 
@@ -35,11 +37,6 @@ Parallel building is supported by appending `-j` followed by the
 desired maximum number of concurrent jobs, e.g., `bin/package make -j4`.
 This speeds up building on systems with more than one CPU core.
 (Type `bin/package host cpu` to find out how many CPU cores your system has.)
-But it also causes log output to be chaotic and hard to decipher as multiple
-jobs write output all at once.
-The command `bin/package results` can help you find any warnings or errors.
-**Note:** The parallel building option is new as of 2024-08-01 and is still
-being tested. If you experience problems, please report them. Thanks :-)
 
 The compiled binaries are stored in the `arch` directory, in a subdirectory
 that corresponds to your architecture. The command `bin/package host type`
@@ -57,14 +54,17 @@ the build subdirectory of the `arch` directory, so exporting them is a
 convenient way to keep them consistent between build and test commands.
 **Note that this system uses `CCFLAGS` instead of the usual `CFLAGS`.**
 An example that makes Solaris Studio cc produce a 64-bit binary:
-```sh
+
+```
 export CCFLAGS="-m64 -O" LDFLAGS="-m64"
 bin/package make
 ```
+
 Alternatively you can append these to the command, and they will only be
 used for that command. You can also specify an alternative shell in which
 to run the build scripts this way. For example:
-```sh
+
+```
 bin/package make SHELL=/bin/bash CCFLAGS="-O2 -I/opt/local/include" LDFLAGS="-L/opt/local/lib"
 ```
 
@@ -75,9 +75,11 @@ do not add the `-ffast-math` compiler flag; arithmetic bugs will occur when
 using that flag.
 
 For more information run
-```sh
+
+```
 bin/package help
 ```
+
 Many other commands in this repo self-document via the `--help`, `--man` and
 `--html` options; those that do have no separate manual page.
 The autoloadable `man` function in
@@ -88,17 +90,22 @@ integrates this self-documentation into your regular `man` command.
 
 After compiling, you can run the regression tests.
 To run the default test sets for ksh and the build system, use:
-```sh
+
+```
 bin/package test
 ```
+
 For ksh, use the `shtests` command directly to control the regression test runs.
 Start by reading the information printed by:
-```sh
+
+```
 bin/shtests --man
 ```
+
 To hand-test ksh (as well as the utilities and the autoloadable functions
 that come with it) without installing, run:
-```sh
+
+```
 bin/package use
 ```
 
@@ -167,13 +174,13 @@ KSH-88:
   can capture keystrokes and rebind keys to customize the editing interface.
 * Extended I/O Capabilities: KSH-93 provides several I/O capabilities not
   available in "sh", including the ability to:
-  * specify a file descriptor for input and output
-  * start up and run co-processes
-  * produce a prompt at the terminal before a read
-  * easily format and interpret responses to a menu
-  * echo lines exactly as output without escape processing
-  * format output using printf formats.
-  * read and echo lines ending in "\\". 
+    * specify a file descriptor for input and output
+    * start up and run co-processes
+    * produce a prompt at the terminal before a read
+    * easily format and interpret responses to a menu
+    * echo lines exactly as output without escape processing
+    * format output using printf formats.
+    * read and echo lines ending in "\\". 
 * Improved performance: KSH-93 executes many scripts faster than the System
   V Bourne shell. A major reason for this is that many of the standard
   utilities are built-in. To reduce the time to initiate a command, KSH-93

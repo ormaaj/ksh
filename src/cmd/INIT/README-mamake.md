@@ -271,7 +271,7 @@ In the legacy mode, attributes are silently ignored.
 `setv` *variable* [ *defaultvalue* ]
 
 Defines a new MAM *variable*, optionally assigning the initial *defaultvalue*.
-If the variable already has a value, the `setv` command is ignored; assigning a new value is not possible.
+If the variable already has a value, the *defaultvalue* is ignored; assigning a new value is not possible.
 When `mamake` starts, it imports all environment variables as MAM variables,
 so any variable's default value can be overridden by exporting an environment variable by its name.
 Any leading and trailing whitespace is stripped from the value. The value is

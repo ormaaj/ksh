@@ -131,7 +131,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2024-08-07 $
+@(#)$Id: '$command$' (ksh 93u+m) 2024-08-09 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -564,7 +564,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2024-08-07
+  version         package (ksh 93u+m) 2024-08-09
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -3003,39 +3003,6 @@ make|view)
 				export CC
 				;;
 			esac
-		fi
-		;;
-	esac
-
-	# update probe scripts
-
-	i=$INSTALLROOT/bin/mamprobe
-	j=$INITROOT/mamprobe.sh
-	case $(ls -t "$i" "$j" 2>/dev/null) in
-	"$i"*)	;;
-	*)	note "update $i"
-		$exec cp "$j" "$i" || exit
-		$exec chmod +x "$i" || exit
-		;;
-	esac
-
-	for i in lib/probe lib/probe/C lib/probe/C/make
-	do	test -d "$INSTALLROOT/$i" || $exec mkdir "$INSTALLROOT/$i" || exit
-	done
-	i=$INSTALLROOT/lib/probe/C/make/probe
-	j=$INITROOT/C+probe
-	k=$INITROOT/make.probe
-	case $(ls -t "$i" "$j" "$k" 2>/dev/null) in
-	"$i"*)	;;
-	*)	if	test -f "$j" && test -f "$k"
-		then	note "update $i"
-			case $exec in
-			'')	cat "$j" "$k" > $i || exit
-				;;
-			*)	echo "cat $j $k > $i"
-				;;
-			esac
-			$exec chmod +x "$i" || exit
 		fi
 		;;
 	esac

@@ -5,7 +5,6 @@ note *
 
 setv MAMAKE_STRICT 5
 setv INSTALLROOT ../../..
-setv CC cc
 
 note *
 note * initialization for the build system
@@ -69,6 +68,14 @@ make install virtual
 		prev probe
 		exec - cp -f %{<} %{@}
 	done
+
+	note *
+	note * The 'setv CC' command triggers a mamprobe(1) run,
+	note * which must be done after probe initialization is complete
+	note *
+
+	setv CC cc
+
 	note *
 	note * check if -ldl is required
 	note *

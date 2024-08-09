@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-07"
+#define RELEASE_DATE "2024-08-09"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1312,20 +1312,22 @@ static int push(char *file, FILE *fp, int flags)
 
 static char *input(void)
 {
-	static char	input[8*CHUNK];  /* input buffer */
+	static char	input[CHUNK];  /* input buffer */
 	char		*e;
 
 	if (!state.sp)
 		error_out("no input file stream", NULL);
-	if (!fgets(input, sizeof(input), state.sp->fp))
+	if (!fgets(input, sizeof(input), state.sp->fp) || !*input)
 	{
 		if (ferror(state.sp->fp))
 			error_out("read error", NULL);
 		return NULL;
 	}
-	if (*input && *(e = input + strlen(input) - 1) == '\n')
-		*e = 0;
 	state.sp->line++;
+	if (*(e = input + strlen(input) - 1) == '\n')
+		*e = 0;
+	else if (e == input + sizeof(input) - 2)
+		error_out("line too long", NULL);
 	return input;
 }
 
@@ -1410,18 +1412,15 @@ static void reap(Rule_t *r, int flag)
 	if (r->logtmp)
 	{
 		FILE	*logf;
+		char	b[CHUNK];
+		size_t	s;
 		print_nice_hdr(r);
-		if (logf = fopen(r->logtmp, "r"))
-		{
-			char	b[CHUNK];
-			size_t	r;
-			while ((r = fread(b, 1, CHUNK, logf)) > 0)
-				fwrite(b, 1, r, stdout);
-			fclose(logf);
-			fflush(stdout);
-		}
-		else
-			report(1, r->logtmp, "cannot open temp log", r);
+		if (!(logf = fopen(r->logtmp, "r")))
+			report(3, r->logtmp, "log gone", r);
+		while ((s = fread(b, 1, CHUNK, logf)) > 0)
+			fwrite(b, 1, s, stdout);
+		fclose(logf);
+		fflush(stdout);
 		unlink(r->logtmp);
 		free(r->logtmp);
 		r->logtmp = NULL;
@@ -1453,12 +1452,16 @@ static int wreap_nowait(Dict_item_t *item)
 }
 
 /*
- * dummy SIGCHLD handler to make sleep() interruptable
+ * SIGCHLD handler
  */
 
-static void dummy(int sig)
+static sigset_t			empty_sigmask;
+static volatile sig_atomic_t	got_sigchld;
+
+static void mark_sigchld(int sig)
 {
-	return;
+	assert(sig == SIGCHLD);
+	got_sigchld = 1;
 }
 
 /*
@@ -1492,15 +1495,17 @@ static int execute(Rule_t *r, char *s)
 		/* if we're at maxjobs, wait for some to finish */
 		assert(state.jobs <= state.maxjobs);
 		if (state.jobs == state.maxjobs)
-			walk(state.rules, wreap_nowait);
-		while (state.jobs == state.maxjobs)
 		{
-			signal(SIGCHLD, dummy); /* make SIGCHLD interrupt sleep() */
-			sleep(1);		/* max 1 second in case we don't receive SIGCHLD */
-			signal(SIGCHLD, SIG_DFL);
-			walk(state.rules, wreap_nowait);
+			while (1)
+			{
+				got_sigchld = 0;
+				walk(state.rules, wreap_nowait);
+				if (state.jobs < state.maxjobs)
+					break;
+				if (!got_sigchld)
+					sigsuspend(&empty_sigmask);
+			}
 		}
-		assert(state.jobs < state.maxjobs);
 		/* let it run in parallel */
 		state.jobs++;
 		r->pid = pid;
@@ -1680,82 +1685,53 @@ static void run(Rule_t *r, char *s)
 }
 
 /*
- * return the full path for s using buf workspace
- */
-
-static char *path(Buf_t *buf, char *s, int must)
-{
-	char		*p, *d, *x, *e;
-	int		c, t;
-	size_t		o;
-	struct stat	st;
-
-	for (e = s; *e && !isspace(*e); e++);
-	t = *e;
-	if ((x = status(buf, 0, s, &st)) && (st.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)))
-		return x;
-	if (!(p = getval(state.vars, "PATH")))
-		error_out("variable not defined", "PATH");
-	do
-	{
-		for (d = p; *p && *p != ':'; p++);
-		c = *p;
-		*p = 0;
-		if (*d && (*d != '.' || *(d + 1)))
-		{
-			append(buf, d);
-			add(buf, '/');
-		}
-		*p = c;
-		if (t)
-			*e = 0;
-		append(buf, s);
-		if (t)
-			*e = t;
-		o = getsize(buf);
-		x = use(buf);
-		if ((x = status(buf, o, x, &st)) && (st.st_mode & (S_IXUSR|S_IXGRP|S_IXOTH)))
-			return x;
-	} while (*p++);
-	if (must)
-		error_out("command not found", s);
-	return NULL;
-}
-
-/*
  * generate (if necessary) and read the MAM probe information
  * done on the first `setv CC ...'
  */
 
 static void probe(Rule_t *r, Makestate_t *stp)
 {
-	char		*cc, *s;
+	char		*cc, *s, *cmd;
 	unsigned long	h;
 	time_t		cmd_time, output_time;
-	Buf_t		*buf, *pro, *tmp;
+	Buf_t		*buf;
 	struct stat	st;
-
-	static char	let[] = "ABCDEFGHIJKLMNOP";
-	static char	cmd[] = "mamprobe";
+	Rule_t		*mamprobe_r;
 
 	if (!(cc = getval(state.vars, "CC")))
 		cc = "cc";
 	buf = buffer();
-	s = path(buf, cmd, 1);
-	cmd_time = stat(s, &st) ? 0 : st.st_mtime;
-	pro = buffer();
-	s = cc = path(pro, cc, 1);
-	for (h = 0; *s; s++)
+	append(buf, state.installroot), append(buf, "/bin/"), append(buf, "mamprobe");
+	cmd = duplicate(use(buf));
+	/* we may need to wait for mamprobe to be generated */
+	if (mamprobe_r = getval(state.rules, cmd))
+		reap(mamprobe_r, 0);
+	cmd_time = stat(cmd, &st) ? 0 : st.st_mtime;
+	if (stat(cmd, &st) < 0)
+		error_out("not found", cmd);
+	cmd_time = st.st_mtime;
+	/* make a hash from $CC's absolute path */
+	if (*cc != '/')
+	{
+		append(buf, "command -v "), append(buf, cc);
+		push("", popen(use(buf), "r"), STREAM_PIPE);
+		if (!(cc = input()) || *cc != '/')
+			error_out("cc not found", cc);
+		pop();
+	}
+	for (h = 0, s = cc; *s; s++)
 		h = h * 0x63c63cd9L + *s + 0x9c39c33dL;
+	/* use the hash as the file name */
 	append(buf, state.installroot);
 	append(buf, "/lib/probe/C/mam/");
 	for (h &= 0xffffffffL; h; h >>= 4)
-		add(buf, let[h & 0xf]);
+		add(buf, "0123456789ABCDEF"[h & 0xf]);
 	s = use(buf);
+	/* generate probe info if it is nonexistent or older than mamprobe */
 	output_time = stat(s, &st) ? 0 : st.st_mtime;
 	if (output_time < cmd_time || !push(s, NULL, 0))
 	{
-		tmp = buffer();
+		Buf_t	*tmp = buffer();
 		append(tmp, cmd);
 		add(tmp, ' ');
 		append(tmp, s);
@@ -1767,7 +1743,7 @@ static void probe(Rule_t *r, Makestate_t *stp)
 		if (!push(s, NULL, 0))
 			error_out("cannot read probe info", s);
 	}
-	drop(pro);
+	free(cmd);
 	drop(buf);
 	make(r, stp);
 	pop();
@@ -2693,9 +2669,10 @@ static void recurse(void)
 
 int main(int argc, char **argv)
 {
-	char	**e, *s, *t, *v;
-	Buf_t	*tmp;
-	int	c;
+	char		**e, *s, *t, *v;
+	Buf_t		*tmp;
+	int		c;
+	sigset_t	sigchld_mask;
 
 	/*
 	 * initialize the state
@@ -3018,6 +2995,19 @@ int main(int argc, char **argv)
 	{
 		recurse();
 		return state.exitstatus;
+	}
+
+	/*
+	 * set up SIGCHLD handling for parallel processing
+	 */
+
+	if (state.maxjobs > 1)
+	{	
+		signal(SIGCHLD, mark_sigchld);
+		sigemptyset(&empty_sigmask);
+		sigemptyset(&sigchld_mask);
+		sigaddset(&sigchld_mask, SIGCHLD);
+		sigprocmask(SIG_BLOCK, &sigchld_mask, NULL);
 	}
 
 	/*

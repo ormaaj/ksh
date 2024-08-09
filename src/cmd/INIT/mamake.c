@@ -17,7 +17,8 @@
 ***********************************************************************/
 #if __clang__
 #pragma clang diagnostic ignored "-Wparentheses"
-#elif __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#elif __GNUC__
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wparentheses"
 #endif
 
@@ -173,7 +174,7 @@ static const char usage[] =
 #define assert(c)	if(!(c)) abort()
 
 /* backward compat for file offsets */
-#if _POSIX_VERSION < 200112L
+#if _POSIX_VERSION < 200112L && !_PACKAGE_ast
 #define off_t		long
 #define fseeko		fseek
 #define ftello		ftell

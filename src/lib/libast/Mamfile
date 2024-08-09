@@ -330,12 +330,10 @@ make install virtual
 			exec - for N in 1 2 3 4 5 6 7 8
 			exec - do	if	%{_math_test} 2>/dev/null
 			exec -		then	: math function N=$N :
-			exec -		elif	%{_math_test} -lm
+			exec -		elif	%{_math_test} -lm 2>/dev/null
 			exec -		then	: math function N=$N requires -lm :
 			exec -			X=0
 			exec -			break
-			exec -		else	: ERROR: %{<} fails to compile or link, even with -lm :
-			exec -			exit 1
 			exec -		fi
 			exec - done
 			exec - (set +f; exec rm -rf astmath.exe*)

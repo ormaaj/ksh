@@ -85,7 +85,7 @@ esac
 
 # Check for supported system.
 case $HOSTTYPE in
-android.* | darwin.* | dragonflybsd.* | freebsd* | haiku.* | linux.* | netbsd.* | openbsd.* | qnx.* | sol* )
+android.* | darwin.* | dragonflybsd.* | freebsd* | haiku.* | linux.* | netbsd.* | openbsd.* | qnx.* | sol??.* )
 	# supported
 	;;
 cygwin.*)

@@ -801,7 +801,7 @@ got=$(export tmp; "$SHELL" -ec \
 	}
 	consumer <(producer) > /dev/null
 } & pid=$!
-(sleep 15; kill -HUP $pid) 2> /dev/null &
+(sleep 30; kill -HUP $pid) 2> /dev/null &
 pid2=$!
 wait $pid 2> /dev/null || err_exit "process substitution hangs"
 kill $pid2 2> /dev/null

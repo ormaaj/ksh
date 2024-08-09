@@ -283,7 +283,8 @@ pathkey_20100601(const char* lang, const char* tool, const char* apath, char* ke
 /* disable false positive warning */
 #if __clang__
 #pragma clang diagnostic ignored "-Wreturn-stack-address"
-#elif __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#elif __GNUC__
+#pragma GCC diagnostic ignored "-Wpragmas"
 #pragma GCC diagnostic ignored "-Wreturn-local-addr"
 #endif
 	return key == buf ? strdup(key) : key;

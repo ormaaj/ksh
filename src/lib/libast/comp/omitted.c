@@ -1121,6 +1121,10 @@ getpagesize(void)
  * Removal of this will break IEEE floating point on the SVR4 platforms.
  */
 #if _need_ast_pow_funs
+# ifndef OMITTED
+#  define OMITTED	1
+# endif
+
 # if _lib_powf
 float (*volatile _ast_ppowf)(float,float) = &powf;
 float _ast_powf(float x, float y)

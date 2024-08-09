@@ -353,8 +353,9 @@ retry:
 			}
 			if(fd>=0)
 			{
+				const char *tty;
 				fcntl(fd,F_SETFD,FD_CLOEXEC);
-				const char* tty = ttyname(2);
+				tty = ttyname(2);
 				hp->tty = sh_strdup(tty?tty:"notty");
 				hp->auditfp = sfnew(NULL,NULL,-1,fd,SFIO_WRITE);
 			}

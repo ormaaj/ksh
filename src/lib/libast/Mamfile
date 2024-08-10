@@ -3107,13 +3107,6 @@ make install virtual
 			exec - compile %{<} -Iregex
 		done
 
-		make regsub.o
-			make regex/regsub.c
-				prev regex/reglib.h
-			done
-			exec - compile %{<} -Iregex
-		done
-
 		make regrecord.o
 			make regex/regrecord.c
 				prev regex/reglib.h
@@ -3733,22 +3726,8 @@ make install virtual
 			exec - compile %{<} -Iport -Isfio
 		done
 
-		make _sfgetl2.o
-			make sfio/_sfgetl2.c
-				prev sfio/sfhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio
-		done
-
 		make _sfgetu.o
 			make sfio/_sfgetu.c
-				prev sfio/sfhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio
-		done
-
-		make _sfgetu2.o
-			make sfio/_sfgetu2.c
 				prev sfio/sfhdr.h
 			done
 			exec - compile %{<} -Iport -Isfio
@@ -4166,62 +4145,6 @@ make install virtual
 
 		make _flsbuf.o
 			make stdio/_flsbuf.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdopen.o
-			make stdio/_stdopen.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdprintf.o
-			make stdio/_stdprintf.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdscanf.o
-			make stdio/_stdscanf.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdsprnt.o
-			make stdio/_stdsprnt.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdvbuf.o
-			make stdio/_stdvbuf.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdvsnprnt.o
-			make stdio/_stdvsnprnt.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdvsprnt.o
-			make stdio/_stdvsprnt.c
-				prev stdio/stdhdr.h
-			done
-			exec - compile %{<} -Iport -Isfio -Istdio
-		done
-
-		make _stdvsscn.o
-			make stdio/_stdvsscn.c
 				prev stdio/stdhdr.h
 			done
 			exec - compile %{<} -Iport -Isfio -Istdio

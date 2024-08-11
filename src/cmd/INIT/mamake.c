@@ -1394,7 +1394,7 @@ static void reap(Rule_t *r, int flag)
 {
 	int		pstat, e;
 
-	if (!r || !r->pid || !waitpid(r->pid, &pstat, flag))
+	if (!r || !r->pid || waitpid(r->pid, &pstat, flag) < 1)
 		return;
 	if (state.debug <= -4)
 	{
@@ -1425,8 +1425,8 @@ static void reap(Rule_t *r, int flag)
 		free(r->logtmp);
 		r->logtmp = NULL;
 	}
-	check_shellaction(r, e);
 	r->pid = 0;
+	check_shellaction(r, e);
 	assert(state.jobs > 0);
 	state.jobs--;
 }

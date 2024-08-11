@@ -467,6 +467,10 @@ make install virtual
 	makp include/tar.h
 	makp include/vdb.h
 
+	make std/assert.h
+		prev ast_common.h
+	done
+
 	note *
 	note * Generate more header files based on iffe feature tests
 	note *
@@ -2709,6 +2713,13 @@ make install virtual
 			exec - compile %{<}
 		done
 
+		make assert.o
+			make comp/assert.c
+				prev include/ast.h
+			done
+			exec - compile %{<}
+		done
+
 		make mount.o
 			make comp/mount.c
 				prev include/error.h
@@ -4552,7 +4563,7 @@ make install virtual
 			done
 		done
 		note * ...std
-		loop HDR bytesex endian dirent iconv nl_types stdio wchar wctype
+		loop HDR assert bytesex endian dirent iconv nl_types stdio wchar wctype
 			make %{INCLUDE_AST}/%{HDR}.h
 				prev std/%{HDR}.h
 				exec - cp -f %{<} %{@}

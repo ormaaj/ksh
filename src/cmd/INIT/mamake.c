@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-09"
+#define RELEASE_DATE "2024-08-11"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -170,8 +170,12 @@ static const char usage[] =
 #include <string.h>
 #endif
 
-/* standard assert.h does not play well with libast headers on too many systems */
-#define assert(c)	if(!(c)) abort()
+/* assert.h does not play well with libast < 20240811 */
+#if !_PACKAGE_ast || AST_VERSION >= 20240811
+#include <assert.h>
+#else
+#define assert(c)	((void)0)
+#endif
 
 /* backward compat for file offsets */
 #if _POSIX_VERSION < 200112L && !_PACKAGE_ast

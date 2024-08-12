@@ -1390,13 +1390,26 @@ static void check_shellaction(Rule_t *r, int e)
 }
 
 /*
+ * convert waitpid(3) termination info to exit status
+ */
+
+static int p_exitstatus(int pstat)
+{
+	if (WIFSIGNALED(pstat))
+		return WTERMSIG(pstat) & 0x80;		/* signal number with 8th bit set (a.k.a. +128) */
+	else if (WIFEXITED(pstat))
+		return WEXITSTATUS(pstat);
+	return 0x80;					/* should not happen */
+}
+
+/*
  * flag==0: wait for and reap a rule's background process, if one is running
  * flag==WNOHANG: do nothing if the process is still running
  */
 
 static void reap(Rule_t *r, int flag)
 {
-	int		pstat, e;
+	int		pstat;
 
 	if (!r || !r->pid || waitpid(r->pid, &pstat, flag) < 1)
 		return;
@@ -1406,12 +1419,6 @@ static void reap(Rule_t *r, int flag)
 		sprintf(b, "reaping PID %lu", (unsigned long)r->pid);
 		report(-4, r->name, b, r);
 	}
-	if (WIFSIGNALED(pstat))
-		e = WTERMSIG(pstat) + 128;
-	else if (WIFEXITED(pstat))
-		e = WEXITSTATUS(pstat);
-	else
-		e = 128;
 	/* dump saved-up log output */
 	if (r->logtmp)
 	{
@@ -1430,7 +1437,7 @@ static void reap(Rule_t *r, int flag)
 		r->logtmp = NULL;
 	}
 	r->pid = 0;
-	check_shellaction(r, e);
+	check_shellaction(r, p_exitstatus(pstat));
 	assert(state.jobs > 0);
 	state.jobs--;
 }
@@ -1456,16 +1463,15 @@ static int wreap_nowait(Dict_item_t *item)
 }
 
 /*
- * SIGCHLD handler
+ * SIGCHLD handling (initialised in main())
+ * just a dummy to make it not ignored
  */
 
-static sigset_t			empty_sigmask;
-static volatile sig_atomic_t	got_sigchld;
+static sigset_t empty_sigmask;
 
-static void mark_sigchld(int sig)
+static void sigchld_dummy(int sig)
 {
 	assert(sig == SIGCHLD);
-	got_sigchld = 1;
 }
 
 /*
@@ -1476,8 +1482,8 @@ static void mark_sigchld(int sig)
 
 static int execute(Rule_t *r, char *s)
 {
-	int	stat;
 	pid_t	pid;
+	int	pstat;
 
 	if (!state.shell && (!(state.shell = getval(state.vars, "SHELL")) || !strcmp(state.shell, sh)))
 		state.shell = sh;
@@ -1502,12 +1508,10 @@ static int execute(Rule_t *r, char *s)
 		{
 			while (1)
 			{
-				got_sigchld = 0;
 				walk(state.rules, wreap_nowait);
 				if (state.jobs < state.maxjobs)
 					break;
-				if (!got_sigchld)
-					sigsuspend(&empty_sigmask);
+				sigsuspend(&empty_sigmask);
 			}
 		}
 		/* let it run in parallel */
@@ -1516,12 +1520,8 @@ static int execute(Rule_t *r, char *s)
 		return -1;
 	}
 	/* good old-fashioned sequential execution */
-	waitpid(pid, &stat, 0);
-	if (WIFEXITED(stat))
-		return WEXITSTATUS(stat);
-	if (WIFSIGNALED(stat))
-		return WTERMSIG(stat) + 128;
-	return 128;
+	waitpid(pid, &pstat, 0);
+	return p_exitstatus(pstat);
 }
 
 /*
@@ -2676,7 +2676,6 @@ int main(int argc, char **argv)
 	char		**e, *s, *t, *v;
 	Buf_t		*tmp;
 	int		c;
-	sigset_t	sigchld_mask;
 
 	/*
 	 * initialize the state
@@ -3007,7 +3006,8 @@ int main(int argc, char **argv)
 
 	if (state.maxjobs > 1)
 	{	
-		signal(SIGCHLD, mark_sigchld);
+		sigset_t	sigchld_mask;
+		signal(SIGCHLD, sigchld_dummy);
 		sigemptyset(&empty_sigmask);
 		sigemptyset(&sigchld_mask);
 		sigaddset(&sigchld_mask, SIGCHLD);

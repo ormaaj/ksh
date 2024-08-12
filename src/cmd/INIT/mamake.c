@@ -1504,15 +1504,10 @@ static int execute(Rule_t *r, char *s)
 	{
 		/* if we're at maxjobs, wait for some to finish */
 		assert(state.jobs <= state.maxjobs);
-		if (state.jobs == state.maxjobs)
+		while (state.jobs == state.maxjobs)
 		{
-			while (1)
-			{
-				walk(state.rules, wreap_nowait);
-				if (state.jobs < state.maxjobs)
-					break;
-				sigsuspend(&empty_sigmask);
-			}
+			sigsuspend(&empty_sigmask);
+			walk(state.rules, wreap_nowait);
 		}
 		/* let it run in parallel */
 		state.jobs++;

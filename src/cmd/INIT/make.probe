@@ -3,7 +3,7 @@
 # Glenn Fowler
 # AT&T Research
 #
-# @(#)make.probe (ksh 93u+m) 2024-08-03
+# @(#)make.probe (ksh 93u+m) 2024-08-13
 #
 # C probe for make
 #
@@ -2055,15 +2055,8 @@ echo CC.DLL.VARIANTS = $CC_DLL_VARIANTS
 echo CC.DYNAMIC = $CC_DYNAMIC
 echo CC.EXPORT.DYNAMIC = $CC_EXPORT_DYNAMIC
 echo CC.INCLUDE.LOCAL = $CC_INCLUDE_LOCAL
-#
-# 2004-02-14 release workaround
-#
 case $CC_SHARED_LD in
-$CC_CC)	echo if LDSHARED
-	echo CC.LD = $CC_LD
-	echo else
-	echo CC.LD = $CC_CC
-	echo end
+$CC_CC)	echo CC.LD = $CC_CC
 	;;
 *)	echo CC.LD = $CC_LD
 	;;

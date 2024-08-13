@@ -14,7 +14,7 @@
 #                  Martijn Dekker <martijn@inlv.org>                   #
 #                                                                      #
 ########################################################################
-### this script contains archaic constructs that work with all sh variants ###
+### this sh script is POSIX compliant and compatible with shell bugs ###
 # mamprobe - generate MAM cc probe info
 # Glenn Fowler <gsf@research.att.com>
 
@@ -31,7 +31,7 @@ opt=
 case `(getopts '[-][123:xyz]' opt --xyz; echo 0$opt) 2>/dev/null` in
 0123)	USAGE=$'
 [-?
-@(#)$Id: mamprobe (ksh 93u+m) 2024-08-09 $
+@(#)$Id: mamprobe (ksh 93u+m) 2024-08-12 $
 ]
 [+NAME?mamprobe - generate MAM cc probe info]
 [+DESCRIPTION?\bmamprobe\b generates MAM (make abstract machine) \bcc\b(1)

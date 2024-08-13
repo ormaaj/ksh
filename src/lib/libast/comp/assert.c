@@ -23,5 +23,6 @@ int noreturn _ast_assertfail(const char *a, const char *fun, const char *file, i
 	NOT_USED(fun);
 	sfprintf(sfstderr,"\n*** assertion '%s' failed in %s:%d\n", a, file, line);
 #endif
+	sfsync(NULL);
 	abort();
 }

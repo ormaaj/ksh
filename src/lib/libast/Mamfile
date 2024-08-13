@@ -45,7 +45,7 @@ make install virtual
 	note * (The target is 'virtual' as it needs to be run at
 	note * every build, so we can catch changes of git commit)
 	note *
-	make releaseflags.h notrace virtual
+	make releaseflags notrace virtual
 		exec -	git_commit=$(git rev-parse --short=8 HEAD 2>/dev/null)
 		exec -	case $?,$git_commit in
 		exec -	0,[0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z][0-9a-z])
@@ -4539,10 +4539,10 @@ make install virtual
 		done
 	done
 
-	note * install releaseflags.h outside the lib/ast/mam block below, so the mkdeps action is not triggered when
+	note * install releaseflags.h outside the lib/mam/ast block below, so the mkdeps action is not triggered when
 	note * releaseflags.h changes every time that the git commit changes (it doesn't contain #includes anyway)
 	make %{INCLUDE_AST}/releaseflags.h
-		prev releaseflags.h
+		makp releaseflags.h
 		exec - cp -f %{<} %{@}
 	done
 
@@ -4588,12 +4588,11 @@ make install virtual
 	done
 
 	make %{INSTALLROOT}/lib/package/gen/.asthdr_tstamp
-		prev ast_lib.h
 		prev comp/fmtmsg.h
 		prev comp/libgen.h
 		note * install our own versions of these if iffe hasn't detected these in the system
 		exec - CCt='	'  # one tab
-		exec - for src in comp/fmtmsg.h comp/libgen.h
+		exec - for src in %{^}
 		exec - do	hdr=$(basename "$src" .h)
 		exec -		grep -q "define[ $CCt][ $CCt]*_[hl][di][rb]_$hdr" ast_lib.h && continue
 		exec -		dst=%{INCLUDE_AST}/$hdr.h
@@ -4602,6 +4601,7 @@ make install virtual
 		exec -		fi
 		exec - done
 		exec - touch %{@}
+		prev ast_lib.h
 	done
 
 	note *

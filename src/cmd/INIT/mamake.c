@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-11"
+#define RELEASE_DATE "2024-08-12"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -430,9 +430,9 @@ static void report(int level, char *text, char *item, Rule_t *r)
 		fprintf(stderr, "%s", text);
 		if (r && r->time && state.debug <= -2)
 #if __STDC_VERSION__ >= 199901L
-			fprintf(stderr, " %10lld", (long long)r->time);
+			fprintf(stderr, " %lld", (long long)r->time);
 #else
-			fprintf(stderr, " %10lu", (unsigned long)r->time);
+			fprintf(stderr, " %lu", (unsigned long)r->time);
 #endif
 		fprintf(stderr, "\n");
 		if (level > 2)

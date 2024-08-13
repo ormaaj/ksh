@@ -64,18 +64,6 @@ static struct stat lastmail;
 static time_t	mailtime;
 static char	beenhere = 0;
 
-#if _lib_sigvec
-    void clearsigmask(int sig)
-    {
-	struct sigvec vec;
-	if(sigvec(sig,NULL,&vec)>=0 && vec.sv_mask)
-	{
-		vec.sv_mask = 0;
-		sigvec(sig,&vec,NULL);
-	}
-    }
-#endif /* _lib_sigvec */
-
 /*
  * search for file and exfile() it if it exists
  * 1 returned if file found, 0 otherwise
@@ -116,12 +104,6 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 	int		i;
 	int		rshflag;	/* set for restricted shell */
 	char		*command;
-#if _lib_sigvec
-	/* This is to clear mask that may be left on by rlogin */
-	clearsigmask(SIGALRM);
-	clearsigmask(SIGHUP);
-	clearsigmask(SIGCHLD);
-#endif /* _lib_sigvec */
 #ifdef	_hdr_nc
 	_NutConf(_NC_SET_SUFFIXED_SEARCHING, 1);
 #endif	/* _hdr_nc */

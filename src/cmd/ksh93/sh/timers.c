@@ -22,7 +22,6 @@
 #include	<error.h>
 #include	"fault.h"
 #include	"defs.h"
-#include	"FEATURE/sigfeatures"
 #include	"FEATURE/time"
 
 typedef struct _timer

@@ -15,7 +15,7 @@
 
 #include <ast.h>
 
-int noreturn _ast_assertfail(const char *a, const char *fun, const char *file, int line)
+void noreturn _ast_assertfail(const char *a, const char *fun, const char *file, int line)
 {
 #if _has___func__ || _has___FUNCTION__
 	sfprintf(sfstderr,"\n*** assertion '%s' failed in %s(), %s:%d\n", a, fun, file, line);

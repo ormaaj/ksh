@@ -3001,12 +3001,13 @@ int main(int argc, char **argv)
 
 	if (state.maxjobs > 1)
 	{	
-		sigset_t	sigchld_mask;
-		signal(SIGCHLD, sigchld_dummy);
+		struct sigaction act;
 		sigemptyset(&empty_sigmask);
-		sigemptyset(&sigchld_mask);
-		sigaddset(&sigchld_mask, SIGCHLD);
-		sigprocmask(SIG_BLOCK, &sigchld_mask, NULL);
+		act.sa_handler = sigchld_dummy;
+		sigemptyset(&act.sa_mask);
+		sigaddset(&act.sa_mask, SIGCHLD);
+		act.sa_flags = SA_NOCLDSTOP | SA_RESTART;
+		sigaction(SIGCHLD, &act, NULL);
 	}
 
 	/*

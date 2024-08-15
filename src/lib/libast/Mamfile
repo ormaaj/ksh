@@ -226,11 +226,6 @@ make install virtual
 		exec - invoke_iffe %{<}
 	done
 
-	make FEATURE/wait
-		makp features/wait
-		exec - invoke_iffe %{<}
-	done
-
 	make FEATURE/param
 		prev std/endian.h
 		makp features/param.sh
@@ -269,10 +264,6 @@ make install virtual
 	note * so that the iffe scripts may run in parallel.
 	make ast_sys.h
 		prev FEATURE/sys
-		exec - cp -f %{<} %{@}
-	done
-	make ast_wait.h
-		prev FEATURE/wait
 		exec - cp -f %{<} %{@}
 	done
 	make ast_param.h
@@ -399,7 +390,6 @@ make install virtual
 					prev FEATURE/standards
 					prev FEATURE/common
 					prev FEATURE/param
-					prev FEATURE/wait
 					make conf
 						makp comp/conf.sh
 						exec - cat - comp/conf.sh <<'EOF' >conf && chmod u+w,+x conf
@@ -1975,7 +1965,6 @@ make install virtual
 				make misc/proclib.h
 					prev include/proc.h
 					make include/wait.h
-						prev ast_wait.h
 						prev include/ast.h
 					done
 					prev sig.h
@@ -4570,7 +4559,7 @@ make install virtual
 			done
 		done
 		note * ...generated headers
-		loop HDR ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_wait ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
+		loop HDR ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
 			make %{INCLUDE_AST}/%{HDR}.h
 				prev %{HDR}.h
 				exec - cp -f %{<} %{@}

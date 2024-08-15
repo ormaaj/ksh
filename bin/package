@@ -702,10 +702,6 @@ esac
 case $assign_CCFLAGS in
 ?*)	assign="$assign $assign_CCFLAGS"
 esac
-case $CC in
-''|cc)	;;
-*)	export CC ;;
-esac
 
 # grab action specific args
 
@@ -1674,6 +1670,8 @@ checkcc()
 		make|test)	err_out "$CC: not found" ;;
 		*)		note "warning: $CC: not found" ;;
 		esac
+		;;
+	*)	export CC
 		;;
 	esac
 }
@@ -2972,40 +2970,6 @@ make|view)
 		;;
 	esac
 	unset err var store old new
-
-	# remember the default $CC
-
-	case $CC in
-	cc)	;;
-	*)	if	test -x $INSTALLROOT/bin/cc
-		then	case $(sed 1q $INSTALLROOT/bin/cc) in
-			": $CC :")
-				CC=cc
-				export CC
-				;;
-			*)	assign="$assign CC=\"\$CC\""
-				;;
-			esac
-		else	case $CROSS in
-			1)	assign="$assign CC=\"\$CC\""
-				;;
-			*)	case $exec in
-				'')	{
-					echo ": $CC :"
-					echo "$CC \"\$@\""
-					} > $INSTALLROOT/bin/cc
-					chmod +x $INSTALLROOT/bin/cc
-					;;
-				*)	note "generate a $INSTALLROOT/bin/cc wrapper for $CC"
-					;;
-				esac
-				CC=cc
-				export CC
-				;;
-			esac
-		fi
-		;;
-	esac
 
 	# initialize mamake
 

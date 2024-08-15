@@ -1,7 +1,9 @@
 lib	strsignal string.h signal.h
 
 tst	- run{
-	sig=$(env kill -l) || exit
+	# On Cygwin, '/bin/kill -l' is an error (!) but prints the list anyway (!)
+	sig=$(env kill -l 2>/dev/null)
+	test -n "$sig" || exit
 	for sig in $sig
 	do	case $sig in
 		*[!A-Za-z0-9_]*|*MIN|*MAX)

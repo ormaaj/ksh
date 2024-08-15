@@ -26,13 +26,11 @@
 
 #include <ast.h>
 
-#if _sys_wait
 #define wait		______wait
 #define waitpid		______waitpid
 #include <sys/wait.h>
 #undef	wait
 #undef	waitpid
-#endif
 
 /*
  * WCOREDUMP was added in POSIX Issue 8 (2024); AST always had WTERMCORE instead.

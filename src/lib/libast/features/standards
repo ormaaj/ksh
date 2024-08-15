@@ -33,10 +33,6 @@ set define
 #
 
 if tst note{ BSD (Free, Net, Open, et al) }end compile{
-		/*
-		 * On BSD systems, _POSIX_SOURCE and such are used to *limit* functionality to a known API;
-		 * they don't enable anything. The general intent in BSD is to enable everything by default.
-		 */
 		#include <limits.h>
 		#include <unistd.h>
 		#include <sys/param.h>
@@ -56,7 +52,10 @@ if tst note{ BSD (Free, Net, Open, et al) }end compile{
 			return 0;
 		}
 	}end {
-		/* No standards or features macro here. On BSD, everything is enabled by default */
+		#define _XOPEN_SOURCE	9900
+		#define _POSIX_C_SOURCE 21000101L
+		#define _BSD_SOURCE	1
+		#define _NETBSD_SOURCE	1
 	}
 elif tst note{ Darwin (macOS, Mac OS X) }end compile{
 		/*

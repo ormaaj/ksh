@@ -139,8 +139,9 @@ static const char usage[] =
 #elif defined(__QNX__) && !defined(_QNX_SOURCE)
 #define _QNX_SOURCE 1
 
-/* Everything else (minus BSD, as the defaults there are acceptable) */
-#elif !(BSD && !__APPLE__ && !__MACH__ && !NeXTBSD) && !defined(_POSIX_C_SOURCE)
+/* Everything else */
+#else
+#define _XOPEN_SOURCE	9900
 #define _POSIX_C_SOURCE 21000101L
 #endif
 

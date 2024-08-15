@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-12"
+#define RELEASE_DATE "2024-08-15"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -130,15 +130,6 @@ static const char usage[] =
 #define __EXTENSIONS__	1
 #define _XOPEN_SOURCE	9900
 #undef _POSIX_C_SOURCE
-/*
- * Though POSIX says it must be allowed, Solaris Studio cc dislikes NULL, a.k.a.
- * (void*)0, being used for function pointers. It warns, or in some cases it even
- * throws an error. Just use 0 for NULL, as that is always acceptable in C.
- */
-#if __SUNPRO_C
-#undef  NULL
-#define NULL    0
-#endif /* __SUNPRO_C */
 
 /* Linux and Cygwin */
 #elif (defined(__linux__) || __CYGWIN__) && !defined(_GNU_SOURCE)
@@ -193,7 +184,14 @@ static const char usage[] =
 
 #define CHUNK		4096
 #define KEY(a,b,c,d)	((((unsigned long)(a))<<24)|(((unsigned long)(b))<<16)|(((unsigned long)(c))<<8)|(((unsigned long)(d))))
+
+#ifdef SA_RESTART
 #define PARALLEL(r)	(state.maxjobs > 1 && state.strict >= 5 && !((r)->flags & RULE_virtual))
+#else
+/* disable parallel build on systems that can't auto-restart interrupted system calls */
+#define PARALLEL(r)	0
+#define SA_RESTART	0
+#endif
 
 #define RULE_active	0x0001		/* active target		*/
 #define RULE_dontcare	0x0002		/* ok if not found		*/
@@ -2999,7 +2997,7 @@ int main(int argc, char **argv)
 	 * set up SIGCHLD handling for parallel processing
 	 */
 
-	if (state.maxjobs > 1)
+	if (SA_RESTART && state.maxjobs > 1)
 	{	
 		struct sigaction act;
 		sigemptyset(&empty_sigmask);

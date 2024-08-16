@@ -1,3 +1,21 @@
+/***********************************************************************
+*                                                                      *
+*               This software is part of the ast package               *
+*          Copyright (c) 1995-2011 AT&T Intellectual Property          *
+*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*                      and is licensed under the                       *
+*                 Eclipse Public License, Version 2.0                  *
+*                                                                      *
+*                A copy of the License is available at                 *
+*      https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html      *
+*         (with md5 checksum 84283fa8859daf213bdda5a9f8d1be1d)         *
+*                                                                      *
+*                 Glenn Fowler <gsf@research.att.com>                  *
+*                  Martijn Dekker <martijn@inlv.org>                   *
+*            Johnothan King <johnothanking@protonmail.com>             *
+*                  Lev Kujawski <int21h@mailbox.org>                   *
+*                                                                      *
+***********************************************************************/
 
 /*
  * workarounds to bring the native interface close to POSIX and X/Open
@@ -80,11 +98,6 @@ extern ssize_t		_write(int, const void*, size_t);
 #define sysaccess		_access
 #else
 #define sysaccess		access
-#endif
-#if _win32_botch_alarm
-#define sysalarm		_alarm
-#else
-#define sysalarm		alarm
 #endif
 #if _win32_botch_chmod
 #define syschmod		_chmod
@@ -264,28 +277,6 @@ access(const char* path, int op)
 		errno = oerrno;
 		r = sysaccess(buf, op);
 	}
-	return r;
-}
-
-#endif
-
-#if _win32_botch_alarm
-
-extern unsigned int
-alarm(unsigned int s)
-{
-	unsigned int		n;
-	unsigned int		r;
-
-	static unsigned int	a;
-
-	n = (unsigned int)time(NULL);
-	if (a <= n)
-		r = 0;
-	else
-		r = a - n;
-	a = n + s - 1;
-	(void)sysalarm(s);
 	return r;
 }
 

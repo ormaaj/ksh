@@ -54,8 +54,9 @@ if tst note{ BSD (Free, Net, Open, et al) }end compile{
 	}end {
 		#define _XOPEN_SOURCE	9900
 		#define _POSIX_C_SOURCE 21000101L
-		#define _BSD_SOURCE	1
-		#define _NETBSD_SOURCE	1
+		#define _BSD_SOURCE	1	/* OpenBSD needs this */
+		#define _NETBSD_SOURCE	1	/* NetBSD needs this */
+		#define __BSD_VISIBLE	1	/* FreeBSD needs this */
 	}
 elif tst note{ Darwin (macOS, Mac OS X) }end compile{
 		/*

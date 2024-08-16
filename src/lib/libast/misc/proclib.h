@@ -31,19 +31,12 @@
 #include <sig.h>
 #include <wait.h>
 
-#if _lib_sigprocmask
-typedef sigset_t Sig_mask_t;
-#else
-typedef unsigned long Sig_mask_t;
-#endif
-
 struct Mods_s;
 
 #define _PROC_PRIVATE_ \
 	struct Mod_s*	mods;		/* process modification state	*/ \
 	long		flags;		/* original PROC_* flags	*/ \
-	Sig_mask_t	mask;		/* original blocked sig mask	*/ \
-	Sig_handler_t	sigchld;	/* PROC_FOREGROUND SIG_DFL	*/ \
+	sigset_t	mask;		/* original blocked sig mask	*/ \
 	Sig_handler_t	sigint;		/* PROC_FOREGROUND SIG_IGN	*/ \
 	Sig_handler_t	sigquit;	/* PROC_FOREGROUND SIG_IGN	*/
 

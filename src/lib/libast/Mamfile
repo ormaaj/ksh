@@ -4521,7 +4521,7 @@ make install virtual
 	done
 
 	note * section 3 manual pages
-	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 magic mem mime modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc streval strgid strmatch stropt strperm strsignal strsort strtape strton struid swap tab tm tmx tok touch tv
+	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 magic mem mime modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc streval strgid strmatch stropt strperm strsort strtape strton struid swap tab tm tmx tok touch tv
 		make %{INSTALLROOT}/man/man3/%{SECT3MAN}.3
 			makp man/%{SECT3MAN}.3
 			exec - cp -f %{<} %{@}

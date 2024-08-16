@@ -103,11 +103,12 @@ main(void)
 	printf("#define glob		_ast_glob\n");
 	printf("#undef	globfree\n");
 	printf("#define globfree	_ast_globfree\n");
-#if _map_libc || (!_std_signal && (_lib_sigaction && defined(SA_NOCLDSTOP) || _lib_sigvec && defined(SV_INTERRUPT)))
-	/* use the libast signal() function (aka sigaction) when applicable */
+	/* always rename AST signal(3) to _ast_signal; this avoids breakage when using ASan */
 	printf("#undef	signal\n");
 	printf("#define signal      	_ast_signal\n");
-#endif
+	/* do the same with sigunblock(), just to be sure (e.g., native QNX sigunblock() is different) */
+	printf("#undef	sigunblock\n");
+	printf("#define sigunblock      _ast_sigunblock\n");
 #if _map_libc
 	printf("#undef	memdup\n");
 	printf("#define memdup		_ast_memdup\n");
@@ -263,8 +264,6 @@ main(void)
 	printf("#define setenviron      _ast_setenviron\n");
 	printf("#undef	sigcritical\n");
 	printf("#define sigcritical      _ast_sigcritical\n");
-	printf("#undef	sigunblock\n");
-	printf("#define sigunblock      _ast_sigunblock\n");
 	printf("#undef	stracmp\n");
 	printf("#define stracmp		_ast_stracmp\n");
 	printf("#undef	strcopy\n");

@@ -60,6 +60,7 @@ typedef struct  _mac_
 	char		*ifsp;		/* pointer to IFS value */
 	int		fields;		/* number of fields */
 	short		quoted;		/* set when word has quotes */
+	short		atspecial;	/* quoted count at which special-casing for "$@" with no PPs has been applied */
 	unsigned char	ifs;		/* first byte of IFS */
 	char		atmode;		/* when processing $@ */
 	char		quote;		/* set within double quoted contexts */
@@ -1882,9 +1883,9 @@ retry1:
 		if(v || c=='/' && offset>=0)
 			stkseek(stkp,offset);
 	}
-	/* check for quoted @ */
-	if(mode=='@' && mp->quote && !v && c!='-')
-		mp->quoted-=2;
+	/* discount the quotes around $@ if there are zero PPs, so that empty "$@" generates zero fields */
+	if(mode=='@' && mp->quote && !v && c!='-' && mp->atspecial != mp->quoted)
+		mp->quoted -= 2, mp->atspecial = mp->quoted;
 retry2:
 	if(v && (!nulflg || *v ) && c!='+')
 	{

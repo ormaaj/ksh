@@ -434,13 +434,6 @@ static char*	lookup(Namval_t *np, int type, Sfdouble_t *dp,Namfun_t *handle)
 	}
 	if(nv_isarray(np))
 		np->nvalue.up = up;
-	if(!cp)
-	{
-		if(type==LOOKUPS)
-			cp = nv_getv(np,handle);
-		else
-			*dp = nv_getn(np,handle);
-	}
 	if(bp== &block)
 		block_done(bp);
 	if(nq && nq->nvalue.rp && nq->nvalue.rp->running==1)
@@ -451,6 +444,14 @@ static char*	lookup(Namval_t *np, int type, Sfdouble_t *dp,Namfun_t *handle)
 	if(jmpval >= SH_JMPFUN)
 		siglongjmp(*sh.jmplist,jmpval);
 	sh_sigcheck();
+	/* nv_get{v,n} may throw an error and longjmp, so must come after restoring all state */
+	if(!cp)
+	{
+		if(type==LOOKUPS)
+			cp = nv_getv(np,handle);
+		else
+			*dp = nv_getn(np,handle);
+	}
 	return cp;
 }
 

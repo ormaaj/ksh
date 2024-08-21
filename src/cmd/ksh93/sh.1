@@ -4135,18 +4135,33 @@ file.
 .SS Discipline Functions.
 Each variable can have zero or more discipline functions
 associated with it.
-The shell initially understands the discipline names \f3get\fP,
-\f3set\fP, \f3append\fP, and \f3unset\fP but can be added
-when defining new types.  On most systems
+The shell initially understands the discipline names
+\f3get\fP, \f3getn\fP, \f3set\fP, \f3append\fP, and \f3unset\fP,
+but new disciplines can be added
+when defining new types. On most systems,
 others can be added at run time via the
 C programming interface extension provided by the
 .B builtin
 built-in utility.
+.PP
 If the \f3get\fP discipline is defined for a variable, it is invoked
 whenever the given variable is referenced.
 If the variable \f3.sh.value\fP is assigned a value inside
 the discipline function, the referenced variable will evaluate
 to this value instead.
+If the \f3getn\fP discipline is defined for a variable, it is invoked
+in preference to \f3get\fP whenever the given variable is referenced
+in an arithmetic expression.
+The variable \f3.sh.value\fP is assigned the
+.B \-F
+attribute
+inside \f3getn\fP discipline functions
+(see
+.B typeset
+under
+.I "Builtin Commands"
+below).
+Otherwise, it works like it does for \f3get\fP disciplines.
 If the \f3set\fP discipline is defined for a variable, it is invoked
 whenever the given variable is assigned a value.
 If the \f3append\fP discipline is defined for a variable, it is invoked
@@ -4180,7 +4195,6 @@ Finally, the expansion \f3${\fP\f2var\^\fP\f3.\fP\f2name\^\fP\f3}\fP,
 when \f2name\^\fP is the name of a discipline, and there is
 no variable of this name, is equivalent to the command substitution
 \f3${ \fP\f2var\^\fP\f3.\fP\f2name\^\fP\f3;}\fP.
-
 .SS Name Spaces.
 Commands and functions that are executed as part of the
 .I list\^
@@ -4220,7 +4234,6 @@ By default, variables starting with
 \fB\s+2.\s-2sh\fP are in the
 .B sh
 name space.
-
 .SS Type Variables.
 Typed variables provide a way to create data structure and objects.
 A type can be defined either by a shared library, by the

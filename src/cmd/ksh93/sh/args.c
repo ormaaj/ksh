@@ -761,7 +761,6 @@ struct argnod *sh_argprocsub(struct argnod *argp)
 	/* turn off job control */
 	sh_offstate(SH_INTERACTIVE);
 	sh_offstate(SH_MONITOR);
-	sh_offstate(SH_PROFILE);
 	job.jobcontrol = 0;
 	/* run the process substitution */
 	sh.subshell = 0;
@@ -769,6 +768,7 @@ struct argnod *sh_argprocsub(struct argnod *argp)
 		sh.inpipe = pv;
 	else
 		sh.outpipe = pv;
+	sh_onstate(SH_PROCSUB);
 	sh_exec((Shnode_t*)argp->argchn.ap,(int)sh_isstate(SH_ERREXIT));
 	/* restore the previous state */
 	sh.subshell = savesubshell;

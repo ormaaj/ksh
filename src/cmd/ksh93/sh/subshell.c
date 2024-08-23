@@ -647,7 +647,6 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 				else
 					sh_subfork();
 			}
-			sh_offstate(SH_PROFILE);
 			sh_exec(t,flags);
 		}
 	}

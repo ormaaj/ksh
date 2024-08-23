@@ -531,10 +531,21 @@ do		if	{ date | true;} ; true
 done
 (( (SECONDS-t1) > .5 )) && err_exit 'pipefail should not wait for background processes'
 
-# process source files from profiles as profile files
-print '. ./dotfile' > envfile
-print $'alias print=:\nprint foobar' > dotfile
-[[ $(ENV=/.$PWD/envfile $SHELL -i -c : 2>/dev/null) == foobar ]] && err_exit 'files source from profile does not process aliases correctly'
+# ======
+print $'v=$(. ./dotfile)\n(. ./dotfile)\ncat <(. ./dotfile)\n. ./dotfile' > envfile
+# dot scripts sourced from profile files are parsed line by line, so that aliases take effect on the next line in the same file
+print $'alias print=:\nprint fail:subshell==${.sh.subshell} >&2' > dotfile
+got=$(ENV=/.$PWD/envfile "$SHELL" -i -c : 2>&1)
+exp=''
+[[ $got == "$exp" ]] || err_exit 'dot script sourced from profile does not process aliases correctly' \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+# $0 does not change in ksh functions within profile scripts
+print 'function BAD { echo $0; }; BAD >&2' > dotfile
+got=$(ENV=/.$PWD/envfile "$SHELL" -i -c : 2>&1)
+exp=$SHELL$'\n'$SHELL$'\n'$SHELL$'\n'$SHELL
+[[ $got == "$exp" ]] || err_exit '$0 in ksh function in profile script not correct' \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+
 
 # ======
 if [[ -o ?posix ]]; then

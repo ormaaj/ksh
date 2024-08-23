@@ -1162,7 +1162,7 @@ int job_post(pid_t pid, pid_t join)
 		pw->p_pid,pw->p_pgrp,job.savesig,join);
 	sfsync(sfstderr);
 #endif /* DEBUG */
-	if(hp && !sh_isstate(SH_PROFILE))
+	if(hp && !sh_isstate(SH_PROFILE) && !sh.realsubshell)
 		pw->p_name=hist_tell(sh.hist_ptr,(int)hp->histind-1);
 	else
 		pw->p_name = -1;

@@ -1505,7 +1505,7 @@ int sh_exec(const Shnode_t *t, int flags)
 						sigrelease(SIGINT);
 				}
 				/* print job number */
-				if(type&FAMP && (sh_isstate(SH_PROFILE) || sh_isstate(SH_INTERACTIVE)))
+				if(type&FAMP && (sh_isstate(SH_INTERACTIVE) || sh_isstate(SH_PROFILE)) && !sh_isstate(SH_PROCSUB) && !sh.realsubshell)
 					sfprintf(sfstderr,"[%d]\t%d\n",jobid,parent);
 				break;
 			}

@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-08-22:
+
+- Fixed: command lines containing certain specific kinds of syntax error
+  were not entered into the shell's history for retrieval and correction.
+
 2024-08-21:
 
 - Fixed a corner-case crashing bug in shell discipline functions.

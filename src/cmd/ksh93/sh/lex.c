@@ -340,7 +340,7 @@ int sh_lex(Lex_t* lp)
 					else
 					{
 						lp->token = -1;
-						sh_syntax(lp);
+						sh_syntax(lp,0);
 					}
 				}
 				/* end-of-file */
@@ -374,7 +374,7 @@ int sh_lex(Lex_t* lp)
 					}
 					lp->lasttok = c;
 					lp->token = EOFSYM;
-					sh_syntax(lp);
+					sh_syntax(lp,0);
 				}
 				goto breakloop;
 			case S_COM:
@@ -414,7 +414,7 @@ int sh_lex(Lex_t* lp)
 						lp->lasttok = IODOCSYM;
 						lp->token = EOFSYM;
 						lp->lastline = c;
-						sh_syntax(lp);
+						sh_syntax(lp,0);
 					}
 					if(!lp->lexd.dolparen)
 						lp->lexd.nocopy--;
@@ -501,7 +501,7 @@ int sh_lex(Lex_t* lp)
 							{	/* throw "`(' unmatched" error */
 								lp->lasttok = LPAREN;
 								lp->token = EOFSYM;
-								sh_syntax(lp);
+								sh_syntax(lp,0);
 							}
 							return r;
 						}
@@ -547,7 +547,7 @@ int sh_lex(Lex_t* lp)
 						{
 							lp->token = c = IORDWRSYMT;
 							if(lp->inexec)
-								sh_syntax(lp);
+								sh_syntax(lp,0);
 						}
 						else if(n>0)
 							fcseek(-LEN);
@@ -561,7 +561,7 @@ int sh_lex(Lex_t* lp)
 						if(lp->inexec)
 						{
 							lp->token = c;
-							sh_syntax(lp);
+							sh_syntax(lp,0);
 						}
 					}
 					else
@@ -972,7 +972,7 @@ int sh_lex(Lex_t* lp)
 							if(c!='%')
 							{
 								lp->token = n;
-								sh_syntax(lp);
+								sh_syntax(lp,0);
 							}
 							else if(lp->lexd.warn)
 								errormsg(SH_DICT,ERROR_warn(0),e_lexquote,sh.inlineno,'%');
@@ -1005,7 +1005,7 @@ int sh_lex(Lex_t* lp)
 				if(n!='$')
 				{
 					lp->token = c;
-					sh_syntax(lp);
+					sh_syntax(lp,0);
 				}
 				else
 				{
@@ -1110,7 +1110,7 @@ int sh_lex(Lex_t* lp)
 				if(c!=n && lp->lex.incase<TEST_RE)
 				{
 					lp->token = c;
-					sh_syntax(lp);
+					sh_syntax(lp,0);
 				}
 				if(c==RBRACE && (mode==ST_NAME||mode==ST_NORM))
 					goto epat;
@@ -1148,10 +1148,7 @@ int sh_lex(Lex_t* lp)
 					if(n>0 && n==']')
 					{
 						if(mode==ST_NAME)
-						{
-							errormsg(SH_DICT,ERROR_exit(SYNBAD),e_lexsyntax1, sh.inlineno, "[]", "empty subscript");
-							UNREACHABLE();
-						}
+							sh_syntax(lp,1);
 						if(!epatchar || epatchar=='%')
 							continue;
 					}
@@ -1655,7 +1652,7 @@ static int comsub(Lex_t *lp, int endtok)
 			    case EOFSYM:
 				lp->lastline = line;
 				lp->lasttok = endtok;
-				sh_syntax(lp);
+				sh_syntax(lp,0);
 				/* UNREACHABLE */
 			    case IOSEEKSYM:
 				if(fcgetc(c)!='#' && c>0)
@@ -1692,11 +1689,8 @@ done:
 	lp->lex = save;
 	lp->assignok = (endchar(lp)==RBRACT?assignok:0);
 	if(lp->heredoc && !inheredoc)
-	{
 		/* here-document isn't fully contained in command substitution */
-		errormsg(SH_DICT,ERROR_exit(SYNBAD),e_lexsyntax5,sh.inlineno,lp->heredoc->ioname);
-		UNREACHABLE();
-	}
+		sh_syntax(lp,3);
 	return messages;
 }
 
@@ -2110,20 +2104,10 @@ static char	*fmttoken(Lex_t *lp, int sym)
 /*
  * print a bad syntax message
  */
-noreturn void sh_syntax(Lex_t *lp)
+noreturn void sh_syntax(Lex_t *lp, int special)
 {
-	const char *cp = sh_translate(e_unexpected);
-	char *tokstr;
-	int tok = lp->token;
+	const int eof = lp->token==EOFSYM && lp->lasttok;
 	Sfio_t *sp;
-	if((tok==EOFSYM) && lp->lasttok)
-	{
-		tok = lp->lasttok;
-		cp = sh_translate(e_unmatched);
-	}
-	else
-		lp->lastline = sh.inlineno;
-	tokstr = fmttoken(lp,tok);
 	if((sp=fcfile()) || (sh.infd>=0 && (sp=sh.sftable[sh.infd])))
 	{
 		/* clear out any pending input */
@@ -2139,10 +2123,28 @@ noreturn void sh_syntax(Lex_t *lp)
 	sh.st.firstline = lp->firstline;
 	/* reset lexer state */
 	sh_lexopen(lp, 0);
-	if(!sh_isstate(SH_INTERACTIVE) && !sh_isstate(SH_PROFILE))
-		errormsg(SH_DICT,ERROR_exit(SYNBAD),e_lexsyntax1,lp->lastline,tokstr,cp);
+	/* construct error message */
+	if (sh_isstate(SH_INTERACTIVE) || sh_isstate(SH_PROFILE))
+		sfprintf(sh.strbuf, sh_translate(e_syntaxerror));
 	else
-		errormsg(SH_DICT,ERROR_exit(SYNBAD),e_lexsyntax2,tokstr,cp);
+		sfprintf(sh.strbuf, sh_translate(e_syntaxerror_at), eof ? sh.inlineno : lp->lastline);
+	if (special==1)
+		sfprintf(sh.strbuf, sh_translate(e_emptysubscr));
+	else if (special==2)
+		sfprintf(sh.strbuf, sh_translate(e_badreflist));
+	else if (special==3)
+		sfprintf(sh.strbuf, sh_translate(e_heredoccomsub), lp->heredoc->ioname);
+	else
+	{
+		const char *msg;
+		int tok;
+		if (eof)
+			tok = lp->lasttok, msg = sh_translate(e_unmatched);
+		else
+			tok = lp->token, msg = sh_translate(e_unexpected);
+		sfprintf(sh.strbuf, msg, fmttoken(lp, tok));
+	}
+	errormsg(SH_DICT, ERROR_exit(SYNBAD), "%s", sfstruse(sh.strbuf));
 	UNREACHABLE();
 }
 

@@ -129,11 +129,17 @@ extern const char *sh_lexrstates[ST_NONE];
 extern const char e_lexversion[];
 extern const char e_lexspace[];
 extern const char e_lexslash[];
-extern const char e_lexsyntax1[];
-extern const char e_lexsyntax2[];
-extern const char e_lexsyntax3[];
-extern const char e_lexsyntax4[];
-extern const char e_lexsyntax5[];
+
+extern const char e_syntaxerror[];
+extern const char e_syntaxerror_at[];
+extern const char e_unexpected[];
+extern const char e_unmatched[];
+extern const char e_emptysubscr[];
+extern const char e_badreflist[];
+extern const char e_heredoccomsub[];
+extern const char e_endoffile[];
+extern const char e_newline[];
+
 extern const char e_lexwarnvar[];
 extern const char e_lexarithwarn[];
 extern const char e_lexobsolete1[];

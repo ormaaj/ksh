@@ -372,7 +372,7 @@ static Shnode_t	*makelist(Lex_t *lexp, int type, Shnode_t *l, Shnode_t *r)
 {
 	Shnode_t	*t = NULL;
 	if(!l || !r)
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	else
 	{
 		if((type&COMMSK) == TTST)
@@ -579,7 +579,7 @@ static Shnode_t	*sh_cmd(Lex_t *lexp, int sym, int flag)
 			lexp->token=';';
 	}
 	else if(!left && !(flag&SH_EMPTY))
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	switch(lexp->token)
 	{
 	    case COOPSYM:		/* set up a cooperating process */
@@ -596,7 +596,7 @@ static Shnode_t	*sh_cmd(Lex_t *lexp, int sym, int flag)
 		/* FALLTHROUGH */
 	    case ';':
 		if(!left)
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		if(right=sh_cmd(lexp,sym,flag|SH_EMPTY))
 			left=makelist(lexp,TLST, left, right);
 		break;
@@ -608,7 +608,7 @@ static Shnode_t	*sh_cmd(Lex_t *lexp, int sym, int flag)
 		if(sym && sym!=lexp->token)
 		{
 			if(sym!=ELSESYM || (lexp->token!=ELIFSYM && lexp->token!=FISYM))
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 		}
 	}
 	dcl_dehacktivate();
@@ -675,7 +675,7 @@ static Shnode_t	*term(Lex_t *lexp,int flag)
 			t->tre.tretyp |= showme;
 		}
 		else if(lexp->token)
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 	}
 	return t;
 }
@@ -697,7 +697,7 @@ static struct regnod*	syncase(Lex_t *lexp,int esym)
 	while(1)
 	{
 		if(!lexp->arg)
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		lexp->arg->argnxt.ap=r->regptr;
 		r->regptr = lexp->arg;
 		if((tok=sh_lex(lexp))==RPAREN)
@@ -705,7 +705,7 @@ static struct regnod*	syncase(Lex_t *lexp,int esym)
 		else if(tok=='|')
 			sh_lex(lexp);
 		else
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 	}
 	r->regcom=sh_cmd(lexp,0,SH_NL|SH_EMPTY|SH_SEMI);
 	if((tok=lexp->token)==BREAKCASESYM)
@@ -718,7 +718,7 @@ static struct regnod*	syncase(Lex_t *lexp,int esym)
 	else
 	{
 		if(tok!=esym && tok!=EOFSYM)
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		r->regnxt=0;
 	}
 	if(lexp->token==EOFSYM)
@@ -784,7 +784,7 @@ static Shnode_t	*arithfor(Lex_t *lexp,Shnode_t *tf)
 	if(n<2)
 	{
 		lexp->token = RPAREN|SYMREP;
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	}
 	/* check whether the increment is present */
 	if(*argp->argval)
@@ -800,7 +800,7 @@ static Shnode_t	*arithfor(Lex_t *lexp,Shnode_t *tf)
 	else if(n==';')
 		n = sh_lex(lexp);
 	if(n!=DOSYM && n!=LBRACE)
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	tw->wh.dotre = sh_cmd(lexp,n==DOSYM?DONESYM:RBRACE,SH_NL|SH_SEMI);
 	tw->wh.whtyp = TWH;
 	return tf;
@@ -831,7 +831,7 @@ static Shnode_t *funct(Lex_t *lexp)
 	if(!(flag = (lexp->token==FUNCTSYM)))
 		t->funct.functtyp |= FPOSIX;
 	else if(sh_lex(lexp))
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	if(!(iop=fcfile()))
 	{
 		iop = sfopen(NULL,fcseek(0),"s");
@@ -875,10 +875,7 @@ static Shnode_t *funct(Lex_t *lexp)
 			int		c=-1;
 			t->funct.functargs = ac = (struct comnod*)simple(lexp,SH_NOIO|SH_FUNDEF,NULL);
 			if(ac->comset || (ac->comtyp&COMSCAN))
-			{
-				errormsg(SH_DICT,ERROR_exit(3),e_lexsyntax4,sh.inlineno);
-				UNREACHABLE();
-			}
+				sh_syntax(lexp,2);
 			argv0 = argv = ac->comarg.dp->dolval + ARG_SPARE;
 			while(cp= *argv++)
 			{
@@ -887,10 +884,7 @@ static Shnode_t *funct(Lex_t *lexp)
 		                        while(c=mbchar(cp), isaname(c));
 			}
 			if(c)
-			{
-				errormsg(SH_DICT,ERROR_exit(3),e_lexsyntax4,sh.inlineno);
-				UNREACHABLE();
-			}
+				sh_syntax(lexp,2);
 			nargs = argv-argv0;
 			size += sizeof(struct dolnod)+(nargs+ARG_SPARE)*sizeof(char*);
 			if(sh.shcomp && strncmp(".sh.math.",t->funct.functnam,9)==0)
@@ -905,7 +899,7 @@ static Shnode_t *funct(Lex_t *lexp)
 			lexp->token = sh_lex(lexp);
 	}
 	if((flag && lexp->token!=LBRACE) || lexp->token==EOFSYM)
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	sh_pushcontext(&buff,1);
 	jmpval = sigsetjmp(buff.buff,0);
 	if(jmpval == 0)
@@ -1035,7 +1029,7 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 	lexp->assignlevel++;
 	n = strlen(ap->argval)-1;
 	if(ap->argval[n]!='=')
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	if(ap->argval[n-1]=='+')
 	{
 		ap->argval[n--]=0;
@@ -1108,7 +1102,7 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 		}
 	}
 	else if(n && n!=FUNCTSYM)
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	else if(type!=NV_ARRAY &&
 		n!=FUNCTSYM &&
 		!(lexp->arg->argflag&ARG_ASSIGN) &&
@@ -1151,7 +1145,7 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 				array = 0;
 			}
 			else
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 		}
 	}
 	lexp->noreserv = 0;
@@ -1169,7 +1163,7 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 		{
 			if(array && n==LPAREN)
 				goto comarray;
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		}
 		lexp->assignok = SH_ASSIGN;
 		if((n=skipnl(lexp,0)) || array)
@@ -1177,7 +1171,7 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 			if(n==RPAREN)
 				break;
 			if(array ||  n!=FUNCTSYM)
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 		}
 		if((n!=FUNCTSYM) &&
 			!(lexp->arg->argflag&ARG_ASSIGN) &&
@@ -1186,13 +1180,13 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 		{
 			struct argnod *arg = lexp->arg;
 			if(n!=0)
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 			/* check for SysV style function */
 			if(sh_lex(lexp)!=LPAREN || sh_lex(lexp)!=RPAREN)
 			{
 				lexp->arg = arg;
 				lexp->token = 0;
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 			}
 			lexp->arg = arg;
 			lexp->token = SYMRES;
@@ -1254,19 +1248,19 @@ static Shnode_t	*item(Lex_t *lexp,int flag)
 		int saveline = lexp->lastline;
 		t = getnode(swnod);
 		if(sh_lex(lexp))
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		t->sw.swarg=lexp->arg;
 		t->sw.swtyp=TSW;
 		t->sw.swio = 0;
 		t->sw.swtyp |= FLINENO;
 		t->sw.swline =  sh.inlineno;
 		if((tok=skipnl(lexp,0))!=INSYM && tok!=LBRACE)
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		if(!(t->sw.swlst=syncase(lexp,tok==INSYM?ESACSYM:RBRACE)) && lexp->token==EOFSYM)
 		{
 			lexp->lasttok = savetok;
 			lexp->lastline = saveline;
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		}
 		break;
 	    }
@@ -1305,7 +1299,7 @@ static Shnode_t	*item(Lex_t *lexp,int flag)
 		if(sh_lex(lexp))
 		{
 			if(lexp->token!=EXPRSYM || t->for_.fortyp!=TFOR)
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 			/* arithmetic for */
 			t = arithfor(lexp,t);
 			break;
@@ -1322,7 +1316,7 @@ static Shnode_t	*item(Lex_t *lexp,int flag)
 			if(sh_lex(lexp))
 			{
 				if(lexp->token != NL && lexp->token !=';')
-					sh_syntax(lexp);
+					sh_syntax(lexp,0);
 				/* some Linux scripts assume this */
 				if(sh_isoption(SH_NOEXEC))
 					errormsg(SH_DICT,ERROR_warn(0),e_lexemptyfor,sh.inlineno-(lexp->token=='\n'));
@@ -1331,14 +1325,14 @@ static Shnode_t	*item(Lex_t *lexp,int flag)
 			else
 				t->for_.forlst=(struct comnod*)simple(lexp,SH_NOIO,NULL);
 			if(lexp->token != NL && lexp->token !=';')
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 			tok = skipnl(lexp,0);
 		}
 		/* 'for i;do cmd' is valid syntax */
 		else if(tok==';')
 			while((tok=sh_lex(lexp))==NL);
 		if(tok!=DOSYM && tok!=LBRACE)
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		t->for_.fortre=sh_cmd(lexp,tok==DOSYM?DONESYM:RBRACE,SH_NL|SH_SEMI);
 		break;
 	    }
@@ -1354,11 +1348,11 @@ static Shnode_t	*item(Lex_t *lexp,int flag)
 		t->funct.functargs = 0;
 		t->funct.functloc = 0;
 		if(sh_lex(lexp))
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		t->funct.functnam=(char*) lexp->arg->argval;
 		while((tok=sh_lex(lexp))==NL);
 		if(tok!=LBRACE)
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		t->funct.functtre = sh_cmd(lexp,RBRACE,SH_NL);
 		break;
 #endif /* SHOPT_NAMESPACE */
@@ -1397,7 +1391,7 @@ static Shnode_t	*item(Lex_t *lexp,int flag)
 			if(!(flag&SH_SEMI))
 				return NULL;
 			if(sh_lex(lexp)==';')
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 			showme =  FSHOWME;
 		}
 		/* FALLTHROUGH */
@@ -1478,7 +1472,7 @@ static Shnode_t *simple(Lex_t *lexp,int flag, struct ionod *io)
 			break;
 		}
 		if(associative && (!(argp->argflag&ARG_ASSIGN) || argp->argval[0]!='['))
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		/* check for assignment argument */
 		if((argp->argflag&ARG_ASSIGN) && assignment!=2)
 		{
@@ -1535,7 +1529,7 @@ static Shnode_t *simple(Lex_t *lexp,int flag, struct ionod *io)
 				}
 			}
 			if((flag&NV_COMVAR) && !assignment)
-				sh_syntax(lexp);
+				sh_syntax(lexp,0);
 			*argtail = argp;
 			argtail = &(argp->argnxt.ap);
 			if(!(lexp->assignok=key_on)  && !(flag&SH_NOIO) && sh_isoption(SH_NOEXEC))
@@ -1675,7 +1669,7 @@ static int	skipnl(Lex_t *lexp,int flag)
 	int token;
 	while((token=sh_lex(lexp))==NL);
 	if(token==';' && !(flag&SH_SEMI))
-		sh_syntax(lexp);
+		sh_syntax(lexp,0);
 	return token;
 }
 
@@ -1764,7 +1758,7 @@ static struct ionod	*inout(Lex_t *lexp,struct ionod *lastio,int flag)
 			iof |= IOPROCSUB;
 		}
 		else
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 	}
 	if( (iof&IOPROCSUB) && !(iof&IOLSEEK))
 		iop->ioname= (char*)lexp->arg->argchn.ap;
@@ -1908,7 +1902,7 @@ static Shnode_t *test_expr(Lex_t *lp,int sym)
 {
 	Shnode_t *t = test_or(lp);
 	if(lp->token!=sym)
-		sh_syntax(lp);
+		sh_syntax(lp,0);
 	return t;
 }
 
@@ -1960,12 +1954,12 @@ static Shnode_t *test_primary(Lex_t *lexp)
 		break;
 	    case '!':
 		if(!(t = test_primary(lexp)))
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		t->tre.tretyp ^= TNEGATE;  /* xor it, so that a '!' negates another '!' */
 		return t;
 	    case TESTUNOP:
 		if(sh_lex(lexp))
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 #if SHOPT_KIA
 		if(lexp->kiafile && !strchr("sntzoOG",num))
 		{
@@ -2003,7 +1997,7 @@ static Shnode_t *test_primary(Lex_t *lexp)
 			return t;
 		}
 		else
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 #if SHOPT_KIA
 		if(lexp->kiafile && (num==TEST_EF||num==TEST_NT||num==TEST_OT))
 		{
@@ -2014,7 +2008,7 @@ static Shnode_t *test_primary(Lex_t *lexp)
 		}
 #endif /* SHOPT_KIA */
 		if(sh_lex(lexp))
-			sh_syntax(lexp);
+			sh_syntax(lexp,0);
 		if(num&TEST_STRCMP)
 		{
 			/* If the argument is unquoted, enable pattern matching */

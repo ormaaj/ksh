@@ -532,6 +532,7 @@ done
 (( (SECONDS-t1) > .5 )) && err_exit 'pipefail should not wait for background processes'
 
 # ======
+if ((!SHOPT_SCRIPTONLY)); then
 print $'v=$(. ./dotfile)\n(. ./dotfile)\ncat <(. ./dotfile)\n. ./dotfile' > envfile
 # dot scripts sourced from profile files are parsed line by line, so that aliases take effect on the next line in the same file
 print $'alias print=:\nprint fail:subshell==${.sh.subshell} >&2' > dotfile
@@ -545,7 +546,7 @@ got=$(ENV=/.$PWD/envfile "$SHELL" -i -c : 2>&1)
 exp=$SHELL$'\n'$SHELL$'\n'$SHELL$'\n'$SHELL
 [[ $got == "$exp" ]] || err_exit '$0 in ksh function in profile script not correct' \
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
-
+fi # !SHOPT_SCRIPTONLY
 
 # ======
 if [[ -o ?posix ]]; then

@@ -286,7 +286,6 @@ make install virtual
 		prev ast_common.h
 	done
 
-	note * slow *
 	make FEATURE/omitted
 		makp features/omitted
 		exec - invoke_iffe %{<}

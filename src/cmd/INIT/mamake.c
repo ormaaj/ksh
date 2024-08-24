@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-15"
+#define RELEASE_DATE "2024-08-24"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -110,40 +110,14 @@ static const char usage[] =
 /*
  * For compatibility with compiler flags such as -std=c99, feature macros
  * must be enabled to prevent the build from failing at the very start.
- * These are normally handled in src/lib/libast/features/standards; further
- * information can be found there. Mamake shouldn't need all that much enabled,
- * so not much is enabled here.
  */
 
-/* macOS */
-#if (defined(__APPLE__) && defined(__MACH__) && defined(NeXTBSD)) && !defined(_DARWIN_C_SOURCE)
-#define _DARWIN_C_SOURCE 1
-
-/* Solaris and illumos */
-#elif defined(__sun)
-#define _XPG7
-#define _XPG6
-#define _XPG5
-#define _XPG4_2
-#define _XPG4
-#define _XPG3
-#define __EXTENSIONS__	1
-#define _XOPEN_SOURCE	9900
-#undef _POSIX_C_SOURCE
-
-/* Linux and Cygwin */
-#elif (defined(__linux__) || __CYGWIN__) && !defined(_GNU_SOURCE)
-#define _GNU_SOURCE 1
-
-/* QNX */
-#elif defined(__QNX__) && !defined(_QNX_SOURCE)
-#define _QNX_SOURCE 1
-
-/* Everything else */
-#else
-#define _XOPEN_SOURCE	9900
-#define _POSIX_C_SOURCE 21000101L
-#endif
+#define _POSIX_C_SOURCE 21000101L	/* generic */
+#define _XOPEN_SOURCE	9900		/* generic */
+#define _DARWIN_C_SOURCE 1		/* macOS */
+#define _GNU_SOURCE 1			/* GNU/Linux, Cygwin */
+#define _QNX_SOURCE 1			/* QNX */
+#define __EXTENSIONS__	1		/* Solaris/illumos */
 
 #endif /* _PACKAGE_ast */
 
@@ -179,6 +153,7 @@ static const char usage[] =
 #define delimiter(c)	(isspace(c)||(c)==';'||(c)=='('||(c)==')'||(c)=='`'||(c)=='|'||(c)=='&'||(c)=='=')
 
 #define add(b,c)	(((b)->nxt >= (b)->end) ? append(b, "") : NULL, *(b)->nxt++ = (c))
+#define unadd(b)	(--(b)->nxt)
 #define getsize(b)	((b)->nxt-(b)->buf)
 #define setsize(b,o)	((b)->nxt=(b)->buf+(o))
 #define use(b)		(*(b)->nxt=0,(b)->nxt=(b)->buf)
@@ -314,6 +289,7 @@ static struct				/* program state		*/
 	char		*recurse;	/* recursion pattern		*/
 	char		*shell;		/* %{SHELL}			*/
 	char		*installroot;	/* %{INSTALLROOT}		*/
+	char		*packageroot;	/* %{PACKAGEROOT}		*/
 
 	int		active;		/* targets currently active	*/
 	int		chaos;		/* don't save up parallel logs	*/
@@ -324,6 +300,8 @@ static struct				/* program state		*/
 	int		force;		/* all targets out of date	*/
 	int		ignore;		/* ignore command errors	*/
 	int		indent;		/* debug indent			*/
+	int		installrootlen;	/* strlen of %{INSTALLROOT}	*/
+	int		packagerootlen;	/* strlen of %{PACKAGEROOT}	*/
 	int		keepgoing;	/* do siblings on error		*/
 	int		never;		/* never execute		*/
 	int		probed;		/* probe already done		*/
@@ -339,6 +317,8 @@ static struct				/* program state		*/
 
 static void		make(Rule_t*, Makestate_t*);
 static void		exit_wait(int);
+static int		execute_v(Rule_t*, char**);
+static int		execute(Rule_t*, char*);
 
 static char		mamfile[] = "Mamfile";
 static char		sh[] = "/bin/sh";
@@ -494,9 +474,12 @@ static Buf_t *buffer(void)
 
 	if (buf = state.old)
 		state.old = state.old->old;
-	else if (!(buf = calloc(1, sizeof(Buf_t))) || !(buf->buf = malloc(CHUNK)))
-		out_of_memory();
-	buf->end = buf->buf + CHUNK;
+	else
+	{
+		if (!(buf = calloc(1, sizeof(Buf_t))) || !(buf->buf = malloc(CHUNK)))
+			out_of_memory();
+		buf->end = buf->buf + CHUNK;
+	}
 	buf->nxt = buf->buf;
 	return buf;
 }
@@ -535,15 +518,11 @@ static char *appendn(Buf_t *buf, char *str, size_t n)
 
 /*
  * append str to buffer and return the buffer base
- * if str==0 then next pointer reset to base
  */
 
 static char *append(Buf_t *buf, char *str)
 {
-	if (str)
-		return appendn(buf, str, strlen(str));
-	buf->nxt = buf->buf;
-	return buf->buf;
+	return appendn(buf, str, strlen(str));
 }
 
 /*
@@ -907,12 +886,13 @@ static void substitute(Buf_t *buf, char *s)
 {
 	char	*t, *q;
 	char	*v;		/* variable's value */
-	char	*b;		/* beginning: the literal expansion starting at $ */
+	char	*b;		/* beginning: the literal expansion starting at % (or $) */
 	int	c, n;
 	int	found_AR = 0;	/* 1 if ${AR} encountered */
 	int	valid_sh_name;	/* if set, the variable name is valid in sh(1) */
 	int	newexp;		/* if set, %{...}, otherwise ${...} */
 	char	*vnterm;	/* pointer to byte following variable name */
+	char	**argv;		/* argument list for %{var^arbitrary sh(1) commands} */
 
 	while (c = *s++)
 	{
@@ -921,17 +901,19 @@ static void substitute(Buf_t *buf, char *s)
 			newexp = (c == '%');
 			b = s - 1;
 			t = ++s;
-			n = *t == '-' ? 0 : '-';
-			valid_sh_name = 1;
+			n = *t == '-' ? 0 : '-';  /* disable %{var-x} if var starts with - */
+			s++;
+			valid_sh_name = !newexp && (isalpha(*s) || *s == '_');
 			while ( (c = *s) &&
-				(c != '?' || s == t) &&
+				c != '?' &&
 				c != '+' &&
 				c != n &&
 				(c != ':' && c != '=' && c != '[' || newexp) &&
+				(c != '@' && c != '|' || !newexp) &&
 				c != '}' )
 			{
 				s++;
-				if (!isalnum(c) && c != '_')
+				if (valid_sh_name && !isalnum(c) && c != '_')
 					valid_sh_name = 0;
 			}
 			vnterm = s;
@@ -992,6 +974,7 @@ static void substitute(Buf_t *buf, char *s)
 
 			/* Special expansion syntax */
 
+			argv = NULL;
 			switch (c)
 			{
 			case '?':
@@ -1025,6 +1008,90 @@ static void substitute(Buf_t *buf, char *s)
 						substitute(buf, t + 1);
 						*q = c;
 					}
+				}
+				break;
+			case '@':
+				/* %{variable@sh script}: whitespace-separated fields become positional parameters in sh */
+				if (q = v)
+				{
+					n = 4;  /* first four args will be "sh" "-c" script state.id */
+					while (*q)
+					{
+						char	*a;
+						while (isspace(*q))
+							q++;
+						if (!*q)
+							break;
+						a = q;
+						while (*q && !isspace(*q))
+							q++;
+						n++;
+						c = *q, *q = 0;  /* terminate for strdup */
+						if (!(argv = realloc(argv, (n+1)*sizeof(char*))) || !(argv[n-1] = strdup(a)))
+							out_of_memory();
+						*q = c;
+					}
+					if (!argv)
+						break;
+					argv[n] = NULL;
+				}
+				/* FALLTHROUGH */
+			case '|':
+				/* if (!argv): %{variable|sh script}: whitespace-separated fields are piped into sh as lines */
+				if (!v)
+					goto undefined;
+				if (*v)
+				{
+					static char	in[] = ".mamake.in";
+					static char	out[] = ".mamake.out";
+					FILE		*f;
+					int		final_newline = 0;
+					Buf_t		*scr;
+					if (!argv)
+					{	/* write value to temp file, converting whitespace to newlines */
+						errno = 0;
+						if (f = fopen(in, "w")) do
+						{
+							while (isspace(*v))
+								v++;
+							while ((n = *v++) && !isspace(n))
+								if (putc(n, f) == EOF) break;
+							if (putc('\n', f) == EOF) break;
+						} while (n);
+						fclose(f);
+						if (errno)
+							error_out(strerror(errno), "could not write pipe command input");
+					}
+					/* prepend redirections to script and execute using our chosen shell */
+					scr = buffer();
+					append(scr, "exec");
+					if (!argv)
+						add(scr, '<'), append(scr, in);
+					add(scr, '>'), append(scr, out), add(scr, '\n');
+					n = *s, *s = 0;  /* change final '}' to string terminator */
+					append(scr, t);
+					q = use(scr);
+					if ((argv ? (argv[2] = q, execute_v(NULL, argv)) : execute(NULL, q)) != 0)
+						error_out("expansion script error", t);
+					*s = n;
+					drop(scr);
+					/* read output back, converting each newline but the last to a space */
+					if ((f = fopen(out, "r")))
+						while ((c = getc(f)) != EOF)
+							add(buf, (final_newline = (c == '\n')) ? ' ' : c);
+					if (final_newline)
+						unadd(buf);
+					if (!f || ferror(f) || fclose(f) == EOF)
+						error_out(strerror(errno), "could not read pipe command output");
+					unlink(out);
+					if (!argv)
+						unlink(in);
+				}
+				if (argv)
+				{
+					for (n = 4; argv[n]; n++)
+						free(argv[n]);
+					free(argv);
 				}
 				break;
 			case '+':
@@ -1085,11 +1152,13 @@ static void substitute(Buf_t *buf, char *s)
 				}
 				else if (newexp)
 				{
+				undefined:
 					*vnterm = 0;
-					error_out("variable not defined", t);
+					error_out("variable not defined", b + 2);
 				}
 				else if (valid_sh_name || state.strict >= 2)
 				{
+					/* Leave sh-like ${var} unexpanded for undefined var */
 					c = *s;
 					*s = 0;
 					append(buf, b);
@@ -1340,7 +1409,7 @@ static char *input(void)
 
 static void print_nice_hdr(Rule_t *r)
 {
-	char	*fname, *rname, *rnamepre, *val;
+	char	*fname, *rname, *rnamepre;
 	size_t	len;
 	if (!r)
 		return;
@@ -1348,14 +1417,12 @@ static void print_nice_hdr(Rule_t *r)
 	rname = r->name;
 	rnamepre = "";
 	/* mamfile path: make relative to %{PACKAGEROOT} */
-	if (*fname == '/'
-	&& (val = getval(state.vars, "PACKAGEROOT")) && (len = strlen(val))
-	&& strncmp(fname, val, len) == 0 && fname[len] == '/' && fname[++len])
+	if (*fname == '/' && (len = state.packagerootlen)
+	&& strncmp(fname, state.packageroot, len) == 0 && fname[len] == '/' && fname[++len])
 		fname += len;
 	/* rule name: change install root path prefix back to '%{INSTALLROOT}' for brevity */
-	if (*rname == '/'
-	&& (val = getval(state.vars, "INSTALLROOT")) && (len = strlen(val))
-	&& strncmp(rname, val, len) == 0 && rname[len] == '/' && rname[len + 1])
+	if (*rname == '/' && (len = state.installrootlen)
+	&& strncmp(rname, state.installroot, len) == 0 && rname[len] == '/' && rname[len + 1])
 		rname += len, rnamepre = "%{INSTALLROOT}";
 	fprintf(stderr, "\n# %s: %u-%u: make %s%s\n",
 		fname, r->line, r->endline, rnamepre, rname);
@@ -1474,12 +1541,13 @@ static void sigchld_dummy(int sig)
 }
 
 /*
- * pass shell action s to ${SHELL:-/bin/sh}
+ * pass shell action argv[2] to ${SHELL:-/bin/sh}
+ * argv[4, 5, ...] become $1, $2, ... in the shell
  * the -c wrapper ensures that scripts are run in the selected shell
  * even on systems that otherwise demand #! magic (can you say Cygwin)
  */
 
-static int execute(Rule_t *r, char *s)
+static int execute_v(Rule_t *r, char **argv)
 {
 	pid_t	pid;
 	int	pstat;
@@ -1491,8 +1559,9 @@ static int execute(Rule_t *r, char *s)
 		error_out(strerror(errno), "fork() failed");
 	if (pid == 0)
 	{	/* child */
-		report(-5, s, "exec", NULL);
-		execl(state.shell, "sh", "-c", s, (char*)0);
+		argv[0] = "sh", argv[1] = "-c", argv[3] = state.id;
+		report(-5, argv[2], "exec", NULL);
+		execv(state.shell, argv);
 		if (errno == ENOENT)
 			exit(127);
 		exit(126);
@@ -1516,6 +1585,13 @@ static int execute(Rule_t *r, char *s)
 	/* good old-fashioned sequential execution */
 	waitpid(pid, &pstat, 0);
 	return p_exitstatus(pstat);
+}
+
+static int execute(Rule_t *r, char *s)
+{
+	char	*argv[5];
+	argv[2] = s, argv[4] = NULL;
+	return execute_v(r, argv);
 }
 
 /*
@@ -1984,22 +2060,6 @@ static void exit_wait(int e)
 	exit(e);
 }
 
-/*
- * wait for all the child rules' background jobs to finish,
- * then propagate their timestamps and error flags
- */
-
-void clearout_bg(Rule_t *r, Makestate_t *stp)
-{
-	while (stp->bg)
-	{
-		List_t	*prev = stp->bg;
-		reap(stp->bg->rule, 0);
-		propagate(stp->bg->rule, r, &stp->modtime);
-		stp->bg = stp->bg->next;
-		free(prev);
-	}
-}
 
 /*
  * input() until `done r'
@@ -2018,6 +2078,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 	char		*v;	/* operand string */
 	Rule_t		*q;	/* new rule */
 	Buf_t		*buf;	/* scratch buffer */
+	Buf_t		*line;	/* expanded input line */
 
 	if (parentstate)
 		st = *parentstate;
@@ -2039,6 +2100,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 		}
 	}
 	buf = buffer();
+	line = buffer();
 	/*
 	 * Parse lines
 	 */
@@ -2048,6 +2110,9 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 		for (; isspace(*s); s++);
 		if (!*s)
 			continue;
+		/* expand all variables, except in comments */
+		if (!(s[0] == 'n' && s[1] == 'o' && s[2] == 't' && s[3] == 'e'))
+			s = expand(line, s);
 		/* isolate command name (u), argument word (t), and the operand string (v) */
 		for (u = s; *s && !isspace(*s); s++);
 		if (*s)
@@ -2132,8 +2197,17 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				s = use(buf);
 				if (push(s, NULL, 0))
 				{
+					char *s1 = auto_prev->value, *s2 = auto_allprev->value, *s3 = auto_updprev->value;
+					auto_prev->value = auto_allprev->value = auto_updprev->value = empty;
 					report(-1, s, "bind: include", NULL);
 					make(r, &st);
+					if (auto_prev->value != empty)
+						free(auto_prev->value);
+					if (auto_allprev->value != empty)
+						free(auto_allprev->value);
+					if (auto_updprev->value != empty)
+						free(auto_updprev->value);
+					auto_prev->value = s1, auto_allprev->value = s2, auto_updprev->value = s3;
 					pop();
 				}
 			}
@@ -2151,7 +2225,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			/* make block done */
 			if (*t)
 			{	/* target is optional; use it for sanity check if present */
-				q = rule(expand(buf, t));
+				q = rule(t);
 				if (q != r && (t[0] != '$' || state.strict))
 				{
 					append(buf,q->name);
@@ -2161,14 +2235,20 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				}
 				if (*v)
 				{
-					if (state.strict >= 2)
-						error_out("superfluous arguments", u);
-					else if (state.strict)
-						report(1, "attributes deprecated, move to 'make'", u, NULL);
+					if (state.strict)
+						report(state.strict >= 2 ? 3 : 1, "attributes obsolete, move to 'make'", u, NULL);
 					attributes(r, v);
 				}
 			}
-			clearout_bg(r, &st);
+			/* wait for all the child rules' bg jobs to finish, then propagate their timestamps and error flags */
+			while (st.bg)
+			{
+				List_t	*prev = st.bg;
+				reap(st.bg->rule, 0);
+				propagate(st.bg->rule, r, &st.modtime);
+				st.bg = st.bg->next;
+				free(prev);
+			}
 			if (st.cmd && state.active && (state.force || r->time < st.modtime || !r->time && !st.modtime))
 			{
 				/* flag for -e */
@@ -2202,9 +2282,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 					add(st.cmd, '\n');
 				else
 					st.cmd = buffer();
-				/* expand MAM vars now for each line, and not for the entire script at 'done',
-				 * to avoid confusing behaviour of automatic variables such as %{<} */
-				append(st.cmd, expand(buf, v));
+				append(st.cmd, v);
 			}
 			/* if a shim is buffered, get it ready and reset the buffer */
 			if (getsize(state.shim_buf))
@@ -2219,7 +2297,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 		case KEY('l','o','o','p'):
 		{
 			off_t		saveoff;
-			char		*vname, *words, *w, *nextw, *cp, *save_value;
+			char		*w, *nextw, *cp, *save_value;
 			Dict_item_t	*vnode;
 			unsigned int	saveline = state.sp->line;
 
@@ -2229,12 +2307,10 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			if ((saveoff = ftello(state.sp->fp)) < 0)
 				error_out("unseekable input", u);
 			/* iterate through one or more whitespace-separated words */
-			vname = duplicate(expand(buf, t));
-			w = words = duplicate(expand(buf, v));
-			vnode = search(state.vars, vname, 1);
+			vnode = search(state.vars, t, 1);
 			save_value = vnode->value;
 			vnode->value = empty;
-			for (w = words; w; w = nextw)
+			for (w = v; w; w = nextw)
 			{
 				/* zero-terminate current word and find next word */
 				nextw = NULL;
@@ -2249,7 +2325,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				/* set iteration variable to current word */
 				vnode->value = w;
 				/* reposition input to the start of this loop block */
-				if (w != words)
+				if (w != v)
 				{
 					if (fseeko(state.sp->fp, saveoff, SEEK_SET) < 0)
 						error_out("fseek failed", u);
@@ -2259,8 +2335,6 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				make(r, &st);
 			}
 			vnode->value = save_value;
-			free(words);
-			free(vname);
 			continue;
 		}
 
@@ -2269,24 +2343,21 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			char *save_making = auto_making->value;
 			char *save_allprev = auto_allprev->value;
 			char *save_updprev = auto_updprev->value;
-			char *name = expand(buf, t);
-			if ((q = getval(state.rules, name)) && (q->flags & RULE_made))
-				report(state.strict < 3 ? 1 : 3, "rule already made", name, NULL);
+			if ((q = getval(state.rules, t)) && (q->flags & RULE_made))
+				report(state.strict < 3 ? 1 : 3, "rule already made", t, NULL);
 			if (!q)
-				q = rule(name);
+				q = rule(t);
 			/* set %{@}; empty %{?}, %{^} and %{<} */
 			auto_making->value = q->name;
 			auto_updprev->value = empty;
 			auto_allprev->value = empty;
 			auto_prev->value = reduplicate(auto_prev->value, empty);
 			if (q->making)
-				report(state.strict < 3 ? 1 : 3, "rule already being made", name, NULL);
+				report(state.strict < 3 ? 1 : 3, "rule already being made", t, NULL);
 			else
 			{
 				/* make the target */
 				attributes(q, v);
-				if (q->flags & RULE_virtual)
-					clearout_bg(r, &st);
 				make(q, NULL);
 				if (q->pid)
 				{
@@ -2316,14 +2387,13 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 		case KEY('p','r','e','v'):
 		{
 			const int makp = (u[0] == 'm');
-			char *name = expand(buf, t);
-			q = getval(state.rules, name);
+			q = getval(state.rules, t);
 			if (!q && !makp && !state.strict)
-				rule(name); /* for backward compat */
+				rule(t); /* for backward compat */
 			else if (!q && (makp || state.strict < 4))
 			{
 				/* declare a simple source file prerequisite */
-				attributes(q = rule(name), v);
+				attributes(q = rule(t), v);
 				if (!(q->flags & RULE_virtual))
 				{
 					bindfile(q);
@@ -2337,14 +2407,14 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			else if (makp)
 			{
 				if (q->flags & RULE_made)
-					error_out(name, "rule already made");
+					error_out(t, "rule already made");
 			}
 			else if (!q)
-				error_out(name, "prev: rule not made");
+				error_out(t, "prev: rule not made");
 			else if (*v && state.strict)
 				error_out(v, "prev: attributes not allowed");
 			else if (q->making)
-				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", name, NULL);
+				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", t, NULL);
 			else
 			{	/* we may need to wait for it to finish processing */
 				reap(q, 0);
@@ -2368,7 +2438,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 						v++;
 					}
 				}
-				v = duplicate(expand(buf, v));
+				v = duplicate(v);
 				setval(state.vars, t, v);
 				if (strcmp(t, "MAMAKE_STRICT") == 0)
 					state.strict = *v ? atoi(v) : 1;
@@ -2384,7 +2454,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			state.shim = NULL;
 			/* add line of code to shim buffer */
 			if (*v)
-				append(state.shim_buf, expand(buf, v));
+				append(state.shim_buf, v);
 			add(state.shim_buf, '\n');
 			continue;
 
@@ -2404,6 +2474,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 		break;
 	}
 	drop(buf);
+	drop(line);
 	if (parentstate)
 	{
 		*parentstate = st;
@@ -2473,16 +2544,13 @@ static int update(Rule_t *r)
 
 	/* announce */
 	{
-		char    *p, *q;
-		size_t  n;
+		char    *p;
 		append(buf, state.pwd);
 		add(buf, '/');
 		append(buf, r->name);
-		p = use(buf);
 		/* show path relative to ${INSTALLROOT} */
-		q = getval(state.vars, "INSTALLROOT");
-		if (q && strncmp(p, q, n = strlen(q)) == 0)
-			p += n + 1;
+		if (strncmp(p = use(buf), state.installroot, state.installrootlen) == 0)
+			p += state.installrootlen + 1;
 		fprintf(stderr, "\n# ... %sing %s ...\n", testing ? "test" : "mak", p);
 		if (state.explain)
 			fprintf(stderr, "# reason: recursion\n");
@@ -2675,7 +2743,7 @@ int main(int argc, char **argv)
 	 * initialize the state
 	 */
 
-	state.id = "mamake";
+	state.id = argv[0];
 	state.active = 1;
 	state.exec = 1;
 	state.file = mamfile;
@@ -2927,6 +2995,10 @@ int main(int argc, char **argv)
 	}
 	if (!(state.installroot = getval(state.vars, "INSTALLROOT")) || *state.installroot != '/')
 		error_out("variable not defined", "INSTALLROOT");
+	state.installrootlen = strlen(state.installroot);
+	if (!(state.packageroot = getval(state.vars, "PACKAGEROOT")) || *state.packageroot != '/')
+		error_out("variable not defined", "PACKAGEROOT");
+	state.packagerootlen = strlen(state.packageroot);
 
 	/*
 	 * initialize the automatic variables

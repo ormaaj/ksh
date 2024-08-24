@@ -32,68 +32,71 @@ make install virtual
 	note * Header dependencies and feature tests
 	note *
 
-	make dlfcn.c
-		prev %{INCLUDE_AST}/error.h
-		make dlldefs.h
-			make FEATURE/dll
-				makp features/dll
-				exec - iffe %{IFFEFLAGS} -v -c \
-				exec -  '%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}' \
-				exec -	ref -I%{INCLUDE_AST} -I%{INSTALLROOT}/include \
-				exec -	%{mam_libdl} %{mam_libast} : run %{<}
+	make c_sources virtual
+		make dlfcn.c
+			prev %{INCLUDE_AST}/error.h
+			make dlldefs.h
+				make FEATURE/dll
+					makp features/dll
+					exec - iffe %{IFFEFLAGS} -v -c \
+					exec -  '%{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} %{LDFLAGS}' \
+					exec -	ref -I%{INCLUDE_AST} -I%{INSTALLROOT}/include \
+					exec -	%{mam_libdl} %{mam_libast} : run %{<}
+				done
+				exec - cp -f %{<} %{@}
 			done
-			exec - cp -f %{<} %{@}
+			prev %{INCLUDE_AST}/ast.h
 		done
-		prev %{INCLUDE_AST}/ast.h
-	done
-	make dllopen.c
-		make dlllib.h
+		make dllopen.c
+			make dlllib.h
+				prev %{INCLUDE_AST}/error.h
+				prev dlldefs.h
+				prev %{INCLUDE_AST}/ast.h
+			done
+		done
+		make dllfind.c
 			prev %{INCLUDE_AST}/error.h
 			prev dlldefs.h
 			prev %{INCLUDE_AST}/ast.h
 		done
-	done
-	make dllfind.c
-		prev %{INCLUDE_AST}/error.h
-		prev dlldefs.h
-		prev %{INCLUDE_AST}/ast.h
-	done
-	make dllplug.c
-		prev dlllib.h
-	done
-	make dll_lib.c
-		prev dlllib.h
-	done
-	make dllnext.c
-		prev dlldefs.h
-		prev %{INCLUDE_AST}/ast.h
-	done
-	make dlllook.c
-		prev dlldefs.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/ast.h
-	done
-	make dllscan.c
-		prev dlldefs.h
-		prev %{INCLUDE_AST}/fts.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/endian.h
-		prev %{INCLUDE_AST}/cdt.h
-		prev %{INCLUDE_AST}/ast.h
-	done
-	make dllcheck.c
-		prev dlllib.h
-	done
-	make dllerror.c
-		prev dlllib.h
-	done
+		make dllplug.c
+			prev dlllib.h
+		done
+		make dll_lib.c
+			prev dlllib.h
+		done
+		make dllnext.c
+			prev dlldefs.h
+			prev %{INCLUDE_AST}/ast.h
+		done
+		make dlllook.c
+			prev dlldefs.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/ast.h
+		done
+		make dllscan.c
+			prev dlldefs.h
+			prev %{INCLUDE_AST}/fts.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/endian.h
+			prev %{INCLUDE_AST}/cdt.h
+			prev %{INCLUDE_AST}/ast.h
+		done
+		make dllcheck.c
+			prev dlllib.h
+		done
+		make dllerror.c
+			prev dlllib.h
+		done
+		setv _c_source_files_ %{^}
+	done c_sources
 
 	note *
 	note * Make the library
 	note *
 
 	make libdll.a
-		loop OBJ dlfcn dllopen dllfind dllplug dll_lib dllnext dlllook dllscan dllcheck dllerror
+		loop OBJ %{_c_source_files_|sed 's/\.c$//'}
 			make %{OBJ}.o
 				prev %{OBJ}.c
 				exec - %{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} -I. -I%{INCLUDE_AST} -D_BLD_dll -c %{<}

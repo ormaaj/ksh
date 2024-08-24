@@ -303,684 +303,12 @@ make install virtual
 	done
 
 	note *
-	note * ksh93 C source (*.c) dependencies
+	note * non-libshell C source (*.c) dependencies
 	note *
 
 	make sh/pmain.c
 		prev FEATURE/externs
 		prev include/shell.h
-		prev shopt.h
-	done
-
-	make bltins/cd_pwd.c
-		prev include/test.h
-		prev %{INCLUDE_AST}/ls.h
-		prev include/builtins.h
-		prev include/name.h
-		prev include/path.h
-		prev include/variables.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/cflow.c
-		prev include/builtins.h
-		prev include/shnodes.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/ast.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/enum.c
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/getopts.c
-		prev include/builtins.h
-		prev include/nval.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/variables.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/hist.c
-		prev include/edit.h
-		prev include/builtins.h
-		prev include/history.h
-		prev include/name.h
-		prev include/io.h
-		prev include/variables.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/ls.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/misc.c
-		prev %{INCLUDE_AST}/times.h
-		prev FEATURE/time
-		prev FEATURE/locale
-		prev include/jobs.h
-		prev include/builtins.h
-		prev include/history.h
-		prev include/name.h
-		prev include/io.h
-		prev include/path.h
-		prev include/shnodes.h
-		prev include/variables.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/mkservice.c
-		prev %{INCLUDE_AST}/cmd.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/nval.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/print.c
-		prev %{INCLUDE_AST}/ccode.h
-		prev %{INCLUDE_AST}/tmx.h
-		prev include/streval.h
-		prev include/builtins.h
-		prev include/history.h
-		prev include/name.h
-		prev include/io.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/read.c
-		prev include/edit.h
-		prev include/terminal.h
-		prev include/history.h
-		prev include/builtins.h
-		prev include/name.h
-		prev include/io.h
-		prev include/lexstates.h
-		prev include/variables.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make bltins/sleep.c
-		prev FEATURE/poll
-		prev FEATURE/time
-		prev include/builtins.h
-		prev %{INCLUDE_AST}/tmx.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/trap.c
-		prev include/builtins.h
-		prev include/jobs.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/test.c
-		prev %{INCLUDE_AST}/tmx.h
-		prev FEATURE/poll
-		prev FEATURE/externs
-		prev include/builtins.h
-		prev include/test.h
-		prev include/terminal.h
-		prev include/io.h
-		prev %{INCLUDE_AST}/regex.h
-		prev %{INCLUDE_AST}/ls.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/typeset.c
-		prev FEATURE/dynamic
-		prev include/variables.h
-		prev include/builtins.h
-		prev include/history.h
-		prev include/name.h
-		prev include/path.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/ulimit.c
-		prev include/ulimit.h
-		prev include/name.h
-		prev include/builtins.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/sfio.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make bltins/umask.c
-		prev include/builtins.h
-		prev include/shell.h
-		prev %{INCLUDE_AST}/ls.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/sfio.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make bltins/whence.c
-		prev include/builtins.h
-		prev include/shlex.h
-		prev include/path.h
-		prev include/name.h
-		prev include/shtable.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/main.c
-		prev FEATURE/externs
-		prev FEATURE/time
-		prev include/timeout.h
-		prev include/history.h
-		prev include/shnodes.h
-		prev include/shlex.h
-		prev include/jobs.h
-		prev include/io.h
-		prev include/path.h
-		prev include/variables.h
-		prev include/defs.h
-		prev include/fcin.h
-		prev %{INCLUDE_AST}/ls.h
-		prev %{INCLUDE_AST}/sfio.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make sh/nvdisc.c
-		prev include/shlex.h
-		prev include/io.h
-		prev include/path.h
-		prev include/builtins.h
-		prev include/variables.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/nvtype.c
-		prev include/builtins.h
-		prev include/variables.h
-		prev include/io.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/arith.c
-		prev include/builtins.h
-		prev include/variables.h
-		prev include/streval.h
-		prev include/name.h
-		prev include/lexstates.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/args.c
-		prev include/io.h
-		prev include/shlex.h
-		prev FEATURE/poll
-		prev include/edit.h
-		prev include/terminal.h
-		prev include/builtins.h
-		prev include/jobs.h
-		prev include/path.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/array.c
-		prev include/name.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make edit/completion.c
-		prev include/history.h
-		prev include/edit.h
-		prev include/io.h
-		prev include/path.h
-		prev include/lexstates.h
-		prev %{INCLUDE_AST}/ast_wchar.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/defs.c
-		prev include/timeout.h
-		prev include/edit.h
-		prev include/shlex.h
-		prev include/jobs.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make edit/edit.c
-		prev include/shlex.h
-		prev include/edit.h
-		prev include/history.h
-		prev include/terminal.h
-		prev include/io.h
-		prev include/variables.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/ls.h
-		prev FEATURE/time
-		prev include/fault.h
-		prev %{INCLUDE_AST}/ccode.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make sh/expand.c
-		prev include/path.h
-		prev include/io.h
-		prev %{INCLUDE_AST}/ast_dir.h
-		prev %{INCLUDE_AST}/ls.h
-		prev %{INCLUDE_AST}/glob.h
-		prev %{INCLUDE_AST}/ast.h
-		prev include/test.h
-		prev include/variables.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make bltins/regress.c
-		prev %{INCLUDE_AST}/tmx.h
-		prev include/builtins.h
-		prev include/io.h
-		prev %{INCLUDE_AST}/ls.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/fault.c
-		prev include/ulimit.h
-		prev include/builtins.h
-		prev include/path.h
-		prev include/jobs.h
-		prev include/variables.h
-		prev include/shlex.h
-		prev include/history.h
-		prev include/io.h
-		prev include/fcin.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/fcin.c
-		prev include/fcin.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/sfio.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make edit/history.c
-		prev %{INCLUDE_AST}/stdio.h
-		prev include/history.h
-		prev include/io.h
-		prev include/builtins.h
-		prev include/path.h
-		prev include/variables.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/ls.h
-		prev %{INCLUDE_AST}/error.h
-		prev FEATURE/time
-		prev %{INCLUDE_AST}/sfio.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make sh/init.c
-		prev %{INCLUDE_AST}/wctype.h
-		prev %{INCLUDE_AST}/ast_wchar.h
-		prev include/version.h
-		prev include/lexstates.h
-		prev FEATURE/externs
-		prev FEATURE/dynamic
-		prev FEATURE/time
-		prev include/builtins.h
-		prev include/shlex.h
-		prev include/io.h
-		prev include/jobs.h
-		prev include/edit.h
-		prev include/name.h
-		prev include/fault.h
-		prev include/path.h
-		prev include/variables.h
-		prev %{INCLUDE_AST}/regex.h
-		prev %{INCLUDE_AST}/tmx.h
-		prev %{INCLUDE_AST}/ccode.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/io.c
-		prev %{INCLUDE_AST}/endian.h
-		prev FEATURE/poll
-		prev FEATURE/dynamic
-		prev FEATURE/externs
-		prev include/timeout.h
-		prev include/edit.h
-		prev include/history.h
-		prev include/shnodes.h
-		prev include/shlex.h
-		prev include/jobs.h
-		prev include/io.h
-		prev include/path.h
-		prev include/variables.h
-		prev %{INCLUDE_AST}/regex.h
-		prev %{INCLUDE_AST}/ls.h
-		prev include/fcin.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/jobs.c
-		prev include/history.h
-		prev include/jobs.h
-		prev include/io.h
-		prev %{INCLUDE_AST}/wait.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/lex.c
-		prev include/shlex.h
-		prev include/io.h
-		prev include/lexstates.h
-		prev include/test.h
-		prev include/argnod.h
-		prev include/shell.h
-		prev include/defs.h
-		prev include/nval.h
-		prev include/fcin.h
-		prev %{INCLUDE_AST}/releaseflags.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make sh/macro.c
-		prev include/streval.h
-		prev include/national.h
-		prev include/path.h
-		prev include/shnodes.h
-		prev include/jobs.h
-		prev include/io.h
-		prev include/shlex.h
-		prev include/variables.h
-		prev include/name.h
-		prev %{INCLUDE_AST}/regex.h
-		prev include/fcin.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/name.c
-		prev include/builtins.h
-		prev include/shnodes.h
-		prev include/streval.h
-		prev FEATURE/externs
-		prev include/timeout.h
-		prev include/lexstates.h
-		prev include/path.h
-		prev include/variables.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/nvtree.c
-		prev include/lexstates.h
-		prev include/argnod.h
-		prev include/name.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/parse.c
-		prev include/path.h
-		prev include/test.h
-		prev include/builtins.h
-		prev include/history.h
-		prev include/shlex.h
-		prev %{INCLUDE_AST}/error.h
-		prev include/fcin.h
-		prev include/shell.h
-		prev include/defs.h
-		prev include/version.h
-		prev shopt.h
-	done
-
-	make sh/path.c
-		prev FEATURE/time
-		prev %{INCLUDE_AST}/endian.h
-		prev FEATURE/dynamic
-		prev include/test.h
-		prev include/history.h
-		prev include/jobs.h
-		prev include/io.h
-		prev include/path.h
-		prev include/variables.h
-		prev include/nval.h
-		prev %{INCLUDE_AST}/ls.h
-		prev include/fcin.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/string.c
-		prev %{INCLUDE_AST}/wctype.h
-		prev include/national.h
-		prev include/lexstates.h
-		prev include/shtable.h
-		prev %{INCLUDE_AST}/ccode.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/lc.h
-		prev %{INCLUDE_AST}/ast_wchar.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make sh/streval.c
-		prev FEATURE/externs
-		prev %{INCLUDE_AST}/error.h
-		prev include/streval.h
-		prev shopt.h
-	done
-
-	make sh/subshell.c
-		prev include/path.h
-		prev include/variables.h
-		prev include/jobs.h
-		prev include/shlex.h
-		prev include/shnodes.h
-		prev include/fault.h
-		prev include/io.h
-		prev %{INCLUDE_AST}/ls.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/tdump.c
-		prev %{INCLUDE_AST}/ccode.h
-		prev include/io.h
-		prev include/path.h
-		prev include/shnodes.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/timers.c
-		prev FEATURE/time
-		prev include/defs.h
-		prev include/fault.h
-		prev %{INCLUDE_AST}/error.h
-		prev %{INCLUDE_AST}/sig.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make sh/trestore.c
-		prev %{INCLUDE_AST}/ccode.h
-		prev include/io.h
-		prev include/path.h
-		prev include/shnodes.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/waitevent.c
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make sh/xec.c
-		prev include/streval.h
-		prev FEATURE/locale
-		prev FEATURE/externs
-		prev FEATURE/time
-		prev include/builtins.h
-		prev include/test.h
-		prev include/jobs.h
-		prev include/shnodes.h
-		prev include/io.h
-		prev include/name.h
-		prev include/path.h
-		prev include/variables.h
-		prev include/fcin.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make data/limits.c
-		prev include/ulimit.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make data/msg.c
-		prev include/edit.h
-		prev include/jobs.h
-		prev include/builtins.h
-		prev include/history.h
-		prev include/timeout.h
-		prev include/shlex.h
-		prev include/io.h
-		prev include/path.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make data/testops.c
-		prev include/test.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make data/keywords.c
-		prev include/shlex.h
-		prev include/shell.h
-		prev shopt.h
-	done
-
-	make data/options.c
-		prev include/shtable.h
-		prev include/name.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make data/signals.c
-		prev include/jobs.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make data/aliases.c
-		prev FEATURE/dynamic
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make data/builtins.c
-		prev FEATURE/poll
-		prev FEATURE/cmds
-		prev include/jobs.h
-		prev include/builtins.h
-		prev include/version.h
-		prev include/name.h
-		prev include/ulimit.h
-		prev include/shtable.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make data/variables.c
-		prev include/builtins.h
-		prev include/variables.h
-		prev include/defs.h
-		prev include/name.h
-		prev include/shtable.h
-		prev include/shell.h
-		prev FEATURE/dynamic
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make data/lexstates.c
-		prev include/lexstates.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make edit/emacs.c
-		prev include/terminal.h
-		prev include/edit.h
-		prev include/history.h
-		prev include/io.h
-		prev include/defs.h
-		prev %{INCLUDE_AST}/releaseflags.h
-		prev %{INCLUDE_AST}/ast.h
-		prev shopt.h
-	done
-
-	make edit/vi.c
-		prev include/lexstates.h
-		prev FEATURE/time
-		prev include/terminal.h
-		prev include/edit.h
-		prev include/history.h
-		prev include/io.h
-		prev %{INCLUDE_AST}/ast.h
-		prev include/defs.h
-		prev shopt.h
-	done
-
-	make edit/hexpand.c
-		prev include/edit.h
-		prev include/defs.h
 		prev shopt.h
 	done
 
@@ -995,6 +323,687 @@ make install virtual
 	done
 
 	note *
+	note * libshell C source (*.c) dependencies
+	note * (except strdata.c -- see further below)
+	note *
+
+	make c_sources virtual
+		make bltins/cd_pwd.c
+			prev include/test.h
+			prev %{INCLUDE_AST}/ls.h
+			prev include/builtins.h
+			prev include/name.h
+			prev include/path.h
+			prev include/variables.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/cflow.c
+			prev include/builtins.h
+			prev include/shnodes.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/ast.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/enum.c
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/getopts.c
+			prev include/builtins.h
+			prev include/nval.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/variables.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/hist.c
+			prev include/edit.h
+			prev include/builtins.h
+			prev include/history.h
+			prev include/name.h
+			prev include/io.h
+			prev include/variables.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/ls.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/misc.c
+			prev %{INCLUDE_AST}/times.h
+			prev FEATURE/time
+			prev FEATURE/locale
+			prev include/jobs.h
+			prev include/builtins.h
+			prev include/history.h
+			prev include/name.h
+			prev include/io.h
+			prev include/path.h
+			prev include/shnodes.h
+			prev include/variables.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/mkservice.c
+			prev %{INCLUDE_AST}/cmd.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/nval.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/print.c
+			prev %{INCLUDE_AST}/ccode.h
+			prev %{INCLUDE_AST}/tmx.h
+			prev include/streval.h
+			prev include/builtins.h
+			prev include/history.h
+			prev include/name.h
+			prev include/io.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/read.c
+			prev include/edit.h
+			prev include/terminal.h
+			prev include/history.h
+			prev include/builtins.h
+			prev include/name.h
+			prev include/io.h
+			prev include/lexstates.h
+			prev include/variables.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make bltins/sleep.c
+			prev FEATURE/poll
+			prev FEATURE/time
+			prev include/builtins.h
+			prev %{INCLUDE_AST}/tmx.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/trap.c
+			prev include/builtins.h
+			prev include/jobs.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/test.c
+			prev %{INCLUDE_AST}/tmx.h
+			prev FEATURE/poll
+			prev FEATURE/externs
+			prev include/builtins.h
+			prev include/test.h
+			prev include/terminal.h
+			prev include/io.h
+			prev %{INCLUDE_AST}/regex.h
+			prev %{INCLUDE_AST}/ls.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/typeset.c
+			prev FEATURE/dynamic
+			prev include/variables.h
+			prev include/builtins.h
+			prev include/history.h
+			prev include/name.h
+			prev include/path.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/ulimit.c
+			prev include/ulimit.h
+			prev include/name.h
+			prev include/builtins.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/sfio.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make bltins/umask.c
+			prev include/builtins.h
+			prev include/shell.h
+			prev %{INCLUDE_AST}/ls.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/sfio.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make bltins/whence.c
+			prev include/builtins.h
+			prev include/shlex.h
+			prev include/path.h
+			prev include/name.h
+			prev include/shtable.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/main.c
+			prev FEATURE/externs
+			prev FEATURE/time
+			prev include/timeout.h
+			prev include/history.h
+			prev include/shnodes.h
+			prev include/shlex.h
+			prev include/jobs.h
+			prev include/io.h
+			prev include/path.h
+			prev include/variables.h
+			prev include/defs.h
+			prev include/fcin.h
+			prev %{INCLUDE_AST}/ls.h
+			prev %{INCLUDE_AST}/sfio.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make sh/nvdisc.c
+			prev include/shlex.h
+			prev include/io.h
+			prev include/path.h
+			prev include/builtins.h
+			prev include/variables.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/nvtype.c
+			prev include/builtins.h
+			prev include/variables.h
+			prev include/io.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/arith.c
+			prev include/builtins.h
+			prev include/variables.h
+			prev include/streval.h
+			prev include/name.h
+			prev include/lexstates.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/args.c
+			prev include/io.h
+			prev include/shlex.h
+			prev FEATURE/poll
+			prev include/edit.h
+			prev include/terminal.h
+			prev include/builtins.h
+			prev include/jobs.h
+			prev include/path.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/array.c
+			prev include/name.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make edit/completion.c
+			prev include/history.h
+			prev include/edit.h
+			prev include/io.h
+			prev include/path.h
+			prev include/lexstates.h
+			prev %{INCLUDE_AST}/ast_wchar.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/defs.c
+			prev include/timeout.h
+			prev include/edit.h
+			prev include/shlex.h
+			prev include/jobs.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make edit/edit.c
+			prev include/shlex.h
+			prev include/edit.h
+			prev include/history.h
+			prev include/terminal.h
+			prev include/io.h
+			prev include/variables.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/ls.h
+			prev FEATURE/time
+			prev include/fault.h
+			prev %{INCLUDE_AST}/ccode.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make sh/expand.c
+			prev include/path.h
+			prev include/io.h
+			prev %{INCLUDE_AST}/ast_dir.h
+			prev %{INCLUDE_AST}/ls.h
+			prev %{INCLUDE_AST}/glob.h
+			prev %{INCLUDE_AST}/ast.h
+			prev include/test.h
+			prev include/variables.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make bltins/regress.c
+			prev %{INCLUDE_AST}/tmx.h
+			prev include/builtins.h
+			prev include/io.h
+			prev %{INCLUDE_AST}/ls.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/fault.c
+			prev include/ulimit.h
+			prev include/builtins.h
+			prev include/path.h
+			prev include/jobs.h
+			prev include/variables.h
+			prev include/shlex.h
+			prev include/history.h
+			prev include/io.h
+			prev include/fcin.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/fcin.c
+			prev include/fcin.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/sfio.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make edit/history.c
+			prev %{INCLUDE_AST}/stdio.h
+			prev include/history.h
+			prev include/io.h
+			prev include/builtins.h
+			prev include/path.h
+			prev include/variables.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/ls.h
+			prev %{INCLUDE_AST}/error.h
+			prev FEATURE/time
+			prev %{INCLUDE_AST}/sfio.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make sh/init.c
+			prev %{INCLUDE_AST}/wctype.h
+			prev %{INCLUDE_AST}/ast_wchar.h
+			prev include/version.h
+			prev include/lexstates.h
+			prev FEATURE/externs
+			prev FEATURE/dynamic
+			prev FEATURE/time
+			prev include/builtins.h
+			prev include/shlex.h
+			prev include/io.h
+			prev include/jobs.h
+			prev include/edit.h
+			prev include/name.h
+			prev include/fault.h
+			prev include/path.h
+			prev include/variables.h
+			prev %{INCLUDE_AST}/regex.h
+			prev %{INCLUDE_AST}/tmx.h
+			prev %{INCLUDE_AST}/ccode.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/io.c
+			prev %{INCLUDE_AST}/endian.h
+			prev FEATURE/poll
+			prev FEATURE/dynamic
+			prev FEATURE/externs
+			prev include/timeout.h
+			prev include/edit.h
+			prev include/history.h
+			prev include/shnodes.h
+			prev include/shlex.h
+			prev include/jobs.h
+			prev include/io.h
+			prev include/path.h
+			prev include/variables.h
+			prev %{INCLUDE_AST}/regex.h
+			prev %{INCLUDE_AST}/ls.h
+			prev include/fcin.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/jobs.c
+			prev include/history.h
+			prev include/jobs.h
+			prev include/io.h
+			prev %{INCLUDE_AST}/wait.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/lex.c
+			prev include/shlex.h
+			prev include/io.h
+			prev include/lexstates.h
+			prev include/test.h
+			prev include/argnod.h
+			prev include/shell.h
+			prev include/defs.h
+			prev include/nval.h
+			prev include/fcin.h
+			prev %{INCLUDE_AST}/releaseflags.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make sh/macro.c
+			prev include/streval.h
+			prev include/national.h
+			prev include/path.h
+			prev include/shnodes.h
+			prev include/jobs.h
+			prev include/io.h
+			prev include/shlex.h
+			prev include/variables.h
+			prev include/name.h
+			prev %{INCLUDE_AST}/regex.h
+			prev include/fcin.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/name.c
+			prev include/builtins.h
+			prev include/shnodes.h
+			prev include/streval.h
+			prev FEATURE/externs
+			prev include/timeout.h
+			prev include/lexstates.h
+			prev include/path.h
+			prev include/variables.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/nvtree.c
+			prev include/lexstates.h
+			prev include/argnod.h
+			prev include/name.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/parse.c
+			prev include/path.h
+			prev include/test.h
+			prev include/builtins.h
+			prev include/history.h
+			prev include/shlex.h
+			prev %{INCLUDE_AST}/error.h
+			prev include/fcin.h
+			prev include/shell.h
+			prev include/defs.h
+			prev include/version.h
+			prev shopt.h
+		done
+
+		make sh/path.c
+			prev FEATURE/time
+			prev %{INCLUDE_AST}/endian.h
+			prev FEATURE/dynamic
+			prev include/test.h
+			prev include/history.h
+			prev include/jobs.h
+			prev include/io.h
+			prev include/path.h
+			prev include/variables.h
+			prev include/nval.h
+			prev %{INCLUDE_AST}/ls.h
+			prev include/fcin.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/string.c
+			prev %{INCLUDE_AST}/wctype.h
+			prev include/national.h
+			prev include/lexstates.h
+			prev include/shtable.h
+			prev %{INCLUDE_AST}/ccode.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/lc.h
+			prev %{INCLUDE_AST}/ast_wchar.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make sh/streval.c
+			prev FEATURE/externs
+			prev %{INCLUDE_AST}/error.h
+			prev include/streval.h
+			prev shopt.h
+		done
+
+		make sh/subshell.c
+			prev include/path.h
+			prev include/variables.h
+			prev include/jobs.h
+			prev include/shlex.h
+			prev include/shnodes.h
+			prev include/fault.h
+			prev include/io.h
+			prev %{INCLUDE_AST}/ls.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/tdump.c
+			prev %{INCLUDE_AST}/ccode.h
+			prev include/io.h
+			prev include/path.h
+			prev include/shnodes.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/timers.c
+			prev FEATURE/time
+			prev include/defs.h
+			prev include/fault.h
+			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/sig.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make sh/trestore.c
+			prev %{INCLUDE_AST}/ccode.h
+			prev include/io.h
+			prev include/path.h
+			prev include/shnodes.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/waitevent.c
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make sh/xec.c
+			prev include/streval.h
+			prev FEATURE/locale
+			prev FEATURE/externs
+			prev FEATURE/time
+			prev include/builtins.h
+			prev include/test.h
+			prev include/jobs.h
+			prev include/shnodes.h
+			prev include/io.h
+			prev include/name.h
+			prev include/path.h
+			prev include/variables.h
+			prev include/fcin.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make data/limits.c
+			prev include/ulimit.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make data/msg.c
+			prev include/edit.h
+			prev include/jobs.h
+			prev include/builtins.h
+			prev include/history.h
+			prev include/timeout.h
+			prev include/shlex.h
+			prev include/io.h
+			prev include/path.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make data/testops.c
+			prev include/test.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make data/keywords.c
+			prev include/shlex.h
+			prev include/shell.h
+			prev shopt.h
+		done
+
+		make data/options.c
+			prev include/shtable.h
+			prev include/name.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make data/signals.c
+			prev include/jobs.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make data/aliases.c
+			prev FEATURE/dynamic
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make data/builtins.c
+			prev FEATURE/poll
+			prev FEATURE/cmds
+			prev include/jobs.h
+			prev include/builtins.h
+			prev include/version.h
+			prev include/name.h
+			prev include/ulimit.h
+			prev include/shtable.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make data/variables.c
+			prev include/builtins.h
+			prev include/variables.h
+			prev include/defs.h
+			prev include/name.h
+			prev include/shtable.h
+			prev include/shell.h
+			prev FEATURE/dynamic
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make data/lexstates.c
+			prev include/lexstates.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make edit/emacs.c
+			prev include/terminal.h
+			prev include/edit.h
+			prev include/history.h
+			prev include/io.h
+			prev include/defs.h
+			prev %{INCLUDE_AST}/releaseflags.h
+			prev %{INCLUDE_AST}/ast.h
+			prev shopt.h
+		done
+
+		make edit/vi.c
+			prev include/lexstates.h
+			prev FEATURE/time
+			prev include/terminal.h
+			prev include/edit.h
+			prev include/history.h
+			prev include/io.h
+			prev %{INCLUDE_AST}/ast.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		make edit/hexpand.c
+			prev include/edit.h
+			prev include/defs.h
+			prev shopt.h
+		done
+
+		setv _libshell_c_sources_ %{^}
+	done c_sources
+
+	note *
 	note * Set common compiler invocation arguments
 	note *
 
@@ -1005,30 +1014,9 @@ make install virtual
 	note *
 
 	make libshell.a
-		loop OBJ args arith array defs expand fault fcin init io jobs lex macro main name nvdisc nvtree nvtype parse path streval string subshell tdump timers trestore waitevent xec
-			make %{OBJ}.o
-				prev sh/%{OBJ}.c
-				exec - %{compile} %{<}
-			done
-		done
-
-		loop OBJ cd_pwd cflow enum getopts hist misc mkservice print read regress sleep test trap typeset ulimit umask whence
-			make %{OBJ}.o
-				prev bltins/%{OBJ}.c
-				exec - %{compile} %{<}
-			done
-		done
-
-		loop OBJ completion edit emacs hexpand history vi
-			make %{OBJ}.o
-				prev edit/%{OBJ}.c
-				exec - %{compile} %{<}
-			done
-		done
-
-		loop OBJ aliases builtins keywords lexstates limits msg options signals testops variables
-			make %{OBJ}.o
-				prev data/%{OBJ}.c
+		loop SRC %{_libshell_c_sources_}
+			make %{SRC@basename -- "$1" .c}.o
+				prev %{SRC}
 				exec - %{compile} %{<}
 			done
 		done

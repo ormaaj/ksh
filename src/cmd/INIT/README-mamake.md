@@ -121,11 +121,34 @@ The last `?` is optional.
 
 In `%{`*variable*`-`*x*`}`, the value of *variable* is substituted
 if it is defined and non-empty, otherwise *x* is substituted.
+This expansion type is disabled for *variable* names starting with `-`.
 In `%{`*variable*`+`*x*`}`, *x* is substituted if the value of
 *variable* is defined and non-empty, otherwise the reference is removed.
 In both cases, *x* may be empty.
 Note that, unlike in `sh`(1), no distinction is made between an undefined
 variable and a defined variable with an empty value.
+
+In `%{`*variable*`|`*s*`}`, the value of *variable* is split into fields by
+whitespace and the one-line `sh`(1) script *s* is executed with each field
+written as a separate line to its standard input. The value of the expansion
+is the output of *s* with each newline changed back into a space, except
+that a terminating newline (if any) is discarded.
+This mechanism allows easy editing of variable values containing multiple
+pathnames using line-oriented utilities thet read from standard input,
+such as `sed`(1) or `grep`(1).
+For example, if the automatic variable `%{^}` (see below) contains `foo.c
+bar.c baz.c`, then `%{^|sed 's/\.c$//'}` yields `foo bar baz`.
+
+In `%{`*variable*`@`*s*`}`, the value of *variable* is split into fields by
+whitespace and each field becomes a positional parameter (starting at `$1`)
+in the one-line `sh`(1) script *s*. The value of the expansion is the output
+of *s* with each newline converted into a space, except that a terminating
+newline (if any) is discarded.
+This allows easy processing of one or more pathnames using shell commands
+that take arguments, such as `basename`(1) or `printf`(1), or shell loops.
+For example, if the value of `SRC` is `/dir/path/foo.c`, then
+`%{SRC@basenanme -- "$1" .c}.o` yields `foo.o`
+(any subsequent fields would be discarded in this case).
 
 ### Automatic variables ###
 
@@ -214,8 +237,8 @@ The following *attribute*s are available:
 * `notrace`: Disables echoing (xtrace) of shell action commands.
   This does not disable the trace header for the containing rule (see *Shell actions* below).
 * `virtual`: Marks a rule that is not associated with any file.
-  The associated shell action is executed every time the rule is processed.
-  It will not run in parallel with other jobs even if the `-j` option was given.
+  Its associated shell action (if any) is executed every time the rule is processed.
+  It will not run in parallel with subsequent shell actions even if the `-j` option was given.
   By convention, a virtual rule with target `install` performs pre-installation.
 
 > *Obsolete:*
@@ -437,7 +460,6 @@ Cross-directory dependencies on AST library headers (preinstalled in
 `$INSTALLROOT/include/ast`) are similarly communicated via a file with
 the path `%{INSTALLROOT}/lib/mam/`*libraryname*.
 The `bind` command automatically includes this file as necessary.
-Note that this may have side effects on the automatic variables.
 The `INIT` package preinstalls the `mkdeps` script that Mamfile shell
 actions should use to generate this file while building each library.
 The generated file is expected to:
@@ -484,7 +506,7 @@ Each `make`…`done` command containing a shell action (i.e., one or more
 `mamake` continuing to process subsequent shell actions at the same or
 deeper nesting levels before the current one has finished.
 There is one exception to this: shell actions belonging to rules with the
-attribute `virtual` never run in parallel (although their subrules will).
+attribute `virtual` will not run in parallel with subsequent shell actions.
 
 Each `done` command corresponding to a `make` rule will block any further
 reading of the Mamfile until all shell actions belonging to rules nested
@@ -532,6 +554,10 @@ maintain Mamfiles by hand. The following lists the important changes.
   and confusion with the shell's `${` syntax in shell actions.
 * The `makp` command may be used instead of an empty `make`…`done`
   block to declare a simple prerequisite with optional attributes.
+* The special expansion syntaxes `%{`*variable*`|`*sh-script*`}` and
+  `%{`*variable*`@`*sh-script*`}` have been added, allowing the editing of
+  variable value fields written to the script's standard input as lines or
+  passed as positional parameters.
 * **At strict level 1 and up:**
     * Appending attributes to `done` instead of `make` is deprecated
       and produces a warning.

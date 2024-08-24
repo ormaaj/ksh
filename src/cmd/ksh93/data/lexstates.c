@@ -738,6 +738,7 @@ const char e_unmatched[]	= "`%s' unmatched";
 const char e_emptysubscr[]	= "[]: empty subscript";
 const char e_badreflist[]	= "invalid reference list";
 const char e_heredoccomsub[]	= "`<<%s' here-document not contained within command substitution";
+const char e_lexzerobyte[]	= "zero byte";
 const char e_endoffile[]	= "end of file";
 const char e_newline[]		= "newline";
 
@@ -758,7 +759,6 @@ const char e_lexnested[]	= "line %d: spaces required for nested subshell";
 const char e_lexbadchar[]	= "%c: invalid character in expression - %s";
 const char e_lexfuture[]	= "line %d: \\ in front of %c reserved for future use";
 const char e_lexlongquote[]	= "line %d: %c quote may be missing";
-const char e_lexzerobyte[]	= "zero byte";
 const char e_lexemptyfor[]	= "line %d: empty for list";
 const char e_lextypeset[]	= "line %d: %s invalid typeset option order";
 const char e_lexcharclass[]	= "line %d: '^' as first character in character class not portable";

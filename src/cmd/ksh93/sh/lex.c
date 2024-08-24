@@ -2134,16 +2134,10 @@ noreturn void sh_syntax(Lex_t *lp, int special)
 		sfprintf(sh.strbuf, sh_translate(e_badreflist));
 	else if (special==3)
 		sfprintf(sh.strbuf, sh_translate(e_heredoccomsub), lp->heredoc->ioname);
+	else if (eof)
+		sfprintf(sh.strbuf, sh_translate(e_unmatched), fmttoken(lp, lp->lasttok));
 	else
-	{
-		const char *msg;
-		int tok;
-		if (eof)
-			tok = lp->lasttok, msg = sh_translate(e_unmatched);
-		else
-			tok = lp->token, msg = sh_translate(e_unexpected);
-		sfprintf(sh.strbuf, msg, fmttoken(lp, tok));
-	}
+		sfprintf(sh.strbuf, sh_translate(e_unexpected), fmttoken(lp, lp->token));
 	errormsg(SH_DICT, ERROR_exit(SYNBAD), "%s", sfstruse(sh.strbuf));
 	UNREACHABLE();
 }

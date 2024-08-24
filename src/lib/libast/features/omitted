@@ -33,7 +33,7 @@ tst	note{ check for Win32 .exe botches }end output{
 		struct stat	st;
 		char		buf[256];
 
-		snprintf(buf, sizeof(buf), "rm -rf /tmp/iff-%d", getpid());
+		snprintf(buf, sizeof(buf), "rm -rf .iff-%d", getpid());
 		if (_mkdir(buf+7, 0755))
 			return 1;
 		if (_chdir(buf+7))
@@ -76,7 +76,7 @@ tst	note{ check for Win32 .exe botches }end output{
 			printf("#define _win32_botch_execve	1\n");
 			printf("#define _win32_botch	1\n");
 		}
-		_chdir("/tmp");
+		_chdir("..");
 		system(buf);
 		return 0;
 	}

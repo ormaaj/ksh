@@ -137,6 +137,7 @@ extern const char e_unmatched[];
 extern const char e_emptysubscr[];
 extern const char e_badreflist[];
 extern const char e_heredoccomsub[];
+extern const char e_lexzerobyte[];
 extern const char e_endoffile[];
 extern const char e_newline[];
 
@@ -156,7 +157,6 @@ extern const char e_lexnested[];
 extern const char e_lexbadchar[];
 extern const char e_lexlongquote[];
 extern const char e_lexfuture[];
-extern const char e_lexzerobyte[];
 extern const char e_lexemptyfor[];
 extern const char e_lextypeset[];
 extern const char e_lexcharclass[];

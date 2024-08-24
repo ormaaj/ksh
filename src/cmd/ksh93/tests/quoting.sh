@@ -394,7 +394,6 @@ do	[[ $e == [0-9]* ]] && i=$e && continue
 			done
 		done
 	done
-	((i+=2))
 done
 
 # ======

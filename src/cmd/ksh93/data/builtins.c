@@ -47,7 +47,6 @@
 
 #undef	basename
 #undef	dirname
-#undef	mktemp		/* undo possible map-libc mktemp => _ast_mktemp */
 
 /*
  * IMPORTANT: The order of these struct members must be synchronous

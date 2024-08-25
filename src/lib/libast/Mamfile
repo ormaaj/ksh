@@ -133,11 +133,6 @@ make install virtual
 		exec - invoke_iffe %{<}
 	done
 
-	make FEATURE/options
-		makp features/options
-		exec - invoke_iffe %{<}
-	done
-
 	note * sig.h: AST replacement for <signal.h>
 	make FEATURE/sig
 		makp features/sig.sh
@@ -186,11 +181,6 @@ make install virtual
 	make ast_map.h
 		make FEATURE/map
 			make features/map.c
-				prev sig.h
-				prev FEATURE/api
-				prev FEATURE/eaccess
-				prev FEATURE/options
-				prev FEATURE/mmap
 				prev FEATURE/lib
 			done
 			exec - invoke_iffe %{<} -I.

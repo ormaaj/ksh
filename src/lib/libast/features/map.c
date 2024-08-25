@@ -36,6 +36,13 @@
 #define _map_libc	1
 #endif
 
+/*
+ * NOTE: for conditionally compiled AST functions, the preprocessor directives below
+ * must be kept in sync with the directives in the corresponding C source files, so
+ * that the rename is not done if the AST version of the function is not compiled
+ * in; otherwise a build with _map_libc defined will fail with linking errors.
+ */
+
 int
 main(void)
 {
@@ -110,8 +117,10 @@ main(void)
 	printf("#undef	sigunblock\n");
 	printf("#define sigunblock      _ast_sigunblock\n");
 #if _map_libc
+#if !_lib_memdup
 	printf("#undef	memdup\n");
 	printf("#define memdup		_ast_memdup\n");
+#endif
 	printf("#undef	memhash\n");
 	printf("#define memhash		_ast_memhash\n");
 	printf("#undef	memsum\n");
@@ -158,6 +167,8 @@ main(void)
 	printf("#define pathfind	_ast_pathfind\n");
 	printf("#undef	pathgetlink\n");
 	printf("#define pathgetlink	_ast_pathgetlink\n");
+	printf("#undef	pathicase\n");
+	printf("#define pathicase	_ast_pathicase\n");
 	printf("#undef	pathinclude\n");
 	printf("#define pathinclude	_ast_pathinclude\n");
 	printf("#undef	pathkey\n");
@@ -251,21 +262,27 @@ main(void)
 	printf("#undef	regsubfree\n");
 	printf("#define regsubfree	_ast_regsubfree\n");
 #if _map_libc
+#if !(_std_remove || !_lib_unlink)
 	printf("#undef	remove\n");
 	printf("#define remove		_ast_remove\n");
 	printf("extern int		remove(const char*);\n");
+#endif
 	printf("#undef	resolvepath\n");
 	printf("#define resolvepath	_ast_resolvepath\n");
 	printf("extern int		resolvepath(const char*, char*, size_t);\n");
+#if !_lib_setenv
 	printf("#undef	setenv\n");
 	printf("#define setenv		_ast_setenv\n");
 	printf("extern int		setenv(const char*, const char*, int);\n");
+#endif
 	printf("#undef	setenviron\n");
 	printf("#define setenviron      _ast_setenviron\n");
 	printf("#undef	sigcritical\n");
 	printf("#define sigcritical      _ast_sigcritical\n");
+#if !_lib_stracmp
 	printf("#undef	stracmp\n");
 	printf("#define stracmp		_ast_stracmp\n");
+#endif
 	printf("#undef	strcopy\n");
 	printf("#define strcopy		_ast_strcopy\n");
 	printf("#undef	strelapsed\n");
@@ -288,12 +305,16 @@ main(void)
 	printf("#define strhash		_ast_strhash\n");
 	printf("#undef	strkey\n");
 	printf("#define strkey		_ast_strkey\n");
+#if !_lib_strlcat
 	printf("#undef	strlcat\n");
 	printf("#define strlcat		_ast_strlcat\n");
 	printf("extern size_t		strlcat(char*, const char*, size_t);\n");
+#endif
+#if !_lib_strlcpy
 	printf("#undef	strlcpy\n");
 	printf("#define strlcpy		_ast_strlcpy\n");
 	printf("extern size_t		strlcpy(char*, const char*, size_t);\n");
+#endif
 	printf("#undef	strlook\n");
 	printf("#define strlook		_ast_strlook\n");
 	printf("#undef	strmatch\n");
@@ -304,8 +325,10 @@ main(void)
 	printf("#define strmode		_ast_strmode\n");
 #endif
 #if _map_libc
+#if !_lib_strnacmp
 	printf("#undef	strnacmp\n");
 	printf("#define strnacmp	_ast_strnacmp\n");
+#endif
 	printf("#undef	strncopy\n");
 	printf("#define strncopy	_ast_strncopy\n");
 	printf("#undef	strntod\n");
@@ -365,8 +388,10 @@ main(void)
 	printf("#define wordexp		_ast_wordexp\n");
 	printf("#undef	wordfree\n");
 	printf("#define wordfree	_ast_wordfree\n");
+#if !_lib_unsetenv
 	printf("#undef	unsetenv\n");
 	printf("#define unsetenv	_ast_unsetenv\n");
+#endif
 #endif
 	/* we always use the libast strdup implementation */
 	printf("#undef	strdup\n");
@@ -472,11 +497,9 @@ main(void)
 		do
 		{
 			for (s = t; *t && *t != ' '; t++);
-			printf("#define %-.*s	_ast_%-.*s\n", t - s, s, t - s, s);
+			printf("#define %-.*s	_ast_%-.*s\n", (int)(t - s), s, (int)(t - s), s);
 		} while (*t++);
 	}
 #endif
-	printf("\n");
-	printf("#undef	extern\n");
 	return 0;
 }

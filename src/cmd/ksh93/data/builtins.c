@@ -47,6 +47,7 @@
 
 #undef	basename
 #undef	dirname
+#undef	mktemp		/* undo possible map-libc mktemp => _ast_mktemp */
 
 /*
  * IMPORTANT: The order of these struct members must be synchronous
@@ -126,7 +127,6 @@ const struct shtable3 shtab_builtins[] =
 	"type",		NV_BLTIN|BLT_ENV,		bltin(whence),
 	"whence",	NV_BLTIN|BLT_ENV,		bltin(whence),
 #ifdef SHOPT_CMDLIB_HDR
-#undef	mktemp		/* undo possible map-libc mktemp => _ast_mktemp */
 #include SHOPT_CMDLIB_HDR
 #else
 #if SHOPT_ALL_LIBCMD

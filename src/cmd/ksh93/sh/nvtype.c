@@ -1354,30 +1354,6 @@ int nv_settype(Namval_t* np, Namval_t *tp, int flags)
 	return 0;
 }
 
-#define S(x)	#x
-#define FIELD(x,y)	{ S(y##x),	S(x##_t), offsetof(struct stat,st_##y##x) }
-typedef struct _field_
-{
-	char	*name;
-	char	*type;
-	int	offset;
-} Fields_t;
-
-Fields_t foo[]=
-{
-	FIELD(dev,),
-	FIELD(ino,),
-	FIELD(nlink,),
-	FIELD(mode,),
-	FIELD(uid,),
-	FIELD(gid,),
-	FIELD(size,),
-	FIELD(time,a),
-	FIELD(time,m),
-	FIELD(time,c),
-	0
-}; 
-
 static void write_indent(Sfio_t *out,char *str,int n,int indent)
 {
 	int	c, first=1;

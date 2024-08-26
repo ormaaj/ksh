@@ -152,13 +152,13 @@ static void lex_advance(Sfio_t *iop, const char *buff, int size, void *context)
 	{
 		size -= (lp->lexd.first-(char*)buff);
 		buff = lp->lexd.first;
-		if(!lp->lexd.noarg)
+		if(!lp->lexd.inlexskip)
 			lp->arg = stkseek(sh.stk,ARGVAL);
 #if SHOPT_KIA
 		lp->lexd.kiaoff += ARGVAL;
 #endif /* SHOPT_KIA */
 	}
-	if(size>0 && (lp->arg||lp->lexd.noarg))
+	if(size>0 && (lp->arg||lp->lexd.inlexskip))
 	{
 		sfwrite(sh.stk,buff,size);
 		lp->lexd.first = 0;
@@ -346,7 +346,7 @@ int sh_lex(Lex_t* lp)
 				/* end-of-file */
 				if(mode==ST_BEGIN)
 					return lp->token=EOFSYM;
-				if(mode >ST_NORM && lp->lexd.level>0)
+				if(mode >ST_NORM && lp->lexd.level>0 && !lp->lexd.inlexskip)
 				{
 					switch(c=endchar(lp))
 					{
@@ -708,7 +708,7 @@ int sh_lex(Lex_t* lp)
 				mode = ST_NORM;
 				continue;
 			case S_LIT:
-				if(oldmode(lp)==ST_NONE && !lp->lexd.noarg)	/* in ((...)) */
+				if(oldmode(lp)==ST_NONE && !lp->lexd.inlexskip)	/* in ((...)) */
 				{
 					if((c=fcpeek(0))==LPAREN || c==RPAREN || c=='$' || c==LBRACE || c==RBRACE || c=='[' || c==']')
 					{
@@ -1743,13 +1743,13 @@ void sh_lexskip(Lex_t *lp,int close, int copy, int  state)
 	char	*cp;
 	lp->lexd.nest = close;
 	lp->lexd.lex_state = state;
-	lp->lexd.noarg = 1;
+	lp->lexd.inlexskip = 1;
 	if(copy)
 		fcnotify(lex_advance,lp);
 	else
 		lp->lexd.nocopy++;
 	sh_lex(lp);
-	lp->lexd.noarg = 0;
+	lp->lexd.inlexskip = 0;
 	if(copy)
 	{
 		fcnotify(0,lp);

@@ -70,4 +70,16 @@ exp=a1xb1xc1x
 [[ $got == "$exp" ]] || err_exit "'continue 3' broken (expected '$exp', got '$got')"
 
 # ======
+# arithmetic for
+
+got=$(eval 'for((i=0,i<10,i++)); do :; done' 2>&1)
+exp=': syntax error at line 1: `))'\'' unexpected'
+[[ $got == *"$exp" ]] || err_exit "arithmetic for syntax error" \
+	"(expected match of *$(printf %q "$exp"), got $(printf %q "$got"))"
+got=$(eval 'for(())' 2>&1)
+exp=': syntax error at line 1: `))'\'' unexpected'
+[[ $got == *"$exp" ]] || err_exit "arithmetic for syntax error" \
+	"(expected match of *$(printf %q "$exp"), got $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

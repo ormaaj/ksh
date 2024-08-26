@@ -52,7 +52,7 @@ struct _shlex_pvt_lexdata_
 	char		docword;
 	char		nested_tilde;
 	char 		*docend;
-	char		noarg;
+	char		inlexskip;	/* set when sh_lex() is called from sh_lexskip() */
 	char		warn;
 	char		message;
 	char		arith;

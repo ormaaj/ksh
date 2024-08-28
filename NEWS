@@ -2,6 +2,11 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-08-28:
+
+- Fixed a crash that occurred for an arithmetic 'for' that has two instead of
+  three ';'-separated expressions. The expected syntax error is now given.
+
 2024-08-26:
 
 - Fixed an infinite loop that occurred when a syntax error was thrown

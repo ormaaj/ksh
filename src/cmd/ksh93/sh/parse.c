@@ -757,7 +757,7 @@ static Shnode_t	*arithfor(Lex_t *lexp,Shnode_t *tf)
 		/* copy up to ; onto the stack */
 		sh_lexskip(lexp,';',1,ST_NESTED);
 		offset = stktell(sh.stk)-1;
-		if((c=fcpeek(-1))!=';')
+		if(!lexp->token)
 			break;
 		/* remove trailing white space */
 		while(offset>ARGVAL && ((c= *stkptr(sh.stk,offset-1)),isspace(c)))

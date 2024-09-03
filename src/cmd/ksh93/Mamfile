@@ -118,11 +118,6 @@ make install virtual
 		exec -			-zutalors)
 		exec -				writedef PRINTF_LEGACY 1 ;;
 		exec -			esac ;;
-		exec -		'SYSRC=')
-		exec -			# if one of these exists, make SHOPT_SYSRC load /etc/ksh.kshrc by default
-		exec -			if	test -f /etc/ksh.kshrc || test -f /etc/bash.bashrc
-		exec -			then	writedef SYSRC 1
-		exec -			fi ;;
 		exec -		# some other SHOPTs may be probed for using feature tests in features/options
 		exec -		*=?*)
 		exec -			writedef "$n" "$v" ;;

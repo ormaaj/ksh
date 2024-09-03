@@ -154,9 +154,8 @@ The options have the following defaults and meanings:
 
     STATS        on  Add .sh.stats compound variable.
 
-    SYSRC            Source /etc/ksh.kshrc on initializing an interactive
-                     shell. This is on by default if /etc/ksh.kshrc or
-                     /etc/bash.bashrc exists at compile time.
+    SYSRC        on  Source /etc/ksh.kshrc on initializing an interactive
+                     shell.
 
     TEST_L           Add 'test -l' as an alias for 'test -L'. This is on by
                      default if the OS's external 'test' command supports it.

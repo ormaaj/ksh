@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-08-24"
+#define RELEASE_DATE "2024-09-94"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -892,7 +892,7 @@ static void substitute(Buf_t *buf, char *s)
 	int	valid_sh_name;	/* if set, the variable name is valid in sh(1) */
 	int	newexp;		/* if set, %{...}, otherwise ${...} */
 	char	*vnterm;	/* pointer to byte following variable name */
-	char	**argv;		/* argument list for %{var^arbitrary sh(1) commands} */
+	char	**argv;		/* argument list for %{variable@sh script} */
 
 	while (c = *s++)
 	{
@@ -1069,7 +1069,7 @@ static void substitute(Buf_t *buf, char *s)
 						add(scr, '<'), append(scr, in);
 					add(scr, '>'), append(scr, out), add(scr, '\n');
 					n = *s, *s = 0;  /* change final '}' to string terminator */
-					append(scr, t);
+					substitute(scr, t);
 					q = use(scr);
 					if ((argv ? (argv[2] = q, execute_v(NULL, argv)) : execute(NULL, q)) != 0)
 						error_out("expansion script error", t);

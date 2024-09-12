@@ -38,6 +38,24 @@ exec - echo __NoT_DeFiNeD__.COMPONENT ${__NoT_DeFiNeD__.COMPONENT}
 exec - echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VAL'\
 $'UE]}
 
+exec - echo @not_valid_in_sh ${@not_valid_in_sh}
+exec - echo @not_valid_in_sh:VALUE ${@not_valid_in_sh:VALUE}
+exec - echo @not_valid_in_sh:-VALUE ${@not_valid_in_sh:-VALUE}
+exec - echo @not_valid_in_sh=VALUE ${@not_valid_in_sh=VALUE}
+exec - echo @not_valid_in_sh[VALUE] ${@not_valid_in_sh[VALUE]}
+exec - echo @not_valid_in_sh.COMPONENT ${@not_valid_in_sh.COMPONENT}
+exec - echo @not_valid_in_sh.COMPONENT[VALUE] ${@not_valid_in_sh.COMPONENT[V'\
+$'ALUE]}
+
+exec - echo not@valid@in@sh ${not@valid@in@sh}
+exec - echo not@valid@in@sh:VALUE ${not@valid@in@sh:VALUE}
+exec - echo not@valid@in@sh:-VALUE ${not@valid@in@sh:-VALUE}
+exec - echo not@valid@in@sh=VALUE ${not@valid@in@sh=VALUE}
+exec - echo not@valid@in@sh[VALUE] ${not@valid@in@sh[VALUE]}
+exec - echo not@valid@in@sh.COMPONENT ${not@valid@in@sh.COMPONENT}
+exec - echo not@valid@in@sh.COMPONENT[VALUE] ${not@valid@in@sh.COMPONENT[VAL'\
+$'UE]}
+
 done all'
 		OUTPUT - $'echo DEFINED defined
 echo DEFINED:VALUE 
@@ -59,8 +77,22 @@ echo __NoT_DeFiNeD__:-VALUE ${__NoT_DeFiNeD__:-VALUE}
 echo __NoT_DeFiNeD__=VALUE ${__NoT_DeFiNeD__=VALUE}
 echo __NoT_DeFiNeD__[VALUE] ${__NoT_DeFiNeD__[VALUE]}
 echo __NoT_DeFiNeD__.COMPONENT 
-echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VALUE]}'
-		ERROR - $'\n# ._tmp_Mamfile_: 4-30: make all'
+echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VALUE]}
+echo @not_valid_in_sh 
+echo @not_valid_in_sh:VALUE ${@not_valid_in_sh:VALUE}
+echo @not_valid_in_sh:-VALUE ${@not_valid_in_sh:-VALUE}
+echo @not_valid_in_sh=VALUE ${@not_valid_in_sh=VALUE}
+echo @not_valid_in_sh[VALUE] ${@not_valid_in_sh[VALUE]}
+echo @not_valid_in_sh.COMPONENT 
+echo @not_valid_in_sh.COMPONENT[VALUE] ${@not_valid_in_sh.COMPONENT[VALUE]}
+echo not@valid@in@sh 
+echo not@valid@in@sh:VALUE ${not@valid@in@sh:VALUE}
+echo not@valid@in@sh:-VALUE ${not@valid@in@sh:-VALUE}
+echo not@valid@in@sh=VALUE ${not@valid@in@sh=VALUE}
+echo not@valid@in@sh[VALUE] ${not@valid@in@sh[VALUE]}
+echo not@valid@in@sh.COMPONENT 
+echo not@valid@in@sh.COMPONENT[VALUE] ${not@valid@in@sh.COMPONENT[VALUE]}'
+		ERROR - $'\n# ._tmp_Mamfile_: 4-46: make all'
 
 TEST 02 'expansions at strict level 1'
 
@@ -96,6 +128,24 @@ exec - echo __NoT_DeFiNeD__.COMPONENT ${__NoT_DeFiNeD__.COMPONENT}
 exec - echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VAL'\
 $'UE]}
 
+exec - echo @not_valid_in_sh ${@not_valid_in_sh}
+exec - echo @not_valid_in_sh:VALUE ${@not_valid_in_sh:VALUE}
+exec - echo @not_valid_in_sh:-VALUE ${@not_valid_in_sh:-VALUE}
+exec - echo @not_valid_in_sh=VALUE ${@not_valid_in_sh=VALUE}
+exec - echo @not_valid_in_sh[VALUE] ${@not_valid_in_sh[VALUE]}
+exec - echo @not_valid_in_sh.COMPONENT ${@not_valid_in_sh.COMPONENT}
+exec - echo @not_valid_in_sh.COMPONENT[VALUE] ${@not_valid_in_sh.COMPONENT[V'\
+$'ALUE]}
+
+exec - echo not@valid@in@sh ${not@valid@in@sh}
+exec - echo not@valid@in@sh:VALUE ${not@valid@in@sh:VALUE}
+exec - echo not@valid@in@sh:-VALUE ${not@valid@in@sh:-VALUE}
+exec - echo not@valid@in@sh=VALUE ${not@valid@in@sh=VALUE}
+exec - echo not@valid@in@sh[VALUE] ${not@valid@in@sh[VALUE]}
+exec - echo not@valid@in@sh.COMPONENT ${not@valid@in@sh.COMPONENT}
+exec - echo not@valid@in@sh.COMPONENT[VALUE] ${not@valid@in@sh.COMPONENT[VAL'\
+$'UE]}
+
 done all'
 		OUTPUT - $'echo DEFINED defined
 echo DEFINED:VALUE 
@@ -117,8 +167,22 @@ echo __NoT_DeFiNeD__:-VALUE ${__NoT_DeFiNeD__:-VALUE}
 echo __NoT_DeFiNeD__=VALUE ${__NoT_DeFiNeD__=VALUE}
 echo __NoT_DeFiNeD__[VALUE] ${__NoT_DeFiNeD__[VALUE]}
 echo __NoT_DeFiNeD__.COMPONENT 
-echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VALUE]}'
-		ERROR - $'\n# ._tmp_Mamfile_: 4-30: make all'
+echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VALUE]}
+echo @not_valid_in_sh 
+echo @not_valid_in_sh:VALUE ${@not_valid_in_sh:VALUE}
+echo @not_valid_in_sh:-VALUE ${@not_valid_in_sh:-VALUE}
+echo @not_valid_in_sh=VALUE ${@not_valid_in_sh=VALUE}
+echo @not_valid_in_sh[VALUE] ${@not_valid_in_sh[VALUE]}
+echo @not_valid_in_sh.COMPONENT 
+echo @not_valid_in_sh.COMPONENT[VALUE] ${@not_valid_in_sh.COMPONENT[VALUE]}
+echo not@valid@in@sh 
+echo not@valid@in@sh:VALUE ${not@valid@in@sh:VALUE}
+echo not@valid@in@sh:-VALUE ${not@valid@in@sh:-VALUE}
+echo not@valid@in@sh=VALUE ${not@valid@in@sh=VALUE}
+echo not@valid@in@sh[VALUE] ${not@valid@in@sh[VALUE]}
+echo not@valid@in@sh.COMPONENT 
+echo not@valid@in@sh.COMPONENT[VALUE] ${not@valid@in@sh.COMPONENT[VALUE]}'
+		ERROR - $'\n# ._tmp_Mamfile_: 4-46: make all'
 
 TEST 03 'expansions at strict level 2'
 
@@ -154,6 +218,24 @@ exec - echo __NoT_DeFiNeD__.COMPONENT ${__NoT_DeFiNeD__.COMPONENT}
 exec - echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VAL'\
 $'UE]}
 
+exec - echo @not_valid_in_sh ${@not_valid_in_sh}
+exec - echo @not_valid_in_sh:VALUE ${@not_valid_in_sh:VALUE}
+exec - echo @not_valid_in_sh:-VALUE ${@not_valid_in_sh:-VALUE}
+exec - echo @not_valid_in_sh=VALUE ${@not_valid_in_sh=VALUE}
+exec - echo @not_valid_in_sh[VALUE] ${@not_valid_in_sh[VALUE]}
+exec - echo @not_valid_in_sh.COMPONENT ${@not_valid_in_sh.COMPONENT}
+exec - echo @not_valid_in_sh.COMPONENT[VALUE] ${@not_valid_in_sh.COMPONENT[V'\
+$'ALUE]}
+
+exec - echo not@valid@in@sh ${not@valid@in@sh}
+exec - echo not@valid@in@sh:VALUE ${not@valid@in@sh:VALUE}
+exec - echo not@valid@in@sh:-VALUE ${not@valid@in@sh:-VALUE}
+exec - echo not@valid@in@sh=VALUE ${not@valid@in@sh=VALUE}
+exec - echo not@valid@in@sh[VALUE] ${not@valid@in@sh[VALUE]}
+exec - echo not@valid@in@sh.COMPONENT ${not@valid@in@sh.COMPONENT}
+exec - echo not@valid@in@sh.COMPONENT[VALUE] ${not@valid@in@sh.COMPONENT[VAL'\
+$'UE]}
+
 done all'
 		OUTPUT - $'echo DEFINED defined
 echo DEFINED:VALUE ${DEFINED:VALUE}
@@ -175,8 +257,22 @@ echo __NoT_DeFiNeD__:-VALUE ${__NoT_DeFiNeD__:-VALUE}
 echo __NoT_DeFiNeD__=VALUE ${__NoT_DeFiNeD__=VALUE}
 echo __NoT_DeFiNeD__[VALUE] ${__NoT_DeFiNeD__[VALUE]}
 echo __NoT_DeFiNeD__.COMPONENT ${__NoT_DeFiNeD__.COMPONENT}
-echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VALUE]}'
-		ERROR - $'\n# ._tmp_Mamfile_: 4-30: make all'
+echo __NoT_DeFiNeD__.COMPONENT[VALUE] ${__NoT_DeFiNeD__.COMPONENT[VALUE]}
+echo @not_valid_in_sh ${@not_valid_in_sh}
+echo @not_valid_in_sh:VALUE ${@not_valid_in_sh:VALUE}
+echo @not_valid_in_sh:-VALUE ${@not_valid_in_sh:-VALUE}
+echo @not_valid_in_sh=VALUE ${@not_valid_in_sh=VALUE}
+echo @not_valid_in_sh[VALUE] ${@not_valid_in_sh[VALUE]}
+echo @not_valid_in_sh.COMPONENT ${@not_valid_in_sh.COMPONENT}
+echo @not_valid_in_sh.COMPONENT[VALUE] ${@not_valid_in_sh.COMPONENT[VALUE]}
+echo not@valid@in@sh ${not@valid@in@sh}
+echo not@valid@in@sh:VALUE ${not@valid@in@sh:VALUE}
+echo not@valid@in@sh:-VALUE ${not@valid@in@sh:-VALUE}
+echo not@valid@in@sh=VALUE ${not@valid@in@sh=VALUE}
+echo not@valid@in@sh[VALUE] ${not@valid@in@sh[VALUE]}
+echo not@valid@in@sh.COMPONENT ${not@valid@in@sh.COMPONENT}
+echo not@valid@in@sh.COMPONENT[VALUE] ${not@valid@in@sh.COMPONENT[VALUE]}'
+		ERROR - $'\n# ._tmp_Mamfile_: 4-46: make all'
 
 TEST 04 'nested loop with notrace'
 

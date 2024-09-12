@@ -53,6 +53,22 @@ exec - echo __NoT_DeFiNeD__[VALUE] \${__NoT_DeFiNeD__[VALUE]}
 exec - echo __NoT_DeFiNeD__.COMPONENT \${__NoT_DeFiNeD__.COMPONENT}
 exec - echo __NoT_DeFiNeD__.COMPONENT[VALUE] \${__NoT_DeFiNeD__.COMPONENT[VALUE]}
 
+exec - echo @not_valid_in_sh \${@not_valid_in_sh}
+exec - echo @not_valid_in_sh:VALUE \${@not_valid_in_sh:VALUE}
+exec - echo @not_valid_in_sh:-VALUE \${@not_valid_in_sh:-VALUE}
+exec - echo @not_valid_in_sh=VALUE \${@not_valid_in_sh=VALUE}
+exec - echo @not_valid_in_sh[VALUE] \${@not_valid_in_sh[VALUE]}
+exec - echo @not_valid_in_sh.COMPONENT \${@not_valid_in_sh.COMPONENT}
+exec - echo @not_valid_in_sh.COMPONENT[VALUE] \${@not_valid_in_sh.COMPONENT[VALUE]}
+
+exec - echo not@valid@in@sh \${not@valid@in@sh}
+exec - echo not@valid@in@sh:VALUE \${not@valid@in@sh:VALUE}
+exec - echo not@valid@in@sh:-VALUE \${not@valid@in@sh:-VALUE}
+exec - echo not@valid@in@sh=VALUE \${not@valid@in@sh=VALUE}
+exec - echo not@valid@in@sh[VALUE] \${not@valid@in@sh[VALUE]}
+exec - echo not@valid@in@sh.COMPONENT \${not@valid@in@sh.COMPONENT}
+exec - echo not@valid@in@sh.COMPONENT[VALUE] \${not@valid@in@sh.COMPONENT[VALUE]}
+
 done all
 EOF
 

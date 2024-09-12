@@ -158,11 +158,12 @@ but since `mamake` is different, so are these variables.
 
 `%{@}` is the name of the rule currently being made.
 
-`%{<}` is the name of the prerequisite rule (`make`…`done` or `prev`)
-that was *last* processed within the current rule.
+`%{<}` is the name of the prerequisite
+that was *last* processed (`make`…`done` or `makp`)
+or referenced (`prev`) within the current rule.
 
 `%{^}` is a space-separated list of names of all the current rule's
-previously processed prerequisites.
+previously processed or referenced prerequisites.
 
 `%{?}` is a space-separate list of the current rule's previously processed
 prerequisites that have been updated by a shell action (see `exec` below)
@@ -183,7 +184,8 @@ The *operand string* is any arbitrary text until the end of the line.
 ### Comments ###
 
 `note` is the comment command and is ignored.
-In the legacy mode, `info` and `meta` are also ignored.
+
+> *Obsolete:* In the legacy mode, `info` and `meta` are also ignored.
 
 ### Rules ###
 

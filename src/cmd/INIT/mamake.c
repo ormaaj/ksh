@@ -902,8 +902,8 @@ static void substitute(Buf_t *buf, char *s)
 			b = s - 1;
 			t = ++s;
 			n = *t == '-' ? 0 : '-';  /* disable %{var-x} if var starts with - */
+			valid_sh_name = !newexp && (isalpha(*t) || *t == '_');
 			s++;
-			valid_sh_name = !newexp && (isalpha(*s) || *s == '_');
 			while ( (c = *s) &&
 				c != '?' &&
 				c != '+' &&

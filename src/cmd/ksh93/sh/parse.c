@@ -1081,7 +1081,11 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 			ar = stkfreeze(sh.stk,1);
 			ar->argnxt.ap = 0;
 			if(!aq)
+			{
 				ar = assign(lexp,ar,0);
+				/* since noreserv is reset to 0 below, we have set it again after a recursive call */
+				lexp->noreserv = 1;
+			}
 			ar->argflag |= ARG_MESSAGE;
 			*settail = ar;
 			settail = &(ar->argnxt.ap);

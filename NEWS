@@ -2,6 +2,14 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-10-23:
+
+- Fixed a bug in multidimensional indexed array assignments where unquoted
+  values that corresponded to reserved words (such as 'if' or 'select')
+  incorrectly caused a syntax error. For example,
+    my_array=((somevalue) select) && typeset -p my_array
+  now works as expected. This bug was introduced in ksh 93r+ 2006-06-30.
+
 2024-08-28:
 
 - Fixed a crash that occurred for an arithmetic 'for' that has two instead of

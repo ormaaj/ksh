@@ -144,7 +144,7 @@ int    b_exec(int argc,char *argv[], Shbltin_t *context)
 			return 1;
 		/* if the main shell is about to be replaced, decrease SHLVL to cancel out a subsequent increase */
 		if(!sh.realsubshell)
-			(*SHLVL->nvalue.ip)--;
+			sh.shlvl--;
 		sh_onstate(SH_EXEC);
 		if(sh.subshell && !sh.subshare)
 		{

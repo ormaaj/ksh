@@ -271,6 +271,7 @@ struct Shell_s
 	 * Programs using libshell should not rely on them as they may change. */
 	int		subshell;	/* set for virtual subshell */
 	int		realsubshell;	/* ${.sh.subshell}, actual subshell level (including virtual and forked) */
+	int32_t		shlvl;		/* $SHLVL, non-subshell child shell level */
 	char		shcomp;		/* set when running shcomp */
 	unsigned char	trapnote;	/* set when trap/signal is pending */
 	struct sh_scoped st;		/* scoped information */

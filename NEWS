@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-10-27:
+
+- Fixed a bug that crashed the shell upon attempting to replace the shell
+  with another command using 'exec' after unsetting the SHLVL variable.
+  Bug introduced on 2021-05-18.
+
 2024-10-23:
 
 - Fixed a bug in multidimensional indexed array assignments where unquoted

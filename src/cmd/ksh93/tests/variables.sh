@@ -1678,4 +1678,11 @@ echo $((foo))
 EOF
 
 # ======
+# exec after unset SHLVL
+# https://github.com/ksh93/ksh/issues/788
+{ "$SHELL" -c 'unset SHLVL; exec true'; } 2>/dev/null
+(((e=$?)==0)) || err_exit "crash after unsetting SHLVL" \
+	"(expected status 0, got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"))"
+
+# ======
 exit $((Errors<125?Errors:125))

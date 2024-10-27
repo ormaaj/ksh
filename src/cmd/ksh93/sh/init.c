@@ -221,7 +221,6 @@ static Init_t		*nv_init(void);
 #if SHOPT_STATS
 static void		stat_init(void);
 #endif
-static int		shlvl;
 static int		rand_shift;
 
 /*
@@ -1381,7 +1380,7 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 		nv_putval(ENVNOD,sfstruse(sh.strbuf),NV_RDONLY);
 	}
 	/* increase SHLVL */
-	shlvl++;
+	sh.shlvl++;
 #if SHOPT_SPAWN
 	{
 		/*
@@ -1695,7 +1694,7 @@ void sh_reinit(void)
 	/* Re-import the environment (re-exported in exscript()) */
 	env_init();
 	/* Increase SHLVL */
-	shlvl++;
+	sh.shlvl++;
 	/* call user init function, if any */
 	if(sh.userinit)
 		(*sh.userinit)(&sh, 1);
@@ -1825,7 +1824,7 @@ static Init_t *nv_init(void)
 	sh.nvfun.last = (char*)&sh;
 	sh.nvfun.nofree = 1;
 	sh.var_base = sh.var_tree = sh_inittree(shtab_variables);
-	SHLVL->nvalue.ip = &shlvl;
+	SHLVL->nvalue.lp = &sh.shlvl;
 	ip->IFS_init.hdr.disc = &IFS_disc;
 	ip->PATH_init.disc = &RESTRICTED_disc;
 	ip->PATH_init.nofree = 1;

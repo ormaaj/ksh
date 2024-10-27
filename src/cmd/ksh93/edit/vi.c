@@ -1772,7 +1772,7 @@ static void refresh(Vi_t* vp, int mode)
 		if(vp->ed->hlist)
 		{
 			ed_histlist(vp->ed,n);
-			pr_string(vp,Prompt);
+			ed_putstring(vp->ed,Prompt);
 			vp->ocur_virt = INVALID;
 			ed_setcursor(vp->ed,physical,0,cur_phys,0);
 		}

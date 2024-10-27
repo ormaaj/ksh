@@ -1607,7 +1607,7 @@ static void draw(Emacs_t *ep,Draw_t option)
 		if(ep->ed->hlist)
 		{
 			ed_histlist(ep->ed,n);
-			putstring(ep,Prompt);
+			ed_putstring(ep->ed,Prompt);
 			ed_setcursor(ep->ed,ep->screen,0,ep->cursor-ep->screen, 0);
 		}
 		else

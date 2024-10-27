@@ -1425,7 +1425,7 @@ int ed_histgen(Edit_t *ep,const char *pattern)
 	hp = sh.hist_ptr;
 	if(*pattern=='#' && *++pattern=='#')
 		return(0);
-	cp = stakalloc(m=strlen(pattern)+6);
+	cp = stkalloc(sh.stk,m=strlen(pattern)+6);
 	sfsprintf(cp,m,"@(%s)*%c",pattern,0);
 	if(ep->hlist)
 	{
@@ -1444,7 +1444,7 @@ int ed_histgen(Edit_t *ep,const char *pattern)
 				maxmatch = ep->e_cur;
 			return(ep->hmax=av-argv);
 		}
-		stakset(ep->e_stkptr,ep->e_stkoff);
+		stkset(sh.stk,ep->e_stkptr,ep->e_stkoff);
 	}
 	if((m=strlen(cp)) >= sizeof(ep->hpat))
 		m = sizeof(ep->hpat)-1;
@@ -1463,7 +1463,7 @@ int ed_histgen(Edit_t *ep,const char *pattern)
 		if(strmatch(cp,pattern))
 		{
 			l = ed_histlencopy(cp,(char*)0);
-			mp = (Histmatch_t*)stakalloc(sizeof(Histmatch_t)+l);
+			mp = stkalloc(sh.stk,sizeof(Histmatch_t)+l);
 			mp->next = mplast;
 			mplast = mp;
 			mp->len = l;
@@ -1477,7 +1477,7 @@ int ed_histgen(Edit_t *ep,const char *pattern)
 	if(ac>0)
 	{
 		l = ac;
-		argv = av  = (char**)stakalloc((ac+1)*sizeof(char*));
+		argv = av = stkalloc(sh.stk,(ac+1)*sizeof(char*));
 		for(; l>=0 && (*av= (char*)mp); mp=mp->next,av++)
 			l--;
 		*av = 0;
@@ -1530,11 +1530,11 @@ void	ed_histlist(Edit_t *ep,int n)
 	}
 	else
 	{
-		stakset(ep->e_stkptr,ep->e_stkoff);
+		stkset(sh.stk,ep->e_stkptr,ep->e_stkoff);
 		ep->hlist = 0;
 		ep->nhlist = 0;
 	}
-	ed_putstring(ep,ERASE_EOS);
+	ed_putstring(ep,erase_eos);
 	if(n)
 	{
 		for(i=1; (mp= *mpp) && i <= 16 ; i++,mpp++)
@@ -1562,7 +1562,7 @@ void	ed_histlist(Edit_t *ep,int n)
 		}
 		last = i-1;
 		while(i-->0)
-			ed_putstring(ep,CURSOR_UP);
+			ed_putstring(ep,cursor_up);
 	}
 	ed_flush(ep);
 }

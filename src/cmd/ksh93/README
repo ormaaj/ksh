@@ -73,7 +73,7 @@ The options have the following defaults and meanings:
                      be displayed as a numbered list as you type. You can
                      scroll up and down this list or you can use <ESC>nTAB to
                      make this the current line (n defaults to 1 if omitted).
-                     Experimental. Bugs: https://github.com/ksh93/ksh/issues/233
+                     Deprecated. Bugs: https://github.com/ksh93/ksh/issues/233
 
     ESH          on  Compile with emacs command line editing.  The original
                      emacs line editor code was provided by Mike Veach at IH.

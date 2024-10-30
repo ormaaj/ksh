@@ -536,13 +536,13 @@ if ((!SHOPT_SCRIPTONLY)); then
 print $'v=$(. ./dotfile)\n(. ./dotfile)\ncat <(. ./dotfile)\n. ./dotfile' > envfile
 # dot scripts sourced from profile files are parsed line by line, so that aliases take effect on the next line in the same file
 print $'alias print=:\nprint fail:subshell==${.sh.subshell} >&2' > dotfile
-got=$(ENV=/.$PWD/envfile "$SHELL" -i -c : 2>&1)
+got=$(set +x; ENV=/.$PWD/envfile "$SHELL" -i -c : 2>&1)
 exp=''
 [[ $got == "$exp" ]] || err_exit 'dot script sourced from profile does not process aliases correctly' \
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 # $0 does not change in ksh functions within profile scripts
 print 'function BAD { echo $0; }; BAD >&2' > dotfile
-got=$(ENV=/.$PWD/envfile "$SHELL" -i -c : 2>&1)
+got=$(set +x; ENV=/.$PWD/envfile "$SHELL" -i -c : 2>&1)
 exp=$SHELL$'\n'$SHELL$'\n'$SHELL$'\n'$SHELL
 [[ $got == "$exp" ]] || err_exit '$0 in ksh function in profile script not correct' \
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
@@ -652,7 +652,7 @@ done
 # ======
 # showme only printed the first redirection in a list
 # https://github.com/ksh93/ksh/issues/753
-got=$(set +x --showme; eval ';true >/dev/null 2>&1 3>&1 4>&3' 2>&1)
+got=$(set +x --showme; PS4='+ '; eval ';true >/dev/null 2>&1 3>&1 4>&3' 2>&1)
 exp=$'+ true\n+ 1> /dev/null 2>& 1 3>& 1 4>& 3'
 [[ $got == "$exp" ]] || err_exit "showme doesn't print redirects properly" \
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"

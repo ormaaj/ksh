@@ -1118,7 +1118,7 @@ got=$( ( ulimit -c 0; set +x; eval '{ (( }; echo end; }' ) 2>&1 )
 	"(expected status 1 and match of *$(printf %q "$exp")," \
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"
 
-got=$( ( ulimit -c 0; set +x; eval '{ (( $(( 1 )) )); }' ) 2>&1 )
+got=$( set +x; ( ulimit -c 0; eval '{ (( $(( 1 )) )); }' ) 2>&1 )
 [[ e=$? -eq 0 && -z $got ]] || err_exit "matched '((' in compound command" \
 	"(expected status 0 and ''," \
 	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e") and $(printf %q "$got"))"

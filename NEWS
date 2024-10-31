@@ -2,6 +2,14 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-10-31:
+
+- Fixed a regression that caused a standard output redirection within a block
+  construct to cause inconsistent behaviour or a hang if: (a) standard output
+  was also redirected on the block itself, and (b) the entire block was
+  executed from within a command substitution. Bug introduced on 2022-01-11.
+  Reproducer (should output "OK"): ok=$({ true >&2; } >&2; echo OK); echo $ok
+
 2024-10-27:
 
 - Fixed a bug that crashed the shell upon attempting to replace the shell

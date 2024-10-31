@@ -936,7 +936,6 @@ fi # can_close_stdout
 # ======
 # Command substitution hangs, writing infinite zero bytes, when redirecting standard output on a built-in that forks
 # https://github.com/ksh93/ksh/issues/416
-exp='line'
 "$SHELL" -c 'echo "$(ulimit -t unlimited >/dev/null 2>&1; echo "ok $$")"' >out 2>&1 &
 pid=$!
 (sleep 1; kill -9 "$pid") 2>/dev/null &
@@ -945,6 +944,37 @@ then	kill "$!"  # the sleep process
 	[[ $(<out) == "ok $pid" ]] || err_exit "comsub fails after fork with stdout redirection" \
 		"(expected 'ok $pid', got $(printf %q "$(<out)"))"
 else	err_exit "comsub hangs after fork with stdout redirection"
+fi
+
+# https://github.com/ksh93/ksh/issues/416#issuecomment-1008866883
+exp='line'
+"$SHELL" -c 'alias foo=bar; echo $(alias foo >/dev/null; echo "$1")' "$0" "$exp" >out 2>&1 &
+pid=$!
+(sleep 1; kill -9 "$pid") 2>/dev/null &
+if	wait "$pid" 2>/dev/null
+then	kill "$!"  # the sleep process
+	[[ $(<out) == "$exp" ]] || err_exit "comsub fails after stdout redirection" \
+		"(expected '$exp', got '$(<out)')"
+else	err_exit "comsub hangs after stdout redirection"
+fi
+
+# same bug for compound/block commands: https://github.com/ksh93/ksh/issues/784
+exp=$'funA\nA'
+"$SHELL" -c '
+	BugFunction() {
+	  { echo "funA" >&2; } >&2
+	  echo A
+	}
+	Result=$(BugFunction)
+	echo $Result
+' >out 2>&1 &
+pid=$!
+(sleep 1; kill -9 "$pid") 2>/dev/null &
+if	wait "$pid" 2>/dev/null
+then	kill "$!"  # the sleep process
+	[[ $(<out) == "$exp" ]] || err_exit "double redirection in command substitution" \
+		"(expected $(printf %q "$exp"), got $(printf %q "$(<out)"))"
+else	err_exit "double redirection in command substitution causes shell hang"
 fi
 
 # ======

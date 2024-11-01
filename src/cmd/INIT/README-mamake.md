@@ -40,8 +40,8 @@ the language to facilitate human maintenance of the `Mamfile`s.
         * [Strict level 2+ change](#user-content-strict-level-2-change)
     * [Declaring common code for shell actions](#user-content-declaring-common-code-for-shell-actions)
     * [Binding libraries](#user-content-binding-libraries)
-        * […while scanning and sorting leaf directories](#user-content-while-scanning-and-sorting-leaf-directories)
-        * […while building the current directory](#user-content-while-building-the-current-directory)
+        * [...while scanning and sorting leaf directories](#user-content-while-scanning-and-sorting-leaf-directories)
+        * [...while building the current directory](#user-content-while-building-the-current-directory)
     * [Repeatedly iterating through a block](#user-content-repeatedly-iterating-through-a-block)
 * [Parallel processing](#user-content-parallel-processing)
 * [Debugging mamake](#user-content-debugging-mamake)
@@ -53,7 +53,7 @@ MAM is a simple declarative language, easy to parse for machines and easy to
 read for humans, in which targets are defined that correspond to files that
 need to be generated or updated, or that are prerequisites. `mamake` reads
 build scripts from a file, `Mamfile` by default, from start to finish. As it
-encounters `make` *target*…`done` blocks, it ‘makes’ (updates) the *target*s
+encounters `make` *target*...`done` blocks, it 'makes' (updates) the *target*s
 using the instructions within those blocks. Those instructions may declare
 dependencies and/or specify shell command actions.
 
@@ -107,7 +107,7 @@ Variables always expand to their literal values, and variable references
 
 Note that, in shell actions (see `exec` below), MAM variables are expanded
 before the script ever reaches the shell. Consequently, the use of single
-shell quotes `'`…`'` does not stop their expansion as you might expect.
+shell quotes `'`...`'` does not stop their expansion as you might expect.
 
 ### Special expansion syntax ###
 
@@ -159,7 +159,7 @@ but since `mamake` is different, so are these variables.
 `%{@}` is the name of the rule currently being made.
 
 `%{<}` is the name of the prerequisite
-that was *last* processed (`make`…`done` or `makp`)
+that was *last* processed (`make`...`done` or `makp`)
 or referenced (`prev`) within the current rule.
 
 `%{^}` is a space-separated list of names of all the current rule's
@@ -189,10 +189,10 @@ The *operand string* is any arbitrary text until the end of the line.
 
 ### Rules ###
 
-`make` *target* [ *attribute* … ]    
+`make` *target* [ *attribute* ... ]    
 `done` [ *target* ]
 
-A `make`…`done` block defines the rule named *target* using the other commands described here.
+A `make`...`done` block defines the rule named *target* using the other commands described here.
 Unless the `virtual` attribute is used, *target* names the pathname of the file generated or referenced by the rule.
 
 `mamake` processes the commands within the block if the *target* is out
@@ -204,22 +204,22 @@ any mismatch will produce a "mismatched done statement" error.
 If it is omitted, the current `make` *target* is assumed.
 
 Dependencies may be defined in two ways:
-1. By nesting `make`…`done` blocks:
+1. By nesting `make`...`done` blocks:
    the enclosing rule is the parent
    and the enclosed rules are the prerequisites.
 2. By using the `prev` command (see **Referencing previously defined rules** below)
-   to reference a previous `make`…`done` block.
+   to reference a previous `make`...`done` block.
    The dependency is defined as if that block were repeated at the `prev` command's location.
 
 If the block contains one or more `exec` commands (see **Shell actions** below),
 the `done` command executes the shell script defined by them.
 
-A `make`…`done` rule may lack any `exec` action, in which case it declares a
+A `make`...`done` rule may lack any `exec` action, in which case it declares a
 dependency (a file that must be present and whose timestamp is propagated to
 potentially outdate parent rules, such as a source code file that comes with
 the distribution or a header file preinstalled by a previously run Mamfile).
 The rule may include its own dependencies. If it does not have any dependencies
-of its own, the `make`…`done` block is empty, with `make` immediately followed
+of its own, the `make`...`done` block is empty, with `make` immediately followed
 by `done`. The one-line `makp` command (see below) may be used as a shorthand
 for the latter case.
 
@@ -264,7 +264,7 @@ The following *attribute*s are available:
 
 ### Simple prerequisite rules ###
 
-`makp` *target* [ *attribute* … ]
+`makp` *target* [ *attribute* ... ]
 
 `makp` creates a rule that declares a dependency on a prerequisite file named
 by *target* in a manner equivalent to an empty `make` *target*/`done` block,
@@ -279,7 +279,7 @@ directly or indirectly within that prerequisite's block) is an error.
 
 If *target* matches a previously defined rule, `prev` adds a dependency on
 that rule to the current rule. This is used to make a rule a prerequisite of
-multiple `make`…`done` blocks without repeating the rule. It is an error
+multiple `make`...`done` blocks without repeating the rule. It is an error
 to specify attributes, because the attributes of the referenced rule are used.
 In the legacy mode, attributes are silently ignored.
 
@@ -319,7 +319,7 @@ as if it followed the `setv CC` command.
 
 `exec` `-` *code*
 
-One or more `exec` commands within a `make`…`done` block
+One or more `exec` commands within a `make`...`done` block
 define a shell script that is run to generate the *target*.
 The argument following `exec` is ignored; by convention it is `-`.
 Each `exec` command appends a line of code to the shell script for the current rule.
@@ -389,7 +389,7 @@ this should only be done for individual commands in a `(`subshell`)`.
 
 `shim` `-` *code*
 
-One or more `shim` commands declare a ‘shim’: a common section of `sh`(1)
+One or more `shim` commands declare a 'shim': a common section of `sh`(1)
 code that will be automatically inserted in front of subsequent shell
 actions upon execution. Like `exec`, `shim` combines multiple lines of
 *code* into one section, with MAM variables expanded at declaration time and
@@ -414,7 +414,7 @@ A single `shim -` deactivates the shim.
 These commands are scanned for while sorting leaf directories for recursive
 building, and executed as normal commands while building the current directory.
 
-#### …while scanning and sorting leaf directories ####
+#### ...while scanning and sorting leaf directories ####
 
 Any leaf directories with names that start with `INIT` will always be built before
 all others. For all other leaf directories, the presence of any `bind`
@@ -425,7 +425,7 @@ The prerequisite leaf directory does not have to be in the same parent
 directory, as long as it is processed as part of the same scan.
 At this stage, attributes are ignored.
 
-#### …while building the current directory ####
+#### ...while building the current directory ####
 
 The `bind` command takes an argument of the form `-l`*libraryname*, which
 causes a MAM variable `mam_lib`*libraryname* to be defined (see **MAM variables** above).
@@ -479,7 +479,7 @@ The non-existence of this file is not an error and is silently ignored.
 
 ### Repeatedly iterating through a block ###
 
-`loop` *variable* *word* [ *word* … ]    
+`loop` *variable* *word* [ *word* ... ]    
 `done`
 
 `loop` reads the lines contained between it and the corresponding `done`
@@ -489,13 +489,13 @@ The *variable* is restored to its previous state after the loop completes.
 
 Note that `loop` causes repeated reading and processing of Mamfile lines,
 *not* necessarily repeated execution. For instance, a loop can be used to
-consolidate repetitive `make`…`done` rules. However, each rule is only made
+consolidate repetitive `make`...`done` rules. However, each rule is only made
 once and subsequent rules by the same name are an error at strict level 3
 and up, or skipped over at strict < 3. So it only makes sense to do this
 if the contained make target names are modified by the expansion of the
 iteration *variable*.
 
-`loop` requires a seekable input file (i.e.: not a pipe).
+`loop` requires that the Mamfile be seekable (i.e.: not a pipe).
 
 ## Parallel processing ##
 
@@ -503,7 +503,7 @@ As of strict level 5, `mamake` supports parallel building using the new
 `-j` *maxjobs* option (which can be passed via `bin/package make`).
 This can speed up the build on multiprocessor or multicore systems.
 
-Each `make`…`done` command containing a shell action (i.e., one or more
+Each `make`...`done` command containing a shell action (i.e., one or more
 `exec` commands) may have its shell action processed in parallel, with
 `mamake` continuing to process subsequent shell actions at the same or
 deeper nesting levels before the current one has finished.
@@ -535,7 +535,7 @@ Compared to the original AT&T version, ksh 93u+m made a number of
 changes to `mamake` that facilitate correct operation and make it easier to
 maintain Mamfiles by hand. The following lists the important changes.
 
-* Introduced the notion of ‘strict mode’ levels that tidy things up by
+* Introduced the notion of 'strict mode' levels that tidy things up by
   activating some backward incompatible changes and deprecation warnings.
 * Indentation and word separators may use any whitespace (e.g. tabs), not only spaces.
 * Fixed a bug that stopped a rule marked `virtual` (not associated with
@@ -545,7 +545,7 @@ maintain Mamfiles by hand. The following lists the important changes.
 * It has been made optional to repeat the `make` target after `done`.
 * The `notrace` attribute was added to disable xtrace for a rule's shell action.
 * The automatic variables `%{@}`, `%{<}`, `%{^}` and `%{?}` have been added.
-* An iteration block command, `loop`…`done`, has been added.
+* An iteration block command, `loop`...`done`, has been added.
 * A command to set common code for shell actions, `shim`, has been added.
 * The `bind` command now reads library header dependency rules from a central
   rules file that is automatically generated for each library by the supplied
@@ -554,7 +554,7 @@ maintain Mamfiles by hand. The following lists the important changes.
 * Attempting to declare a dependency on a rule currently being made produces a warning.
 * MAM expansions may start with `%{` instead of `${`, avoiding conflicts
   and confusion with the shell's `${` syntax in shell actions.
-* The `makp` command may be used instead of an empty `make`…`done`
+* The `makp` command may be used instead of an empty `make`...`done`
   block to declare a simple prerequisite with optional attributes.
 * The special expansion syntaxes `%{`*variable*`|`*sh-script*`}` and
   `%{`*variable*`@`*sh-script*`}` have been added, allowing the editing of
@@ -587,5 +587,5 @@ maintain Mamfiles by hand. The following lists the important changes.
     * The `implicit` attribute is not available.
 * **At strict level 5 and up:**
     * The new `-j` option for parallel building is allowed to take effect.
-      Mamfile dependency declarations (`prev`, nested `make`…`done`, `bind`)
+      Mamfile dependency declarations (`prev`, nested `make`...`done`, `bind`)
       are expected to be compatible with parallel processing.

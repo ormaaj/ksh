@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-09-12"
+#define RELEASE_DATE "2024-11-01"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1428,8 +1428,8 @@ static void print_nice_hdr(Rule_t *r)
 		fname, r->line, r->endline, rnamepre, rname);
 	/* -e option */
 	if (state.explain)
-		fprintf(stderr, "# reason: target %s\n", \
-			r->flags & RULE_preexisted ? "older than prerequisites" : \
+		fprintf(stderr, "# reason: target %s\n",
+			r->flags & RULE_preexisted ? "older than prerequisites" :
 				r->flags & RULE_virtual ? "is virtual" : "not found");
 }
 
@@ -2405,16 +2405,13 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				report(-2, q->name, "makp", q);
 			}
 			else if (makp)
-			{
-				if (q->flags & RULE_made)
-					error_out(t, "rule already made");
-			}
+				error_out(t, q->flags & RULE_made ? "rule already made" : "rule already being made");
 			else if (!q)
 				error_out(t, "prev: rule not made");
 			else if (*v && state.strict)
 				error_out(v, "prev: attributes not allowed");
 			else if (q->making)
-				report(state.strict < 3 && !makp ? 1 : 3, "rule already being made", t, NULL);
+				report(state.strict < 3 ? 1 : 3, "rule already being made", t, NULL);
 			else
 			{	/* we may need to wait for it to finish processing */
 				reap(q, 0);

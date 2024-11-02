@@ -22,6 +22,28 @@
 . "${SHTESTS_COMMON:-${0%/*}/_common}"
 ((!.sh.level))||err_exit ".sh.level should be 0 after dot script, is ${.sh.level}"
 
+# ======
+# The following tests are run in parallel because they are slow; they are checked at the end
+
+# setting TMOUT in a virtual subshell removes its special meaning
+# https://github.com/ksh93/ksh/issues/782
+(
+	typeset -i s=SECONDS
+	"$SHELL" -c 'TMOUT=2; (TMOUT=3); TMOUT=1; read v' </dev/tty
+	((SECONDS < s + 2))
+) &
+parallel_1=$!
+
+# TMOUT applies to 'read' from a non-terminal
+# https://github.com/ksh93/ksh/issues/783
+(
+	typeset -F s=SECONDS
+	"$SHELL" -c 'TMOUT=1; { sleep 1.1; print; } | read a'
+	(($? == 0 || SECONDS > s + 1.05))
+) &
+parallel_2=$!
+
+# ======
 [[ ${.sh.version} == "$KSH_VERSION" ]] || err_exit '.sh.version != KSH_VERSION'
 unset ss
 [[ ${@ss} ]] && err_exit '${@ss} should be empty string when ss is unset'
@@ -332,11 +354,11 @@ fi
 unset CDPATH
 cd "${tmp#/}" >/dev/null 2>&1 && err_exit "CDPATH not deactivated after unset"
 cd "$tmp" || exit
-TMOUT=100
-(TMOUT=20)
-if	(( TMOUT !=100 ))
+
+if	"$SHELL" -c 'TMOUT=100; (TMOUT=20); (( TMOUT != 100 ))'
 then	err_exit 'setting TMOUT in subshell affects parent'
 fi
+
 unset y
 function setdisc # var
 {
@@ -1180,8 +1202,8 @@ $SHELL -c '
 
 # ${.sh.pid} should be the PID of the running job
 echo ${.sh.pid} > "$tmp/jobpid" &
-wait
-[[ $(cat "$tmp/jobpid") == ${.sh.pid} ]] && err_exit "\${.sh.pid} is not set to a job's PID (expected $!, got $(cat "$tmp/jobpid"))"
+wait "$!"
+[[ $(<$tmp/jobpid) == $! ]] || err_exit "\${.sh.pid} is not set to a job's PID (expected $!, got $(<$tmp/jobpid))"
 
 # ${.sh.pid} should be the same as $$ in the parent shell
 [[ $$ == ${.sh.pid} ]] || err_exit "\${.sh.pid} and \$$ differ in the parent shell (expected $$, got ${.sh.pid})"
@@ -1683,6 +1705,11 @@ EOF
 { "$SHELL" -c 'unset SHLVL; exec true'; } 2>/dev/null
 (((e=$?)==0)) || err_exit "crash after unsetting SHLVL" \
 	"(expected status 0, got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"))"
+
+# ======
+# checks for tests run in parallel (see top)
+wait "$parallel_1" || err_exit 'setting TMOUT in a virtual subshell removes its special meaning'
+wait "$parallel_2" || err_exit "TMOUT applies to 'read' from a non-terminal"
 
 # ======
 exit $((Errors<125?Errors:125))

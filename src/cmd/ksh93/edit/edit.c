@@ -125,10 +125,10 @@ int tty_check(int fd)
 	Edit_t *ep = (Edit_t*)(sh.ed_context);
 	struct termios tty;
 	Sfio_t *sp;
-	ep->e_savefd = -1;
 	if(fd < 0 || fd > sh.lim.open_max || sh.fdstatus[fd] == IOCLOSE
 	|| (sp = sh.sftable[fd]) && (sfset(sp,0,0) & SFIO_STRING))
 		return 0;
+	ep->e_savefd = -1;
 	return tty_get(fd,&tty)==0;
 }
 

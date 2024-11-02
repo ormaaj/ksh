@@ -66,7 +66,7 @@ int	b_read(int argc,char *argv[], Shbltin_t *context)
 	const char *msg = e_file+4;
 	int r, flags=0, fd=0;
 	ssize_t	len=0;
-	Sflong_t timeout = 1000*(Sflong_t)sh.st.tmout;
+	Sflong_t timeout = sh.st.tmout && tty_check(0) ? 1000*(Sflong_t)sh.st.tmout : 0;
 	int save_prompt, fixargs=context->invariant;
 	struct read_save *rp;
 	static char default_prompt[3] = {ESC,ESC};

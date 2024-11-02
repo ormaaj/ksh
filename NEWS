@@ -2,6 +2,16 @@ This documents significant changes in the dev branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-11-02:
+
+- Fixed: assigning to TMOUT in a virtual subshell was rendering further
+  assignments to TMOUT outside of that subshell ineffective.
+
+- Fixed: the 'read' built-in was timing out according to the value of TMOUT
+  even when it was not reading from a terminal. The 'read' command will now
+  ignore $TMOUT when it is reading from a pipe, as was always documented.
+  (Note that read's -t option is not affected by this change.)
+
 2024-10-31:
 
 - Fixed a regression that caused a standard output redirection within a block

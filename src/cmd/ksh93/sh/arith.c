@@ -460,8 +460,9 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 				c = *str;
 			if(c=='.' && sh.radixpoint!='.')
 			{
-				errormsg(SH_DICT,ERROR_exit(1),"%s: radix point '.' requires LC_NUMERIC=C",val);
-				UNREACHABLE();
+				sfprintf(sh.strbuf, "%s: radix point '.' requires LC_NUMERIC=C", val);
+				lvalue->value = sfstruse(sh.strbuf);
+				return r;
 			}
 			if(c==sh.radixpoint || c=='e' || c == 'E' || lastbase == 16 && (c == 'p' || c == 'P'))
 			{

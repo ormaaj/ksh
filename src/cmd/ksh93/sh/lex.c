@@ -202,13 +202,18 @@ static int lexfill(Lex_t *lp)
 Lex_t *sh_lexopen(Lex_t *lp, int mode)
 {
 	if(!lp)
-		lp = (Lex_t*)sh_newof(0,Lex_t,1,0);
-	fcnotify(lex_advance,lp);
-	lp->lex.intest = lp->lex.incase = lp->lex.skipword = lp->comp_assign = lp->comsub = lp->assignok = 0;
+		lp = sh_newof(0,Lex_t,1,0);
+	else if(mode)
+		lp->lex.intest = lp->lex.incase = lp->lex.skipword = lp->comp_assign = lp->comsub = lp->assignok = 0;
+	else
+	{	/* full reset: everything except LINENO */
+		int lastline = lp->lastline, inlineno = lp->inlineno, firstline = lp->firstline;
+		memset(lp,0,sizeof(Lex_t));
+		lp->lastline = lastline, lp->inlineno = inlineno, lp->firstline = firstline;
+	}
 	lp->lex.reservok = 1;
-	if(!mode)
-		memset(&lp->lexd,0,sizeof(struct _shlex_pvt_lexdata_));
 	lp->lexd.warn = !sh_isoption(SH_DICTIONARY) && sh_isoption(SH_NOEXEC);
+	fcnotify(lex_advance,lp);
 	return lp;
 }
 
@@ -2112,8 +2117,6 @@ noreturn void sh_syntax(Lex_t *lp, int special)
 		fcclose();
 	sh.inlineno = lp->inlineno;
 	sh.st.firstline = lp->firstline;
-	/* reset lexer state */
-	sh_lexopen(lp, 0);
 	/* construct error message */
 	if (sh_isstate(SH_INTERACTIVE) || sh_isstate(SH_PROFILE))
 		sfprintf(sh.strbuf, sh_translate(e_syntaxerror));
@@ -2129,6 +2132,8 @@ noreturn void sh_syntax(Lex_t *lp, int special)
 		sfprintf(sh.strbuf, sh_translate(e_unmatched), fmttoken(lp, lp->lasttok));
 	else
 		sfprintf(sh.strbuf, sh_translate(e_unexpected), fmttoken(lp, lp->token));
+	/* reset lexer state */
+	sh_lexopen(lp, 0);
 	errormsg(SH_DICT, ERROR_exit(SYNBAD), "%s", sfstruse(sh.strbuf));
 	UNREACHABLE();
 }

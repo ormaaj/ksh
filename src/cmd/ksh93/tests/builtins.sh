@@ -1707,4 +1707,23 @@ case $? in
 esac
 
 # ======
+# https://github.com/ksh93/ksh/issues/794
+
+exp=$'issue794: --file: value not expected\n?: '
+got=$(set +x; { "$SHELL" -c '
+	optstring="f(file)"
+	while getopts "$optstring" opt
+	do
+	    print -- "$opt: $OPTARG"
+	done
+' issue794 --file=foo; } 2>&1)
+[[ e=$? -eq 0 && $got == "$exp" ]] || err_exit "crash on unexpected option value" \
+	"(expected status 0, $(printf %q "$exp");" \
+	"got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"), $(printf %q "$got"))"
+
+got=$(set +x; { (ulimit -c 0; set --state=foo); } 2>&1)
+let "(e=$?) == 2" || err_exit "crash on unexpected option value" \
+	"(got status $e$( ((e>128)) && print -n /SIG && kill -l "$e"), $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

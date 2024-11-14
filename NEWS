@@ -2,6 +2,12 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-11-14:
+
+- Fixed a crash in option parsing upon encountering an option value to a
+  long option that doesn't accept one (e.g., 'set --state=foo' crashed).
+  Bug introduced on 2024-08-01.
+
 2024-11-02:
 
 - Fixed: assigning to TMOUT in a virtual subshell was rendering further

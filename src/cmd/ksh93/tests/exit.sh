@@ -18,6 +18,13 @@
 
 . "${SHTESTS_COMMON:-${0%/*}/_common}"
 
+# flag Android/Termux execve(3) breakage killing 'exec -a'
+typeset -i execve_ignores_argv0
+[[ $( (exec -a foo true) 2>&1 ) == *'not supported'* ]]
+if	((execve_ignores_argv0 = ! $?))
+then	warning "execve(3) broken on this system; tests involving 'exec -a' are skipped"
+fi
+
 function abspath
 {
         base=$(basename $SHELL)
@@ -27,7 +34,7 @@ function abspath
         print $newdir/$base
 }
 # test for proper exit of shell
-if builtin getconf 2> /dev/null; then
+if ((!execve_ignores_argv0)) && builtin getconf 2>/dev/null; then
 	ABSHELL=$(abspath)
 	print exit 0 >.profile
 	${ABSHELL}  <<!

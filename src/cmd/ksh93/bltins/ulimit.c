@@ -136,16 +136,16 @@ int	b_ulimit(int argc,char *argv[],Shbltin_t *context)
 			if(sh.subshell && !sh.subshare)
 				sh_subfork();
 			if(strcmp(limit,e_unlimited)==0)
-				i = INFINITY;
+				i = ULIMIT_INFINITY;
 			else
 			{
 				char *last;
 				/* an explicit suffix unit overrides the default */
-				if((i=strtol(limit,&last,0))!=INFINITY && !*last)
+				if((i=strtol(limit,&last,0))!=ULIMIT_INFINITY && !*last)
 					i *= unit;
-				else if((i=strton(limit,&last,NULL,0))==INFINITY || *last)
+				else if((i=strton(limit,&last,NULL,0))==ULIMIT_INFINITY || *last)
 				{
-					if((i=sh_strnum(limit,&last,2))==INFINITY || *last)
+					if((i=sh_strnum(limit,&last,2))==ULIMIT_INFINITY || *last)
 					{
 						errormsg(SH_DICT,ERROR_system(1),e_number,limit);
 						UNREACHABLE();
@@ -226,7 +226,7 @@ int	b_ulimit(int argc,char *argv[],Shbltin_t *context)
 					conf = (char*)e_nosupport;
 				sfputr(sfstdout,conf,'\n');
 			}
-			else if(i!=INFINITY)
+			else if(i!=ULIMIT_INFINITY)
 			{
 				i += (unit-1);
 				sfprintf(sfstdout,"%I*d\n",sizeof(i),i/unit);

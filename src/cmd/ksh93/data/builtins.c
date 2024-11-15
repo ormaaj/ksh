@@ -648,7 +648,7 @@ const char sh_opteval[] =
 ;
 
 const char sh_optexec[] =
-"[-1c?\n@(#)$Id: exec (ksh 93u+m) 2024-03-04 $\n]"
+"[-1c?\n@(#)$Id: exec (ksh 93u+m) 2024-11-15 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?exec - execute command, open/close and duplicate file descriptors]"
 "[+DESCRIPTION?\bexec\b is a special built-in command that can be used to "
@@ -664,7 +664,14 @@ const char sh_optexec[] =
 	"or close files or manipulate file descriptors as in \bredirect\b(1).]"
 "[c?Clear all environment variables before executions except variable "
 	"assignments that are part of the current \bexec\b command.]"
-"[a]:[name?\bargv[0]]\b will be set to \aname\a for \acommand\a]"
+"[a]:[name?"
+#if _execve_ignores_argv0
+	"Not supported on this system; emits a warning. "
+	"Normally, \bargv[0]]\b would"
+#else
+	"\bargv[0]]\b will"
+#endif /* _execve_ignores_argv0 */
+	" be set to \aname\a for \acommand\a.]"
 "\n"
 "\n[command [arg ...]]\n"
 "\n"

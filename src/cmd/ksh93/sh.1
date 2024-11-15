@@ -6655,12 +6655,15 @@ rather than the first
 .IR arg ,
 to become
 .B argv[0]
-for the new process.
+(a.k.a.
+.BR $0 )
+for the new process; on systems that disallow this, the option
+is ignored except for printing a "not supported" warning.
 If
 .I arg\^
 is not given and only I/O redirections are given,
 then this command persistently modifies file descriptors as in
-.BR redirect.
+.BR redirect .
 .TP
 \(dg \f3exit\fP \*(OK \f2n\^\fP \*(CK
 Causes the shell to exit

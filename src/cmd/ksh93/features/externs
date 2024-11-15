@@ -187,3 +187,44 @@ tst	note{ determining size of PID variables }end output{
 	echo "$0: cannot determine size of PID variables" >&2
 	exit 1
 }end
+
+# execve(3) breakage on Android/Termux (as of API 36)
+tst	execve_ignores_argv0 note{ does execve(3) ignore the specified argv[0] }end output{
+	#include <string.h>
+	#include <unistd.h>
+	extern char **environ;
+	/* Check if argv[0] can be set to "TEST_OK" while exec'ing self */
+	int main(int argc, char *argv[])
+	{
+		char *orig0 = argv[0], *newenv[2], b[64];
+		int i;
+		sprintf(b,"_KSH_EXECVE_TEST_%d=y",(int)getpid());
+		newenv[0] = b;
+		newenv[1] = NULL;
+		/* check if we've alreay been re-exec'ed */
+		for (i = 0; environ[i]; i++)
+			if (strcmp(environ[i],newenv[0])==0)
+				return !(strcmp(argv[0],"TEST_OK")!=0);
+		/* exec self */
+		argv[0] = "TEST_OK";
+		execve(orig0,argv,newenv);
+		return 128;
+	}
+}end
+tst	execve_dir_enoexec note{ does execve(3) set errno to ENOEXEC when trying to execute a directory }end output{
+	#include <sys/stat.h>
+	#include <unistd.h>
+	#include <errno.h>
+	extern char **environ;
+	int main(int argc, char *argv[])
+	{
+		char	dirname[64];
+		int	e;
+		sprintf(dirname,".dir.%u",(unsigned)getpid());
+		mkdir(dirname,0777);
+		execve(dirname,argv,environ);
+		e = errno;
+		rmdir(dirname);
+		return !(e == ENOEXEC);
+	}
+}end

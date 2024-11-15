@@ -121,8 +121,10 @@ int    b_exec(int argc,char *argv[], Shbltin_t *context)
 		struct argnod *arg=sh.envlist;
 		Namval_t* np;
 		char *cp;
+#if !_execve_ignores_argv0
 		if(arg0 && sh.subshell && !sh.subshare)
 			sh_subfork();
+#endif /* !_execve_ignores_argv0 */
 		if(clear)
 			nv_scan(sh.var_tree,noexport,0,NV_EXPORT,NV_EXPORT);
 		while(arg)
@@ -139,7 +141,11 @@ int    b_exec(int argc,char *argv[], Shbltin_t *context)
 		}
 		pname = argv[0];
 		if(arg0)
+#if _execve_ignores_argv0
+			error(ERROR_warn(0),"-a %s: %s",arg0,sh_translate(e_nosupport));
+#else
 			argv[0] = arg0;
+#endif /* _execve_ignores_argv0 */
 		if(job_close() < 0)
 			return 1;
 		/* if the main shell is about to be replaced, decrease SHLVL to cancel out a subsequent increase */

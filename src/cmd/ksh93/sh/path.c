@@ -1190,6 +1190,17 @@ pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath
 	    case EISDIR:
 		return -1;
 	    case ENOEXEC:
+#if _execve_dir_enoexec
+		/* on Android, execve(3) sets errno to ENOEXEC instead of EACCES when trying to execute a directory */
+		{
+			struct stat statb;
+			if(stat(path,&statb)>=0 && S_ISDIR(statb.st_mode))
+			{
+				errno = sh.path_err = EISDIR;
+				return -1;
+			}
+		}
+#endif /* _execve_dir_enoexec */
 		/*
 		 * A script without #! -- it starts here. Summary of events:
 		 * fork; exscript; longjmp back to sh_main; sh_reinit; exfile

@@ -18,6 +18,13 @@
 
 . "${SHTESTS_COMMON:-${0%/*}/_common}"
 
+# flag Android/Termux execve(3) breakage killing 'exec -a'
+typeset -i execve_ignores_argv0
+[[ $( (exec -a foo true) 2>&1 ) == *'not supported'* ]]
+if	((execve_ignores_argv0 = ! $?))
+then	warning "execve(3) broken on this system; tests involving 'exec -a' are skipped"
+fi
+
 unset HISTFILE
 export LC_ALL=C ENV=/./dev/null
 
@@ -164,8 +171,10 @@ then
 		err_exit 'privileged --login-shell reads .profile'
 	[[ $(HOME=$PWD $SHELL --login_shell </dev/null 2>&1) == *$t* ]] &&
 		err_exit 'privileged --login_shell reads .profile'
+	if((!execve_ignores_argv0));then
 	[[ $(HOME=$PWD exec -a -ksh $SHELL </dev/null 2>&1) == *$t* ]] &&
 		err_exit 'privileged exec -a -ksh ksh reads .profile'
+	fi # !execve_ignores_argv0
 	[[ $(HOME=$PWD ./-ksh -i </dev/null 2>&1) == *$t* ]] &&
 		err_exit 'privileged ./-ksh reads .profile'
 	[[ $(HOME=$PWD ./-ksh -ip </dev/null 2>&1) == *$t* ]] &&
@@ -179,10 +188,12 @@ else
 		err_exit '--login-shell ignores .profile'
 	[[ $(HOME=$PWD $SHELL --login_shell </dev/null 2>&1) == *$t* ]] ||
 		err_exit '--login_shell ignores .profile'
+	if((!execve_ignores_argv0));then
 	[[ $(HOME=$PWD exec -a -ksh $SHELL </dev/null 2>/dev/null) == *$t* ]] ||
 		err_exit 'exec -a -ksh ksh 2>/dev/null ignores .profile'
 	[[ $(HOME=$PWD exec -a -ksh $SHELL </dev/null 2>&1) == *$t* ]] ||
 		err_exit 'exec -a -ksh ksh 2>&1 ignores .profile'
+	fi # !execve_ignores_argv0
 	if((!SHOPT_SCRIPTONLY));then
 	[[ $(HOME=$PWD ./-ksh -i </dev/null 2>&1) == *$t* ]] ||
 		err_exit './-ksh ignores .profile'

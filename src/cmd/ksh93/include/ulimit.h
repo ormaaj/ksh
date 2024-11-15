@@ -58,11 +58,11 @@
 #endif
 
 #ifdef RLIM_INFINITY
-#   define INFINITY	RLIM_INFINITY
+#   define ULIMIT_INFINITY	RLIM_INFINITY
 #else
-#   ifndef INFINITY
-#	define INFINITY	((rlim_t)-1L)
-#   endif /* INFINITY */
+#   ifndef ULIMIT_INFINITY
+#	define ULIMIT_INFINITY	((rlim_t)-1L)
+#   endif /* ULIMIT_INFINITY */
 #endif /* RLIM_INFINITY */
 
 #if defined(_lib_getrlimit) || defined(_lib_vlimit) || defined(_lib_ulimit)

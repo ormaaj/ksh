@@ -442,8 +442,8 @@ make install virtual
 			prev FEATURE/poll
 			prev FEATURE/time
 			prev include/builtins.h
+			prev %{INCLUDE_AST}/ast_float.h
 			prev %{INCLUDE_AST}/tmx.h
-			prev %{INCLUDE_AST}/error.h
 			prev include/defs.h
 			prev shopt.h
 		done

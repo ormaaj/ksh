@@ -26,9 +26,8 @@
 
 #include	"shopt.h"
 #include	"defs.h"
-#include	<error.h>
-#include	<errno.h>
 #include	<tmx.h>
+#include	<ast_float.h>
 #include	"builtins.h"
 #include	"FEATURE/time"
 #include	"FEATURE/poll"
@@ -64,6 +63,10 @@ int	b_sleep(int argc,char *argv[],Shbltin_t *context)
 	if(cp = *argv)
 	{
 		d = strtod(cp, &last);
+#if _lib_isnan
+		if (isnan(d))
+			last = cp;  /* trigger error */
+#endif /* _lib_isnan */
 		if(*last)
 		{
 			Time_t now,ns;
@@ -140,9 +143,19 @@ skip:
  */
 void sh_delay(double t, int sflag)
 {
-	int n = (int)t;
+	uint32_t n;
 	Tv_t ts, tx;
-
+#if _lib_isinf
+	if (isinf(t))
+	{
+		ts.tv_sec = 0xFFFFFFFF;  /* uint32_t max */
+		ts.tv_nsec = 0;
+		while (1)
+			if (tvsleep(&ts, NULL) < 0 && ((sh.trapnote & (SH_SIGSET | SH_SIGTRAP)) || sflag))
+				return;
+	}
+#endif /* _lib_isinf */
+	n = (uint32_t)t;
 	ts.tv_sec = n;
 	ts.tv_nsec = 1000000000 * (t - (double)n);
 	while(tvsleep(&ts, &tx) < 0)

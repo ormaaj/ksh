@@ -365,8 +365,10 @@ the function you are calling and return to the point
 where the most recent built-in was invoked, or where
 \f3sh_eval()\fP or \f3sh_trap()\fP was called.
 .PP
-The \f3sh_delay()\fP function is used to cause the
-shell to sleep for a period of time defined by \fIsec\fP.
+The \f3sh_delay()\fP function causes the shell to sleep
+for the fractional number of seconds defined by \fIsec\fP.
+If \fIsec\fP is \f3inf\fP, the shell sleeps forever.
+If \fIsec\fP is \f3nan\fP, the behavior is undefined.
 If \fIsflag\fP is true, the shell will stop sleeping when
 any signal is received; otherwise signals such as \f3SIGCONT\fP
 and \f3SIGINFO\fP are treated normally.

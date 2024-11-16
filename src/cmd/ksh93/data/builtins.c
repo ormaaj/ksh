@@ -1756,7 +1756,7 @@ const char sh_optshift[] =
 ;
 
 const char sh_optsleep[] =
-"[-1c?\n@(#)$Id: sleep (AT&T Research) 2009-03-12 $\n]"
+"[-1c?\n@(#)$Id: sleep (ksh 93u+m) 2024-11-17 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?sleep - suspend execution for an interval]"
 "[+DESCRIPTION?\bsleep\b suspends execution for at least the time specified "
@@ -1766,7 +1766,7 @@ const char sh_optsleep[] =
 	"[+integer?The number of seconds to sleep.]"
 	"[+floating point?The number of seconds to sleep. The actual "
 		"granularity depends on the underlying system, normally "
-		"around 1 millisecond.]"
+		"around 1 millisecond. Use \binf\b to sleep forever.]"
 	"[+P\an\a\bY\b\an\a\bM\b\an\a\bDT\b\an\a\bH\b\an\a\bM\b\an\a\bS?An ISO 8601 duration "
 		"where at least one of the duration parts must be specified.]"
 	"[+P\an\a\bW?An ISO 8601 duration specifying \an\a weeks.]"

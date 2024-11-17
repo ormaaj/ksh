@@ -148,11 +148,12 @@ void sh_delay(double t, int sflag)
 #if _lib_isinf
 	if (isinf(t))
 	{
-		ts.tv_sec = 0xFFFFFFFF;  /* uint32_t max */
-		ts.tv_nsec = 0;
 		while (1)
-			if (tvsleep(&ts, NULL) < 0 && ((sh.trapnote & (SH_SIGSET | SH_SIGTRAP)) || sflag))
+		{
+			pause();
+			if ((sh.trapnote & (SH_SIGSET | SH_SIGTRAP)) || sflag)
 				return;
+		}
 	}
 #endif /* _lib_isinf */
 	n = (uint32_t)t;

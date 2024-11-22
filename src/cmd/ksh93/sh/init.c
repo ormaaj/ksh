@@ -909,21 +909,9 @@ void sh_setmatch(const char *v, int vsize, int nmatch, int match[], int index)
 		index *= 2*mp->nmatch;
 		i = (index+2*mp->nmatch)*sizeof(match[0]);
 		if(i >= mp->msize)
-		{
-			if(mp->msize)
-				mp->match = (int*)sh_realloc(mp->match,2*i);
-			else
-				mp->match = (int*)sh_malloc(2*i);
-			mp->msize = 2*i;
-		}
+			mp->match = sh_realloc(mp->match, mp->msize = 2*i);
 		if(vsize >= mp->vsize)
-		{
-			if(mp->vsize)
-				mp->val = (char*)sh_realloc(mp->val,x=2*vsize);
-			else
-				mp->val =  (char*)sh_malloc(x=vsize+1);
-			mp->vsize = x;
-		}
+			mp->val = sh_realloc(mp->val, mp->vsize = mp->vsize ? 2 * vsize : vsize + 1);
 		memcpy(mp->match+index,match,nmatch*2*sizeof(match[0]));
 		for(i=0; i < 2*nmatch; i++)
 		{

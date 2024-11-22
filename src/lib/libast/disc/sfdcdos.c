@@ -157,16 +157,8 @@ static ssize_t dos_read(Sfio_t *iop, void *buff, size_t size, Sfdisc_t* disc)
 		}
 	}
 	/* save original discipline inside buffer */
-	if(count>dp->bsize)
-	{
-		if(dp->bsize==0)
-			dp->buff = malloc(count);
-		else
-			dp->buff = realloc(dp->buff,count);
-		dp->bsize = count;
-		if(!dp->buff)
-			return -1;
-	}
+	if(count > dp->bsize && !(dp->buff = realloc(dp->buff, dp->bsize = count)))
+		return -1;
 	memcpy(dp->buff, cp, count);
 	count=1;
 	while(1)

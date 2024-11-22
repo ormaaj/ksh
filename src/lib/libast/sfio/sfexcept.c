@@ -75,10 +75,7 @@ int _sfexcept(Sfio_t*	f,	/* stream where the exception happened */
 			if((io -= size) <= 0)
 				io = SFIO_GRAIN;
 			size = ((size+io+SFIO_GRAIN-1)/SFIO_GRAIN)*SFIO_GRAIN;
-			if(f->size > 0)
-				data = (uchar*)realloc((char*)f->data,size);
-			else	data = (uchar*)malloc(size);
-			if(!data)
+			if(!(data = realloc(f->data,size)))
 				goto chk_stack;
 			f->endb = data + size;
 			f->next = data + (f->next - f->data);

@@ -101,13 +101,7 @@ static char *getbuf(size_t len)
 	static char *buf;
 	static size_t buflen;
 	if(buflen < len)
-	{
-		if(buflen==0)
-			buf = (char*)sh_malloc(len);
-		else
-			buf = (char*)sh_realloc(buf,len);
-		buflen = len;
-	}
+		buf = sh_realloc(buf, buflen = len);
 	return buf;
 }
 
@@ -1470,13 +1464,7 @@ Namval_t *nv_open(const char *name, Dt_t *root, int flags)
 			xp->len = strlen(name);
 		c = roundof(xp->len+1,32);
 		if(c > xp->size)
-		{
-			if(xp->size==0)
-				xp->name = sh_malloc(c);
-			else
-				xp->name = sh_realloc(xp->name,c);
-			xp->size = c;
-		}
+			xp->name = sh_realloc(xp->name, xp->size = c);
 		memcpy(xp->name,name,xp->len);
 		xp->name[xp->len] = 0;
 		xp->root = root;

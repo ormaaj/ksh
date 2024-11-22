@@ -2494,9 +2494,6 @@ static void setupalias(Lex_t *lp, const char *string,Namval_t *np)
 static int stack_grow(void)
 {
 	lex_max += STACK_ARRAY;
-	if(lex_match)
-		lex_match = (int*)sh_realloc((char*)lex_match,sizeof(int)*lex_max);
-	else
-		lex_match = (int*)sh_malloc(sizeof(int)*STACK_ARRAY);
+	lex_match = sh_realloc(lex_match,sizeof(int)*lex_max);
 	return 1;
 }

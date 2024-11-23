@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-11-01"
+#define RELEASE_DATE "2024-11-23"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -2389,7 +2389,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			const int makp = (u[0] == 'm');
 			q = getval(state.rules, t);
 			if (!q && !makp && !state.strict)
-				rule(t); /* for backward compat */
+				q = rule(t); /* for backward compat */
 			else if (!q && (makp || state.strict < 4))
 			{
 				/* declare a simple source file prerequisite */

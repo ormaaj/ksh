@@ -1054,7 +1054,6 @@ int sh_exec(const Shnode_t *t, int flags)
 			sh.last_table = 0;
 			if(io || argn)
 			{
-				Shbltin_t *bp=0;
 				static char *argv[2];
 				int tflags = 1;
 				if(np && nv_isattr(np,BLT_DCL))
@@ -1149,7 +1148,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					int save_prompt;
 					int was_nofork = execflg?sh_isstate(SH_NOFORK):0;
 					struct checkpt *buffp = stkalloc(sh.stk,sizeof(struct checkpt));
-					bp = &sh.bltindata;
+					Shbltin_t *bp = &sh.bltindata;
 					save_ptr = bp->ptr;
 					save_data = bp->data;
 					if(execflg)
@@ -1247,12 +1246,9 @@ int sh_exec(const Shnode_t *t, int flags)
 						fifo_cleanup();
 #endif
 					}
-					if(bp)
-					{
-						bp->bnode = 0;
-						if( bp->ptr!= nv_context(np))
-							np->nvfun = (Namfun_t*)bp->ptr;
-					}
+					bp->bnode = 0;
+					if(bp->ptr != nv_context(np))
+						np->nvfun = bp->ptr;
 					if(execflg && !was_nofork)
 						sh_offstate(SH_NOFORK);
 					if(!(nv_isattr(np,BLT_ENV)))

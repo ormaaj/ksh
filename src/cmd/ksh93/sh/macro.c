@@ -2707,7 +2707,7 @@ static int	charlen(const char *string,int len)
 static void tilde_expand2(int offset)
 {
 	char		*cp = NULL;			/* character pointer for tilde expansion result */
-	char		*stakp = stkptr(sh.stk,0);	/* current stack object (&stakp[offset] is tilde string) */
+	char		*tp = stkptr(sh.stk,offset);	/* pointer to tilde string */
 	int		curoff = stktell(sh.stk);	/* current offset of current stack object */
 	sfputc(sh.stk,0);				/* terminate current stack object to avoid data corruption */
 	/*
@@ -2716,7 +2716,7 @@ static void tilde_expand2(int offset)
 	if(!sh.tilde_block && SH_TILDENOD->nvfun && SH_TILDENOD->nvfun->disc)
 	{
 		sh.tilde_block = 1;
-		nv_putval(SH_TILDENOD, &stakp[offset], 0);
+		nv_putval(SH_TILDENOD, tp, 0);
 		cp = nv_getval(SH_TILDENOD);
 		sh.tilde_block = 0;
 		if(cp[0]=='\0' || cp[0]=='~')
@@ -2727,7 +2727,7 @@ static void tilde_expand2(int offset)
 	 * Write the result to the stack, if any.
 	 */
 	if(!cp)
-		cp = sh_tilde(&stakp[offset]);
+		cp = sh_tilde(tp);
 	if(cp)
 	{
 		stkseek(sh.stk,offset);

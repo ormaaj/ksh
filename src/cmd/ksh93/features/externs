@@ -188,7 +188,7 @@ tst	note{ determining size of PID variables }end output{
 	exit 1
 }end
 
-# execve(3) breakage on Android/Termux (as of API 36)
+# execve(3) breakage on Android/Termux (as of API 35)
 tst	execve_ignores_argv0 note{ does execve(3) ignore the specified argv[0] }end output{
 	#include <string.h>
 	#include <unistd.h>

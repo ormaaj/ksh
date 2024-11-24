@@ -3972,8 +3972,10 @@ Passing attributes through the environment is deprecated
 and this feature will be removed in ksh 93u+m/1.1.
 .PP
 The environment for any
-.I simple-command\^
-or function
+.IR simple-command\^ ,
+except calls of functions declared with the
+.IB name (\^)
+syntax,
 may be augmented by prefixing it with one or more variable assignments.
 A variable assignment argument is a word of the form
 .IR identifier=value .

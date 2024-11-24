@@ -3999,8 +3999,10 @@ or
 commands.
 .PP
 The environment for any
-.I simple-command\^
-or function
+.IR simple-command\^ ,
+except calls of functions declared with the
+.IB name (\^)
+syntax,
 may be augmented by prefixing it with one or more variable assignments.
 A variable assignment argument is a word of the form
 .IR identifier=value .

@@ -1102,7 +1102,6 @@ int sh_exec(const Shnode_t *t, int flags)
 			sh.last_table = 0;
 			if(io || argn)
 			{
-				Shbltin_t *bp=0;
 				static char *argv[2];
 				int tflags = 1;
 				if(np && nv_isattr(np,BLT_DCL))
@@ -1196,13 +1195,13 @@ int sh_exec(const Shnode_t *t, int flags)
 					volatile void	*save_data;
 					int		save_prompt;
 					struct checkpt	*buffp;
+					Shbltin_t	*bp = &sh.bltindata;
 					/* Fallback optimization for ':'/'true' and 'false' */
 					if(!io && !argp && (funptr(np)==b_true || funptr(np)==b_false && ++sh.exitval))
 						goto setexit;
 					scope = 0, share = 0;
 					was_mktype = sh.mktype!=NULL;
 					was_nofork = execflg && sh_isstate(SH_NOFORK);
-					bp = &sh.bltindata;
 					save_ptr = bp->ptr;
 					save_data = bp->data;
 					if(execflg)
@@ -1301,12 +1300,9 @@ int sh_exec(const Shnode_t *t, int flags)
 						fifo_cleanup();
 #endif
 					}
-					if(bp)
-					{
-						bp->bnode = 0;
-						if( bp->ptr!= nv_context(np))
-							np->nvfun = (Namfun_t*)bp->ptr;
-					}
+					bp->bnode = 0;
+					if(bp->ptr != nv_context(np))
+						np->nvfun = bp->ptr;
 					if(execflg && !was_nofork)
 						sh_offstate(SH_NOFORK);
 					if(!(nv_isattr(np,BLT_ENV)))

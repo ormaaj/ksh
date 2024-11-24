@@ -1281,14 +1281,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					sh.redir0 = 0;
 					if(jmpval)
 						siglongjmp(*sh.jmplist,jmpval);
-					if(sh.exitval >=0)
-						goto setexit;
-					/*
-					 * If a built-in sets sh.exitval < 0 (must be allowed by BLT_EXIT attribute),
-					 * then fall through to TFORK which runs the external command by that name
-					 */
-					np = 0;
-					type=0;
+					goto setexit;
 				}
 				/* check for functions */
 				if(!command && np && nv_isattr(np,NV_FUNCTION))

@@ -24,7 +24,7 @@
  */
 
 static const char usage_head[] =
-"[-?\n@(#)$Id: cp (ksh 93u+m) 2022-08-30 $\n]"
+"[-?\n@(#)$Id: cp (ksh 93u+m) 2024-11-26 $\n]"
 "[--catalog?" ERROR_CATALOG "]"
 ;
 
@@ -93,7 +93,7 @@ static const char usage_tail[] =
 "[s:symlink|symbolic-link?Make symbolic links to destination files.]"
 "[u:update?Replace a destination file only if its modification time is "
     "older than the corresponding source file modification time.]"
-"[v:verbose?Print the name of each file before operating on it.]"
+"[v:verbose?Report each successful operation.]"
 "[F:fsync|sync?\bfsync\b(2) each file after it is copied.]"
 "[B:backup?Make backups of files that are about to be replaced. "
     "\b--suffix\b sets the backup suffix. The backup type is determined in "
@@ -414,8 +414,6 @@ visit(State_t* state, FTSENT* ent)
 				 * let rename() handle it
 				 */
 
-				if (state->verbose)
-					sfputr(sfstdout, state->path, '\n');
 				goto operate;
 			}
 			error(2, "%s: identical to %s", state->path, ent->fts_path);
@@ -426,8 +424,6 @@ visit(State_t* state, FTSENT* ent)
 			error(2, "%s: cannot %s existing directory", state->path, state->opname);
 			return 0;
 		}
-		if (state->verbose)
-			sfputr(sfstdout, state->path, '\n');
 		if (!rm || !state->force)
 		{
 			if (S_ISLNK(st.st_mode) && (n = -1) || (n = open(state->path, O_RDWR|O_BINARY|O_cloexec)) >= 0)
@@ -539,7 +535,7 @@ visit(State_t* state, FTSENT* ent)
 		for (;;)
 		{
 			if (!rename(ent->fts_path, state->path))
-				return 0;
+				goto success;
 			if (errno == ENOENT)
 				rm = 1;
 			else if (!rm && st.st_mode && !remove(state->path))
@@ -651,10 +647,15 @@ visit(State_t* state, FTSENT* ent)
 			if (state->op == MV && remove(ent->fts_path))
 				error(ERROR_SYSTEM|1, "%s: cannot remove", ent->fts_path);
 		}
+	success:
+		if (state->verbose)
+			sfprintf(sfstdout, "%s -> %s\n", ent->fts_path, state->path);
 		break;
 	case LN:
 		if ((*state->link)(ent->fts_path, state->path))
 			error(ERROR_SYSTEM|2, "%s: cannot link to %s", ent->fts_path, state->path);
+		else if (state->verbose)
+			sfprintf(sfstdout, "%s %c> %s\n", state->path, state->link == link ? '=' : '-', ent->fts_path);
 		break;
 	}
 	return 0;

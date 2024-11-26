@@ -2,6 +2,13 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-11-26:
+
+- The -v/--verbose option of the cp, mv and ln built-in commands (which are
+  bound to the /opt/ast/bin virtual path by default) was non-functional. The
+  option now reports each successful operation in the manner of the *BSD and
+  macOS versions of these commands.
+
 2024-11-17:
 
 - Fixed undefined behaviour when passing the floating point values Inf or

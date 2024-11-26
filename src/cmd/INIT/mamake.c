@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-11-23"
+#define RELEASE_DATE "2024-11-26"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1759,6 +1759,34 @@ static void run(Rule_t *r, char *s)
 }
 
 /*
+ * include file in rule r
+ */
+
+static int include(Rule_t *r, Makestate_t *stp, char *file, int pushflags)
+{
+	int	rv;
+	if (rv = push(file, NULL, pushflags))
+	{
+		/* save automatic variables */
+		char *s1 = auto_prev->value, *s2 = auto_allprev->value, *s3 = auto_updprev->value;
+		auto_prev->value = auto_allprev->value = auto_updprev->value = empty;
+		/* read the file */
+		report(-1, file, "include", NULL);
+		make(r, stp);
+		pop();
+		/* restore automatic variables */
+		if (auto_prev->value != empty)
+			free(auto_prev->value);
+		if (auto_allprev->value != empty)
+			free(auto_allprev->value);
+		if (auto_updprev->value != empty)
+			free(auto_updprev->value);
+		auto_prev->value = s1, auto_allprev->value = s2, auto_updprev->value = s3;
+	}
+	return rv;
+}
+
+/*
  * generate (if necessary) and read the MAM probe information
  * done on the first `setv CC ...'
  */
@@ -1803,7 +1831,7 @@ static void probe(Rule_t *r, Makestate_t *stp)
 	s = use(buf);
 	/* generate probe info if it is nonexistent or older than mamprobe */
 	output_time = stat(s, &st) ? 0 : st.st_mtime;
-	if (output_time < cmd_time || !push(s, NULL, 0))
+	if (output_time < cmd_time || !include(r, stp, s, 0))
 	{
 		Buf_t	*tmp = buffer();
 		append(tmp, cmd);
@@ -1814,13 +1842,10 @@ static void probe(Rule_t *r, Makestate_t *stp)
 		if (execute(NULL, use(tmp)))
 			error_out("cannot generate probe info", s);
 		drop(tmp);
-		if (!push(s, NULL, 0))
-			error_out("cannot read probe info", s);
+		include(r, stp, s, STREAM_MUST);
 	}
 	free(cmd);
 	drop(buf);
-	make(r, stp);
-	pop();
 }
 
 /*
@@ -2194,22 +2219,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				append(buf, state.installroot);
 				append(buf, "/lib/mam/");
 				append(buf, libname);
-				s = use(buf);
-				if (push(s, NULL, 0))
-				{
-					char *s1 = auto_prev->value, *s2 = auto_allprev->value, *s3 = auto_updprev->value;
-					auto_prev->value = auto_allprev->value = auto_updprev->value = empty;
-					report(-1, s, "bind: include", NULL);
-					make(r, &st);
-					if (auto_prev->value != empty)
-						free(auto_prev->value);
-					if (auto_allprev->value != empty)
-						free(auto_allprev->value);
-					if (auto_updprev->value != empty)
-						free(auto_updprev->value);
-					auto_prev->value = s1, auto_allprev->value = s2, auto_updprev->value = s3;
-					pop();
-				}
+				include(r, &st, use(buf), 0);
 			}
 			continue;
 
@@ -2292,6 +2302,12 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 				if (*state.shim == '\n' && !state.shim[1])
 					state.shim = NULL;
 			}
+			continue;
+
+		case KEY('i','n','c','l'):
+			if (!*t || *v)
+				error_out("syntax error", u);
+			include(r, &st, t, STREAM_MUST);
 			continue;
 
 		case KEY('l','o','o','p'):

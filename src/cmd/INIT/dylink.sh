@@ -80,6 +80,8 @@ esac
 case ${module_name:+m}${prefix+p}${suffix+s}${version:+v} in
 '' | mpsv )
 	;;
+msv)	note "warning: -p not given; assuming -p lib for backward compat"
+	prefix=lib ;;
 *)	err_out "-m requires -v/-p/-s and vice versa" ;;
 esac
 

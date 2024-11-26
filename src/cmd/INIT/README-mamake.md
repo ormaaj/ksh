@@ -497,6 +497,14 @@ iteration *variable*.
 
 `loop` requires that the Mamfile be seekable (i.e.: not a pipe).
 
+### Including a MAM file ###
+
+`incl` *filename*
+
+The `incl` command reads a file with MAM commands from *filename* as if
+those commands had appeared in place of the `incl` command, except that the
+automatic variables are saved before and restored after reading.
+
 ## Parallel processing ##
 
 As of strict level 5, `mamake` supports parallel building using the new

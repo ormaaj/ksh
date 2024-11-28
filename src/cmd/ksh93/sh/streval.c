@@ -162,8 +162,8 @@ Sfdouble_t	arith_exec(Arith_t *ep)
 	node.value = 0;
 	node.nosub = 0;
 	node.sub = 0;
-	node.ptr = 0;
-	node.eflag = 0;
+	node.enum_p = 0;
+	node.isenum = 0;
 	if(sh.arithrecursion++ >= MAXLEVEL)
 	{
 		arith_error(e_recursive,ep->expr,ep->emode);
@@ -266,7 +266,7 @@ Sfdouble_t	arith_exec(Arith_t *ep)
 			c = 0;
 			break;
 		    case A_ENUM:
-			node.eflag = 1;
+			node.isenum = 1;
 			continue;
 		    case A_ASSIGNOP:
 			node.nosub = lastsub;
@@ -282,10 +282,10 @@ Sfdouble_t	arith_exec(Arith_t *ep)
 			node.value = (char*)dp;
 			node.flag = c;
 			if(lastval)
-				node.eflag = 1;
-			node.ptr = 0;
+				node.isenum = 1;
+			node.enum_p = 0;
 			num = (*ep->fun)(&ptr,&node,ASSIGN,num);
-			if(lastval && node.ptr) 
+			if(lastval && node.enum_p) 
 			{
 				Sfdouble_t r; 
 				node.flag = 0;
@@ -479,7 +479,7 @@ Sfdouble_t	arith_exec(Arith_t *ep)
 			lastval = 0;
 		if(c&T_BINARY)
 		{
-			node.ptr = 0;
+			node.enum_p = 0;
 			sp--,tp--;
 			type  |= (*tp!=0);
 		}

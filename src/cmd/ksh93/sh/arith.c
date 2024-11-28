@@ -251,9 +251,9 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 			}
 		}
 		nv_putval(np, (char*)&n, NV_LDOUBLE);
-		if(lvalue->eflag)
-			lvalue->ptr = nv_hasdisc(np,&ENUM_disc);
-		lvalue->eflag = 0;
+		if(lvalue->isenum)
+			lvalue->enum_p = nv_hasdisc(np,&ENUM_disc);
+		lvalue->isenum = 0;
 		lvalue->value = (char*)np;
 		/*
 		 * The result (r) of an assignment is its value (n), cast to the type of the variable
@@ -435,7 +435,7 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 		else
 		{
 			char	lastbase=0, *val = xp, oerrno = errno;
-			lvalue->eflag = 0;
+			lvalue->isenum = 0;
 			errno = 0;
 			r = strtonll(val,&str, &lastbase,-1);
 			if(lastbase==8 && *val=='0' && !sh_isoption(sh.bltinfun==b_let ? SH_LETOCTAL : SH_POSIX))
@@ -504,20 +504,24 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 			return 0;
 		}
 		lvalue->ovalue = (char*)np;
-		if(lvalue->eflag)
-			lvalue->ptr = nv_hasdisc(np,&ENUM_disc);
-		else if((Namfun_t*)lvalue->ptr && !nv_hasdisc(np,&ENUM_disc) && !nv_isattr(np,NV_INTEGER))
+		if(lvalue->isenum)
 		{
+			lvalue->enum_p = nv_hasdisc(np,&ENUM_disc);
+			lvalue->isenum = 0;
+		}
+		else if(lvalue->enum_p && !nv_hasdisc(np,&ENUM_disc) && !nv_isattr(np,NV_INTEGER))
+		{
+			/* convert the enum rvalue of the lvalue's enum type to its number */
 			Namval_t *mp,node;
-			mp = ((Namfun_t*)lvalue->ptr)->type;
+			mp = ((Namfun_t*)lvalue->enum_p)->type;
 			memset(&node,0,sizeof(node));
 			nv_clone(mp,&node,0);
 			nv_offattr(&node,NV_RDONLY|NV_NOFREE);
 			nv_putval(&node,np->nvname,0);
-			if(nv_isattr(&node,NV_NOFREE))
-				return r=nv_getnum(&node);
+			r = nv_getnum(&node);
+			_nv_unset(&node,0);
+			return r;
 		}
-		lvalue->eflag = 0;
 		if(((lvalue->emode&2) || lvalue->level>1 || sh_isoption(SH_NOUNSET)) && nv_isnull(np) && !nv_isattr(np,NV_INTEGER))
 		{
 			*ptr = nv_name(np);

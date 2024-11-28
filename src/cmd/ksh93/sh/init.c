@@ -1906,7 +1906,7 @@ static Init_t *nv_init(void)
 	(TMOUTNOD)->nvalue.lp = (&sh.st.tmout);
 	(MCHKNOD)->nvalue.lp = (&sh_mailchk);
 	(OPTINDNOD)->nvalue.lp = (&sh.st.optindex);
-	/* set up the seconds clock */
+	SH_LEVELNOD->nvalue.sp = &sh.level;
 	sh.alias_tree = dtopen(&_Nvdisc,Dtoset);
 	sh.track_tree = dtopen(&_Nvdisc,Dtset);
 	sh.bltin_tree = sh_inittree((const struct shtable2*)shtab_builtins);

@@ -385,6 +385,7 @@ struct Shell_s
 	/* nv_putsub() hack for nv_create() to avoid double arithmetic evaluation */
 	char		nv_putsub_already_called_sh_arith;
 	int		nv_putsub_idx;	/* saves array index obtained by nv_putsub() using sh_arith() */
+	int16_t		level;		/* ${.sh.level} */
 #if SHOPT_OPTIMIZE
 	char		**argaddr;	/* pointer to arguments for the loop invariants optimizer */
 	void		*optlist;	/* linked list of invariant nodes */

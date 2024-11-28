@@ -491,15 +491,14 @@ static void out_string(Sfio_t *iop, const char *cp, int c, int quoted)
 static void put_level(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
 	Shscope_t	*sp;
-	int16_t		level, oldlevel = np->nvalue.s;
-	if(val)
-		nv_putv(np,val,flags,fp);
-	else
+	int16_t		level, oldlevel = sh.level;
+	if(!val)
 		return;
-	level = np->nvalue.s;
+	nv_putv(np,val,flags,fp);
+	level = sh.level;
 	if(level < 0 || level > sh.fn_depth + sh.dot_depth)
 	{
-		np->nvalue.s = oldlevel;
+		sh.level = oldlevel;
 		errormsg(SH_DICT,ERROR_exit(1),"%d: level out of range",level);
 		UNREACHABLE();
 	}

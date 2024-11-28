@@ -1593,9 +1593,11 @@ char	*nv_getsub(Namval_t* np)
 	if(is_associative(ap))
 		return (char*)((*ap->header.fun)(np,NULL,NV_ANAME));
 	if(ap->xp)
-	{
+	{	/* enum subscript */
 		np = nv_namptr(ap->xp,0);
-		np->nvalue.s = ap->cur;
+		if(!np->nvalue.sp)
+			np->nvalue.sp = malloc(sizeof(uint16_t));
+		*((uint16_t*)np->nvalue.sp) = ap->cur;
 		return nv_getval(np);
 	}
 	if((dot = ap->cur)==0)
@@ -1755,11 +1757,11 @@ void *nv_associative(Namval_t *np,const char *sp,int mode)
 				if(sh.subshell)
 					sh_assignok(np,1);
 				/*
-				 * For enum types (NV_UINT16 with discipline ENUM_disc), nelem should not
+				 * For enum types (NV_UINT16P with discipline ENUM_disc), nelem should not
 				 * increase or 'unset' will fail to completely unset such an array.
 				 */
 				if((!ap->header.scope || !nv_search(sp,dtvnext(ap->header.table),0))
-				&& !(type==NV_UINT16 && nv_hasdisc(np, &ENUM_disc)))
+				&& !(type==NV_UINT16P && nv_hasdisc(np, &ENUM_disc)))
 					ap->header.nelem++;
 				if(nv_isnull(mp))
 				{

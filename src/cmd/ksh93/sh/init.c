@@ -1965,8 +1965,7 @@ Dt_t *sh_inittree(const struct shtable2 *name_vals)
 		{
 			if(name_vals == shtab_variables)
 				np->nvfun = &sh.nvfun;
-			if(!nv_isnonptr(np))
-				np->nvalue.cp = (char*)tp->sh_value;
+			np->nvalue.cp = (char*)tp->sh_value;
 		}
 		nv_setattr(np,tp->sh_number);
 		if(nv_isattr(np,NV_TABLE))

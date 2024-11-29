@@ -313,7 +313,7 @@ void sh_assignok(Namval_t *np,int add)
 	sh.subshell = 0;
 	mp->nvname = np->nvname;
 	/* Copy value pointers for variables whose values are pointers into the static scope, sh.st */
-	if(!nv_isnonptr(np) && np->nvalue.cp >= (char*)&sh.st && np->nvalue.cp < (char*)&sh.st + sizeof(struct sh_scoped))
+	if(np->nvalue.cp >= (char*)&sh.st && np->nvalue.cp < (char*)&sh.st + sizeof(struct sh_scoped))
 		mp->nvalue = np->nvalue;
 	if(nv_isattr(np,NV_NOFREE))
 		nv_onattr(mp,NV_IDENT);

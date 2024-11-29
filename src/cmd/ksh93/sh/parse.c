@@ -2043,7 +2043,8 @@ unsigned long kiaentity(Lex_t *lexp,const char *name,int len,int type,int first,
 	sfputc(sh.stk,'\0');  /* terminate name while writing database output */
 	np = nv_search(stkptr(sh.stk,offset),kia.entity_tree,NV_ADD);
 	stkseek(sh.stk,offset);
-	np->nvalue.i = pkind;
+	np->nvalue.ip = sh_malloc(sizeof(int));
+	*np->nvalue.ip = pkind;
 	nv_setsize(np,width);
 	if(!nv_isattr(np,NV_TAGGED) && first>=0)
 	{
@@ -2064,7 +2065,7 @@ static void kia_add(Namval_t *np, void *data)
 	char *name = nv_name(np);
 	Lex_t	*lp = (Lex_t*)data;
 	NOT_USED(data);
-	kiaentity(lp,name+1,-1,*name,0,-1,(*name=='p'?kia.unknown:kia.script),np->nvalue.i,nv_size(np),"");
+	kiaentity(lp,name+1,-1,*name,0,-1,(*name=='p'?kia.unknown:kia.script),*np->nvalue.ip,nv_size(np),"");
 }
 
 int kiaclose(Lex_t *lexp)

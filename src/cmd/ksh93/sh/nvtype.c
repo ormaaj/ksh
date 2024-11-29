@@ -27,7 +27,7 @@
 #include	"builtins.h"
 
 static const char sh_opttype[] =
-"[-1c?\n@(#)$Id: type (ksh 93u+m) 2021-12-17 $\n]"
+"[-1c?\n@(#)$Id: type (ksh 93u+m) 2024-08-28 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?\f?\f - set the type of variables to \b\f?\f\b]"
 "[+DESCRIPTION?\b\f?\f\b sets the type on each of the variables specified "
@@ -1122,12 +1122,6 @@ Namval_t *nv_mktype(Namval_t **nodes, int numnodes)
 			{
 				nq->nvalue.cp = pp->data+offset;
 				sp = (char*)np->nvalue.cp;
-				if(nv_isattr(np,NV_INT16P) ==NV_INT16)
-				{
-					sp= (char*)&np->nvalue;
-					nv_onattr(nq,NV_INT16P);
-					j = 1;
-				}
 				if(sp)
 					memcpy((char*)nq->nvalue.cp,sp,dsize);
 				else if(nv_isattr(np,NV_LJUST|NV_RJUST))
@@ -1199,7 +1193,7 @@ Namval_t *nv_mkinttype(char *name, size_t size, int sign, const char *help, Namd
 	mp->nvmeta = (void*)help;
 	nv_onattr(mp,NV_NOFREE|NV_RDONLY|NV_INTEGER|NV_EXPORT);
 	if(size==16)
-		nv_onattr(mp,NV_INT16P);
+		nv_onattr(mp,NV_INT16);
 	else if(size==64)
 		nv_onattr(mp,NV_INT64);
 	if(!sign)

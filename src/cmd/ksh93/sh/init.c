@@ -365,14 +365,15 @@ static void put_optindex(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 
 static Sfdouble_t nget_optindex(Namval_t* np, Namfun_t *fp)
 {
-	return (Sfdouble_t)*np->nvalue.lp;
+	int32_t *lp = np->nvalue;
+	return (Sfdouble_t)*lp;
 }
 
 static Namfun_t *clone_optindex(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 {
 	Namfun_t *dp = (Namfun_t*)sh_malloc(sizeof(Namfun_t));
 	memcpy(dp,fp,sizeof(Namfun_t));
-	mp->nvalue.lp = np->nvalue.lp;
+	mp->nvalue = np->nvalue;
 	dp->nofree = 0;
 	return dp;
 }
@@ -393,9 +394,9 @@ static void put_restricted(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		/* Clear the hash table */
 		nv_scan(sh_subtracktree(1),nv_rehash,NULL,NV_TAGGED,NV_TAGGED);
 		if(path_scoped && !val)
-			val = PATHNOD->nvalue.cp;
+			val = PATHNOD->nvalue;
 	}
-	if(val && !(flags&NV_RDONLY) && np->nvalue.cp && strcmp(val,np->nvalue.cp)==0)
+	if(val && !(flags&NV_RDONLY) && np->nvalue && strcmp(val,np->nvalue)==0)
 		 return;
 	if(np==FPATHNOD	|| (fpath_scoped=(strcmp(name,FPATHNOD->nvname)==0)))		
 		sh.pathlist = path_unsetfpath();
@@ -403,7 +404,7 @@ static void put_restricted(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	sh.universe = 0;
 	if(sh.pathlist)
 	{
-		val = np->nvalue.cp;
+		val = np->nvalue;
 		if(np==PATHNOD || path_scoped)
 			sh.pathlist = path_addpath((Pathcomp_t*)sh.pathlist,val,PATH_PATH);
 		else if(val && (np==FPATHNOD || fpath_scoped))
@@ -424,7 +425,7 @@ static void put_cdpath(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	nv_putv(np, val, flags, fp);
 	if(!sh.cdpathlist)
 		return;
-	val = np->nvalue.cp;
+	val = np->nvalue;
 	sh.cdpathlist = path_addpath((Pathcomp_t*)sh.cdpathlist,val,PATH_CDPATH);
 }
 
@@ -546,7 +547,7 @@ static void put_ifs(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 			fp = 0;
 		}
 	}
-	if(val != np->nvalue.cp)
+	if(val != np->nvalue)
 		nv_putv(np, val, flags, fp);
 	if(!val)
 	{
@@ -615,6 +616,7 @@ static char* get_ifs(Namval_t* np, Namfun_t *fp)
 static void put_seconds(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
 	double d;
+	double *dp = np->nvalue;
 	struct tms tp;
 	if(!val)
 	{
@@ -624,23 +626,25 @@ static void put_seconds(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 			free(fp);
 		return;
 	}
-	if(!np->nvalue.dp)
+	if(!dp)
 	{
 		nv_setsize(np,3);
 		nv_onattr(np,NV_DOUBLE);
-		np->nvalue.dp = new_of(double,0);
+		dp = np->nvalue = new_of(double,0);
 	}
 	nv_putv(np, val, flags, fp);
-	d = *np->nvalue.dp;
+	d = *dp;
 	timeofday(&tp);
-	*np->nvalue.dp = dtime(&tp)-d;
+	*dp = dtime(&tp)-d;
 }
 
 static char* get_seconds(Namval_t* np, Namfun_t *fp)
 {
 	int places = nv_size(np);
 	struct tms tp;
-	double d, offset = (np->nvalue.dp?*np->nvalue.dp:0);
+	double d;
+	double *dp = np->nvalue;
+	double offset = dp ? *dp : 0;
 	NOT_USED(fp);
 	timeofday(&tp);
 	d = dtime(&tp)- offset;
@@ -651,7 +655,8 @@ static char* get_seconds(Namval_t* np, Namfun_t *fp)
 static Sfdouble_t nget_seconds(Namval_t* np, Namfun_t *fp)
 {
 	struct tms tp;
-	double offset = (np->nvalue.dp?*np->nvalue.dp:0);
+	double *dp = np->nvalue;
+	double offset = dp ? *dp : 0;
 	NOT_USED(fp);
 	timeofday(&tp);
 	return dtime(&tp) - offset;
@@ -679,8 +684,8 @@ static void put_rand(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		n = sh_arith(val);
 	srand(rp->rand_seed = (unsigned int)n);
 	rp->rand_last = -1;
-	if(!np->nvalue.lp)
-		np->nvalue.lp = &rp->rand_last;
+	if(!np->nvalue)
+		np->nvalue = &rp->rand_last;
 }
 
 /*
@@ -690,12 +695,14 @@ static void put_rand(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 static Sfdouble_t nget_rand(Namval_t* np, Namfun_t *fp)
 {
 	struct rand *rp = (struct rand*)fp;
-	long cur, last= *np->nvalue.lp;
+	int32_t cur;
+	int32_t *lp = np->nvalue;
+	int32_t last = *lp;
 	sh_save_rand_seed(rp, 1);
 	do
 		cur = (rand_r(&rp->rand_seed)>>rand_shift)&RANDMASK;
 	while(cur==last);
-	*np->nvalue.lp = cur;
+	*lp = cur;
 	return (Sfdouble_t)cur;
 }
 
@@ -903,8 +910,8 @@ void sh_setmatch(const char *v, int vsize, int nmatch, int match[], int index)
 		mp->vlen = 0;
 		if(ap && ap->hdr.next != &mp->hdr)
 			free(ap);
-		SH_MATCHNOD->nvalue.cp = 0;
-		SH_MATCHNOD->nvfun = 0;
+		SH_MATCHNOD->nvalue = NULL;
+		SH_MATCHNOD->nvfun = NULL;
 		if(!(mp->nmatch=nmatch) && !v)
 		{
 			sh.subshell = savesub;
@@ -1362,7 +1369,7 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	}
 	/* read the environment */
 	env_init();
-	if(!ENVNOD->nvalue.cp)
+	if(!ENVNOD->nvalue)
 	{
 		sfprintf(sh.strbuf,"%s/.kshrc",nv_getval(HOME));
 		nv_putval(ENVNOD,sfstruse(sh.strbuf),NV_RDONLY);
@@ -1639,8 +1646,8 @@ void sh_reinit(void)
 		npnext = (Namval_t*)dtnext(sh.fun_tree,np);
 		if(dp==sh.bltin_tree)
 		{
-			if(np->nvalue.bfp)
-				sh_addbuiltin(nv_name(np), np->nvalue.bfp, pointerof(1));
+			if(np->nvalue)
+				sh_addbuiltin(nv_name(np), np->nvalue, pointerof(1));
 		}
 		else if(is_afunction(np))
 		{
@@ -1792,7 +1799,7 @@ static void stat_init(void)
 		np->nvname = (char*)shtab_stats[i].sh_name;
 		nv_onattr(np,NV_RDONLY|NV_MINIMAL|NV_NOFREE|NV_INTEGER);
 		nv_setsize(np,10);
-		np->nvalue.ip = &sh.stats[i];
+		np->nvalue = &sh.stats[i];
 	}
 	sp->hdr.dsize = sizeof(struct Stats) + extrasize;
 	sp->hdr.disc = &stat_disc;
@@ -1812,7 +1819,7 @@ static Init_t *nv_init(void)
 	sh.nvfun.last = (char*)&sh;
 	sh.nvfun.nofree = 1;
 	sh.var_base = sh.var_tree = sh_inittree(shtab_variables);
-	SHLVL->nvalue.lp = &sh.shlvl;
+	SHLVL->nvalue = &sh.shlvl;
 	ip->IFS_init.hdr.disc = &IFS_disc;
 	ip->PATH_init.disc = &RESTRICTED_disc;
 	ip->PATH_init.nofree = 1;
@@ -1899,28 +1906,32 @@ static Init_t *nv_init(void)
 	nv_stack(LCNUMNOD, &ip->LC_NUM_init);
 	nv_stack(LCTIMENOD, &ip->LC_TIME_init);
 	nv_stack(LANGNOD, &ip->LANG_init);
-	(PPIDNOD)->nvalue.pidp = (&sh.ppid);
-	(SH_PIDNOD)->nvalue.pidp = (&sh.current_pid);
-	(SH_PPIDNOD)->nvalue.pidp = (&sh.current_ppid);
-	(SH_SUBSHELLNOD)->nvalue.ip = (&sh.realsubshell);
-	(TMOUTNOD)->nvalue.lp = (&sh.st.tmout);
-	(MCHKNOD)->nvalue.lp = (&sh_mailchk);
-	(OPTINDNOD)->nvalue.lp = (&sh.st.optindex);
-	SH_LEVELNOD->nvalue.sp = &sh.level;
+	PPIDNOD->nvalue = &sh.ppid;
+	SH_PIDNOD->nvalue = &sh.current_pid;
+	SH_PPIDNOD->nvalue = &sh.current_ppid;
+	SH_SUBSHELLNOD->nvalue = &sh.realsubshell;
+	TMOUTNOD->nvalue = &sh.st.tmout;
+	MCHKNOD->nvalue = &sh_mailchk;
+	OPTINDNOD->nvalue = &sh.st.optindex;
+	SH_LEVELNOD->nvalue = &sh.level;
 	sh.alias_tree = dtopen(&_Nvdisc,Dtoset);
 	sh.track_tree = dtopen(&_Nvdisc,Dtset);
 	sh.bltin_tree = sh_inittree((const struct shtable2*)shtab_builtins);
 	sh.fun_base = sh.fun_tree = dtopen(&_Nvdisc,Dtoset);
 	dtview(sh.fun_tree,sh.bltin_tree);
 	nv_mount(DOTSHNOD, "type", sh.typedict=dtopen(&_Nvdisc,Dtoset));
-	DOTSHNOD->nvalue.cp = Empty;
+	DOTSHNOD->nvalue = Empty;
 	nv_onattr(DOTSHNOD,NV_RDONLY);
-	SH_LINENO->nvalue.ip = &sh.st.lineno;
-	VERSIONNOD->nvalue.nrp = sh_newof(0,struct Namref,1,0);
-        VERSIONNOD->nvalue.nrp->np = SH_VERSIONNOD;
-        VERSIONNOD->nvalue.nrp->root = nv_dict(DOTSHNOD);
-        VERSIONNOD->nvalue.nrp->table = DOTSHNOD;
-	nv_onattr(VERSIONNOD,NV_REF);
+	SH_LINENO->nvalue = &sh.st.lineno;
+	/* init KSH_VERSION as a nameref to .sh.version */
+	{
+		struct Namref *nrp;
+		VERSIONNOD->nvalue = nrp = sh_newof(0,struct Namref,1,0);
+	        nrp->np = SH_VERSIONNOD;
+	        nrp->root = nv_dict(DOTSHNOD);
+	        nrp->table = DOTSHNOD;
+		nv_onattr(VERSIONNOD,NV_REF);
+	}
 	math_init();
 #if SHOPT_STATS
 	stat_init();
@@ -1960,12 +1971,12 @@ Dt_t *sh_inittree(const struct shtable2 *name_vals)
 		}
 		np->nvmeta = NULL;
 		if(name_vals==(const struct shtable2*)shtab_builtins)
-			np->nvalue.bfp = (void*)((struct shtable3*)tp)->sh_value;
+			np->nvalue = ((struct shtable3*)tp)->sh_value;
 		else
 		{
 			if(name_vals == shtab_variables)
 				np->nvfun = &sh.nvfun;
-			np->nvalue.cp = (char*)tp->sh_value;
+			np->nvalue = (void*)tp->sh_value;
 		}
 		nv_setattr(np,tp->sh_number);
 		if(nv_isattr(np,NV_TABLE))

@@ -118,13 +118,9 @@ struct Namval
 	unsigned short	nvflag; 	/* attributes */
 	unsigned short 	nvsize;		/* size or base */
 #endif
-#ifdef _NV_PRIVATE
-	_NV_PRIVATE
-#else
-	Namfun_t	*nvfun;
-	char		*nvalue;
-	char		*nvprivate;
-#endif /* _NV_PRIVATE */
+	Namfun_t	*nvfun;		/* pointer to trap functions */
+	void		*nvalue;	/* pointer to any kind of value */
+	void		*nvmeta;	/* pointer to any of various kinds of type-dependent data */
 };
 
 #define NV_CLASS	".sh.type"

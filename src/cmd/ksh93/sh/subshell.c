@@ -313,7 +313,7 @@ void sh_assignok(Namval_t *np,int add)
 	sh.subshell = 0;
 	mp->nvname = np->nvname;
 	/* Copy value pointers for variables whose values are pointers into the static scope, sh.st */
-	if(np->nvalue.cp >= (char*)&sh.st && np->nvalue.cp < (char*)&sh.st + sizeof(struct sh_scoped))
+	if((char*)np->nvalue >= (char*)&sh.st && (char*)np->nvalue < (char*)&sh.st + sizeof(struct sh_scoped))
 		mp->nvalue = np->nvalue;
 	if(nv_isattr(np,NV_NOFREE))
 		nv_onattr(mp,NV_IDENT);
@@ -788,18 +788,19 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 			/* Free all elements of the subshell function table. */
 			for(np = (Namval_t*)dtfirst(sp->sfun); np; np = next_np)
 			{
+				struct Ufunction *rp = np->nvalue;
 				next_np = (Namval_t*)dtnext(sp->sfun,np);
-				if(!np->nvalue.rp)
+				if(!rp)
 				{
 					/* Dummy node created by unall() to mask parent shell function. */
 					nv_delete(np,sp->sfun,0);
 					continue;
 				}
 				nv_onattr(np,NV_FUNCTION);  /* in case invalidated by unall() */
-				if(np->nvalue.rp->fname && sh.fpathdict && nv_search(np->nvalue.rp->fname,sh.fpathdict,0))
+				if(rp->fname && sh.fpathdict && nv_search(rp->fname,sh.fpathdict,0))
 				{
 					/* Autoloaded function. It must not be freed. */
-					np->nvalue.rp->fdict = 0;
+					rp->fdict = NULL;
 					nv_delete(np,sp->sfun,NV_FUNCTION|NV_NOFREE);
 				}
 				else

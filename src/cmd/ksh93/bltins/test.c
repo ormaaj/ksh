@@ -463,7 +463,7 @@ int test_unop(int op,const char *arg)
 			return isref;
 		if(isref)
 		{
-			if(np->nvalue.cp)
+			if(np->nvalue)
 				np = nv_refnode(np);
 			else
 				return 0;

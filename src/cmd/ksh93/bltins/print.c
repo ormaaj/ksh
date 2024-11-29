@@ -672,7 +672,7 @@ static ssize_t fmtbase64(Sfio_t *iop, char *string, int alt)
 				nv_offattr(np,NV_RAW);
 			}
 			else
-				cp = (char*)np->nvalue.cp;
+				cp = np->nvalue;
 			if((size = n)==0)
 				size = strlen(cp);
 			size = sfwrite(iop, cp, size);
@@ -844,15 +844,15 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 			np = nv_open(argp,sh.var_tree,NV_VARNAME|NV_NOARRAY);
 			_nv_unset(np,0);
 			nv_onattr(np,NV_INTEGER);
-			if (np->nvalue.lp = new_of(int32_t,0))
-				*np->nvalue.lp = 0;
+			if (np->nvalue = new_of(int32_t,0))
+				*((int32_t*)np->nvalue) = 0;
 			nv_setsize(np,10);
 			if(sizeof(int)==sizeof(int32_t))
-				value->ip = (int*)np->nvalue.lp;
+				value->ip = np->nvalue;
 			else
 			{
 				int32_t sl = 1;
-				value->ip = (int*)(((char*)np->nvalue.lp) + (*((char*)&sl) ? 0 : sizeof(int)));
+				value->ip = (int*)(((char*)np->nvalue) + (*((char*)&sl) ? 0 : sizeof(int)));
 			}
 			break;
 		}

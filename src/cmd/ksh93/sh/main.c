@@ -146,7 +146,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 				Namval_t *np = sh_calloc(1,sizeof(Namval_t));
 				np->nvname = (char*)tp->sh_name;	/* alias name */
 				np->nvflag = tp->sh_number;		/* attributes (must include NV_NOFREE) */
-				np->nvalue.cp = (char*)tp->sh_value;	/* non-freeable value */
+				np->nvalue = (void*)tp->sh_value;	/* non-freeable value */
 				dtinstall(sh.alias_tree,np);
 			}
 		}

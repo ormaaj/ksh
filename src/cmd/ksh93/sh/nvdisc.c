@@ -243,7 +243,7 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 	Namval_t *nq =  vp->disc[type];
 	struct blocked	block, *bp = block_info(np, &block);
 	Namval_t	node;
-	union Value	*up = np->nvalue.up;
+	union Value	*up = np->nvalue;
 	Namval_t	*tp, *nr;  /* for 'typeset -T' types */
 	int		jmpval = 0;
 	if(val && (tp=nv_type(np)) && (nr=nv_open(val,sh.var_tree,NV_VARNAME|NV_ARRAY|NV_NOADD|NV_NOFAIL)) && tp==nv_type(nr)) 
@@ -306,7 +306,7 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 		sh.savexit = savexit;	/* avoid influencing $? */
 	}
 	if(nv_isarray(np))
-		np->nvalue.up = up;
+		np->nvalue = up;
 	if(val)
 	{
 		char *cp;
@@ -362,9 +362,9 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 done:
 	if(bp== &block)
 		block_done(bp);
-	if(nq && nq->nvalue.rp && nq->nvalue.rp->running==1)
+	if(nq && nq->nvalue && ((struct Ufunction*)nq->nvalue)->running==1)
 	{
-		nq->nvalue.rp->running=0;
+		((struct Ufunction*)nq->nvalue)->running=0;
 		_nv_unset(nq,0);
 	}
 	if(jmpval >= SH_JMPFUN)
@@ -382,7 +382,7 @@ static char*	lookup(Namval_t *np, int type, Sfdouble_t *dp,Namfun_t *handle)
 	Namval_t	*nq = vp->disc[type];
 	char		*cp=0;
 	Namval_t	node;
-	union Value	*up = np->nvalue.up;
+	union Value	*up = np->nvalue;
 	int		jmpval = 0;
 	if(nq && !isblocked(bp,type))
 	{
@@ -418,7 +418,7 @@ static char*	lookup(Namval_t *np, int type, Sfdouble_t *dp,Namfun_t *handle)
 			chktfree(np,vp);
 		if(type==LOOKUPN)
 		{
-			cp = (char*)(SH_VALNOD->nvalue.cp);
+			cp = SH_VALNOD->nvalue;
 			*dp = nv_getnum(SH_VALNOD);
 		}
 		else if(cp = nv_getval(SH_VALNOD))
@@ -433,12 +433,12 @@ static char*	lookup(Namval_t *np, int type, Sfdouble_t *dp,Namfun_t *handle)
 		sh.savexit = savexit;	/* avoid influencing $? */
 	}
 	if(nv_isarray(np))
-		np->nvalue.up = up;
+		np->nvalue = up;
 	if(bp== &block)
 		block_done(bp);
-	if(nq && nq->nvalue.rp && nq->nvalue.rp->running==1)
+	if(nq && nq->nvalue && ((struct Ufunction*)nq->nvalue)->running==1)
 	{
-		nq->nvalue.rp->running=0;
+		((struct Ufunction*)nq->nvalue)->running=0;
 		_nv_unset(nq,0);
 	}
 	if(jmpval >= SH_JMPFUN)
@@ -889,7 +889,7 @@ void clone_all_disc( Namval_t *np, Namval_t *mp, int flags)
 int nv_clone(Namval_t *np, Namval_t *mp, int flags)
 {
 	Namfun_t	*fp, *fpnext;
-	const char	*val = mp->nvalue.cp;
+	const char	*val = mp->nvalue;
 	unsigned short	flag = mp->nvflag;
 	unsigned short	size = mp->nvsize;
 	for(fp=mp->nvfun; fp; fp=fpnext)
@@ -923,25 +923,25 @@ int nv_clone(Namval_t *np, Namval_t *mp, int flags)
 		mp->nvflag = (np->nvflag&~(NV_MINIMAL))|(mp->nvflag&NV_MINIMAL);
 	if(nv_isattr(np,NV_EXPORT))
 		mp->nvflag |= (np->nvflag&NV_MINIMAL);
-	if(mp->nvalue.cp==val && !nv_isattr(np,NV_INTEGER))
+	if(mp->nvalue==val && !nv_isattr(np,NV_INTEGER))
 	{
-		if(np->nvalue.cp && np->nvalue.cp!=Empty && (!flags || ((flags&NV_COMVAR) && !(flags&NV_MOVE))))
+		if(np->nvalue && np->nvalue!=Empty && (!flags || ((flags&NV_COMVAR) && !(flags&NV_MOVE))))
 		{
 			if(size)
-				mp->nvalue.cp = (char*)sh_memdup(np->nvalue.cp,size);
+				mp->nvalue = sh_memdup(np->nvalue,size);
 			else
-			        mp->nvalue.cp = sh_strdup(np->nvalue.cp);
+			        mp->nvalue = sh_strdup(np->nvalue);
 			nv_offattr(mp,NV_NOFREE);
 		}
-		else if((np->nvfun || !nv_isattr(np,NV_ARRAY)) && !(mp->nvalue.cp = np->nvalue.cp))
+		else if((np->nvfun || !nv_isattr(np,NV_ARRAY)) && !(mp->nvalue = np->nvalue))
 			nv_offattr(mp,NV_NOFREE);
 	}
 	if(flags&NV_MOVE)
 	{
 		if(nv_isattr(np,NV_INTEGER))
-			mp->nvalue.ip = np->nvalue.ip;
-		np->nvfun = 0; /* This will remove the discipline function, if there is one */
-		np->nvalue.cp = 0;
+			mp->nvalue = np->nvalue;
+		np->nvfun = NULL; /* This will remove the discipline function, if there is one */
+		np->nvalue = NULL;
 		if(!nv_isattr(np,NV_MINIMAL) || nv_isattr(mp,NV_EXPORT))
 		{
 			mp->nvmeta = np->nvmeta;
@@ -960,9 +960,9 @@ int nv_clone(Namval_t *np, Namval_t *mp, int flags)
 	}
 	else if((flags&NV_ARRAY) && !nv_isattr(np,NV_MINIMAL))
 		mp->nvmeta = np->nvmeta;
-	if(nv_isattr(np,NV_INTEGER) && !nv_isarray(np) && mp->nvalue.ip!=np->nvalue.ip && np->nvalue.cp!=Empty)
+	if(nv_isattr(np,NV_INTEGER) && !nv_isarray(np) && mp->nvalue!=np->nvalue && np->nvalue!=Empty)
 	{
-		mp->nvalue.ip = (int*)num_clone(np,np->nvalue.ip);
+		mp->nvalue = num_clone(np,np->nvalue);
 		nv_offattr(mp,NV_NOFREE);
 	}
 	else if((flags&NV_NOFREE) && !nv_arrayptr(np))
@@ -1183,7 +1183,7 @@ Namval_t *sh_addbuiltin(const char *path, Shbltin_f bltin, void *extra)
 	np->nvfun = NULL;
 	if(bltin)
 	{
-		np->nvalue.bfp = bltin;
+		np->nvalue = bltin;
 		nv_onattr(np,NV_BLTIN|NV_NOFREE);
 		np->nvfun = (Namfun_t*)extra;
 	}

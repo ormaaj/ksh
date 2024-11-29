@@ -183,7 +183,7 @@ static void put_enum(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 			n = strcmp(v,val);
 		if(n==0)
 		{
-			nv_putv(np, (char*)&i, NV_UINT16P, fp);
+			nv_putv(np, (char*)&i, NV_UINT16, fp);
 			return;
 		}
 		i++;
@@ -260,7 +260,7 @@ int b_enum(int argc, char** argv, Shbltin_t *context)
 		tp = nv_open(sfstruse(sh.strbuf), sh.var_tree, NV_VARNAME);
 		n = sz;
 		i = 0;
-		nv_onattr(tp, NV_UINT16P);
+		nv_onattr(tp, NV_UINT16);
 		nv_putval(tp, (char*)&i, NV_INTEGER);
 		nv_putsub(np, NULL, ARRAY_SCAN);
 		do

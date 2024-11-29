@@ -194,10 +194,7 @@ struct Namval
 #define NV_PUBLIC	(~(NV_NOSCOPE|NV_ASSIGN|NV_IDENT|NV_VARNAME|NV_NOADD))
 
 /* numeric types */
-/* NV_INT16 and NV_UINT16 store values directly in the node; all the others use pointers */
-#define NV_INT16P	(NV_LJUST|NV_SHORT|NV_INTEGER)
 #define NV_INT16	(NV_SHORT|NV_INTEGER)
-#define NV_UINT16P	(NV_LJUST|NV_UNSIGN|NV_SHORT|NV_INTEGER)
 #define NV_UINT16	(NV_UNSIGN|NV_SHORT|NV_INTEGER)
 #define NV_INT32	(NV_INTEGER)
 #define NV_UINT32	(NV_UNSIGN|NV_INTEGER)

@@ -296,7 +296,7 @@ int    b_typeset(int argc,char *argv[],Shbltin_t *context)
 				if(shortint)
 				{
 					shortint = 0;
-					flag &= ~NV_INT16P;
+					flag &= ~NV_INT16;
 				}
 				if(n=='E')
 				{
@@ -375,7 +375,7 @@ int    b_typeset(int argc,char *argv[],Shbltin_t *context)
 				if(shortint)
 				{
 					flag &= ~NV_LONG;
-					flag |= NV_INT16P;
+					flag |= NV_INT16;
 				}
 				else
 					flag |= NV_INTEGER;
@@ -384,8 +384,8 @@ int    b_typeset(int argc,char *argv[],Shbltin_t *context)
 				if(shortint)
 				{
 					shortint = 0;
-					/* Turn off the NV_INT16P bits except the NV_INTEGER bit */
-					flag &= ~(NV_INT16P & ~NV_INTEGER);
+					/* Turn off the NV_INT16 bits except the NV_INTEGER bit */
+					flag &= ~(NV_INT16 & ~NV_INTEGER);
 				}
 				tdata.wctname = e_tolower;
 				flag |= NV_UTOL;
@@ -411,7 +411,7 @@ int    b_typeset(int argc,char *argv[],Shbltin_t *context)
 					if(flag&NV_INTEGER)
 					{
 						flag &= ~NV_LONG;
-						flag |= NV_INT16P;
+						flag |= NV_INT16;
 					}
 				}
 				break;

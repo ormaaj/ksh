@@ -1610,7 +1610,6 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 	union Value	*up;
 	unsigned int	size = 0;
 	int		was_local = nv_local;
-	union Value	u;
 #if SHOPT_FIXEDARRAY
 	Namarr_t	*ap;
 #endif /* SHOPT_FIXEDARRAY */
@@ -1664,18 +1663,10 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 		return;
 	}
 	up= &np->nvalue;
-	if(nv_isattr(np,NV_INT16P|NV_DOUBLE) == NV_INT16)
-	{
-		if(!np->nvalue.up || !nv_isarray(np))
-		{
-			up = &u;
-			up->up = &np->nvalue;
-		}
-	}
 #if SHOPT_FIXEDARRAY
-	else if(np->nvalue.up && nv_isarray(np) && (ap=nv_arrayptr(np)) && !ap->fixed)
+	if(np->nvalue.up && nv_isarray(np) && (ap=nv_arrayptr(np)) && !ap->fixed)
 #else
-	else if(np->nvalue.up && nv_isarray(np) && nv_arrayptr(np))
+	if(np->nvalue.up && nv_isarray(np) && nv_arrayptr(np))
 #endif /* SHOPT_FIXEDARRAY */
 		up = np->nvalue.up;
 	if(up && up->cp==Empty)
@@ -1813,7 +1804,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				}
 				if(nv_size(np) <= 1)
 					nv_setsize(np,10);
-				if(nv_isattr(np,NV_INT16P)==NV_INT16P)
+				if(nv_isattr(np,NV_SHORT))
 				{
 					int16_t os=0;
 					if(!up->sp)
@@ -1821,14 +1812,6 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 					else if(flags&NV_APPEND)
 						os = *(up->sp);
 					*(up->sp) = os+(int16_t)l;
-				}
-				else if(nv_isattr(np,NV_SHORT))
-				{
-					int16_t s=0;
-					if(flags&NV_APPEND)
-						s = *up->sp;
-					*(up->sp) = s+(int16_t)l;
-					nv_onattr(np,NV_NOFREE);
 				}
 				else
 				{
@@ -2494,18 +2477,10 @@ void	_nv_unset(Namval_t *np,int flags)
 		/* called from disc, assign the actual value */
 		nv_local=0;
 	}
-	if(nv_isnonptr(np))
-	{
-		if(nv_isarray(np))
-			np->nvalue.cp = Empty;
-		else
-			np->nvalue.s = 0;
-		goto done;
-	}
 #if SHOPT_FIXEDARRAY
-	else if(np->nvalue.up && nv_isarray(np) && (ap=nv_arrayptr(np)) && !ap->fixed)
+	if(np->nvalue.up && nv_isarray(np) && (ap=nv_arrayptr(np)) && !ap->fixed)
 #else
-	else if(np->nvalue.up && nv_isarray(np) && nv_arrayptr(np))
+	if(np->nvalue.up && nv_isarray(np) && nv_arrayptr(np))
 #endif /* SHOPT_FIXEDARRAY */
 		up = np->nvalue.up;
 	else if(nv_isref(np) && !nv_isattr(np,NV_EXPORT|NV_MINIMAL) && np->nvalue.nrp)
@@ -2762,24 +2737,14 @@ char *nv_getval(Namval_t *np)
 	        	if(nv_isattr (np,NV_LONG))
 				ll = *(Sfulong_t*)up->llp;
 			else if(nv_isattr (np,NV_SHORT))
-			{
-				if(nv_isattr(np,NV_INT16P)==NV_INT16P)
-					ll = *(uint16_t*)(up->sp);
-				else
-					ll = (uint16_t)up->s;
-			}
+				ll = *(uint16_t*)(up->sp);
 			else
 				ll = *(uint32_t*)(up->lp);
 		}
         	else if(nv_isattr (np,NV_LONG))
 			ll = *up->llp;
         	else if(nv_isattr (np,NV_SHORT))
-		{
-			if(nv_isattr(np,NV_INT16P)==NV_INT16P)
-				ll = *up->sp;
-			else
-				ll = up->s;
-		}
+			ll = *up->sp;
         	else
 			ll = *(up->lp);
 		base = nv_size(np);
@@ -2858,12 +2823,7 @@ Sfdouble_t nv_getnum(Namval_t *np)
 			if(nv_isattr(np, NV_LONG))
 				r = (Sflong_t)*((Sfulong_t*)up->llp);
 			else if(nv_isattr(np, NV_SHORT))
-			{
-				if(nv_isattr(np,NV_INT16P)==NV_INT16P)
-					r = (Sflong_t)(*(uint16_t*)up->sp);
-				else
-					r = (Sflong_t)((uint16_t)up->s);
-			}
+				r = (Sflong_t)(*(uint16_t*)up->sp);
 			else
 				r = *((uint32_t*)up->lp);
 		}
@@ -2872,12 +2832,7 @@ Sfdouble_t nv_getnum(Namval_t *np)
 			if(nv_isattr(np, NV_LONG))
 				r = *up->llp;
 			else if(nv_isattr(np, NV_SHORT))
-			{
-				if(nv_isattr(np,NV_INT16P)==NV_INT16P)
-					r = *up->sp;
-				else
-					r = up->s;
-			}
+				r = *up->sp;
 			else
 				r = *up->lp;
 		}

@@ -563,10 +563,6 @@ static char *array_getval(Namval_t *np, Namfun_t *disc)
 		}
 		return cp;
 	}
-#if SHOPT_FIXEDARRAY
-	if(ap->fixed && nv_isattr(np,NV_INT16P|NV_DOUBLE) == NV_INT16)
-		np->nvalue.s = *np->nvalue.sp;
-#endif /* SHOPT_FIXEDARRAY */
 	return nv_getv(np,&ap->hdr);
 }
 
@@ -1757,11 +1753,11 @@ void *nv_associative(Namval_t *np,const char *sp,int mode)
 				if(sh.subshell)
 					sh_assignok(np,1);
 				/*
-				 * For enum types (NV_UINT16P with discipline ENUM_disc), nelem should not
+				 * For enum types (NV_UINT16 with discipline ENUM_disc), nelem should not
 				 * increase or 'unset' will fail to completely unset such an array.
 				 */
 				if((!ap->header.scope || !nv_search(sp,dtvnext(ap->header.table),0))
-				&& !(type==NV_UINT16P && nv_hasdisc(np, &ENUM_disc)))
+				&& !(type==NV_UINT16 && nv_hasdisc(np, &ENUM_disc)))
 					ap->header.nelem++;
 				if(nv_isnull(mp))
 				{

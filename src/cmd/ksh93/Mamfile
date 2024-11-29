@@ -577,8 +577,6 @@ make install virtual
 		done
 
 		make sh/defs.c
-			prev include/timeout.h
-			prev include/edit.h
 			prev include/shlex.h
 			prev include/jobs.h
 			prev include/defs.h

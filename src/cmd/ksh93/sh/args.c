@@ -336,25 +336,25 @@ int sh_argopts(int argc,char *argv[])
 			errormsg(SH_DICT,ERROR_usage(2),"-R requires scriptname");
 			UNREACHABLE();
 		}
-		if(!(lp->kiafile=sfopen(NULL,ap->kiafile,"w+")))
+		if(!(kia.file=sfopen(NULL,ap->kiafile,"w+")))
 		{
 			errormsg(SH_DICT,ERROR_system(3),e_create,ap->kiafile);
 			UNREACHABLE();
 		}
-		if(!(lp->kiatmp=sftmp(2*SFIO_BUFSIZE)))
+		if(!(kia.tmp=sftmp(2*SFIO_BUFSIZE)))
 		{
 			errormsg(SH_DICT,ERROR_system(3),e_tmpcreate);
 			UNREACHABLE();
 		}
-		sfputr(lp->kiafile,";vdb;CIAO/ksh",'\n');
-		lp->kiabegin = sftell(lp->kiafile);
-		lp->entity_tree = dtopen(&_Nvdisc,Dtbag);
-		lp->scriptname = sh_strdup(sh_fmtq(argv[0]));
-		lp->script=kiaentity(lp,lp->scriptname,-1,'p',-1,0,0,'s',0,"");
-		lp->fscript=kiaentity(lp,lp->scriptname,-1,'f',-1,0,0,'s',0,"");
-		lp->unknown=kiaentity(lp,"<unknown>",-1,'p',-1,0,0,'0',0,"");
-		kiaentity(lp,"<unknown>",-1,'p',0,0,lp->unknown,'0',0,"");
-		lp->current = lp->script;
+		sfputr(kia.file,";vdb;CIAO/ksh",'\n');
+		kia.begin = sftell(kia.file);
+		kia.entity_tree = dtopen(&_Nvdisc,Dtbag);
+		kia.scriptname = sh_strdup(sh_fmtq(argv[0]));
+		kia.script=kiaentity(lp,kia.scriptname,-1,'p',-1,0,0,'s',0,"");
+		kia.fscript=kiaentity(lp,kia.scriptname,-1,'f',-1,0,0,'s',0,"");
+		kia.unknown=kiaentity(lp,"<unknown>",-1,'p',-1,0,0,'0',0,"");
+		kiaentity(lp,"<unknown>",-1,'p',0,0,kia.unknown,'0',0,"");
+		kia.current = kia.script;
 		ap->kiafile = 0;
 	}
 #endif /* SHOPT_KIA */

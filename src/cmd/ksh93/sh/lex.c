@@ -89,7 +89,7 @@ static void refvar(Lex_t *lp, int type)
 	if(lp->lexd.first)
 	{
 		off = (fcseek(0)-(type+1)) - lp->lexd.first;
-		r=kiaentity(lp,lp->lexd.first+lp->lexd.kiaoff+type,off-lp->lexd.kiaoff,'v',-1,-1,lp->current,'v',0,"");
+		r=kiaentity(lp,lp->lexd.first+kia.offset+type,off-kia.offset,'v',-1,-1,kia.current,'v',0,"");
 	}
 	else
 	{
@@ -97,25 +97,25 @@ static void refvar(Lex_t *lp, int type)
 		void *savptr;
 		char *begin;
 		off = offset + (fcseek(0)-(type+1)) - fcfirst();
-		if(lp->lexd.kiaoff < offset)
+		if(kia.offset < offset)
 		{
 			/* variable starts on stack, copy remainder */
 			if(off>offset)
 				sfwrite(sh.stk,fcfirst()+type,off-offset);
-			n = stktell(sh.stk)-lp->lexd.kiaoff;
-			begin = stkptr(sh.stk,lp->lexd.kiaoff);
+			n = stktell(sh.stk)-kia.offset;
+			begin = stkptr(sh.stk,kia.offset);
 		}
 		else
 		{
 			/* variable in data buffer */
-			begin = fcfirst()+(type+lp->lexd.kiaoff-offset);
-			n = off-lp->lexd.kiaoff;
+			begin = fcfirst()+(type+kia.offset-offset);
+			n = off-kia.offset;
 		}
 		savptr = stkfreeze(sh.stk,0);
-		r=kiaentity(lp,begin,n,'v',-1,-1,lp->current,'v',0,"");
+		r=kiaentity(lp,begin,n,'v',-1,-1,kia.current,'v',0,"");
 		stkset(sh.stk,savptr,offset);
 	}
-	sfprintf(lp->kiatmp,"p;%..64d;v;%..64d;%d;%d;r;\n",lp->current,r,sh.inlineno,sh.inlineno);
+	sfprintf(kia.tmp,"p;%..64d;v;%..64d;%d;%d;r;\n",kia.current,r,sh.inlineno,sh.inlineno);
 }
 #endif /* SHOPT_KIA */
 
@@ -153,7 +153,7 @@ static void lex_advance(Sfio_t *iop, const char *buff, int size, void *context)
 		if(!lp->lexd.inlexskip)
 			lp->arg = stkseek(sh.stk,ARGVAL);
 #if SHOPT_KIA
-		lp->lexd.kiaoff += ARGVAL;
+		kia.offset += ARGVAL;
 #endif /* SHOPT_KIA */
 	}
 	if(size>0 && (lp->arg||lp->lexd.inlexskip))
@@ -814,9 +814,9 @@ int sh_lex(Lex_t* lp)
 					continue;
 #if SHOPT_KIA
 				if(lp->lexd.first)
-					lp->lexd.kiaoff = fcseek(0)-lp->lexd.first;
+					kia.offset = fcseek(0)-lp->lexd.first;
 				else
-					lp->lexd.kiaoff = stktell(sh.stk)+fcseek(0)-fcfirst();
+					kia.offset = stktell(sh.stk)+fcseek(0)-fcfirst();
 #endif /* SHOPT_KIA */
 				pushlevel(lp,'$',mode);
 				mode = ST_DOL;
@@ -843,7 +843,7 @@ int sh_lex(Lex_t* lp)
 			case S_EDOL:
 				/* end $identifier */
 #if SHOPT_KIA
-				if(lp->kiafile)
+				if(kia.file)
 					refvar(lp,0);
 #endif /* SHOPT_KIA */
 				if(lp->lexd.warn && c==LBRACT && !lp->lex.intest && !lp->lexd.arith && oldmode(lp)!= ST_NESTED)
@@ -960,7 +960,7 @@ int sh_lex(Lex_t* lp)
 				continue;
 			case S_MOD2:
 #if SHOPT_KIA
-				if(lp->kiafile)
+				if(kia.file)
 					refvar(lp,1);
 #endif /* SHOPT_KIA */
 				if(c!=':' && fcgetc(n)>0)
@@ -2465,11 +2465,11 @@ static void setupalias(Lex_t *lp, const char *string,Namval_t *np)
 	if(ap->np = np)
 	{
 #if SHOPT_KIA
-		if(lp->kiafile)
+		if(kia.file)
 		{
 			unsigned long r;
-			r=kiaentity(lp,nv_name(np),-1,'p',0,0,lp->current,'a',0,"");
-			sfprintf(lp->kiatmp,"p;%..64d;p;%..64d;%d;%d;e;\n",lp->current,r,sh.inlineno,sh.inlineno);
+			r=kiaentity(lp,nv_name(np),-1,'p',0,0,kia.current,'a',0,"");
+			sfprintf(kia.tmp,"p;%..64d;p;%..64d;%d;%d;e;\n",kia.current,r,sh.inlineno,sh.inlineno);
 		}
 #endif /* SHOPT_KIA */
 		if((ap->nextc=fcget())==0)

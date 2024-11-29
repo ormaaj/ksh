@@ -330,7 +330,7 @@ retry:
 		hp = hist_trim(hp,(int)hp->histind-maxlines);
 	}
 	sfdisc(hp->histfp,&hp->histdisc);
-	(HISTCUR)->nvalue.lp = (&hp->histind);
+	HISTCUR->nvalue = &hp->histind;
 	sh_timeradd(1000L*(HIST_RECENT-30), 1, hist_touch, hp->histname);
 #if SHOPT_ACCTFILE
 	if(sh_isstate(SH_INTERACTIVE))

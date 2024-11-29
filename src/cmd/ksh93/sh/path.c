@@ -409,14 +409,14 @@ static void pathinit(void)
 {
 	const char *val;
 	Pathcomp_t *pp;
-	if(val=sh_scoped((PATHNOD))->nvalue.cp)
+	if(val=sh_scoped((PATHNOD))->nvalue)
 		sh.pathlist = pp = path_addpath((Pathcomp_t*)sh.pathlist,val,PATH_PATH);
 	else
 	{
 		pp = defpathinit();
 		sh.pathlist = path_dup(pp);
 	}
-	if(val=sh_scoped((FPATHNOD))->nvalue.cp)
+	if(val=sh_scoped((FPATHNOD))->nvalue)
 		pp = path_addpath((Pathcomp_t*)sh.pathlist,val,PATH_FPATH);
 }
 
@@ -434,7 +434,7 @@ Pathcomp_t *path_get(const char *name)
 			pathinit();
 		pp = (Pathcomp_t*)sh.pathlist;
 	}
-	if(!pp && (!(sh_scoped(PATHNOD)->nvalue.cp)) || sh_isstate(SH_DEFPATH))
+	if(!pp && (!(sh_scoped(PATHNOD)->nvalue)) || sh_isstate(SH_DEFPATH))
 		pp = defpathinit();
 	return pp;
 }
@@ -550,8 +550,8 @@ static void funload(int fno, const char *name)
 		{
 			if((np = dtsearch(funtree,rp->np)) && is_afunction(np))
 			{
-				if(np->nvalue.rp)
-					np->nvalue.rp->fdict = 0;
+				if(np->nvalue)
+					((struct Ufunction*)np->nvalue)->fdict = 0;
 				nv_delete(np,funtree,NV_NOFREE);
 			}
 			dtinsert(funtree,rp->np);
@@ -585,7 +585,7 @@ static void funload(int fno, const char *name)
 	else
 #endif /* SHOPT_NAMESPACE */
 		np = nv_search(name,sh.fun_tree,0);
-	if(!np || !np->nvalue.ip)
+	if(!np || !np->nvalue)
 		pname = stkcopy(sh.stk,sh.st.filename);
 	else
 		pname = 0;
@@ -656,7 +656,7 @@ int	path_search(const char *name,Pathcomp_t **oldpp, int flag)
 		Namval_t *np;
 		if(!(flag & 1) && (np = path_gettrackedalias(name)))
 		{
-			pp = (Pathcomp_t*)np->nvalue.cp;
+			pp = np->nvalue;
 			stkseek(sh.stk,PATH_OFFSET);
 			path_nextcomp(pp,name,pp);
 			if(oldpp)
@@ -667,7 +667,7 @@ int	path_search(const char *name,Pathcomp_t **oldpp, int flag)
 		pp = path_absolute(name,oldpp?*oldpp:NULL,flag);
 		if(oldpp)
 			*oldpp = pp;
-		if(!pp && (np=nv_search(name,sh.fun_tree,0))&&np->nvalue.ip)
+		if(!pp && (np=nv_search(name,sh.fun_tree,0)) && np->nvalue)
 			return 1;
 		if(!pp)
 			*stkptr(sh.stk,PATH_OFFSET) = 0;
@@ -1317,7 +1317,7 @@ static noreturn void exscript(char *path,char *argv[],char **envp)
 	if(sh.hist_ptr && (path=nv_getval(HISTFILE)) && strcmp(path,sh.hist_ptr->histname))
 	{
 		hist_close(sh.hist_ptr);
-		(HISTCUR)->nvalue.lp = 0;
+		HISTCUR->nvalue = NULL;
 	}
 	sh_offstate(SH_FORKED);
 	if(sh.sigflag[SIGCHLD]==SH_SIGOFF)
@@ -1609,7 +1609,7 @@ Pathcomp_t *path_addpath(Pathcomp_t *first, const char *path,int type)
 	{
 		if(!first && !path)
 			first = path_dup(defpathinit());
-		if(cp=(sh_scoped(FPATHNOD))->nvalue.cp)
+		if(cp=(sh_scoped(FPATHNOD))->nvalue)
 			first = path_addpath((Pathcomp_t*)first,cp,PATH_FPATH);
 		path_delete(old);
 	}
@@ -1753,7 +1753,7 @@ Pathcomp_t *path_dirfind(Pathcomp_t *first,const char *name,int c)
  */
 static char *talias_get(Namval_t *np, Namfun_t *nvp)
 {
-	Pathcomp_t *pp = (Pathcomp_t*)np->nvalue.cp;
+	Pathcomp_t *pp = np->nvalue;
 	char *ptr;
 	if(!pp)
 		return NULL;
@@ -1765,9 +1765,9 @@ static char *talias_get(Namval_t *np, Namfun_t *nvp)
 
 static void talias_put(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
-	if(!val && np->nvalue.cp)
+	if(!val && np->nvalue)
 	{
-		Pathcomp_t *pp = (Pathcomp_t*)np->nvalue.cp;
+		Pathcomp_t *pp = np->nvalue;
 		if(--pp->refcount<=0)
 			free(pp);
 	}
@@ -1794,10 +1794,10 @@ void path_settrackedalias(const char *name, Pathcomp_t *pp)
 		Pathcomp_t *old;
 		nv_offattr(np,NV_NOPRINT);
 		nv_stack(np,&talias_init);
-		old = (Pathcomp_t*)np->nvalue.cp;
+		old = np->nvalue;
 		if (old && (--old->refcount <= 0))
 			free(old);
-		np->nvalue.cp = (char*)pp;
+		np->nvalue = pp;
 		pp->refcount++;
 		nv_setattr(np,NV_TAGGED|NV_NOFREE);
 		path_nextcomp(pp,name,pp);
@@ -1822,7 +1822,7 @@ Namval_t *path_gettrackedalias(const char *name)
 	&& !sh_isstate(SH_EXEC)
 	&& (np=nv_search(name,sh.track_tree,0))
 	&& !nv_isattr(np,NV_NOALIAS)
-	&& np->nvalue.cp)
+	&& np->nvalue)
 		return np;
 	return NULL;
 }

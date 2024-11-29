@@ -166,11 +166,11 @@ tst	note{ determining size of PID variables }end output{
 		 * If there is ever a system where this test returns 1, then both this
 		 * test and nv_getval() must learn a new integer size attribute.
 		 */
-		if(s==sizeof(int16_t))		/* union Value: sp */
+		if(s==sizeof(int16_t))
 			a="NV_INTEGER|NV_SHORT";
-		else if(s==sizeof(int32_t))	/* union Value: lp */
+		else if(s==sizeof(int32_t))
 			a="NV_INTEGER";
-		else if(s==sizeof(Sflong_t))	/* union Value: llp */
+		else if(s==sizeof(Sflong_t))
 			a="NV_INTEGER|NV_LONG";
 		else
 			return 1;

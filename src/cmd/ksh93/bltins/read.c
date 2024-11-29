@@ -490,8 +490,8 @@ int sh_readline(char **names, volatile int fd, int flags, ssize_t size, Sflong_t
 #else
 			int optimize = 1;
 #endif
-			if(optimize && c==size && np->nvalue.cp && !nv_isarray(np))
-				memcpy((char*)np->nvalue.cp,var,c);
+			if(optimize && c==size && np->nvalue && !nv_isarray(np))
+				memcpy(np->nvalue,var,c);
 			else
 			{
 				Namval_t *mp;

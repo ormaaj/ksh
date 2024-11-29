@@ -266,10 +266,10 @@ int    b_dot_cmd(int n,char *argv[],Shbltin_t *context)
 		np = nv_search(script,sh.fun_tree,0);
 		if(np && is_afunction(np) && !nv_isattr(np,NV_FPOSIX) && !(sh_isoption(SH_POSIX) && context->bnode==SYSDOT))
 		{
-			if(!np->nvalue.ip)
+			if(!np->nvalue)
 			{
 				path_search(script,NULL,0);
-				if(np->nvalue.ip)
+				if(np->nvalue)
 				{
 					if(nv_isattr(np,NV_FPOSIX))
 						np = 0;
@@ -307,7 +307,7 @@ int    b_dot_cmd(int n,char *argv[],Shbltin_t *context)
 	prevscope->save_tree = sh.var_tree;
 	tofree = sh.st.filename;
 	if(np)
-		sh.st.filename = np->nvalue.rp->fname;
+		sh.st.filename = ((struct Ufunction*)np->nvalue)->fname;
 	nv_putval(SH_PATHNAMENOD, sh.st.filename ,NV_NOFREE);
 	sh.posix_fun = 0;
 	if(np || argv[1])

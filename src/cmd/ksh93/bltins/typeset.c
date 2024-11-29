@@ -518,7 +518,10 @@ endargs:
 	if(flag&NV_TYPE)
 	{
 		Stk_t *stkp = sh.stk;
-		int off=0,offset = stktell(stkp);
+#if SHOPT_NAMESPACE
+		int off = 0;
+#endif /* SHOPT_NAMESPACE */
+		int offset = stktell(stkp);
 		if(!tdata.prefix)
 			return sh_outtype(sfstdout);
 		sfputr(stkp,NV_CLASS,-1);
@@ -648,7 +651,9 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 	int nvflags=(flag&(NV_ARRAY|NV_NOARRAY|NV_VARNAME|NV_IDENT|NV_ASSIGN|NV_STATIC|NV_MOVE));
 	int r=0, ref=0, comvar=(flag&NV_COMVAR),iarray=(flag&NV_IARRAY);
 	Dt_t *save_vartree = NULL;
+#if SHOPT_NAMESPACE
 	Namval_t *save_namespace = NULL;
+#endif
 	if(flag&NV_GLOBAL)
 	{
 		save_vartree = sh.var_tree;
@@ -757,8 +762,8 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 						np = nv_search(stkptr(sh.stk,offset),troot,0);
 						stkseek(sh.stk,offset);
 					}
-					if(np && np->nvalue.cp) 
-						np->nvalue.rp->help = tp->help;
+					if(np && np->nvalue) 
+						((struct Ufunction*)np->nvalue)->help = tp->help;
 				}
 				continue;
 			}
@@ -1416,7 +1421,7 @@ static int unall(int argc, char **argv, Dt_t *troot)
 			{
 				if(troot!=sh.fun_base)
 					np->nvflag = 0;	/* invalidate */
-				else if(!(np->nvalue.rp && np->nvalue.rp->running))
+				else if(!(np->nvalue && ((struct Ufunction*)np->nvalue)->running))
 					nv_delete(np,troot,0);
 			}
 			/* The alias has been unset by call to _nv_unset, remove it from the tree */
@@ -1485,9 +1490,10 @@ static int print_namval(Sfio_t *file,Namval_t *np,int flag, struct tdata *tp)
 	{
 		Sfio_t *iop=0;
 		char *fname=0;
+		struct Ufunction *rp = np->nvalue;
 		if(nv_isattr(np,NV_NOFREE))
 			return 0;
-		if(!flag && !np->nvalue.ip)
+		if(!flag && !rp)
 			sfputr(file,"typeset -fu",' ');
 		else if(!flag && !nv_isattr(np,NV_FPOSIX))
 			sfputr(file,"function",' ');
@@ -1497,14 +1503,14 @@ static int print_namval(Sfio_t *file,Namval_t *np,int flag, struct tdata *tp)
 		sfputr(file,cp,-1);
 		if(nv_isattr(np,NV_FPOSIX))
 			sfwrite(file,"()",2);
-		if(np->nvalue.ip && np->nvalue.rp->hoffset>=0)
-			fname = np->nvalue.rp->fname;
+		if(np->nvalue && rp->hoffset >= 0)
+			fname = rp->fname;
 		else
 			flag = '\n';
 		if(flag)
 		{
-			if(tp->pflag && np->nvalue.ip && np->nvalue.rp->hoffset>=0)
-				sfprintf(file," #line %d %s\n", np->nvalue.rp->lineno, fname ? sh_fmtq(fname) : Empty);
+			if(tp->pflag && rp && rp->hoffset >= 0)
+				sfprintf(file," #line %d %s\n", rp->lineno, fname ? sh_fmtq(fname) : Empty);
 			else
 				sfputc(file, '\n');
 		}
@@ -1519,7 +1525,7 @@ static int print_namval(Sfio_t *file,Namval_t *np,int flag, struct tdata *tp)
 				iop = sfopen(iop,fname,"r");
 			else if(sh.hist_ptr)
 				iop = (sh.hist_ptr)->histfp;
-			if(iop && sfseek(iop,(Sfoff_t)np->nvalue.rp->hoffset,SEEK_SET)>=0)
+			if(iop && sfseek(iop,(Sfoff_t)rp->hoffset,SEEK_SET)>=0)
 				sfmove(iop,file, nv_size(np), -1);
 			else
 				flag = '\n';

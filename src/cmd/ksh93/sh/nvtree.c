@@ -401,7 +401,7 @@ void nv_attribute(Namval_t *np,Sfio_t *out,char *prefix,int noname)
 		{
 			if(nv_isvtree(np))
 				sfprintf(out,"%s -C ",prefix);
-			else if((!np->nvalue.cp||np->nvalue.cp==Empty) && nv_isattr(np,~NV_NOFREE)==NV_MINIMAL && strcmp(np->nvname,"_"))
+			else if((!np->nvalue||np->nvalue==Empty) && nv_isattr(np,~NV_NOFREE)==NV_MINIMAL && strcmp(np->nvname,"_"))
 				sfputr(out,prefix,' ');
 		}
 		return;
@@ -683,7 +683,7 @@ static void outval(char *name, const char *vname, struct Walk *wp)
 	{
 		if(nv_isattr(np,NV_BINARY))
 			return;
-		if(fp && np->nvalue.cp && np->nvalue.cp!=Empty)
+		if(fp && np->nvalue && np->nvalue!=Empty)
 		{
 			nv_local = 1;
 			fp = 0;
@@ -739,7 +739,7 @@ static void outval(char *name, const char *vname, struct Walk *wp)
 			sfputc(wp->out,'\n');
 		return;
 	}
-	if(isarray==0 && nv_isarray(np) && (nv_isnull(np)||np->nvalue.cp==Empty))  /* empty array */
+	if(isarray==0 && nv_isarray(np) && (nv_isnull(np)||np->nvalue==Empty))  /* empty array */
 		isarray = 2;
 	special |= wp->nofollow;
 	if(!wp->array && wp->indent>0)
@@ -762,7 +762,7 @@ static void outval(char *name, const char *vname, struct Walk *wp)
 #endif
 		}
 		nv_outname(wp->out,name,-1);
-		if((np->nvalue.cp && np->nvalue.cp!=Empty) || nv_isattr(np,~(NV_MINIMAL|NV_NOFREE)) || nv_isvtree(np))  
+		if((np->nvalue && np->nvalue!=Empty) || nv_isattr(np,~(NV_MINIMAL|NV_NOFREE)) || nv_isvtree(np))  
 			sfputc(wp->out,(isarray==2?(wp->indent>=0?'\n':';'):'='));
 		if(isarray==2)
 			return;

@@ -80,7 +80,7 @@ static Namval_t *scope(Namval_t *np,struct lval *lvalue,int assign)
 		&& sh_macfun(cp, offset = stktell(sh.stk)))
 		{
 			Fun = sh_arith(sub=stkptr(sh.stk,offset));
-			FunNode.nvalue.ldp = &Fun;
+			FunNode.nvalue = &Fun;
 			nv_onattr(&FunNode,NV_NOFREE|NV_LDOUBLE|NV_RDONLY);
 			cp[flag] = c;
 			return &FunNode;
@@ -330,9 +330,10 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 				stkseek(sh.stk,off);
 				if(np=nv_search(stkptr(sh.stk,off),sh.fun_tree,0))
 				{
-						lvalue->nargs = -np->nvalue.rp->argc;
-						lvalue->fun = (Math_f)np;
-						break;
+					struct Ufunction *rp = np->nvalue;
+					lvalue->nargs = -rp->argc;
+					lvalue->fun = (Math_f)np;
+					break;
 				}
 				if(fsize<=(sizeof(tp->fname)-2))
 					lvalue->fun = (Math_f)sh_mathstdfun(*ptr,fsize,&lvalue->nargs);
@@ -385,14 +386,14 @@ static Sfdouble_t arith(const char **ptr, struct lval *lvalue, int type, Sfdoubl
 				if(!sh_isoption(SH_POSIX) && (cp[0] == 'i' || cp[0] == 'I') && (cp[1] == 'n' || cp[1] == 'N') && (cp[2] == 'f' || cp[2] == 'F') && cp[3] == 0)
 				{
 					Inf = strtold("Inf", NULL);
-					Infnod.nvalue.ldp = &Inf;
+					Infnod.nvalue = &Inf;
 					np = &Infnod;
 					nv_onattr(np,NV_NOFREE|NV_LDOUBLE|NV_RDONLY);
 				}
 				else if(!sh_isoption(SH_POSIX) && (cp[0] == 'n' || cp[0] == 'N') && (cp[1] == 'a' || cp[1] == 'A') && (cp[2] == 'n' || cp[2] == 'N') && cp[3] == 0)
 				{
 					NaN = strtold("NaN", NULL);
-					NaNnod.nvalue.ldp = &NaN;
+					NaNnod.nvalue = &NaN;
 					np = &NaNnod;
 					nv_onattr(np,NV_NOFREE|NV_LDOUBLE|NV_RDONLY);
 				}

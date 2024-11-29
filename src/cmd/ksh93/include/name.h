@@ -16,15 +16,11 @@
 *         hyenias <58673227+hyenias@users.noreply.github.com>          *
 *                                                                      *
 ***********************************************************************/
-#ifndef _NV_PRIVATE
+#ifndef name_h_defined
+#define name_h_defined
 /*
  * This is the implementation header file for name-value pairs
  */
-
-#define _NV_PRIVATE	\
-	Namfun_t	*nvfun;		/* pointer to trap functions */ \
-	union Value	nvalue; 	/* value field */ \
-	void		*nvmeta;	/* pointer to any of various kinds of type-dependent data */
 
 #include	<ast.h>
 #include	<cdt.h>
@@ -137,7 +133,7 @@ struct Ufunction
 #define nv_isref(n)	(nv_isattr((n),NV_REF|NV_TAGGED|NV_FUNCT)==NV_REF)
 #define is_abuiltin(n)	(nv_isattr(n,NV_BLTIN|NV_INTEGER)==NV_BLTIN)
 #define is_afunction(n)	(nv_isattr(n,NV_FUNCTION|NV_REF)==NV_FUNCTION)
-#define	nv_funtree(n)	((n)->nvalue.rp->ptree)
+#define	nv_funtree(n)	(((struct Ufunction*)(n)->nvalue)->ptree)
 
 /* NAMNOD MACROS */
 /* ... for attributes */
@@ -145,13 +141,13 @@ struct Ufunction
 #define nv_setattr(n,f)	((n)->nvflag = (f))
 #define nv_context(n)	((void*)(n)->nvfun)		/* for builtins */
 /* The following are for name references */
-#define nv_refnode(n)	((n)->nvalue.nrp->np)
-#define nv_reftree(n)	((n)->nvalue.nrp->root)
-#define nv_reftable(n)	((n)->nvalue.nrp->table)
-#define nv_refsub(n)	((n)->nvalue.nrp->sub)
+#define nv_refnode(n)	(((struct Namref*)(n)->nvalue)->np)
+#define nv_reftree(n)	(((struct Namref*)(n)->nvalue)->root)
+#define nv_reftable(n)	(((struct Namref*)(n)->nvalue)->table)
+#define nv_refsub(n)	(((struct Namref*)(n)->nvalue)->sub)
 #if SHOPT_FIXEDARRAY
-#   define nv_refindex(n)	((n)->nvalue.nrp->curi)
-#   define nv_refdimen(n)	((n)->nvalue.nrp->dim)
+#   define nv_refindex(n)	(((struct Namref*)(n)->nvalue)->curi)
+#   define nv_refdimen(n)	(((struct Namref*)(n)->nvalue)->dim)
 #endif /* SHOPT_FIXEDARRAY */
 
 /* ... etc */
@@ -160,7 +156,7 @@ struct Ufunction
 #undef nv_size
 #define nv_size(np)	((np)->nvsize)
 #define _nv_hasget(np)  ((np)->nvfun && (np)->nvfun->disc && nv_hasget(np))
-#define nv_isnull(np)	(!(np)->nvalue.cp && !_nv_hasget(np))
+#define nv_isnull(np)	(!(np)->nvalue && !_nv_hasget(np))
 
 /* ...	for arrays */
 
@@ -264,4 +260,4 @@ extern const char	e_typecompat[];
 extern const char	e_globalref[];
 extern const char	e_tolower[];
 extern const char	e_toupper[];
-#endif /* _NV_PRIVATE */
+#endif /* name_h_defined */

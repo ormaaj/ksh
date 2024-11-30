@@ -3067,7 +3067,7 @@ static char *lastdot(char *cp, int eq)
 			if(*cp==']')
 				cp++;
 			else
-				cp = nv_endsubscript(NULL,ep=cp,0);
+				cp = nv_endsubscript(NULL,(ep=cp)-1,0);
 		}
 		else if(c=='.')
 		{

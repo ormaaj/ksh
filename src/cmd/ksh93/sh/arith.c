@@ -149,7 +149,10 @@ static Namval_t *scope(Namval_t *np,struct lval *lvalue,int assign)
 					while(c=mbchar(cp),isaname(c));
 				}
 				if(c=='[')
+				{
+					cp--;
 					continue;
+				}
 			}
 			flag = *cp;
 			*cp = 0;

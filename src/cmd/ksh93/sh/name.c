@@ -1604,7 +1604,7 @@ static char savechars[8+1];
 void nv_putval(Namval_t *np, const char *string, int flags)
 {
 	const char	*sp=string;
-	union Value	*up;
+	void		**vpp;	/* pointer to value pointer */
 	unsigned int	size = 0;
 	int		was_local = nv_local;
 #if SHOPT_FIXEDARRAY
@@ -1659,16 +1659,16 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 		nv_setattr(np,(flags&~NV_RDONLY)|NV_NOFREE);
 		return;
 	}
-	up = (union Value*)&np->nvalue;
+	vpp = &np->nvalue;
 #if SHOPT_FIXEDARRAY
 	if(np->nvalue && nv_isarray(np) && (ap=nv_arrayptr(np)) && !ap->fixed)
 #else
 	if(np->nvalue && nv_isarray(np) && nv_arrayptr(np))
 #endif /* SHOPT_FIXEDARRAY */
-		up = np->nvalue;
-	if(up && up->cp==Empty)
-		up->cp = 0;
-	if(nv_isattr (np, NV_INTEGER))
+		vpp = np->nvalue;
+	if(vpp && *vpp==Empty)
+		*vpp = NULL;
+	if(nv_isattr(np,NV_INTEGER))
 	{
 		if(nv_isattr(np, NV_DOUBLE) == NV_DOUBLE)
 		{
@@ -1686,11 +1686,11 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				}
 				else
 					ld = sh_arith(sp);
-				if(!up->ldp)
-					up->ldp = new_of(Sfdouble_t,0);
+				if(!*vpp)
+					*vpp = new_of(Sfdouble_t,0);
 				else if(flags&NV_APPEND)
-					old = *(up->ldp);
-				*(up->ldp) = old?ld+old:ld;
+					old = *(Sfdouble_t*)*vpp;
+				*(Sfdouble_t*)*vpp = old ? ld+old : ld;
 			}
 			else
 			{
@@ -1706,11 +1706,11 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				}
 				else
 					d = sh_arith(sp);
-				if(!up->dp)
-					up->dp = new_of(double,0);
+				if(!*vpp)
+					*vpp = new_of(double,0);
 				else if(flags&NV_APPEND)
-					od = *(up->dp);
-				*(up->dp) = od?d+od:d;
+					od = *(double*)*vpp;
+				*(double*)*vpp = od ? d+od : d;
 			}
 		}
 		else
@@ -1750,11 +1750,11 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				}
 				else if(sp)
 					ll = (Sflong_t)sh_arith(sp);
-				if(!up->llp)
-					up->llp = new_of(Sflong_t,0);
+				if(!*vpp)
+					*vpp = new_of(Sflong_t,0);
 				else if(flags&NV_APPEND)
-					oll = *(up->llp);
-				*(up->llp) = ll+oll;
+					oll = *(Sflong_t*)*vpp;
+				*(Sflong_t*)*vpp = ll + oll;
 			}
 			else
 			{
@@ -1804,27 +1804,27 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				if(nv_isattr(np,NV_SHORT))
 				{
 					int16_t os=0;
-					if(!up->sp)
-						up->sp = new_of(int16_t,0);
+					if(!*vpp)
+						*vpp = new_of(int16_t,0);
 					else if(flags&NV_APPEND)
-						os = *(up->sp);
-					*(up->sp) = os+(int16_t)l;
+						os = *(int16_t*)*vpp;
+					*(int16_t*)*vpp = os + (int16_t)l;
 				}
 				else
 				{
 					int32_t ol=0;
-					if(!up->lp)
-						up->lp = new_of(int32_t,0);
+					if(!*vpp)
+						*vpp = new_of(int32_t,0);
 					else if(flags&NV_APPEND)	
-						ol =  *(up->lp);
-					*(up->lp) = l+ol;
+						ol = *(int32_t*)*vpp;
+					*(int32_t*)*vpp = l + ol;
 				}
 			}
 		}
 	}
 	else
 	{
-		const char *tofree=0;
+		void *tofree=0;
 		int offset = 0;
 #if _lib_pathnative
 		char buff[PATH_MAX];
@@ -1883,25 +1883,25 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 			if(size)
 				size = ja_size((char*)sp,size,nv_isattr(np,NV_RJUST|NV_ZFILL));
 		}
-		if(!up->cp || *up->cp==0)
+		if(!*vpp || *(char*)*vpp==0)
 			flags &= ~NV_APPEND;
 		if(!nv_isattr(np, NV_NOFREE))
 		{
 			/* delay free in case <sp> points into free region */
-			tofree = up->cp;
+			tofree = *vpp;
 		}
 		if(nv_isattr(np,NV_BINARY) && !(flags&NV_RAW))
 			tofree = 0;
 		if(nv_isattr(np,NV_LJUST|NV_RJUST) && nv_isattr(np,NV_LJUST|NV_RJUST)!=(NV_LJUST|NV_RJUST))
 			tofree = 0;
 		if(!sp)
-			up->cp = NULL;
+			*vpp = NULL;
 		else
 		{
 			char *cp = NULL;		/* pointer to new string */
 			unsigned int dot;		/* attribute or type length; defaults to string length */
 			unsigned int append = 0;	/* offset for appending */
-			if(sp==up->cp && !(flags&NV_APPEND))
+			if(sp==*vpp && !(flags&NV_APPEND))
 				return;
 			dot = strlen(sp);
 			if(nv_isattr(np,NV_BINARY))
@@ -1914,7 +1914,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 						free((void*)tofree);
 						nv_offattr(np,NV_NOFREE);
 					}
-					up->cp = sp;
+					*vpp = (void*)sp;
 					return;
 				}
 				size = 0;
@@ -1926,8 +1926,8 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				*cp = 0;
 				nv_offattr(np,NV_NOFREE);
 				if(oldsize)
-					memcpy(cp,up->cp,oldsize);
-				up->cp = cp;
+					memcpy(cp,*vpp,oldsize);
+				*vpp = cp;
 				if(size <= oldsize)
 					return;
 				dot = base64decode(sp,dot, NULL, cp+oldsize, size-oldsize,NULL);
@@ -1943,7 +1943,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				if(size==0 && nv_isattr(np,NV_HOST)!=NV_HOST &&nv_isattr(np,NV_LJUST|NV_RJUST|NV_ZFILL))
 				{
 					nv_setsize(np,size=dot);
-					tofree = up->cp;
+					tofree = *vpp;
 				}
 				else if(size > dot)
 					dot = size;
@@ -1953,11 +1953,11 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				{
 					if(dot==0)
 						return;
-					append = strlen(up->cp);
+					append = strlen(*vpp);
 					if(!tofree || size)
 					{
 						offset = stktell(sh.stk);
-						sfputr(sh.stk,up->cp,-1);
+						sfputr(sh.stk,*vpp,-1);
 						sfputr(sh.stk,sp,0);
 						sp = stkptr(sh.stk,offset);
 						dot += append;
@@ -1969,7 +1969,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 					}
 				}
 			}
-			if(size==0 || tofree || dot || !(cp=(char*)up->cp))
+			if(size==0 || tofree || dot || !(cp = *vpp))
 			{
 				if(dot==0 && !nv_isattr(np,NV_LJUST|NV_RJUST))
 				{
@@ -1995,7 +1995,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 				strncpy(cp+append, sp, dot+1);
 				cp[dot+append] = c;
 			}
-			up->cp = cp;
+			*vpp = cp;
 			if(nv_isattr(np, NV_RJUST) && nv_isattr(np, NV_ZFILL))
 				rightjust(cp,size,'0');
 			else if(nv_isattr(np, NV_LJUST|NV_RJUST)==NV_RJUST)
@@ -2345,13 +2345,13 @@ static void table_unset(Dt_t *root, int flags, Dt_t *oroot)
  */
 void	_nv_unset(Namval_t *np,int flags)
 {
-	union Value	*up;
+	void		**vpp;	/* pointer to value pointer */
 #if SHOPT_FIXEDARRAY
 	Namarr_t	*ap;
 #endif /* SHOPT_FIXEDARRAY */
 	if(np==SH_LEVELNOD)
 		return;
-	if(!(flags&NV_RDONLY) && nv_isattr (np,NV_RDONLY))
+	if(!(flags&NV_RDONLY) && nv_isattr(np,NV_RDONLY))
 	{
 		errormsg(SH_DICT,ERROR_exit(1),e_readonly, nv_name(np));
 		UNREACHABLE();
@@ -2433,7 +2433,7 @@ void	_nv_unset(Namval_t *np,int flags)
 #else
 	if(np->nvalue && nv_isarray(np) && nv_arrayptr(np))
 #endif /* SHOPT_FIXEDARRAY */
-		up = np->nvalue;
+		vpp = np->nvalue;
 	else if(nv_isref(np) && !nv_isattr(np,NV_EXPORT|NV_MINIMAL) && np->nvalue)
 	{
 		struct Namref *nrp = np->nvalue;
@@ -2443,15 +2443,15 @@ void	_nv_unset(Namval_t *np,int flags)
 			free(nrp->sub);
 		free(nrp);
 		np->nvalue = NULL;
-		up = 0;
+		vpp = NULL;
 	}
 	else
-		up = (union Value*)&np->nvalue;
-	if(up && up->cp)
+		vpp = &np->nvalue;
+	if(vpp && *vpp)
 	{
-		if(up->cp!=Empty && up->cp!=AltEmpty && !nv_isattr(np, NV_NOFREE))
-			free((void*)up->cp);
-		up->cp = 0;
+		if(*vpp!=Empty && *vpp!=AltEmpty && !nv_isattr(np,NV_NOFREE))
+			free(*vpp);
+		*vpp = NULL;
 	}
 done:
 	if(!nv_isarray(np) || !nv_arrayptr(np))
@@ -2618,8 +2618,8 @@ void sh_optclear(void *old)
  */
 char *nv_getval(Namval_t *np)
 {
-	union Value *up = (union Value*)&np->nvalue;
-	int numeric;
+	void **vpp = &np->nvalue;	/* pointer to value pointer */
+	size_t n;
 	if(!nv_local && nv_getoptimize())
 		nv_optimize(np);
 	if((!np->nvfun || !np->nvfun->disc) && !nv_isattr(np,NV_ARRAY|NV_INTEGER|NV_FUNCT|NV_REF))
@@ -2648,24 +2648,21 @@ char *nv_getval(Namval_t *np)
 		}
 		nv_local=0;
 	}
-	numeric = ((nv_isattr (np, NV_INTEGER)) != 0);
-	if(numeric)
+	if(nv_isattr(np,NV_INTEGER))
 	{
 		Sflong_t  ll;
 		int base;
-		if(!up->cp)
+		if(!*vpp)
 			return "0";
-		if(nv_isattr (np,NV_DOUBLE)==NV_DOUBLE)
+		if(nv_isattr(np,NV_DOUBLE)==NV_DOUBLE)
 		{
-			Sfdouble_t ld;
-			double d;
 			char *format;
-			if(nv_isattr(np,NV_LONG))
+			if(nv_isattr(np,NV_LONG) && sizeof(double)<sizeof(Sfdouble_t))
 			{
-				ld = *up->ldp;
-				if(nv_isattr (np,NV_EXPNOTE))
+				Sfdouble_t ld = *(Sfdouble_t*)*vpp;
+				if(nv_isattr(np,NV_EXPNOTE))
 					format = "%.*Lg";
-				else if(nv_isattr (np,NV_HEXFLOAT))
+				else if(nv_isattr(np,NV_HEXFLOAT))
 					format = "%.*La";
 				else
 					format = "%.*Lf";
@@ -2673,10 +2670,10 @@ char *nv_getval(Namval_t *np)
 			}
 			else
 			{
-				d = *up->dp;
-				if(nv_isattr (np,NV_EXPNOTE))
+				double d = *(double*)*vpp;
+				if(nv_isattr(np,NV_EXPNOTE))
 					format = "%.*g";
-				else if(nv_isattr (np,NV_HEXFLOAT))
+				else if(nv_isattr(np,NV_HEXFLOAT))
 					format = "%.*a";
 				else
 					format = "%.*f";
@@ -2686,19 +2683,19 @@ char *nv_getval(Namval_t *np)
 		}
 		else if(nv_isattr(np,NV_UNSIGN))
 		{
-	        	if(nv_isattr (np,NV_LONG))
-				ll = *(Sfulong_t*)up->llp;
-			else if(nv_isattr (np,NV_SHORT))
-				ll = *(uint16_t*)(up->sp);
+	        	if(nv_isattr(np,NV_LONG))
+				ll = *(Sfulong_t*)*vpp;
+			else if(nv_isattr(np,NV_SHORT))
+				ll = *(uint16_t*)*vpp;
 			else
-				ll = *(uint32_t*)(up->lp);
+				ll = *(uint32_t*)*vpp;
 		}
-        	else if(nv_isattr (np,NV_LONG))
-			ll = *up->llp;
-        	else if(nv_isattr (np,NV_SHORT))
-			ll = *up->sp;
+        	else if(nv_isattr(np,NV_LONG))
+			ll = *(Sflong_t*)*vpp;
+        	else if(nv_isattr(np,NV_SHORT))
+			ll = *(int16_t*)*vpp;
         	else
-			ll = *(up->lp);
+			ll = *(uint32_t*)*vpp;
 		base = nv_size(np);
 		if(base==10)
 			return fmtint(ll, nv_isattr(np,NV_UNSIGN));
@@ -2711,28 +2708,28 @@ done:
 	 * if NV_RAW flag is on, return pointer to binary data 
 	 * otherwise, base64 encode the data and return this string
 	 */
-	if(up->cp && nv_isattr(np,NV_BINARY) && !nv_isattr(np,NV_RAW))
+	if(*vpp && nv_isattr(np,NV_BINARY) && !nv_isattr(np,NV_RAW))
 	{
 		char *cp;
 		char *ep;
 		int size= nv_size(np), insize=(4*size)/3+size/45+8;
-		base64encode(up->cp, size, NULL, cp=getbuf(insize), insize, (void**)&ep); 
+		base64encode(*vpp, size, NULL, cp=getbuf(insize), insize, (void**)&ep); 
 		*ep = 0;
 		return cp;
 	}
-	if(!nv_isattr(np,NV_LJUST|NV_RJUST) && (numeric=nv_size(np)) && up->cp && up->cp[numeric])
+	if(!nv_isattr(np,NV_LJUST|NV_RJUST) && (n = nv_size(np)) && *vpp && ((char*)*vpp)[n])
 	{
-		char *cp = getbuf(numeric+1);
-		memcpy(cp,up->cp,numeric);
-		cp[numeric]=0;
+		char *cp = getbuf(n + 1);
+		memcpy(cp,*vpp,n);
+		cp[n]=0;
 		return cp;
 	}
-	return ((char*)up->cp);
+	return *vpp;
 }
 
 Sfdouble_t nv_getnum(Namval_t *np)
 {
-	union Value *up;
+	void *vp;	/* value pointer */
 	Sfdouble_t r=0;
 	char *str;
 	if(!nv_local && nv_getoptimize())
@@ -2758,35 +2755,35 @@ Sfdouble_t nv_getnum(Namval_t *np)
 		if(str)
 			nv_putsub(np,str,0L);
 	}
-     	if(nv_isattr (np, NV_INTEGER))
+     	if(nv_isattr(np,NV_INTEGER))
 	{
-		up = (union Value*)&np->nvalue;
-		if(!up->lp || up->cp==Empty)
+		vp = np->nvalue;
+		if(!vp || vp==Empty)
 			r = 0;
 		else if(nv_isattr(np, NV_DOUBLE)==NV_DOUBLE)
 		{
 			if(nv_isattr(np, NV_LONG))
-	                       	r = *up->ldp;
+	                       	r = *(Sfdouble_t*)vp;
 			else
-       	                	r = *up->dp;
+       	                	r = *(double*)vp;
 		}
 		else if(nv_isattr(np, NV_UNSIGN))
 		{
 			if(nv_isattr(np, NV_LONG))
-				r = (Sflong_t)*((Sfulong_t*)up->llp);
+				r = (Sflong_t)*(Sfulong_t*)vp;
 			else if(nv_isattr(np, NV_SHORT))
-				r = (Sflong_t)(*(uint16_t*)up->sp);
+				r = (Sflong_t)*(uint16_t*)vp;
 			else
-				r = *((uint32_t*)up->lp);
+				r = *((uint32_t*)vp);
 		}
 		else
 		{
 			if(nv_isattr(np, NV_LONG))
-				r = *up->llp;
+				r = *(Sflong_t*)vp;
 			else if(nv_isattr(np, NV_SHORT))
-				r = *up->sp;
+				r = *(int16_t*)vp;
 			else
-				r = *up->lp;
+				r = *(int32_t*)vp;
 		}
 	}
 	else if((str=nv_getval(np)) && *str!=0)

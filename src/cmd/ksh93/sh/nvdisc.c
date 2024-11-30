@@ -243,7 +243,7 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 	Namval_t *nq =  vp->disc[type];
 	struct blocked	block, *bp = block_info(np, &block);
 	Namval_t	node;
-	union Value	*up = np->nvalue;
+	void		*saveval = np->nvalue;
 	Namval_t	*tp, *nr;  /* for 'typeset -T' types */
 	int		jmpval = 0;
 	if(val && (tp=nv_type(np)) && (nr=nv_open(val,sh.var_tree,NV_VARNAME|NV_ARRAY|NV_NOADD|NV_NOFAIL)) && tp==nv_type(nr)) 
@@ -306,7 +306,7 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 		sh.savexit = savexit;	/* avoid influencing $? */
 	}
 	if(nv_isarray(np))
-		np->nvalue = up;
+		np->nvalue = saveval;
 	if(val)
 	{
 		char *cp;
@@ -382,7 +382,7 @@ static char*	lookup(Namval_t *np, int type, Sfdouble_t *dp,Namfun_t *handle)
 	Namval_t	*nq = vp->disc[type];
 	char		*cp=0;
 	Namval_t	node;
-	union Value	*up = np->nvalue;
+	void		*saveval = np->nvalue;
 	int		jmpval = 0;
 	if(nq && !isblocked(bp,type))
 	{
@@ -433,7 +433,7 @@ static char*	lookup(Namval_t *np, int type, Sfdouble_t *dp,Namfun_t *handle)
 		sh.savexit = savexit;	/* avoid influencing $? */
 	}
 	if(nv_isarray(np))
-		np->nvalue = up;
+		np->nvalue = saveval;
 	if(bp== &block)
 		block_done(bp);
 	if(nq && nq->nvalue && ((struct Ufunction*)nq->nvalue)->running==1)

@@ -24,25 +24,6 @@
 
 #include	<ast.h>
 #include	<cdt.h>
-
-/* Nodes can have all kinds of values */
-union Value
-{
-	const char		*cp;
-	int			*ip;
-	int32_t			*lp;
-	pid_t			*pidp;
-	Sflong_t		*llp;	/* for long long arithmetic */
-	int16_t			*sp;
-	double			*dp;	/* for floating point arithmetic */
-	Sfdouble_t		*ldp;	/* for long floating point arithmetic */
-	struct Namval		*np;	/* for Namval_t node */
-	union Value		*up;	/* for indirect node */
-	struct Ufunction 	*rp;	/* shell user defined functions */
-	struct Namref		*nrp;	/* name reference */
-	void			*bfp;	/* pointer to built-in command's entry function (typecast to Shbltin_f) */
-};
-
 #include	"nval.h"
 
 /* used for arrays */

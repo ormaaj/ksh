@@ -37,10 +37,8 @@
 
 /*
  * ASSERT NOTE:
- * Some sanity checking code is included using assert().  On my FreeBSD
- * system, this additional code can be removed by compiling with NDEBUG
- * defined.  Check your own system's man page on assert() to see how to
- * compile WITHOUT the sanity checking code on your system.
+ * Some sanity checking code is included using assert().
+ * It can be removed by compiling with NDEBUG defined. 
  *
  * UNROLLED TRANSFORM LOOP NOTE:
  * You can define SHA2_UNROLL_TRANSFORM to use the unrolled transform
@@ -71,7 +69,10 @@ typedef  uint8_t sha2_byte;	/* Exactly 1 byte */
 typedef uint32_t sha2_word32;	/* Exactly 4 bytes */
 typedef uint64_t sha2_word64;	/* Exactly 8 bytes */
 
-#define assert(x)
+#if _AST_release
+#define NDEBUG
+#endif
+#include <assert.h>
 
 #undef	R
 #undef	S32

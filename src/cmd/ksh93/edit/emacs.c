@@ -64,7 +64,6 @@ One line screen editor for any program
 
 #if SHOPT_ESH
 
-#include	<releaseflags.h>
 #include	"defs.h"
 #include	"io.h"
 #include	"history.h"

@@ -565,7 +565,7 @@ tst - note{ does this compiler have __builtin_unreachable() }end output{
 	 * argc should never be zero on init, but hopefully optimizers aren't that smart.
 	 */
 	#include <stdio.h>
-	#include "releaseflags.h"
+	#include "ast_release.h"
 	void testfn(int a)
 	{
 		switch(a)

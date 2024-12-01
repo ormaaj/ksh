@@ -32,6 +32,7 @@ make install virtual
 			make sumlib.c
 				make sum-sha2.c
 					prev %{INCLUDE_AST}/endian.h
+					prev %{INCLUDE_AST}/assert.h
 				done
 				makp sum-sha1.c
 				makp sum-md5.c

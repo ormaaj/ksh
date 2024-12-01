@@ -465,11 +465,11 @@ fi
 
 float t1=$SECONDS
 
-$SHELL -c '( "$1" 5 </dev/null >/dev/null 2>&1 & );exit 0' x "$binsleep" | cat 
+$SHELL -c '( "$1" 5 </dev/null >/dev/null 2>&1 & );exit 0' x "$binsleep" | cat
 (( (SECONDS-t1) > 4 )) && err_exit '/bin/sleep& in subshell hanging'
 ((t1=SECONDS))
 
-$SHELL -c '( sleep 5 </dev/null >/dev/null 2>&1 & );exit 0' | cat 
+$SHELL -c '( sleep 5 </dev/null >/dev/null 2>&1 & );exit 0' | cat
 (( (SECONDS-t1) > 4 )) && err_exit 'sleep& in subshell hanging'
 
 exp=HOME=$HOME
@@ -511,14 +511,14 @@ for ((i=1; i < 1000; i++))
 do	typeset foo$i=$i
 done
 {
-    : $( (ac_space=' '; set | grep ac_space) 2>&1) 
+    : $( (ac_space=' '; set | grep ac_space) 2>&1)
 } < /dev/null | cat > /dev/null &
 sleep  1.5
 if	kill -KILL $! 2> /dev/null
 then	err_exit 'process timed out with hung comsub'
 fi
 wait $! 2> /dev/null
-(( $? > 128 )) && err_exit 'incorrect exit status with comsub' 
+(( $? > 128 )) && err_exit 'incorrect exit status with comsub'
 
 $SHELL 2> /dev/null -c '[[ ${ print foo },${ print bar } == foo,bar ]]' || err_exit  '${ print foo },${ print bar } not working'
 $SHELL 2> /dev/null -c '[[ ${ print foo; },${ print bar } == foo,bar ]]' || err_exit  '${ print foo; },${ print bar } not working'

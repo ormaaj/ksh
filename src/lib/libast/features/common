@@ -77,7 +77,7 @@ if	tst - note{ <stdarg.h>+<wchar.h> works }end compile{
 		/*<NOSTDIO>*/
 		#include <stdarg.h>
 		#include <wchar.h>
-	}end 
+	}end
 elif	tst - note{ explicit <sys/va_list.h> before <stdarg.h>+<wchar.h> }end compile{
 		/*<NOSTDIO>*/
 		#include <sys/va_list.h>
@@ -153,7 +153,7 @@ tst	- -DN=1 - -DN=2 - -DN=3 - -DN=4 - -DN=5 - -DN=6 - -DN=7 - -DN=8 - -DN=0 outp
 		char*	name;
 		int	size;
 		char*	swap;
-	} int_type[] = 
+	} int_type[] =
 	{
 		"char",		sizeof(char),		(char*)&i_char,
 		"short",	sizeof(short),		(char*)&i_short,
@@ -227,7 +227,7 @@ tst	- output{
 	#include <string.h>
 	#include <sys/types.h>
 
-	#if _X86_ || _X64_ 
+	#if _X86_ || _X64_
 	#define COND		1
 	#define CONDNAME	"_X64_"
 	#else
@@ -241,7 +241,7 @@ tst	- output{
 		char*	name;
 		int	size;
 		int	cond;
-	} types[] = 
+	} types[] =
 	{
 		"short",	sizeof(short),		0,
 		"int",		sizeof(int),		0,
@@ -297,7 +297,7 @@ tst	- -DN=1 - -DN=0 output{
 	{
 		char*	name;
 		int	size;
-	} flt_type[] = 
+	} flt_type[] =
 	{
 		"float",	sizeof(float),
 		"double",	sizeof(double),

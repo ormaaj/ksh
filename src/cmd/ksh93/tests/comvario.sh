@@ -568,7 +568,7 @@ function test_read_C_into_array
 		nameref tv=test_variants[i]
 
 		out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -o errexit -c "${tv.cmd}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
- 
+
 		for pat in "${tv.stdoutpattern[@]}" ; do
 			[[ "${out.stdout}" == ${pat} ]] || err_exit "${tv.testname}: Expected stdout of $(printf '%q\n' "${tv.cmd}") to match $(printf '%q\n' "${pat}"), got $(printf '%q\n' "${out.stdout}")"
 		done

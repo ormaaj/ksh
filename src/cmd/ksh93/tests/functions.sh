@@ -406,7 +406,7 @@ cd $dir || { err_exit "cd $dir failed"; exit 1; }
 	} > /dev/null
 	typeset -ft a b
 	PS4=X
-	b 
+	b
 ) > file 2>&1
 [[ $(<file) == *'Xprint 2'* ]] ||  err_exit 'function trace disabled by function call'
 rm -f file
@@ -1132,8 +1132,8 @@ function B
 	trap "> /dev/null;print TRAP B" EXIT
 	A
 }
-	    
-x=$(B)      
+	
+x=$(B)
 [[ $x == $'TRAP A\nTRAP B' ]] || err_exit "trap from functions in subshells fails got" $x
 
 function foo
@@ -1209,7 +1209,7 @@ function foo
 		esac
 	done
 	shift $((OPTIND - 1))
-	(( OPTIND == 4 )) || err_exit "OPTIND is $OPTIND at end of function foo; it should be 4"  
+	(( OPTIND == 4 )) || err_exit "OPTIND is $OPTIND at end of function foo; it should be 4"
 	[[ $1 == foo2 ]] || err_exit "\$1 is $1, not foo after getopts in function"
 }
 OPTIND=6 OPTARG=xxx

@@ -548,7 +548,7 @@ got=$(
 
 bintrue=$(whence -p true)
 set -o pipefail
-float start=$SECONDS end 
+float start=$SECONDS end
 for ((i=0; i < 2; i++))
 do	print foo
 	sleep .15

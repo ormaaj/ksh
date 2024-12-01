@@ -409,7 +409,7 @@ fi
 {
     x=$(
     $SHELL   <<- \++EOF
-	timeout() 
+	timeout()
 	{
 		trap 'trap - TERM; return' TERM
 		( sleep $1; kill -TERM $$ ) >/dev/null 2>&1 &

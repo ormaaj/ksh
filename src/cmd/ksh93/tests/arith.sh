@@ -520,8 +520,8 @@ do	for b in $v
 done
 
 typeset -l y y_ascii
-(( y=sin(90) )) 
-y_ascii=$y 
+(( y=sin(90) ))
+y_ascii=$y
 (( y == y_ascii )) || err_exit "no match,\n\t$(printf "%a\n" y)\n!=\n\t$(printf "%a\n" y_ascii)"
 
 ( $SHELL  <<- \EOF
@@ -529,16 +529,16 @@ y_ascii=$y
 	t[p]=6
 	while (( t[p] != 0 )) ; do
 		((
-		p+=1 , 
-		t[p]+=2 , 
-		p+=3 , 
-		t[p]+=5 , 
-		p+=1 , 
-		t[p]+=2 , 
-		p+=1 , 
-		t[p]+=1 , 
+		p+=1 ,
+		t[p]+=2 ,
+		p+=3 ,
+		t[p]+=5 ,
+		p+=1 ,
+		t[p]+=2 ,
+		p+=1 ,
+		t[p]+=1 ,
 		p-=6  ,
-		t[p]-=1 
+		t[p]-=1
 		))
 	:
 	done
@@ -595,7 +595,7 @@ $SHELL 2> /dev/null  <<- \EOF || err_exit "arithmetic functions defined and refe
 	{
 	        ((.sh.value = x-x**3/6. + x**5/120.-x**7/5040. + x**9/362880.))
 	}
-	(( abs(sin(.5)-mysin(.5)) < 1e-6 )) 
+	(( abs(sin(.5)-mysin(.5)) < 1e-6 ))
 	exit 0
 }
 EOF
@@ -630,7 +630,7 @@ function x
 	float x y
 	float x=$((log10(nz))) y=$((log10($nz)))
 	(( abs(x-y) < 1e-10 )) || err_exit '$nz and nz differs in arithmetic expression when nz is reference to array instance'
-} 
+}
 x z[1]
 
 unset x
@@ -651,7 +651,7 @@ typeset -i foo
 foobar
 (( foo == 8 )) || err_exit  'arithmetic assignment binding to the wrong scope'
 
-(( tgamma(4)/12 )) || err_exit 'floating point attribute for functions not preserved'  
+(( tgamma(4)/12 )) || err_exit 'floating point attribute for functions not preserved'
 
 unset F
 function f
@@ -776,8 +776,8 @@ do	(($x == 1)) || err_exit 'arithmetic in for loop with $x, where $x is hex cons
 done
 x=010
 let "$x==10" || err_exit 'arithmetic with $x where $x is 010 should be decimal in let'
-(( 9.$x == 9.01 )) || err_exit 'arithmetic with 9.$x where x=010 should be 9.01' 
-(( 9$x == 9010 )) || err_exit 'arithmetic with 9$x where x=010 should be 9010' 
+(( 9.$x == 9.01 )) || err_exit 'arithmetic with 9.$x where x=010 should be 9.01'
+(( 9$x == 9010 )) || err_exit 'arithmetic with 9$x where x=010 should be 9010'
 x010=99
 ((x$x == 99 )) || err_exit 'arithmetic with x$x where x=010 should be $x010'
 (( 3+$x == 13 )) || err_exit '3+$x where x=010 should be 13 in ((...))'
@@ -788,7 +788,7 @@ then	set --posix
 fi
 let "(3+$x)==13" || err_exit 'let should not recognize leading 0 as octal'
 unset x
-typeset -RZ3 x=10 
+typeset -RZ3 x=10
 (( $x == 10 )) || err_exit 'leading 0 in -RZ should not create octal constant with ((...))'
 let "$x==10" || err_exit 'leading 0 in -RZ should not create octal constant with let'
 

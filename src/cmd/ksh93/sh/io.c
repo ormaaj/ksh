@@ -155,7 +155,7 @@ getaddrinfo(const char* node, const char* service, const struct addrinfo* hint, 
 			case SOCK_STREAM:
 				switch (hint->ai_protocol)
 				{
-				case 0: 	
+				case 0:
 					protocol = "tcp";
 					break;
 #ifdef IPPROTO_SCTP

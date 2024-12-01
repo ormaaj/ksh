@@ -565,7 +565,7 @@ arr2[1]=def
 
 unset foo
 typeset foo[7]
-[[ ${#foo[@]} == 0 ]] || err_exit 'typeset foo[7] should not have one element' 
+[[ ${#foo[@]} == 0 ]] || err_exit 'typeset foo[7] should not have one element'
 
 a=123 $SHELL  2> /dev/null -c 'integer a[5]=3 a[2]=4; unset a;x=0; ((a[++x]++));:' || err_exit 'unsetting array variable leaves side effect'
 

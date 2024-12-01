@@ -253,7 +253,7 @@ function test2
 			cmd=$'
 				function ar
 				{
-					compound -S -a s=( 
+					compound -S -a s=(
 						[5]=(
 							integer a=1
 							integer b=2
@@ -281,7 +281,7 @@ function test2
 				}
 				function ar
 				{
-					compound -S -a s=( 
+					compound -S -a s=(
 						[5]=(
 							integer a=1
 							integer b=2
@@ -301,7 +301,7 @@ function test2
 			cmd=$'
 				function ar
 				{
-					compound -S -a s=( 
+					compound -S -a s=(
 						[8][5]=(
 							integer a=1
 							integer b=2
@@ -329,7 +329,7 @@ function test2
 				}
 				function ar
 				{
-					compound -S -a s=( 
+					compound -S -a s=(
 						[8][5]=(
 							integer a=1
 							integer b=2
@@ -348,7 +348,7 @@ function test2
 			cmd=$'
 				function ar
 				{
-					compound -S -a s=( 
+					compound -S -a s=(
 						[8][5][0][9]=(
 							integer a=1
 							integer b=2
@@ -376,7 +376,7 @@ function test2
 				}
 				function ar
 				{
-					compound -S -a s=( 
+					compound -S -a s=(
 						[8][5][0][9]=(
 							integer a=1
 							integer b=2
@@ -396,7 +396,7 @@ function test2
 			cmd=$'
 				function ar
 				{
-					compound -S -A s=( 
+					compound -S -A s=(
 						[5]=(
 							integer a=1
 							integer b=2
@@ -424,7 +424,7 @@ function test2
 				}
 				function ar
 				{
-					compound -S -A s=( 
+					compound -S -A s=(
 						[5]=(
 							integer a=1
 							integer b=2

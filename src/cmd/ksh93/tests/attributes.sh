@@ -390,9 +390,9 @@ typeset -H v=/dev/null
 [[ $v == *[Nn]ul* ]] || err_exit "typeset -H for /dev/null not working (got $(printf %q "$v"))"
 
 unset x
-(typeset +C x) 2> /dev/null && err_exit 'typeset +C should be an error' 
-(typeset +A x) 2> /dev/null && err_exit 'typeset +A should be an error' 
-(typeset +a x) 2> /dev/null && err_exit 'typeset +a should be an error' 
+(typeset +C x) 2> /dev/null && err_exit 'typeset +C should be an error'
+(typeset +A x) 2> /dev/null && err_exit 'typeset +A should be an error'
+(typeset +a x) 2> /dev/null && err_exit 'typeset +a should be an error'
 
 unset x
 {

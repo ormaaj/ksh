@@ -218,8 +218,8 @@ do
 	sleep_pid=$!
 	$cat |&
 	pid=$!
-	print foo1 >&p 2> /dev/null || err_exit "first write to $cat coprocess failed" 
-	print foo2 >&p 2> /dev/null || err_exit "second write to $cat coprocess failed" 
+	print foo1 >&p 2> /dev/null || err_exit "first write to $cat coprocess failed"
+	print foo2 >&p 2> /dev/null || err_exit "second write to $cat coprocess failed"
 	# avoid race between '$cat |&' initialising and 'kill $pid': read from the coprocess
 	# before 'kill' so that $cat is known to be fully initialised and ready to catch SIGTERM
 	read <&p && [[ $REPLY == foo1 ]] || err_exit "first read from $cat coprocess failed"

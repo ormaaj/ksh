@@ -45,9 +45,9 @@ function count_brackets
 		[[ "$c" == '(' ]] && (( bracketstat.bopen++ ))
 		[[ "$c" == ')' ]] && (( bracketstat.bclose++ ))
 	done
-	
+
 	(( bracketstat.bopen != bracketstat.bclose )) && return 1
-	
+
 	return 0
 }
 
@@ -56,7 +56,7 @@ function cpvcat1
 {
 	set -o errexit
 	compound tmp
-	
+
 	while read -C tmp ; do printf '%B\n' tmp ; done
 	return 0
 }
@@ -66,7 +66,7 @@ function cpvcat2
 {
 	set -o errexit
 	compound tmp
-	
+
 	while read -C tmp ; do printf '%#B\n' tmp ; done
 	return 0
 }
@@ -76,7 +76,7 @@ function cpvcat3
 {
 	set -o errexit
 	compound tmp
-	
+
 	while read -C tmp ; do print -C tmp ; done
 	return 0
 }
@@ -86,7 +86,7 @@ function cpvcat4
 {
 	set -o errexit
 	compound tmp
-	
+
 	while read -C tmp ; do print -v tmp ; done
 	return 0
 }
@@ -211,7 +211,7 @@ s=${
 		read s
 		read -C y2
 	}
-	
+
 	print "x${s}x"
 } || err_exit "test returned exit code $?"
 
@@ -342,7 +342,7 @@ function test6
         compound out=( typeset stdout stderr ; integer res )
 	compound val
 	integer testid
-	
+
 	compound -r -a tests=(
 		# subtests1:
 		( cmd='compound v=( integer -A ar=( [aa]=4 [bb]=9 ) ; ) ; print -C v' stdoutpattern=$'~(Alr)(.*\\[bb\\]=9.*)&(.*\\[aa\\]=4.*)'			arrefname='ar' )
@@ -394,7 +394,7 @@ function test6
         	(( out.res == 0 )) || err_exit "${testname}: Test shell returned with exit code ${out.res}"
         	[[ "${out.stdout}" == ${test.stdoutpattern} ]] || err_exit "${testname}: Expected match for ${test.stdoutpattern}, got $(printf "%q\n" "${out.stdout}")"
         	[[ "${out.stderr}" == ""                    ]] || err_exit "${testname}: Expected empty stderr, got $(printf "%q\n" "${out.stderr}")"
-	
+
 		read -C val <<<"${out.stdout}" || err_exit "${testname}: read -C val failed with exit code $?"
 		nameref ar="val.${test.arrefname}"
 		(( ar[aa] == 4 )) || err_exit "${testname}: Expected ar[aa] == 4, got ${ar[aa]}"
@@ -424,7 +424,7 @@ function test_3D_array_read_C
 	        [[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
         	[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 	done
-	
+
 	return 0
 }
 
@@ -444,7 +444,7 @@ function test_access_2Darray_in_type_in_compound
 	        [[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
         	[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 	done
-	
+
 	return 0
 }
 
@@ -454,11 +454,11 @@ function test_read_type_crash
 	typeset -r test='
 typeset -T field_t=(
 	typeset -a f
-	
+
 	function reset
 	{
 		integer i j
-		
+
 		for (( i=0 ; i < 3 ; i++ )) ; do
 			for (( j=0 ; j < 3 ; j++ )) ; do
 				_.f[i][j]=""
@@ -466,11 +466,11 @@ typeset -T field_t=(
 		done
 		return 0
 	}
-	
+
 	function enumerate_empty_fields
 	{
 		integer i j
-		
+
 		for (( i=0 ; i < 3 ; i++ )) ; do
 			for (( j=0 ; j < 3 ; j++ )) ; do
 				[[ "${_.f[i][j]}" == "" ]] && printf "[%d][%d]\n" i j
@@ -478,7 +478,7 @@ typeset -T field_t=(
 		done
 		return 0
 	}
-	
+
 	function setf
 	{
 		_.f[$1][$2]="$3"
@@ -536,15 +536,15 @@ function test_read_C_into_array
 	typeset cmd
 	typeset pat
 	integer i
-	
+
 	compound -a test_variants
 
 	# build list of variations of the tests above
 	for (( i=0 ; i < ${#tests[@]} ; i++ )) ; do
 		nameref tst=tests[i]
-		
+
 		# plain test
-		cmd="${tst.cmd}"	
+		cmd="${tst.cmd}"
 		test_variants+=( testname="${0}/${i}/plain" cmd="$cmd" typeset -a stdoutpattern=( "${tst.stdoutpattern[@]}" ) )
 
 		# test with "read -C" in a function
@@ -622,13 +622,13 @@ function test_read_C_special_shell_keywords
 	typeset testname
 	typeset shkeyword
         compound out=( typeset stdout stderr ; integer res )
-	
+
 	for (( tcpi=0 ; tcpi < ${#testcmdpatterns[@]} ; tcpi++ )) ; do
 		for (( spwi=0 ; spwi < ${#shell_special_words[@]} ; spwi++ )) ; do
 			shkeyword=${shell_special_words[spwi]}
 			testcmd="${testcmdpatterns[tcpi]//%keyword%/${shkeyword}}"
 			testname="${0}/${tcpi}/${spwi}/"
-	
+
 			out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -o errexit -c "${testcmd}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
         		[[ "${out.stdout}" == "X${shkeyword}X" ]] || err_exit "${testname}: Expected stdout to match $(printf '%q\n' "X${shkeyword}X"), got $(printf '%q\n' "${out.stdout}")"

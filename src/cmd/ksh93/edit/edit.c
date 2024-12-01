@@ -235,7 +235,7 @@ int tty_raw(int fd, int echomode)
 	nttyparm.c_iflag &= ~(IGNPAR|PARMRK|INLCR|IGNCR|ICRNL);
 	nttyparm.c_iflag |= BRKINT;
 #else
-	nttyparm.c_iflag &= 
+	nttyparm.c_iflag &=
 			~(IGNBRK|PARMRK|INLCR|IGNCR|ICRNL|INPCK);
 	nttyparm.c_iflag |= (BRKINT|IGNPAR);
 #endif	/* u370 */
@@ -760,7 +760,7 @@ done:
  *    onto the stack so that it can be checked for KEYTRAP
  * putstack() returns 1 except when in the middle of a multi-byte char
  */
-static int putstack(Edit_t *ep,char string[], int nbyte, int type) 
+static int putstack(Edit_t *ep,char string[], int nbyte, int type)
 {
 	int c;
 #if SHOPT_MULTIBYTE
@@ -995,7 +995,7 @@ Edpos_t ed_curpos(Edit_t *ep,genchar *phys, int off, int cur, Edpos_t curpos)
 #endif /* SHOPT_MULTIBYTE */
 	if(cur && off>=cur)
 	{
-		sp += cur; 
+		sp += cur;
 		off -= cur;
 		pos = curpos;
 		col = pos.col;

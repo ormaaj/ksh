@@ -681,7 +681,7 @@ o()
 
 0	belong&0377777777	041400413	netbsd i386
 d{
-0	byte			&0x80		
+0	byte			&0x80
 +20	lelong			<4096		shared library			x-system/dll
 +20	lelong			>=4096		executable, dynamically linked	x-system/exe
 }
@@ -756,7 +756,7 @@ c()
 
 0	belong&0377777777	041600413	netbsd m68k
 d{
-0	byte			&0x80		
+0	byte			&0x80
 +20	belong			<8192		shared library			x-system/dll
 +20	belong			>=8192		executable, dynamically linked	x-system/exe
 }

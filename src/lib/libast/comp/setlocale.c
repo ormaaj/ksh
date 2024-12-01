@@ -464,7 +464,7 @@ sjis_mbtowc(wchar_t* p, const char* s, size_t n)
 #if !AST_NOMULTIBYTE
 
 static int
-utf8_wctomb(char* u, wchar_t w) 
+utf8_wctomb(char* u, wchar_t w)
 {
 	return u ? wc2utf8(u, w) : 0;
 }

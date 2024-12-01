@@ -133,7 +133,7 @@ tst	- -DN=1 - -DN=2 - -DN=3 - -DN=4 - -DN=5 - -DN=6 - -DN=7 - -DN=8 - -DN=0 outp
 	#endif
 
 	#define elementsof(x)	(sizeof(x)/sizeof(x[0]))
-	
+
 	static char			i_char = 1;
 	static short			i_short = 1;
 	static int			i_int = 1;
@@ -147,7 +147,7 @@ tst	- -DN=1 - -DN=2 - -DN=3 - -DN=4 - -DN=5 - -DN=6 - -DN=7 - -DN=8 - -DN=0 outp
 	static unsigned _ast_int8_t	u_long_long = 18446744073709551615;
 	#endif
 	#endif
-	
+
 	static struct
 	{
 		char*	name;
@@ -163,9 +163,9 @@ tst	- -DN=1 - -DN=2 - -DN=3 - -DN=4 - -DN=5 - -DN=6 - -DN=7 - -DN=8 - -DN=0 outp
 		_ast_int8_str,	sizeof(_ast_int8_t),	(char*)&i_long_long,
 	#endif
 	};
-	
+
 	static int	int_size[] = { 1, 2, 4, 8 };
-	
+
 	int
 	main(void)
 	{
@@ -174,7 +174,7 @@ tst	- -DN=1 - -DN=2 - -DN=3 - -DN=4 - -DN=5 - -DN=6 - -DN=7 - -DN=8 - -DN=0 outp
 		int	m = 1;
 		int	b = 1;
 		int	w = 0;
-	
+
 	#ifdef _ast_int8_t
 		unsigned _ast_int8_t	p;
 		char			buf[64];
@@ -235,7 +235,7 @@ tst	- output{
 	#endif
 
 	#define elementsof(x)	(sizeof(x)/sizeof(x[0]))
-	
+
 	static struct
 	{
 		char*	name;
@@ -254,7 +254,7 @@ tst	- output{
 		"long_double",	sizeof(long double),	0,
 	#endif
 	};
-	
+
 	int
 	main(void)
 	{
@@ -292,7 +292,7 @@ tst	- -DN=1 - -DN=0 output{
 	#endif
 
 	#define elementsof(x)	(sizeof(x)/sizeof(x[0]))
-	
+
 	static struct
 	{
 		char*	name;
@@ -305,13 +305,13 @@ tst	- -DN=1 - -DN=0 output{
 		"long double",	sizeof(long double),
 	#endif
 	};
-	
+
 	int
 	main(void)
 	{
 		int	t;
 		int	m = 1;
-	
+
 	#if _typ_long_double
 		long double	p;
 		char		buf[64];
@@ -483,7 +483,7 @@ tst	- -DTRY=1 - -DTRY=1 -Dvoid=char - -DTRY=2 - -DTRY=3 - -DTRY=4 output{
 	#endif /*TRY == 2*/
 			printf("/* va_arg() va_list type */\n");
 	#endif /*TRY == 4*/
-	
+
 	#if !defined(va_copy)
 	#if defined(__va_copy)
 		printf("#ifndef va_copy\n");
@@ -504,7 +504,7 @@ tst	- -DTRY=1 - -DTRY=1 -Dvoid=char - -DTRY=2 - -DTRY=3 - -DTRY=4 output{
 	#endif
 	#endif
 	#endif
-	
+
 		printf("#endif\n");
 		return 0;
 	}

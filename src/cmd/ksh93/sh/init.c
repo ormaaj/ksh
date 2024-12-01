@@ -337,7 +337,7 @@ static void put_history(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	char	*cp;
 	if(val && histopen)
 	{
-		if(np==HISTFILE && (cp=nv_getval(np)) && strcmp(val,cp)==0) 
+		if(np==HISTFILE && (cp=nv_getval(np)) && strcmp(val,cp)==0)
 			return;
 		if(np==HISTSIZE && sh_arith(val)==nv_getnum(HISTSIZE))
 			return;
@@ -388,7 +388,7 @@ static void put_restricted(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		errormsg(SH_DICT,ERROR_exit(1),e_restricted,nv_name(np));
 		UNREACHABLE();
 	}
-	if(np==PATHNOD	|| (path_scoped=(strcmp(name,PATHNOD->nvname)==0)))		
+	if(np==PATHNOD	|| (path_scoped=(strcmp(name,PATHNOD->nvname)==0)))
 	{
 		/* Clear the hash table */
 		nv_scan(sh_subtracktree(1),nv_rehash,NULL,NV_TAGGED,NV_TAGGED);
@@ -397,7 +397,7 @@ static void put_restricted(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	}
 	if(val && !(flags&NV_RDONLY) && np->nvalue && strcmp(val,np->nvalue)==0)
 		 return;
-	if(np==FPATHNOD	|| (fpath_scoped=(strcmp(name,FPATHNOD->nvname)==0)))		
+	if(np==FPATHNOD	|| (fpath_scoped=(strcmp(name,FPATHNOD->nvname)==0)))
 		sh.pathlist = path_unsetfpath();
 	nv_putv(np, val, flags, fp);
 	sh.universe = 0;
@@ -765,7 +765,7 @@ static char* get_lastarg(Namval_t* np, Namfun_t *fp)
 {
 	char	*cp;
 	int	pid;
-        if(sh_isstate(SH_INIT) && (cp=sh.lastarg) && *cp=='*' && (pid=strtol(cp+1,&cp,10)) && *cp=='*')
+	if(sh_isstate(SH_INIT) && (cp=sh.lastarg) && *cp=='*' && (pid=strtol(cp+1,&cp,10)) && *cp=='*')
 		nv_putval(np,cp+1,0);
 	return sh.lastarg;
 }
@@ -1013,7 +1013,7 @@ void sh_invalidate_ifs(void)
 }
 
 const Namdisc_t RESTRICTED_disc	= {  sizeof(Namfun_t), put_restricted };
-static const Namdisc_t CDPATH_disc	= {  sizeof(Namfun_t), put_cdpath }; 
+static const Namdisc_t CDPATH_disc	= {  sizeof(Namfun_t), put_cdpath };
 #if SHOPT_VSH || SHOPT_ESH
 static const Namdisc_t EDITOR_disc	= {  sizeof(Namfun_t), put_ed };
 #endif
@@ -1470,7 +1470,7 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	sh.jmpbuffer = &sh.checkbase;
 	sh_pushcontext(&sh.checkbase,SH_JMPSCRIPT);
 	sh.st.self = &sh.global;
-        sh.topscope = (Shscope_t*)sh.st.self;
+	sh.topscope = (Shscope_t*)sh.st.self;
 	login_files[0] = (char*)e_profile;
 	sh.login_files = login_files;
 	sh.bltindata.version = SH_VERSION;
@@ -2111,7 +2111,7 @@ static void put_trans(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		if(mp->lctype!=lctype)
 		{
 			mp->lctype = lctype;
-			mp->trans = wctrans(mp->name);	
+			mp->trans = wctrans(mp->name);
 		}
 		if(!mp->trans || (flags&NV_INTEGER))
 			goto skip;

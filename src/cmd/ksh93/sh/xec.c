@@ -782,7 +782,7 @@ static Namval_t *enter_namespace(Namval_t *nsp)
 	}
 	if(!nsp && !onsp)
 		return 0;
-	if(onsp == nsp) 
+	if(onsp == nsp)
 		return nsp;
 	if(onsp)
 	{
@@ -1351,7 +1351,7 @@ int sh_exec(const Shnode_t *t, int flags)
 #if SHOPT_NAMESPACE
 						if(*np->nvname=='.')
 						{
-							char *cp = strchr(np->nvname+1,'.');	
+							char *cp = strchr(np->nvname+1,'.');
 							if(cp)
 							{
 								*cp = 0;
@@ -2456,7 +2456,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				struct Ufunction *rp = np->nvalue;
 				static Dtdisc_t		_Rpdisc =
 				{
-				        offsetof(struct Ufunction,fname), -1, sizeof(struct Ufunction) 
+				        offsetof(struct Ufunction,fname), -1, sizeof(struct Ufunction)
 				};
 				struct functnod *fp;
 				struct comnod *ac = t->funct.functargs;
@@ -2583,7 +2583,7 @@ int sh_exec(const Shnode_t *t, int flags)
 				if(traceon)
 					sfwrite(sfstderr,e_tstend,4);
 			}
-			sh.exitval = ((!n)^negate); 
+			sh.exitval = ((!n)^negate);
 			if(!skipexitset)
 				exitset();
 			break;
@@ -2695,7 +2695,7 @@ int sh_trace(char *argv[], int nl)
 			char *argv0 = *argv;
 			nl = (nl?'\n':-1);
 			/* don't quote [ and [[ */
-			if(*(cp=argv[0])=='[' && (!cp[1] || !cp[2]&&cp[1]=='['))  
+			if(*(cp=argv[0])=='[' && (!cp[1] || !cp[2]&&cp[1]=='['))
 			{
 				sfputr(sfstderr,cp,*++argv?' ':nl);
 				bracket = 1;
@@ -2901,14 +2901,14 @@ Sfdouble_t sh_mathfun(void *fp, int nargs, Sfdouble_t *arg)
 	int		i;
 	np = (Namval_t*)fp;
 	funenv.node = np;
-	funenv.nref = nref; 
+	funenv.nref = nref;
 	funenv.env = NULL;
 	memcpy(&node,SH_VALNOD,sizeof(node));
 	SH_VALNOD->nvfun = NULL;
 	SH_VALNOD->nvmeta = NULL;
 	SH_VALNOD->nvflag = NV_LDOUBLE|NV_NOFREE;
 	SH_VALNOD->nvalue = NULL;
-	for(i=0; i < nargs; i++)	
+	for(i=0; i < nargs; i++)
 	{
 		*nr++ = mp = nv_namptr(sh.mathnodes,i);
 		mp->nvalue = arg++;
@@ -3236,7 +3236,7 @@ int sh_fun(Namval_t *np, Namval_t *nq, char *argv[])
 }
 
 /*
- * set up pipe for cooperating process 
+ * set up pipe for cooperating process
  */
 static void coproc_init(int pipes[])
 {
@@ -3252,7 +3252,7 @@ static void coproc_init(int pipes[])
 		/* first co-process */
 		sh_pclose(sh.cpipe);
 		sh_pipe(sh.cpipe);
-		if((outfd=sh.cpipe[1]) < 10) 
+		if((outfd=sh.cpipe[1]) < 10)
 		{
 		        int fd=sh_fcntl(sh.cpipe[1],F_DUPFD,10);
 			if(fd>=10)
@@ -3325,7 +3325,7 @@ static pid_t sh_ntfork(const Shnode_t *t,char *argv[],int *jobid,int topfd)
 			sh.invoc_local++;
 			sh_scope(t->com.comset,0);
 		}
-		if(!strchr(path=argv[0],'/')) 
+		if(!strchr(path=argv[0],'/'))
 		{
 			Namval_t *np;
 			if(np = path_gettrackedalias(path))
@@ -3406,7 +3406,7 @@ static pid_t sh_ntfork(const Shnode_t *t,char *argv[],int *jobid,int topfd)
 			argv[0] = argv[-1];
 		}
 	fail:
-		if(jobfork && spawnpid<0) 
+		if(jobfork && spawnpid<0)
 			job_fork(-2);
 		if(spawnpid == -1)
 		{

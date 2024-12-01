@@ -68,9 +68,9 @@ static const int flagval[]  =
 #endif
 	SH_NOCLOBBER, SH_GLOBSTARS, SH_RC, SH_LOGIN_SHELL,
 #if SHOPT_HISTEXPAND
-        SH_HISTEXPAND,
+	SH_HISTEXPAND,
 #endif
-	0 
+	0
 };
 
 #define NUM_OPTS	(sizeof(flagval)/sizeof(*flagval))
@@ -416,7 +416,7 @@ char *sh_argdolminus(void* context)
 }
 
 /*
- * set up positional parameters 
+ * set up positional parameters
  */
 static void argset(Arg_t *ap,char *argv[])
 {

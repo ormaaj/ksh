@@ -440,7 +440,7 @@ int    b_wait(int n,char *argv[],Shbltin_t *context)
 int    b_bg(int n,char *argv[],Shbltin_t *context)
 {
 	int flag = **argv;
-	const char *optstr = sh_optbg; 
+	const char *optstr = sh_optbg;
 	NOT_USED(context);
 	if(*argv[0]=='f')
 		optstr = sh_optfg;

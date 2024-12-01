@@ -791,7 +791,7 @@ static void array_copytree(Namval_t *np, Namval_t *mp)
 /*
  *        Increase the size of the indexed array of elements in <arp>
  *        so that <maxi> is a legal index.  If <arp> is 0, an array
- *        of the required size is allocated.  A pointer to the 
+ *        of the required size is allocated.  A pointer to the
  *        allocated Namarr_t structure is returned.
  *        <maxi> becomes the current index of the array.
  */
@@ -965,7 +965,7 @@ Namarr_t *nv_setarray(Namval_t *np, void *(*fun)(Namval_t*,const char*,int))
 	if(fun && (ap = nv_arrayptr(np)))
 	{
 		/*
-		 * if it's already an indexed array, convert to 
+		 * if it's already an indexed array, convert to
 		 * associative structure
 		 */
 		if(!is_associative(ap))
@@ -1741,14 +1741,14 @@ void *nv_associative(Namval_t *np,const char *sp,int mode)
 			else if(ap->header.nelem&ARRAY_NOSCOPE)
 				mode = NV_NOSCOPE;
 			if(*sp==0 && sh_isoption(SH_XTRACE) && (mode&NV_ADD))
-				errormsg(SH_DICT,ERROR_warn(0),"adding empty subscript"); 
+				errormsg(SH_DICT,ERROR_warn(0),"adding empty subscript");
 			if(sh.subshell && (mp=nv_search(sp,ap->header.table,0)) && nv_isnull(mp))
 				ap->cur = mp;
 			if((mp || (mp=nv_search(sp,ap->header.table,mode))) && nv_isnull(mp) && (mode&NV_ADD))
 			{
 				nv_onattr(mp,type);
 				mp->nvmeta = np;
-				if((mode&NV_ADD) && nv_type(np)) 
+				if((mode&NV_ADD) && nv_type(np))
 					nv_arraychild(np,mp,0);
 				if(sh.subshell)
 					sh_assignok(np,1);

@@ -246,7 +246,7 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 	void		*saveval = np->nvalue;
 	Namval_t	*tp, *nr;  /* for 'typeset -T' types */
 	int		jmpval = 0;
-	if(val && (tp=nv_type(np)) && (nr=nv_open(val,sh.var_tree,NV_VARNAME|NV_ARRAY|NV_NOADD|NV_NOFAIL)) && tp==nv_type(nr)) 
+	if(val && (tp=nv_type(np)) && (nr=nv_open(val,sh.var_tree,NV_VARNAME|NV_ARRAY|NV_NOADD|NV_NOFAIL)) && tp==nv_type(nr))
 	{
 		char *sub = nv_getsub(np);
 		_nv_unset(np,0);
@@ -702,7 +702,7 @@ int nv_adddisc(Namval_t *np, const char **names, Namval_t **funs)
 	else while(n>=0)
 		vp->bltins[n--] = 0;
 	vp->fun.disc = &Nv_bdisc;
-	vp->bnames = names; 
+	vp->bnames = names;
 	nv_stack(np,&vp->fun);
 	return 1;
 }
@@ -1027,7 +1027,7 @@ Namval_t *nv_search(const char *name, Dt_t *root, int mode)
  * If var!=0, the variable pointer is returned and the built-in name is put onto the stack at the current offset.
  * Otherwise, a pointer to the built-in (variable or type) is returned and var contains the pointer to the variable.
  * If last==0 and first component of name is a reference, nv_bfsearch() will return NULL.
- */ 
+ */
 Namval_t *nv_bfsearch(const char *name, Dt_t *root, Namval_t **var, char **last)
 {
 	int		c,offset = stktell(sh.stk);
@@ -1037,7 +1037,7 @@ Namval_t *nv_bfsearch(const char *name, Dt_t *root, Namval_t **var, char **last)
 	if(var)
 		*var = 0;
 	/* check for . in the name before = */
-	for(sp=(char*)name+1; *sp; sp++) 
+	for(sp=(char*)name+1; *sp; sp++)
 	{
 		if(*sp=='=')
 			return NULL;
@@ -1056,13 +1056,13 @@ Namval_t *nv_bfsearch(const char *name, Dt_t *root, Namval_t **var, char **last)
 			cp = sp;
 		}
 		else if(*sp=='.')
-			cp = sp; 
+			cp = sp;
 	}
 	if(!cp)
 		return var ? nv_search(name,root,0) : NULL;
 	sfputr(sh.stk,name,0);
 	dname = cp+1;
-	cp = stkptr(sh.stk,offset) + (cp-name); 
+	cp = stkptr(sh.stk,offset) + (cp-name);
 	if(last)
 		*last = cp;
 	c = *cp;
@@ -1307,13 +1307,13 @@ static char *get_table(Namval_t *np, Namfun_t *fp)
 	static Sfio_t *out;
 	int first=1;
 	Dt_t *base = dtview(root,0);
-        if(out)
-                sfseek(out,0,SEEK_SET);
-        else
-                out =  sfnew(NULL,NULL,-1,-1,SFIO_WRITE|SFIO_STRING);
+	if(out)
+		sfseek(out,0,SEEK_SET);
+	else
+		out =  sfnew(NULL,NULL,-1,-1,SFIO_WRITE|SFIO_STRING);
 	for(np=(Namval_t*)dtfirst(root);np;np=(Namval_t*)dtnext(root,np))
 	{
-                if(!nv_isnull(np) || np->nvfun || nv_isattr(np,~NV_NOFREE))
+		if(!nv_isnull(np) || np->nvfun || nv_isattr(np,~NV_NOFREE))
 		{
 			if(!first)
 				sfputc(out,' ');
@@ -1330,15 +1330,15 @@ static char *get_table(Namval_t *np, Namfun_t *fp)
 
 static const Namdisc_t table_disc =
 {
-        sizeof(struct table),
-        put_table,
-        get_table,
-        0,
-        0,
-        create_table,
-        clone_table,
-        0,
-        next_table,
+	sizeof(struct table),
+	put_table,
+	get_table,
+	0,
+	0,
+	create_table,
+	clone_table,
+	0,
+	next_table,
 };
 
 Namval_t *nv_parent(Namval_t *np)

@@ -404,7 +404,7 @@ int ed_expand(Edit_t *ep, char outbuff[],int *cur,int *eol,int mode, int count)
 			}
 		}
 		sh_offstate(SH_COMPLETE);
-                /* allow a search to be aborted */
+		/* allow a search to be aborted */
 		if(sh.trapnote&SH_SIGSET)
 		{
 			rval = -1;
@@ -627,7 +627,7 @@ int ed_macro(Edit_t *ep, int i)
 		while(i-- > 0)
 			ed_ungetchar(ep,buff[i]);
 		return 1;
-	} 
+	}
 	return 0;
 }
 #endif /* SHOPT_ESH || SHOPT_VSH */

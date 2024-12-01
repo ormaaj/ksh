@@ -52,7 +52,7 @@ Shnode_t *sh_trestore(Sfio_t *in)
  */
 static Shnode_t *r_tree(void)
 {
-	long l = sfgetl(infile); 
+	long l = sfgetl(infile);
 	int type;
 	Shnode_t *t=0;
 	if(l<0)

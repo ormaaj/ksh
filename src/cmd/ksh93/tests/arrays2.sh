@@ -195,7 +195,7 @@ function test_short_integer
        		[[ "${out.stderr}" == ''			]] || err_exit "${testname}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 		(( out.res == 0 )) || err_exit "${testname}: Unexpected exit code ${out.res}"
 	done
-	
+
 	return 0
 }
 # run tests

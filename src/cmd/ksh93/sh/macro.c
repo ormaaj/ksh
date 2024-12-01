@@ -146,8 +146,8 @@ char *sh_mactry(char *string)
 
 /*
  * Perform parameter expansion, command substitution, and arithmetic
- * expansion on <str>. 
- * If <mode> greater than 1 file expansion is performed if the result 
+ * expansion on <str>.
+ * If <mode> greater than 1 file expansion is performed if the result
  * yields a single pathname.
  * If <mode> negative, then expansion rules for assignment are applied.
  */
@@ -248,7 +248,7 @@ int sh_macexpand(struct argnod *argp, struct argnod **arghead,int flag)
 		endfield(mp,mp->quoted|mp->atmode);
 		flags = mp->fields;
 		if(flags==1 && nv_getoptimize())
-			argp->argchn.ap = *arghead; 
+			argp->argchn.ap = *arghead;
 	}
 	nv_setoptimize(saveoptimize);
 	*mp = savemac;
@@ -423,7 +423,7 @@ char *sh_macpat(struct argnod *arg, int flags)
 }
 
 /*
- * Process the characters up to <endch> or end of input string 
+ * Process the characters up to <endch> or end of input string
  */
 static void copyto(Mac_t *mp,int endch, int newquote)
 {
@@ -547,7 +547,7 @@ static void copyto(Mac_t *mp,int endch, int newquote)
 						break;
 				}
 				/* followed by file expansion */
-				if(!mp->lit && (n==S_ESC || (!mp->quote && 
+				if(!mp->lit && (n==S_ESC || (!mp->quote &&
 					(n==S_PAT||n==S_ENDCH||n==S_SLASH||n==S_BRACT||*cp=='-'))))
 				{
 					cp += (n!=S_EOF);
@@ -2240,7 +2240,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 			struct checkpt buff;
 			struct ionod *ip=0;
 			sh_pushcontext(&buff,SH_JMPIO);
-			if((ip=t->tre.treio) && 
+			if((ip=t->tre.treio) &&
 				((ip->iofile&IOLSEEK) || !(ip->iofile&IOUFD)) &&
 				(r=sigsetjmp(buff.buff,0))==0)
 				fd = sh_redirect(ip,3);
@@ -2290,7 +2290,7 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
 	sh_offstate(SH_INTERACTIVE);
 	if((foff = sfseek(sp,0,SEEK_END)) > 0)
 	{
-		size_t soff = stktell(stkp); 
+		size_t soff = stktell(stkp);
 		sfseek(sp,0,SEEK_SET);
 		stkseek(stkp,soff+foff+64);
 		stkseek(stkp,soff);
@@ -2886,7 +2886,7 @@ static noreturn void mac_error(void)
  * Given pattern/string, replace / with 0 and return pointer to string
  * \ characters are stripped from string.  The \ are stripped in the
  * replacement string unless followed by a digit or \.
- */ 
+ */
 static char *mac_getstring(char *pattern)
 {
 	char	*cp = pattern, *rep = NULL, *dp = NULL;

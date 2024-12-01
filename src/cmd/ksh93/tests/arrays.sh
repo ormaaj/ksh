@@ -607,7 +607,7 @@ x=$(
 	"(expected $(printf %q "$exp"), got $(printf %q "$x"))"
 
 # test for cloning a very large indexed array - can core dump
-(	
+(
     trap 'x=$?;exit $(( $x!=0 ))' EXIT
     $SHELL <<- \EOF
 	(

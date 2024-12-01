@@ -415,7 +415,7 @@ void	*sh_parse(Sfio_t *iop, int flag)
 	if(fcfile())
 	{
 		char *cp = fcfirst();
-		if( cp[0]==CNTL('k') &&  cp[1]==CNTL('s') && cp[2]==CNTL('h') && cp[3]==0) 
+		if( cp[0]==CNTL('k') &&  cp[1]==CNTL('s') && cp[2]==CNTL('h') && cp[3]==0)
 		{
 			int version;
 			fcseek(4);
@@ -1747,7 +1747,7 @@ static struct ionod	*inout(Lex_t *lexp,struct ionod *lastio,int flag)
 	iop->iodelim = 0;
 	if(token=sh_lex(lexp))
 	{
-		if(token==RPAREN && (iof&IOLSEEK) && lexp->comsub) 
+		if(token==RPAREN && (iof&IOLSEEK) && lexp->comsub)
 		{
 			lexp->arg = stkalloc(sh.stk,sizeof(struct argnod)+3);
 			strcpy(lexp->arg->argval,"CUR");
@@ -1940,8 +1940,8 @@ static void ere_match(void)
 	if(!(base=fcfile()))
 		base = sfopen(NULL,fcseek(0),"s");
 	fcclose();
-        sfstack(base,iop);
-        fcfopen(base);
+	sfstack(base,iop);
+	fcfopen(base);
 }
 
 static Shnode_t *test_primary(Lex_t *lexp)

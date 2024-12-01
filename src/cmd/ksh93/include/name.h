@@ -31,7 +31,7 @@
 #define ARRAY_MAX 	(1L<<ARRAY_BITS) /* maximum number of elements in an array */
 #define ARRAY_MASK	(ARRAY_MAX-1)	/* For index values */
 
-#define ARRAY_INCR	32	/* number of elements to grow when array 
+#define ARRAY_INCR	32	/* number of elements to grow when array
 				   bound exceeded.  Must be a power of 2 */
 #define ARRAY_FILL	(8L<<ARRAY_BITS)	/* used with nv_putsub() */
 #define ARRAY_NOCLONE	(16L<<ARRAY_BITS)	/* do not clone array disc */
@@ -173,7 +173,7 @@ void			clone_all_disc(Namval_t*, Namval_t*, int);
 extern Namfun_t		*nv_clone_disc(Namfun_t*, int);
 extern void		*nv_diropen(Namval_t*, const char*);
 extern char		*nv_dirnext(void*);
-extern void		nv_dirclose(void*); 
+extern void		nv_dirclose(void*);
 extern char		*nv_getvtree(Namval_t*, Namfun_t*);
 extern void		nv_attribute(Namval_t*, Sfio_t*, char*, int);
 extern Namval_t		*nv_bfsearch(const char*, Dt_t*, Namval_t**, char**);

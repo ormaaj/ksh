@@ -50,13 +50,13 @@
 
 struct read_save
 {
-        char		**argv;
+	char		**argv;
 	char		*prompt;
-        int		fd;
-        int		plen;
+	int		fd;
+	int		plen;
 	int		flags;
 	ssize_t		len;
-        Sflong_t	timeout;
+	Sflong_t	timeout;
 };
 
 int	b_read(int argc,char *argv[], Shbltin_t *context)

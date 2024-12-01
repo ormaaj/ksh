@@ -41,10 +41,10 @@ static const char usage_cp[] =
     "\b--preserve\b \b--recursive\b.]"
 "[A:attributes?Preserve selected file attributes:]:[eipt]"
     "{"
-        "[+e?Everything permissible.]"
-        "[+i?Owner UID and GID.]"
-        "[+p?Permissions.]"
-        "[+t?Access and modify times.]"
+	"[+e?Everything permissible.]"
+	"[+i?Owner UID and GID.]"
+	"[+p?Permissions.]"
+	"[+t?Access and modify times.]"
     "}"
 "[p:preserve?Preserve file owner, group, permissions and timestamps.]"
 "[h:hierarchy|parents?Form the name of each destination file by "
@@ -100,13 +100,13 @@ static const char usage_tail[] =
     "this order: this option, the \bVERSION_CONTROL\b environment variable, "
     "or the default value \bexisting\b. \atype\a may be one of:]:?[type]"
     "{"
-        "[+numbered|t?Always make numbered backups. The numbered backup "
-            "suffix is \b.\aSNS\a, where \aS\a is the \bbackup-suffix\b and "
-            "\aN\a is the version number, starting at 1, incremented with "
-            "each version.]"
-        "[+existing|nil?Make numbered backups of files that already have "
-            "them, otherwise simple backups.]"
-        "[+simple|never?Always make simple backups.]"
+	"[+numbered|t?Always make numbered backups. The numbered backup "
+	    "suffix is \b.\aSNS\a, where \aS\a is the \bbackup-suffix\b and "
+	    "\aN\a is the version number, starting at 1, incremented with "
+	    "each version.]"
+	"[+existing|nil?Make numbered backups of files that already have "
+	    "them, otherwise simple backups.]"
+	"[+simple|never?Always make simple backups.]"
 	"[+none|off?Disable backups.]"
     "}"
 "[S:suffix?A backup file is made by renaming the file to the same name "
@@ -451,7 +451,7 @@ visit(State_t* state, FTSENT* ent)
 			{
 				protection =
 #ifdef ETXTBSY
-				    errno == ETXTBSY ? "``running program''" : 
+				    errno == ETXTBSY ? "``running program''" :
 #endif
 				    st.st_uid != state->uid ? "``not owner''" :
 				    fmtmode(st.st_mode & (S_IRWXU|S_IRWXG|S_IRWXO), 0) + 1;

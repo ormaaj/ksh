@@ -35,7 +35,7 @@ static const char sh_opttype[] =
 	"the variable \aname\a is set to \avalue\a before the variable "
 	"is converted to \b\f?\f\b.]"
 "[+?If no \aname\as are specified then the names and values of all "
-	"variables of this type are written to standard output.]" 
+	"variables of this type are written to standard output.]"
 "[+?\b\f?\f\b is built in to the shell as a declaration command so that "
 	"field splitting and pathname expansion are not performed on "
 	"the arguments. Tilde expansion occurs on \avalue\a.]"
@@ -46,7 +46,7 @@ static const char sh_opttype[] =
 	"specified, each subscript is interpreted as a value of enumeration "
 	"type \atype\a.]"
 "[A?Associative array. Each \aname\a is converted to an associative "
-        "array of type \b\f?\f\b. If a variable already exists, the current "
+	"array of type \b\f?\f\b. If a variable already exists, the current "
 	"value will become subscript \b0\b.]"
 "[h]:[string?Used within a type definition to provide a help string  "
 	"for variable \aname\a. Otherwise, it is ignored.]"
@@ -60,8 +60,8 @@ static const char sh_opttype[] =
 "\n[name[=value]...]\n"
 "\n"
 "[+EXIT STATUS?]{"
-        "[+0?Successful completion.]"
-        "[+>0?An error occurred.]"
+	"[+0?Successful completion.]"
+	"[+>0?An error occurred.]"
 "}"
 
 "[+SEE ALSO?\fother\f \breadonly\b(1), \btypeset\b(1)]"
@@ -361,7 +361,7 @@ static Namfun_t *clone_type(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 	}
 	if(flags&NV_TYPE)
 		return nv_clone_disc(fp,flags);
-	if(size==0 && (!fp->disc || (size=fp->disc->dsize)==0)) 
+	if(size==0 && (!fp->disc || (size=fp->disc->dsize)==0))
 		size = sizeof(Namfun_t);
 	dp = (Namtype_t*)sh_malloc(size+pp->nref*sizeof(struct Namref));
 	if(pp->nref)
@@ -523,7 +523,7 @@ found:
 static void put_type(Namval_t* np, const char* val, int flag, Namfun_t* fp)
 {
 	Namval_t	*nq;
-	if(val && (nq=nv_open(val,sh.var_tree,NV_VARNAME|NV_ARRAY|NV_NOADD|NV_NOFAIL))) 
+	if(val && (nq=nv_open(val,sh.var_tree,NV_VARNAME|NV_ARRAY|NV_NOADD|NV_NOFAIL)))
 	{
 		Namfun_t  *pp;
 		if((pp=nv_hasdisc(nq,fp->disc)) && pp->type==fp->type)
@@ -638,7 +638,7 @@ static int typeinfo(Opt_t* op, Sfio_t *out, const char *str, Optdisc_t *fp)
 			{
 				if(nv_isattr(bp->bltins[i],NV_OPTGET))
 					sfprintf(out,"\b%s.%s\b(3), ",np->nvname,bp->bnames[i]);
-                        }
+			}
 		}
 		return 0;
 	}
@@ -719,7 +719,7 @@ static int std_disc(Namval_t *mp, Namtype_t *pp)
 			pp->cp = mp;
 		return 0;
 	}
-	for(argv=nv_discnames; sp=*argv; argv++) 
+	for(argv=nv_discnames; sp=*argv; argv++)
 	{
 		if(strcmp(cp,sp)==0)
 		{
@@ -772,7 +772,7 @@ void nv_addtype(Namval_t *np, const char *optstr, Optdisc_t *op, size_t optsz)
 	if(name=strrchr(np->nvname,'.'))
 		name++;
 	else
-		name = np->nvname; 
+		name = np->nvname;
 #if SHOPT_NAMESPACE
 	if(bp=(Namval_t*)sh.namespace)
 	{
@@ -1177,7 +1177,7 @@ Namval_t *nv_mkinttype(char *name, size_t size, int sign, const char *help, Namd
 	int		offset=stktell(sh.stk);
 	sfputr(sh.stk,NV_CLASS,'.');
 	sfputr(sh.stk,name,0);
-        mp = nv_open(stkptr(sh.stk,offset), sh.var_tree, NV_VARNAME);
+	mp = nv_open(stkptr(sh.stk,offset), sh.var_tree, NV_VARNAME);
 	stkseek(sh.stk,offset);
 	offset = size + sizeof(Namdisc_t);
 	fp = sh_newof(NULL, Namfun_t, 1, offset);

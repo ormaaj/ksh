@@ -146,7 +146,7 @@ struct lstnod
 struct tstnod
 {
 	struct lstnod	tstlst;
-	int		tstline;	
+	int		tstline;
 };
 
 struct functnod

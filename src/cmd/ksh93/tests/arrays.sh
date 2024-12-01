@@ -355,11 +355,11 @@ foo=one
 [[ ! ${foo[@]:1} ]] || err_exit '${foo[@]:1} not null'
 function EMPTY
 {
-        typeset i
-        typeset -n ARRAY=$1
-        for i in ${!ARRAY[@]}
-        do      unset ARRAY[$i]
-        done
+	typeset i
+	typeset -n ARRAY=$1
+	for i in ${!ARRAY[@]}
+	do      unset ARRAY[$i]
+	done
 }
 unset foo
 typeset -A foo
@@ -614,9 +614,9 @@ x=$(
 		print '('
 		integer i
 		for ((i=0 ; i < 16384 ; i++ )) ; do
-                	printf '\tinteger var%i=%i\n' i i
-        	done
-        	printf 'typeset -a ar=(\n'
+			printf '\tinteger var%i=%i\n' i i
+		done
+		printf 'typeset -a ar=(\n'
 		for ((i=0 ; i < 16384 ; i++ )) ; do
 			printf '\t[%d]=%d\n' i i
 		done

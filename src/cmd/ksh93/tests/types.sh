@@ -400,23 +400,23 @@ bar.foo[a]=b
 
 { x=$( $SHELL 2> /dev/null << \++EOF++
     typeset -T ab_t=(
-        integer a=1 b=2
-        function increment
-        {
-                (( _.a++, _.b++ ))
-        }
+	integer a=1 b=2
+	function increment
+	{
+		(( _.a++, _.b++ ))
+	}
     )
     function ar_n
     {
-        nameref sn=$2
-        sn.increment
-        $1 && printf "a=%d, b=%d\n" sn.a sn.b
+	nameref sn=$2
+	sn.increment
+	$1 && printf "a=%d, b=%d\n" sn.a sn.b
     }
     function ar
     {
-        ab_t -S -a s
-        [[ -v s[5] ]] || s[5]=( )
-        ar_n $1 s[5]
+	ab_t -S -a s
+	[[ -v s[5] ]] || s[5]=( )
+	ar_n $1 s[5]
     }
     x=$(ar false ; ar false ; ar true ; printf ";")
     y=$(ar false ; ar false ; ar true ; printf ";")

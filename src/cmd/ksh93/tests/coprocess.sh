@@ -333,8 +333,8 @@ wait
 
 function cop
 {
-        read
-        print ok
+	read
+	print ok
 }
 exp=ok
 cop |&

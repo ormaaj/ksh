@@ -176,7 +176,7 @@ rm -f foobar
 > foobar
 for i in 1 2
 do      print foobar*
-        rm -f foobar
+	rm -f foobar
 done > out
 if      [[ "$(<out)"  != "foobar"$'\n'"foobar*" ]]
 then    print -u2 "optimizer bug with file expansion"

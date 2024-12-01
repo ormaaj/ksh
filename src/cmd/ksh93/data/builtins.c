@@ -181,12 +181,12 @@ const struct shtable3 shtab_builtins[] =
 
 #define _JOB_	"[+?Each \ajob\a can be specified as one of the following:]{" \
 	"[+\anumber\a?\anumber\a refers to a process ID.]" \
-        "[+-\anumber\a?\anumber\a refers to a process group ID.]" \
-        "[+%\anumber\a?\anumber\a refer to a job number.]" \
-        "[+%\astring\a?Refers to a job whose name begins with \astring\a.]" \
-        "[+%??\astring\a?Refers to a job whose name contains \astring\a.]" \
-        "[+%+ \bor\b %%?Refers to the current job.]" \
-        "[+%-?Refers to the previous job.]" \
+	"[+-\anumber\a?\anumber\a refers to a process group ID.]" \
+	"[+%\anumber\a?\anumber\a refer to a job number.]" \
+	"[+%\astring\a?Refers to a job whose name begins with \astring\a.]" \
+	"[+%??\astring\a?Refers to a job whose name contains \astring\a.]" \
+	"[+%+ \bor\b %%?Refers to the current job.]" \
+	"[+%-?Refers to the previous job.]" \
 	"}"
 
 
@@ -414,7 +414,7 @@ const char sh_optalias[] =
 "\n[name[=value]...]\n"
 "\n"
 "[+EXIT STATUS?]{"
-        "[+0?Successful completion.]"
+	"[+0?Successful completion.]"
 	"[+>0?One or more \aname\a operands did not have an alias "
 		"definition, or an error occurred.]"
 "}"

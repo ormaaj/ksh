@@ -48,8 +48,8 @@ if	(( newrec.born.day != 16 ))
 then	err_exit 'copying integer field of compound object not working'
 fi
 p_t=(
-        integer z=0
-        typeset -A tokens
+	integer z=0
+	typeset -A tokens
 )
 unset x
 typeset -A x
@@ -98,76 +98,76 @@ suitable=(
     "
     entries=(
       vieworigin=(
-        type=coord var=vieworigin val="0 0" label="Window Position"
+	type=coord var=vieworigin val="0 0" label="Window Position"
       )
       viewsize=(
-        type=coord var=viewsize val="400 400" label="Window Size"
+	type=coord var=viewsize val="400 400" label="Window Size"
       )
       viewcolor=(
-        type=2colors var=viewcolor val="gray black"
-        label="Window Colors"
+	type=2colors var=viewcolor val="gray black"
+	label="Window Colors"
       )
       viewfontname=(
-        type=fontname var=viewfontname val="Times-Roman"
-        label="Window Font Name"
+	type=fontname var=viewfontname val="Times-Roman"
+	label="Window Font Name"
       )
       viewfontsize=(
-        type=fontsize var=viewfontsize val=14 label="Window Font Size"
+	type=fontsize var=viewfontsize val=14 label="Window Font Size"
       )
 
       showheader=(
-        type=yesno var=showheader val=no label="Show Header"
+	type=yesno var=showheader val=no label="Show Header"
       )
       header=(
-        type=text var=header val="" label="Header"
+	type=text var=header val="" label="Header"
       )
 
       showfooter=(
-        type=yesno var=showfooter val=no label="Show Footer"
+	type=yesno var=showfooter val=no label="Show Footer"
       )
       footer=(
-        type=text var=footer val="" label="Footer"
+	type=text var=footer val="" label="Footer"
       )
 
       showtitle=(
-        type=yesno var=showtitle val=yes label="Show Title"
+	type=yesno var=showtitle val=yes label="Show Title"
       )
       title=(
-        type=text var=title val="SWIFTUI - Table View" label="Title"
+	type=text var=title val="SWIFTUI - Table View" label="Title"
       )
 
       showlegends=(
-        type=yesno var=showlegends val=yes label="Show Legends"
+	type=yesno var=showlegends val=yes label="Show Legends"
       )
 
       class_td_lg1_style=(
-        type=style var=class_td_lg1_style
-        val="color: black; font-family: Times-Roman; font-size: 14pt"
-        label="Legend 1 Style"
+	type=style var=class_td_lg1_style
+	val="color: black; font-family: Times-Roman; font-size: 14pt"
+	label="Legend 1 Style"
       )
 
       class_tr_tr1_style=(
-        type=style var=class_tr_tr1_style val="background: black"
-        label="Table Row 1 Style"
+	type=style var=class_tr_tr1_style val="background: black"
+	label="Table Row 1 Style"
       )
 
       class_th_th1_style=(
-        type=style var=class_th_th1_style
-        val="color: black; font-family: Times-Roman; font-size: 14pt; text-align: left"
-        label="Table Header 1 Style"
+	type=style var=class_th_th1_style
+	val="color: black; font-family: Times-Roman; font-size: 14pt; text-align: left"
+	label="Table Header 1 Style"
       )
 
       class_td_td1_style=(
-        type=style var=class_td_td1_style
-        val="color: black; font-family: Times-Roman; font-size: 14pt; text-align: left"
-        label="Table Cell 1 Style"
+	type=style var=class_td_td1_style
+	val="color: black; font-family: Times-Roman; font-size: 14pt; text-align: left"
+	label="Table Cell 1 Style"
       )
 
       fields=(
-        type=text var=fields val= label="List of Fields"
+	type=text var=fields val= label="List of Fields"
       )
       fieldorder=(
-        type=text var=fieldorder val= label="Order of Fields"
+	type=text var=fieldorder val= label="Order of Fields"
       )
     )
   )
@@ -190,13 +190,13 @@ function staticvar
 	then	print -r -- "$point"
 		return
 	fi
-        typeset -S point=(typeset -i x=3 y=4)
-        (( (point.x*point.x + point.y*point.y) == 25 )) || err_exit "local compound variable not working"
+	typeset -S point=(typeset -i x=3 y=4)
+	(( (point.x*point.x + point.y*point.y) == 25 )) || err_exit "local compound variable not working"
 	point.y=5
 	point.z=foobar
 }
 staticvar
-        (( (point.x*point.x + point.y*point.y) == 100 )) || err_exit "global compound variable not preserved"
+	(( (point.x*point.x + point.y*point.y) == 100 )) || err_exit "global compound variable not preserved"
 [[ $(staticvar x) == $'(\n\ttypeset -i x=3\n\ttypeset -i y=5\n\tz=foobar\n)' ]] || err_exit 'static variables in function not working'
 integer x=3
 ( typeset -S x=+++)2> /dev/null  || err_exit "typeset -S doesn't unset first"
@@ -401,7 +401,7 @@ got=$r
 
 # array of compound variables
 typeset -C data=(
-        typeset -a samples
+	typeset -a samples
 )
 data.samples+=(
 	type1="greeting1"
@@ -492,14 +492,14 @@ add_one "foo2[1234]"
 typeset -C tree
 function f1
 {
-        nameref tr=$1
-        typeset -A tr.subtree
-        typeset -C node
-        node.one="hello"
-        node.two="world"
-        
-        # move local note into the array
-        typeset -m tr.subtree["a_node"]=node
+	nameref tr=$1
+	typeset -A tr.subtree
+	typeset -C node
+	node.one="hello"
+	node.two="world"
+	
+	# move local note into the array
+	typeset -m tr.subtree["a_node"]=node
 }
 f1 tree
 expected=$'(\n\ttypeset -A subtree=(\n\t\t[a_node]=(\n\t\t\tone=hello\n\t\t\ttwo=world\n\t\t)\n\t)\n)'
@@ -511,17 +511,17 @@ expected='typeset -C -A array=([12]=(typeset -l -E amount=2.9))'
 [[ $(typeset -p array) == "$expected" ]] || err_exit 'typeset with compound variable with compound variable array not working'
 
 typeset -T foo_t=(
-        function diff
-        {
+	function diff
+	{
 		print 1.0
-                return 0
-        }
+		return 0
+	}
 )
 foo_t sw
 compound output=(
-        integer one=1
-        float mydiff=sw.diff
-        float end=.314
+	integer one=1
+	float mydiff=sw.diff
+	float end=.314
 )
 [[ $output == *end=* ]] ||  err_exit "The field 'name' end is missing"
 
@@ -534,9 +534,9 @@ compound x=(
 
 unset x
 compound x=(
-        compound -a nodes=(
-                 [4]=( )
-        )
+	compound -a nodes=(
+		 [4]=( )
+	)
 ) 
 expected='typeset -C x=(typeset -C -a nodes=([4]=());)'
 [[ $(typeset -p x) == "$expected" ]] || err_exit 'typeset -p with nested compound indexed array not working'

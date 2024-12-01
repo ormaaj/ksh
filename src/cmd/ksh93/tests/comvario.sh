@@ -339,7 +339,7 @@ s=$($SHELL -c 'compound myvar ; print "  unfinished=1 )" | read -C myvar 2>'/dev
 
 function test6
 {
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 	compound val
 	integer testid
 
@@ -391,9 +391,9 @@ function test6
 
 	        out.stderr="${ { out.stdout="${ ${SHELL} -c "${test.cmd}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
-        	(( out.res == 0 )) || err_exit "${testname}: Test shell returned with exit code ${out.res}"
-        	[[ "${out.stdout}" == ${test.stdoutpattern} ]] || err_exit "${testname}: Expected match for ${test.stdoutpattern}, got $(printf "%q\n" "${out.stdout}")"
-        	[[ "${out.stderr}" == ""                    ]] || err_exit "${testname}: Expected empty stderr, got $(printf "%q\n" "${out.stderr}")"
+		(( out.res == 0 )) || err_exit "${testname}: Test shell returned with exit code ${out.res}"
+		[[ "${out.stdout}" == ${test.stdoutpattern} ]] || err_exit "${testname}: Expected match for ${test.stdoutpattern}, got $(printf "%q\n" "${out.stdout}")"
+		[[ "${out.stderr}" == ""                    ]] || err_exit "${testname}: Expected empty stderr, got $(printf "%q\n" "${out.stderr}")"
 
 		read -C val <<<"${out.stdout}" || err_exit "${testname}: read -C val failed with exit code $?"
 		nameref ar="val.${test.arrefname}"
@@ -408,7 +408,7 @@ test6
 
 function test_3D_array_read_C
 {
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 	integer i
 	typeset -r -a tests=(
 		# ast-ksh.2010-03-09 will print "ksh93[1]: read: line 4: 0[0]: invalid variable name" for 3D arrays passed to read -C
@@ -422,7 +422,7 @@ function test_3D_array_read_C
 		out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -c "${tests[i]}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
 	        [[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
-        	[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
+		[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 	done
 
 	return 0
@@ -431,7 +431,7 @@ function test_3D_array_read_C
 
 function test_access_2Darray_in_type_in_compound
 {
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 	integer i
 	typeset -r -a tests=(
 		# ast-ksh.2010-03-09 will print 'ksh: line 1: l.c.x[i][j]=: no parent'
@@ -442,7 +442,7 @@ function test_access_2Darray_in_type_in_compound
 		out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -c "${tests[i]}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
 	        [[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
-        	[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
+		[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 	done
 
 	return 0
@@ -450,7 +450,7 @@ function test_access_2Darray_in_type_in_compound
 
 function test_read_type_crash
 {
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 	typeset -r test='
 typeset -T field_t=(
 	typeset -a f
@@ -497,7 +497,7 @@ print -v c2
 
 	out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -c "${test}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
-        [[ "${out.stdout}" != '' ]] || err_exit "$0: Expected nonempty stdout."
+	[[ "${out.stdout}" != '' ]] || err_exit "$0: Expected nonempty stdout."
        	[[ "${out.stderr}" == '' ]] || err_exit "$0: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 
 	return 0
@@ -506,7 +506,7 @@ print -v c2
 
 function test_read_C_into_array
 {
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 	# fixme:
 	# - The tests should cover 3D and 5D indexed arrays and namerefs to sub-dimensions of a 5D indexed array
 	compound -r -a tests=(
@@ -621,7 +621,7 @@ function test_read_C_special_shell_keywords
 	typeset testcmd
 	typeset testname
 	typeset shkeyword
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 
 	for (( tcpi=0 ; tcpi < ${#testcmdpatterns[@]} ; tcpi++ )) ; do
 		for (( spwi=0 ; spwi < ${#shell_special_words[@]} ; spwi++ )) ; do
@@ -631,7 +631,7 @@ function test_read_C_special_shell_keywords
 
 			out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -o errexit -c "${testcmd}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
-        		[[ "${out.stdout}" == "X${shkeyword}X" ]] || err_exit "${testname}: Expected stdout to match $(printf '%q\n' "X${shkeyword}X"), got $(printf '%q\n' "${out.stdout}")"
+			[[ "${out.stdout}" == "X${shkeyword}X" ]] || err_exit "${testname}: Expected stdout to match $(printf '%q\n' "X${shkeyword}X"), got $(printf '%q\n' "${out.stdout}")"
 			[[ "${out.stderr}" == '' ]] || err_exit "${testname}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 			(( out.res == 0 )) || err_exit "${testname}: Unexpected exit code ${out.res}"
 		done

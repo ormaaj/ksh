@@ -70,7 +70,7 @@ function test1
 # test2: test the more complex datatypes
 function test2
 {
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 	integer i
 
 	test_t -r -a tests=(
@@ -659,14 +659,14 @@ test_hx_scope false false
 
 out=$(function fun2
 {
-        nameref sn=$1
-        (( sn.a++, sn.b++ ))
-        $2 && printf "a=%d, b=%d\n" sn.a sn.b
+	nameref sn=$1
+	(( sn.a++, sn.b++ ))
+	$2 && printf "a=%d, b=%d\n" sn.a sn.b
 }
 function fun1
 {
-        compound -S s=( a=0 b=0 )
-        fun2 s $1
+	compound -S s=( a=0 b=0 )
+	fun2 s $1
 }
 (fun1 false ; fun1 false ; fun1 true)
 (fun1 false ; fun1 false ; fun1 true)

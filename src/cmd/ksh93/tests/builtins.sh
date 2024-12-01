@@ -86,9 +86,9 @@ done
 
 USAGE=$'[-][S:server?Operate on the specified \asubservice\a:]:[subservice:=pmserver]
     {
-        [p:pmserver]
-        [r:repserver]
-        [11:notifyd]
+	[p:pmserver]
+	[r:repserver]
+	[11:notifyd]
     }'
 set pmser p rep r notifyd -11
 while	(( $# > 1 ))
@@ -725,15 +725,15 @@ read baz <<< 'foo\\\\bar'
 actual=$(
     set +x
     {
-        (
-            trap "" PIPE
-            for ((i = SECONDS + 1; SECONDS < i; )); do
-                print hi || {
-                    print $? >&2
-                    exit
-                }
-            done
-        ) | true
+	(
+	    trap "" PIPE
+	    for ((i = SECONDS + 1; SECONDS < i; )); do
+		print hi || {
+		    print $? >&2
+		    exit
+		}
+	    done
+	) | true
     } 2>&1
 )
 expect='1'

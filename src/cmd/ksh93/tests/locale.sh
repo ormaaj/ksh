@@ -315,7 +315,7 @@ unset LC_ALL LC_MESSAGES
 export LANG=debug
 function message
 {
-        print -r $"An error occurred."
+	print -r $"An error occurred."
 }
 exp=$'(libshell,3,46)\nAn error occurred.\n(libshell,3,46)'
 alt=$'(debug,message,libshell,An error occurred.)\nAn error occurred.\n(debug,message,libshell,An error occurred.)'

@@ -50,14 +50,14 @@ then	err_exit ".foo.bar.child=${.foo.bar.child} != child"
 fi
 function func1
 {
-        nameref color=$1
-        func2 color
+	nameref color=$1
+	func2 color
 }
 
 function func2
 {
-        nameref color=$1
-        set -s -- ${!color[@]}
+	nameref color=$1
+	set -s -- ${!color[@]}
 	print -r -- "$@"
 }
 
@@ -175,7 +175,7 @@ do	typeset -n x=$i
 done) != ok ]] && err_exit 'invalid for loop optimization of name references'
 function setval # name value
 {
-        nameref arg=$1
+	nameref arg=$1
 	nameref var=arg.bar
 	var=$2
 }
@@ -184,8 +184,8 @@ setval foo 5
 (( foo.bar == 5)) || err_exit 'nested nameref not working'
 function selfref
 {
-        typeset -n ps=$1
-        print -r -- "${ps}"
+	typeset -n ps=$1
+	print -r -- "${ps}"
 }
 ps=(a=1 b=2)
 [[ $(selfref ps) == *a=1* ]] ||  err_exit 'local nameref cannot reference global variable of the same name'
@@ -213,8 +213,8 @@ unset fun i
 foo=(x=hi)
 function fun
 {
-        nameref i=$1
-        print -r -- "${i.x}"
+	nameref i=$1
+	print -r -- "${i.x}"
 }
 i=foo
 [[ $(fun $i) == hi ]] || err_exit 'nameref for compound variable with in function name of caller fails'
@@ -327,16 +327,16 @@ ref=x
 [[ $ref == 3 ]] || err_exit "\$ref is $ref, it should be 3"
 function foobar
 {
-        typeset fvar=()
-        typeset -n ref=fvar.foo
-        ref=ok
-        print -r $ref
+	typeset fvar=()
+	typeset -n ref=fvar.foo
+	ref=ok
+	print -r $ref
 }
 [[ $(foobar) ==  ok ]] 2> /dev/null  || err_exit 'nameref in function not creating variable in proper scope'
 function foobar
 {
-        nameref doc=docs
-        nameref bar=doc.num
+	nameref doc=docs
+	nameref bar=doc.num
 	[[ $bar == 2 ]] || err_exit 'nameref scoping error'
 }
 

@@ -27,7 +27,6 @@
 
 #include	"shopt.h"
 #include	<ast.h>
-#include	<releaseflags.h>
 #include	<fcin.h>
 #include	<nval.h>
 #include	"defs.h"

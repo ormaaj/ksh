@@ -625,7 +625,11 @@ x=$(
 	) | read -C hugecpv
 	compound hugecpv2=hugecpv
 	v=$(typeset -p hugecpv)
-	[[ ${v/hugecpv/hugecpv2} == "$(typeset -p hugecpv2)" ]]
+	# FIXME: the == operator in [[ ... ]] may crash in the regex code for large values due to
+	# excessive recursion; replace with a test(1) invocation (it doesn't call the regex code).
+	# More info: https://github.com/ksh93/ksh/issues/207#issuecomment-2508747419
+	#[[ ${v/hugecpv/hugecpv2} == "$(typeset -p hugecpv2)" ]]
+	test "${v/hugecpv/hugecpv2}" = "$(typeset -p hugecpv2)"
 EOF
 ) 2> /dev/null || err_exit 'copying a large array fails'
 

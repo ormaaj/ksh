@@ -29,6 +29,11 @@
 #include	"defs.h"
 #include	"name.h"
 
+#if _AST_release
+#define NDEBUG
+#endif
+#include	<assert.h>
+
 #define NUMSIZE	11
 #define is_associative(ap)	array_assoc((Namarr_t*)(ap))
 #define array_setbit(cp, n, b)	(cp[n] |= (b))
@@ -1479,6 +1484,7 @@ char *nv_endsubscript(Namval_t *np, char *cp, int mode)
 {
 	int count=1, quoted=0, c;
 	char *sp = cp+1;
+	assert(*cp=='[');
 	/* first find matching ']' */
 	while(count>0 && (c= *++cp))
 	{

@@ -642,7 +642,7 @@ typedef struct _sftab_
 {	Sfdouble_t	sf_pos10[SFIO_MAXEXP10];	/* positive powers of 10	*/
 	Sfdouble_t	sf_neg10[SFIO_MAXEXP10];	/* negative powers of 10	*/
 	uchar		sf_dec[200];		/* ASCII reps of values < 100	*/
-	char*		sf_digits;		/* digits for general bases	*/ 
+	char*		sf_digits;		/* digits for general bases	*/
 	int		(*sf_cvinitf)();	/* initialization function	*/
 	int		sf_cvinit;		/* initialization state		*/
 	Fmtpos_t*	(*sf_fmtposf)(Sfio_t*,const char*,va_list,Sffmt_t*,int);

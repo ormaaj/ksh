@@ -32,7 +32,7 @@
 /* internal data structure for hash table with chaining */
 typedef struct _dthash_s
 {	Dtdata_t	data;
-	int		type; 
+	int		type;
 	Dtlink_t*	here;	/* fingered object	*/
 	Dtlink_t**	htbl;	/* hash table slots 	*/
 	ssize_t		tblz;	/* size of hash table 	*/
@@ -294,7 +294,7 @@ static void* dthashchain(Dt_t* dt, void* obj, int type)
 		obj = _DTOBJ(disc,lnk);
 		key = _DTKEY(disc,obj);
 	}
-	else 
+	else
 	{	lnk = NULL;
 		if((type&DT_MATCH) )
 		{	key = obj;
@@ -319,7 +319,7 @@ static void* dthashchain(Dt_t* dt, void* obj, int type)
 			else	break;
 		}
 	}
-	if(l) /* found an object, use it */ 
+	if(l) /* found an object, use it */
 		{ pp = p; ll = l; }
 
 	if(ll) /* found object */

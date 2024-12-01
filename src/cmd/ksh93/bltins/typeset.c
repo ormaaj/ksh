@@ -713,7 +713,7 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 #endif /* SHOPT_NAMESPACE */
 					np = nv_open(name,sh_subfuntree(1),NV_NOARRAY|NV_IDENT|NV_NOSCOPE);
 				}
-				else 
+				else
 				{
 					if(sh.prefix)
 					{
@@ -762,7 +762,7 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 						np = nv_search(stkptr(sh.stk,offset),troot,0);
 						stkseek(sh.stk,offset);
 					}
-					if(np && np->nvalue) 
+					if(np && np->nvalue)
 						((struct Ufunction*)np->nvalue)->help = tp->help;
 				}
 				continue;
@@ -810,7 +810,7 @@ static int     setall(char **argv,int flag,Dt_t *troot,struct tdata *tp)
 				_nv_unset(np,0);
 				ap->nelem--;
 			}
-			else if(iarray && ap && ap->fun) 
+			else if(iarray && ap && ap->fun)
 			{
 				errormsg(SH_DICT,ERROR_exit(1),"cannot change associative array %s to indexed array",nv_name(np));
 				UNREACHABLE();

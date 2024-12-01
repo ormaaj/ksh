@@ -517,7 +517,7 @@ function add_file_to_tree
 	node.elements[/]=(filepath=foobar)
 }
 function main
-{	
+{
 	compound filetree
 	add_file_to_tree filetree
 }

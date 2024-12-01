@@ -219,7 +219,7 @@ int ed_viread(void *context, int fd, char *shbuf, int nchar, int reedit)
 		vp->direction = -1;
 		vp->ed = ed;
 	}
-	
+
 	/*** setup prompt ***/
 
 	Prompt = prompt;
@@ -946,7 +946,7 @@ static void endword(Vi_t *vp, int nwords, int cmd)
 		if( tcur_virt <= last_virt && !isblank(tcur_virt) )
 			++tcur_virt;
 		while( tcur_virt <= last_virt && isblank(tcur_virt) )
-			++tcur_virt;	
+			++tcur_virt;
 		if( cmd == 'E' )
 		{
 			while( tcur_virt <= last_virt && !isblank(tcur_virt) )
@@ -1190,7 +1190,7 @@ static void getline(Vi_t* vp,int mode)
 			break;
 
 		case UWERASE:		/** delete back word **/
-			if( cur_virt > first_virt && 
+			if( cur_virt > first_virt &&
 				!isblank(cur_virt) &&
 				!ispunct(virtual[cur_virt]) &&
 				isblank(cur_virt-1) )
@@ -1590,7 +1590,7 @@ find_b:
 			tcur_virt -= incr;
 		break;
 
-        case '%':
+	case '%':
 	{
 		int nextmotion;
 		int nextc;
@@ -2231,7 +2231,7 @@ static int textmod(Vi_t *vp,int c, int mode)
 	int savecur;
 	int ch;
 
-	if(mode && (fold(vp->lastmotion)=='F' || fold(vp->lastmotion)=='T')) 
+	if(mode && (fold(vp->lastmotion)=='F' || fold(vp->lastmotion)=='T'))
 		vp->lastmotion = ';';
 
 	if( fold(c) == 'P' )
@@ -2247,7 +2247,7 @@ addin:
 	{
 			/***** Input commands *****/
 
-        case '\t':
+	case '\t':
 		if(vp->ed->e_tabcount!=1)
 			return BAD;
 		c = '=';

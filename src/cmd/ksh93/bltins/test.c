@@ -69,9 +69,9 @@ static int	test_mode(const char*);
 
 struct test
 {
-        int     ap;
-        int     ac;
-        char    **av;
+	int     ap;
+	int     ac;
+	char    **av;
 };
 
 static char *nxtarg(struct test*,int);
@@ -82,7 +82,7 @@ static int test_strmatch(const char *str, const char *pat)
 {
 	int match[2*(MATCH_MAX+1)],n;
 	int c, m=0;
-	const char *cp=pat; 
+	const char *cp=pat;
 	while(c = *cp++)
 	{
 		if(c=='(')
@@ -654,7 +654,7 @@ skip:
 		else
 		{
 			static int maxgroups;
-			gid_t *groups; 
+			gid_t *groups;
 			int n;
 			if(maxgroups==0)
 			{
@@ -684,7 +684,7 @@ skip:
 }
 
 /*
- * Return the mode bits of file <file> 
+ * Return the mode bits of file <file>
  * If <file> is null, then the previous stat buffer is used.
  * The mode bits are zero if the file doesn't exist.
  */

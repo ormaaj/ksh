@@ -120,7 +120,7 @@ typedef struct edit
 #if SHOPT_ESH || SHOPT_VSH
 	int	e_multiline;	/* allow multiple lines for editing */
 #endif
-	int	e_winsz;	/* columns in window */ 
+	int	e_winsz;	/* columns in window */
 	Edpos_t	e_curpos;	/* cursor line and column */
 	Namval_t *e_default;	/* variable containing default value */
 } Edit_t;

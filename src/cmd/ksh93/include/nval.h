@@ -177,7 +177,7 @@ struct Namval
 #define NV_NOREF	NV_REF		/* don't follow reference */
 #define NV_IDENT	0x80		/* name must be identifier */
 #define NV_VARNAME	0x20000		/* name must be ?(.)id*(.id) */
-#define NV_NOADD	0x40000		/* do not add node */ 	
+#define NV_NOADD	0x40000		/* do not add node */
 #define NV_NOSCOPE	0x80000		/* look only in current scope */
 #define NV_NOFAIL	0x100000	/* return 0 on failure, no msg */
 #define NV_NODISC	NV_IDENT	/* ignore disciplines */

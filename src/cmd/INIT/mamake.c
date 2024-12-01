@@ -582,7 +582,7 @@ static Dict_item_t *search(Dict_t *dict, char *name, int create)
 		if (!(cmp = strcmp(name, root->name)))
 			break;
 		else if (cmp < 0)
-		{	
+		{
 			if (root->left && (cmp = strcmp(name, root->left->name)) <= 0)
 			{
 				/* rotate(left, right) */
@@ -602,7 +602,7 @@ static Dict_item_t *search(Dict_t *dict, char *name, int create)
 			right->left = NULL;
 		}
 		else
-		{	
+		{
 			if (root->right && (cmp = strcmp(name, root->right->name)) >= 0)
 			{
 				/* rotate(right, left) */
@@ -3084,7 +3084,7 @@ int main(int argc, char **argv)
 	 */
 
 	if (SA_RESTART && state.maxjobs > 1)
-	{	
+	{
 		struct sigaction act;
 		sigemptyset(&empty_sigmask);
 		act.sa_handler = sigchld_dummy;

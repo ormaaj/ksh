@@ -2,7 +2,7 @@
 #                                                                      #
 #               This software is part of the ast package               #
 #          Copyright (c) 1982-2011 AT&T Intellectual Property          #
-#          Copyright (c) 2020-2022 Contributors to ksh 93u+m           #
+#          Copyright (c) 2020-2024 Contributors to ksh 93u+m           #
 #                      and is licensed under the                       #
 #                 Eclipse Public License, Version 2.0                  #
 #                                                                      #
@@ -93,9 +93,9 @@ function test_arithmetic_expression_access_array_element_through_nameref
 				'in_associative_compound_array_nameref' \
 				 ; do
 				nameref tst=tests[i]
-			
+
 				cmd="${tst.cmd//@@TYPE@@/${ty}}"
-				
+
 				case "${mode}" in
 					'plain')
 						cmd="${cmd//@@VAR@@/z}"
@@ -136,7 +136,7 @@ function test_arithmetic_expression_access_array_element_through_nameref
 						err_exit "Unexpected mode ${mode}"
 						;;
 				esac
-								
+
 				testname="${0}/${cmd}"
 				((xtrace)) && set +x
 				out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -o errexit -c "${cmd}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
@@ -148,7 +148,7 @@ function test_arithmetic_expression_access_array_element_through_nameref
 			done
 		done
 	done
-	
+
 	return 0
 }
 
@@ -158,7 +158,7 @@ function test_has_iszero
 
 	typeset str
 	integer i
-	
+
 	typeset -r -a tests=(
 		'(( iszero(0)   )) && print "OK"'
 		'(( iszero(0.)  )) && print "OK"'
@@ -171,7 +171,7 @@ function test_has_iszero
 		'float n=1.  ; (( iszero(n-1.) )) && print "OK"'
 		'float n=-1. ; (( iszero(n+1.) )) && print "OK"'
 	)
-	
+
 	for (( i=0 ; i < ${#tests[@]} ; i++ )) ; do
 		str="$( ${SHELL} -o errexit -c "${tests[i]}" 2>&1 )" || err_exit "test $i: returned non-zero exit code $?"
 		[[ "${str}" == 'OK' ]] || err_exit "test $i: expected 'OK', got '${str}'"

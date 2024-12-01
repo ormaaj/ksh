@@ -351,7 +351,7 @@ int sh_main(int ac, char *av[], Shinit_f userinit)
 
 /*
  * iop is not null when the input is a string
- * fdin is the input file descriptor 
+ * fdin is the input file descriptor
  */
 static void	exfile(Sfio_t *iop,int fno)
 {
@@ -655,7 +655,7 @@ static void chkmail(char *files)
 				&& statb.st_atime <= statb.st_mtime)
 			{
 				/* check for directory */
-				if(!arglist && S_ISDIR(statb.st_mode)) 
+				if(!arglist && S_ISDIR(statb.st_mode))
 				{
 					/* generate list of directory entries */
 					path_complete(cp,"/*",&arglist);

@@ -50,9 +50,9 @@ static const char usage[] =
     "{\fabc\f}"
 "[+EXIT STATUS?]"
     "{"
-        "[+0?All modes reported or set successfully.]"
-        "[+>0?Standard input not a terminal or one or more modes "
-            "failed.]"
+	"[+0?All modes reported or set successfully.]"
+	"[+>0?Standard input not a terminal or one or more modes "
+	    "failed.]"
     "}"
 "[+SEE ALSO?\btegetattr\b(2), \btcsetattr\b(2), \bioctl\b(2)]"
 ;
@@ -121,7 +121,7 @@ typedef struct tty_s
 	unsigned long	mask;
 	unsigned long	val;
 	const char	description[76];
-} Tty_t; 
+} Tty_t;
 
 static const Tty_t Ttable[] =
 {
@@ -189,7 +189,7 @@ static const Tty_t Ttable[] =
 #ifdef VLNEXT
 { "lnext",	CHAR,	T_CHAR,	NL|SS,	VLNEXT, 'V', C("Enter the next input character literally") },
 #endif /* VLNEXT */
-	
+
 #if _mem_c_line_termios
 { "line",	NUM,	C_LINE,	0,	0, 0, C("Line discipline number") },
 #endif
@@ -215,7 +215,7 @@ static const Tty_t Ttable[] =
 { "crtscts",	BIT,	C_FLAG,	0,	CRTSCTS, CRTSCTS, C("Enable (disable) RTS/CTS handshaking") },
 #endif /* CRTSCTS */
 { "clocal",	BIT,	C_FLAG,	NL,	CLOCAL, CLOCAL, C("Disable (enable) modem control signals") },
-	
+
 { "ignbrk",	BIT,	I_FLAG,	US,	IGNBRK, IGNBRK, C("Ignore (do not ignore) break characters") },
 { "brkint",	BIT,	I_FLAG,	SS,	BRKINT, BRKINT, C("Generate (do not generate) INTR signal on break") },
 { "ignpar",	BIT,	I_FLAG,	0,	IGNPAR, IGNPAR, C("Ignore (do not ignore) characters with parity errors") },
@@ -237,7 +237,7 @@ static const Tty_t Ttable[] =
 { "imaxbel",	BIT,	I_FLAG,	SS,	IMAXBEL, IMAXBEL, C("Beep (do not beep) if a character arrives with full input buffer") },
 #endif /* IMAXBEL */
 { "icrnl",	BIT,	I_FLAG,	NL|SS,	ICRNL, ICRNL, C("Translate (do not translate) carriage return to newline") },
-	
+
 { "isig",	BIT,	L_FLAG,	SS,	ISIG, ISIG, C("Enable (disable) \bintr\b, \bquit\b, and \bsusp\b special characters") },
 { "icanon",	BIT,	L_FLAG,	SS,	ICANON, ICANON, C("Enable (disable) \berase\b, \bkill\b, \bwerase\b, and \brprnt\b special characters") },
 { "icannon",	BIT,	L_FLAG,	SS,	ICANON, ICANON },
@@ -336,7 +336,7 @@ static const Tty_t Ttable[] =
 { "ff1",	BITS,	O_FLAG,	US,	FFDLY, FF1 },
 #endif
 { "",		MIXED,	O_FLAG,	NL|IG },
-	
+
 { "evenp",	MIXED,	C_FLAG,	IG,	PARENB, 0, C("Same as \bparenb -parodd cs7\b") },
 { "oddp",	MIXED,	C_FLAG,	IG,	PARODD, 0, C("Same as \bparenb parodd cs7\b") },
 { "parity",	MIXED,	C_FLAG,	IG,	0, 0, C("Same as parenb \b-parodd cs7\b") },

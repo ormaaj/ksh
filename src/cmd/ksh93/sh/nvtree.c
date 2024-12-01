@@ -130,7 +130,7 @@ static  Namfun_t *nextdisc(Namval_t *np)
 	Namfun_t *fp;
 	if(nv_isref(np))
 		return NULL;
-        for(fp=np->nvfun;fp;fp=fp->next)
+	for(fp=np->nvfun;fp;fp=fp->next)
 	{
 		if(fp && fp->disc && fp->disc->nextf)
 			return fp;
@@ -297,7 +297,7 @@ char *nv_dirnext(void *dir)
 					else
 						root = (Dt_t*)np;
 					/* check for recursive walk */
-					for(save=dp; save;  save=save->prev) 
+					for(save=dp; save;  save=save->prev)
 					{
 						if(save->root==root)
 							break;
@@ -346,7 +346,7 @@ static void outtype(Namval_t *np, Namfun_t *fp, Sfio_t* out, const char *prefix)
 {
 	char *type=0;
 	Namval_t *tp = fp->type;
-	if(!tp && fp->disc && fp->disc->typef) 
+	if(!tp && fp->disc && fp->disc->typef)
 		tp = (*fp->disc->typef)(np,fp);
 	for(fp=fp->next;fp;fp=fp->next)
 	{
@@ -380,7 +380,7 @@ void nv_attribute(Namval_t *np,Sfio_t *out,char *prefix,int noname)
 	char *cp;
 	unsigned val,mask,attr;
 	char *ip=0;
-	Namfun_t *fp=0; 
+	Namfun_t *fp=0;
 	Namval_t *typep=0;
 #if SHOPT_FIXEDARRAY
 	int fixed=0;
@@ -762,7 +762,7 @@ static void outval(char *name, const char *vname, struct Walk *wp)
 #endif
 		}
 		nv_outname(wp->out,name,-1);
-		if((np->nvalue && np->nvalue!=Empty) || nv_isattr(np,~(NV_MINIMAL|NV_NOFREE)) || nv_isvtree(np))  
+		if((np->nvalue && np->nvalue!=Empty) || nv_isattr(np,~(NV_MINIMAL|NV_NOFREE)) || nv_isvtree(np))
 			sfputc(wp->out,(isarray==2?(wp->indent>=0?'\n':';'):'='));
 		if(isarray==2)
 			return;
@@ -945,7 +945,7 @@ static char *walk_tree(Namval_t *np, Namval_t *xp, int flags)
 	Sfoff_t	off = 0;
 	int len, savtop = stktell(sh.stk);
 	void *savptr = stkfreeze(sh.stk,0);
-	struct argnod *ap=0; 
+	struct argnod *ap=0;
 	struct argnod *arglist=0;
 	char *name,*cp, **argv;
 	char *subscript=0;
@@ -1010,7 +1010,7 @@ static char *walk_tree(Namval_t *np, Namval_t *xp, int flags)
 		sfputr(sh.stk,cp,-1);
 		ap = stkfreeze(sh.stk,1);
 		ap->argflag = ARG_RAW;
-		ap->argchn.ap = arglist; 
+		ap->argchn.ap = arglist;
 		n++;
 		arglist = ap;
 	}

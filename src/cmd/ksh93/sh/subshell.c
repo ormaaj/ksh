@@ -307,7 +307,7 @@ void sh_assignok(Namval_t *np,int add)
 	}
 	lp->dict = dp;
 	mp = (Namval_t*)&lp->dict;
-	lp->next = subshell_data->svar; 
+	lp->next = subshell_data->svar;
 	subshell_data->svar = lp;
 	save = sh.subshell;
 	sh.subshell = 0;
@@ -500,7 +500,7 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 	subshell_data = sp;
 	sp->options = sh.options;
 	sp->jobs = job_subsave();
-	/* make sure initialization has occurred */ 
+	/* make sure initialization has occurred */
 	if(!sh.pathlist)
 	{
 		sh.pathinit = 1;
@@ -527,7 +527,7 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 		char *save_debugtrap = 0;
 #if _lib_fchdir
 		sp->pwdfd = -1;
-		for(xp=sp->prev; xp; xp=xp->prev) 
+		for(xp=sp->prev; xp; xp=xp->prev)
 		{
 			if(xp->pwdfd>0 && xp->pwd && strcmp(xp->pwd,sh.pwd)==0)
 			{

@@ -1225,7 +1225,7 @@ tmxdate(const char* s, char** e, Time_t now)
 						continue;
 					case TM_NEXT:
 						/*
-						 * disambiguate english "last ... in" 
+						 * disambiguate english "last ... in"
 						 */
 
 						if (!((state|set) & LAST))

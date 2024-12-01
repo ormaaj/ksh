@@ -65,9 +65,9 @@ static const char usage[] =
 "\n"
 "[+EXIT STATUS?]"
     "{"
-        "[+0?The files or portions compared are identical.]"
-        "[+1?The files are different.]"
-        "[+>1?An error occurred.]"
+	"[+0?The files or portions compared are identical.]"
+	"[+1?The files are different.]"
+	"[+>1?An error occurred.]"
     "}"
 "[+SEE ALSO?\bcomm\b(1), \bdiff\b(1), \bcat\b(1)]"
 ;

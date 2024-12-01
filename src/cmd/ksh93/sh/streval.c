@@ -60,8 +60,8 @@
 
 struct vars				/* vars stacked per invocation */
 {
-	const char	*expr;		/* current expression */	
-	const char	*nextchr;	/* next char in current expression */	
+	const char	*expr;		/* current expression */
+	const char	*nextchr;	/* next char in current expression */
 	const char	*errchr; 	/* next char after error	*/
 	const char	*errstr;	/* error string			*/
 	struct lval	errmsg;	 	/* error message text		*/
@@ -122,7 +122,7 @@ static int _seterror(struct vars *vp,const char *msg)
 static void arith_error(const char *message,const char *expr, int mode)
 {
 	mode = (mode&3)!=0;
-        errormsg(SH_DICT,ERROR_exit(mode),message,expr);
+	errormsg(SH_DICT,ERROR_exit(mode),message,expr);
 }
 
 #if _ast_no_um2fm
@@ -285,9 +285,9 @@ Sfdouble_t	arith_exec(Arith_t *ep)
 				node.isenum = 1;
 			node.enum_p = 0;
 			num = (*ep->fun)(&ptr,&node,ASSIGN,num);
-			if(lastval && node.enum_p) 
+			if(lastval && node.enum_p)
 			{
-				Sfdouble_t r; 
+				Sfdouble_t r;
 				node.flag = 0;
 				node.value = lastval;
 				r =  (*ep->fun)(&ptr,&node,VALUE,num);
@@ -560,7 +560,7 @@ static int gettok(struct vars *vp)
 	}
 }
 
-/*   
+/*
  * evaluate a subexpression with precedence
  */
 static int expr(struct vars *vp,int precedence)
@@ -904,7 +904,7 @@ Arith_t *arith_compile(const char *string,char **last,Sfdouble_t(*fun)(const cha
 	cur.errmsg.emode = emode;
 	stkseek(sh.stk,sizeof(Arith_t));
 	if(!expr(&cur,0) && cur.errmsg.value)
-        {
+	{
 		if(cur.errstr)
 			string = cur.errstr;
 		if((*fun)( &string , &cur.errmsg, MESSAGE, 0) < 0)
@@ -934,7 +934,7 @@ Arith_t *arith_compile(const char *string,char **last,Sfdouble_t(*fun)(const cha
  * evaluate an arithmetic expression in s
  *
  * (Sfdouble_t)(*convert)(char** end, struct lval* string, int type, Sfdouble_t value)
- *     is a user supplied conversion routine that is called when unknown 
+ *     is a user supplied conversion routine that is called when unknown
  *     chars are encountered.
  * *end points to the part to be converted and must be adjusted by convert to
  * point to the next non-converted character; if typ is MESSAGE then string

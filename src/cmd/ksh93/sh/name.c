@@ -1037,7 +1037,7 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
 #endif /* SHOPT_FIXEDARRAY */
 				if(!np)
 				{
-					if(!nq && *sp=='[' && *cp==0 && cp[-1]==']') 
+					if(!nq && *sp=='[' && *cp==0 && cp[-1]==']')
 					{
 						/*
 						 * for backward compatibility
@@ -1097,7 +1097,7 @@ Namval_t *nv_create(const char *name,  Dt_t *root, int flags, Namfun_t *dp)
 					|| (n&ARRAY_FILL)
 					|| ((
 #if SHOPT_FIXEDARRAY
-					     ap || 
+					     ap ||
 #endif
 					           (flags&NV_ASSIGN)) && (flags&NV_ARRAY)))
 					{
@@ -1412,7 +1412,7 @@ Namval_t *nv_open(const char *name, Dt_t *root, int flags)
 			(c>=0x200 || !(c=sh_lexstates[ST_NORM][c]) || c==S_EPAT || c==S_COLON));
 		if(c= *--cp)
 			*cp = 0;
-		np = nv_search(name, root, (flags&NV_NOADD)?0:NV_ADD); 
+		np = nv_search(name, root, (flags&NV_NOADD)?0:NV_ADD);
 		if(c)
 			*cp = c;
 		goto skip;
@@ -1534,7 +1534,7 @@ skip:
 			if(sh_isoption(SH_XTRACE) && nv_isarray(np))
 #endif /* SHOPT_FIXEDARRAY */
 				sub = nv_getsub(np);
-			c = msg==e_aliname? 0: (append | (flags&NV_EXPORT)); 
+			c = msg==e_aliname? 0: (append | (flags&NV_EXPORT));
 			if(isref)
 				nv_offattr(np,NV_REF);
 			if(!append && (flags&NV_UNATTR))
@@ -1653,7 +1653,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 	nv_local=0;
 	if(flags&(NV_NOREF|NV_NOFREE))
 	{
-		if(np->nvalue && np->nvalue!=sp && !nv_isattr(np,NV_NOFREE)) 
+		if(np->nvalue && np->nvalue!=sp && !nv_isattr(np,NV_NOFREE))
 			free(np->nvalue);
 		np->nvalue = (void*)sp;
 		nv_setattr(np,(flags&~NV_RDONLY)|NV_NOFREE);
@@ -1815,7 +1815,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 					int32_t ol=0;
 					if(!*vpp)
 						*vpp = new_of(int32_t,0);
-					else if(flags&NV_APPEND)	
+					else if(flags&NV_APPEND)
 						ol = *(int32_t*)*vpp;
 					*(int32_t*)*vpp = l + ol;
 				}
@@ -2042,18 +2042,18 @@ static void rightjust(char *str, int size, int fill)
 	if (n == size)
 		return;
 	if(n > size)
-        {
-        	*(str+n) = 0;
-        	for (sp = str, cp = str+n-size; sp <= str+size; *sp++ = *cp++);
-        	return;
-        }
+	{
+		*(str+n) = 0;
+		for (sp = str, cp = str+n-size; sp <= str+size; *sp++ = *cp++);
+		return;
+	}
 	else *(sp = str+size) = 0;
-	if (n == 0)  
-        {
-        	while (sp > str)
-               		*--sp = ' ';
-        	return;
-        }
+	if (n == 0)
+	{
+		while (sp > str)
+	       		*--sp = ' ';
+		return;
+	}
 	while(n--)
 	{
 		sp--;
@@ -2690,11 +2690,11 @@ char *nv_getval(Namval_t *np)
 			else
 				ll = *(uint32_t*)*vpp;
 		}
-        	else if(nv_isattr(np,NV_LONG))
+		else if(nv_isattr(np,NV_LONG))
 			ll = *(Sflong_t*)*vpp;
-        	else if(nv_isattr(np,NV_SHORT))
+		else if(nv_isattr(np,NV_SHORT))
 			ll = *(int16_t*)*vpp;
-        	else
+		else
 			ll = *(uint32_t*)*vpp;
 		base = nv_size(np);
 		if(base==10)
@@ -2705,7 +2705,7 @@ char *nv_getval(Namval_t *np)
 	}
 done:
 	/*
-	 * if NV_RAW flag is on, return pointer to binary data 
+	 * if NV_RAW flag is on, return pointer to binary data
 	 * otherwise, base64 encode the data and return this string
 	 */
 	if(*vpp && nv_isattr(np,NV_BINARY) && !nv_isattr(np,NV_RAW))
@@ -2713,7 +2713,7 @@ done:
 		char *cp;
 		char *ep;
 		int size= nv_size(np), insize=(4*size)/3+size/45+8;
-		base64encode(*vpp, size, NULL, cp=getbuf(insize), insize, (void**)&ep); 
+		base64encode(*vpp, size, NULL, cp=getbuf(insize), insize, (void**)&ep);
 		*ep = 0;
 		return cp;
 	}
@@ -2820,14 +2820,14 @@ void nv_newattr (Namval_t *np, unsigned newatts, int size)
 	if(((n^newatts)&NV_EXPORT)) /* EXPORT attribute has been toggled */
 	{
 		/* record changes to the environment */
-		if(n&NV_EXPORT) 
+		if(n&NV_EXPORT)
 		{
 			/* EXPORT exists on old attributes therefore not on new */
 			nv_offattr(np,NV_EXPORT);
 			env_change();
 		}
 		else
-		{ 
+		{
 			/* EXPORT is now turned on for new attributes */
 			nv_onattr(np,NV_EXPORT);
 			env_change();
@@ -2955,7 +2955,7 @@ static char *oldgetenv(const char *string)
 		c1= '=';
 	while(cp = *av++)
 	{
-		if(cp[0]!=c0 || cp[1]!=c1) 
+		if(cp[0]!=c0 || cp[1]!=c1)
 			continue;
 		sp = string;
 		while(*sp && *sp++ == *++cp);
@@ -3242,7 +3242,7 @@ int nv_rename(Namval_t *np, int flags)
 }
 
 /*
- * Create a reference node from <np> to $np in dictionary <hp> 
+ * Create a reference node from <np> to $np in dictionary <hp>
  */
 void nv_setref(Namval_t *np, Dt_t *hp, int flags)
 {
@@ -3282,7 +3282,7 @@ void nv_setref(Namval_t *np, Dt_t *hp, int flags)
 		hp = sh.last_root;
 	else
 		hp = hp?(openmatch?openmatch:sh.var_base):sh.var_tree;
-	if(nr==np) 
+	if(nr==np)
 	{
 		if(sh.namespace && nv_dict(sh.namespace)==hp)
 		{

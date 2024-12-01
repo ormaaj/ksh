@@ -2309,7 +2309,7 @@ int x;
 	# NOTE() support
 
 	case $ext in
-	*"<stdio.h>"*)	
+	*"<stdio.h>"*)
 		case $ext in
 		*"#define NOTE("*)
 			;;

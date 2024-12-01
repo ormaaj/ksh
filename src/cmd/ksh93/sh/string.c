@@ -671,7 +671,7 @@ int sh_strchr(const char *string, const char *dp)
 		wchar_t c, d;
 		cp = string;
 		mbinit();
-		d = mbchar(dp); 
+		d = mbchar(dp);
 		mbinit();
 		while(c = mbchar(cp))
 		{

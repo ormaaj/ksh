@@ -62,8 +62,8 @@ local_iswblank(wchar_t wc)
 #define	pushlevel(lp,c,s)	((lp->lexd.level>=lex_max?stack_grow():1) &&\
 				((lex_match[lp->lexd.level++]=lp->lexd.lastc),\
 				lp->lexd.lastc=(((s)<<CHAR_BIT)|(c))))
-#define oldmode(lp)	(lp->lexd.lastc>>CHAR_BIT)	
-#define endchar(lp)	(lp->lexd.lastc&0xff)	
+#define oldmode(lp)	(lp->lexd.lastc>>CHAR_BIT)
+#define endchar(lp)	(lp->lexd.lastc&0xff)
 #define setchar(lp,c)	(lp->lexd.lastc = ((lp->lexd.lastc&~0xff)|(c)))
 #define poplevel(lp)	(lp->lexd.lastc=lex_match[--lp->lexd.level])
 
@@ -197,7 +197,7 @@ static int lexfill(Lex_t *lp)
 }
 
 /*
- * mode=1 for reinitialization  
+ * mode=1 for reinitialization
  */
 Lex_t *sh_lexopen(Lex_t *lp, int mode)
 {
@@ -222,7 +222,7 @@ extern int lextoken(Lex_t*);
 int sh_lex(Lex_t *lp)
 {
 	int flag;
-	char *quoted, *macro, *split, *expand; 
+	char *quoted, *macro, *split, *expand;
 	int tok = lextoken(lp);
 	quoted = macro = split = expand = "";
 	if(tok==0 && (flag=lp->arg->argflag))
@@ -630,7 +630,7 @@ int sh_lex(Lex_t* lp)
 				if(mode==ST_DOL)
 					goto err;
 #ifndef STR_MAXIMAL
-				else if(mode==ST_NESTED && lp->lexd.warn && 
+				else if(mode==ST_NESTED && lp->lexd.warn &&
 					endchar(lp)==RBRACE &&
 					sh_lexstates[ST_DOL][n]==S_DIG
 				)
@@ -1142,7 +1142,7 @@ int sh_lex(Lex_t* lp)
 				if(varnamefirst && !varnamelength && fcpeek(-LEN - 1)!='.')
 					varnamelength = fcseek(0) - LEN - varnamefirst;
 				/* check for possible subscript */
-				if((n=endchar(lp))==RBRACT || n==RPAREN || 
+				if((n=endchar(lp))==RBRACT || n==RPAREN ||
 					(mode==ST_BRACE) ||
 					(oldmode(lp)==ST_NONE) ||
 					(mode==ST_NAME && (lp->assignok||lp->lexd.level)))
@@ -1278,7 +1278,7 @@ breakloop:
 		if(!lp->lex.intest && (c=='<' || c=='>') && isadigit(n))
 		{
 			c = sh_lex(lp);
-			lp->digits = (n-'0'); 
+			lp->digits = (n-'0');
 			return c;
 		}
 		if(n==LBRACT)
@@ -1432,8 +1432,8 @@ breakloop:
 					lp->lex.incase = TEST_RE;
 				lp->lex.testop2 = 0;
 				lp->digits = c;
-				lp->token = TESTBINOP;	
-				return lp->token;	
+				lp->token = TESTBINOP;
+				return lp->token;
 			}
 			/* FALLTHROUGH */
 		case TEST_OR: case TEST_AND:
@@ -1463,7 +1463,7 @@ breakloop:
 	c = 0;
 	if(!lp->lex.skipword)
 	{
-		if(n>1 && lp->lex.reservok==1 && mode==ST_NAME && 
+		if(n>1 && lp->lex.reservok==1 && mode==ST_NAME &&
 			(c=sh_lookup(state,shtab_reserved)))
 		{
 			if(lp->lex.incase)
@@ -1936,7 +1936,7 @@ static int here_copy(Lex_t *lp,struct ionod *iop)
 			nsave = n = 0;
 			while(1)
 			{
-				if(!(c=fcget())) 
+				if(!(c=fcget()))
 				{
 					if(!lp->lexd.dolparen && (c=cp-bufp))
 					{

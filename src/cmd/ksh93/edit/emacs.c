@@ -16,9 +16,9 @@
 *               K. Eugene Carlson <kvngncrlsn@gmail.com>               *
 *                                                                      *
 ***********************************************************************/
-/* Original version by Michael T. Veach 
+/* Original version by Michael T. Veach
  * Adapted for ksh by David Korn */
-/* EMACS_MODES: c tabstop=4 
+/* EMACS_MODES: c tabstop=4
 
 One line screen editor for any program
 
@@ -114,7 +114,7 @@ typedef struct _emacs_
 	int	offset;		/* Screen offset */
 	char	ehist;		/* hist handling required */
 	Histloc_t _location;
-	int	prevdirection; 
+	int	prevdirection;
 	Edit_t	*ed;	/* pointer to edit data */
 } Emacs_t;
 
@@ -300,7 +300,7 @@ int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 		else if (c == usrerase)
 		{
 			c = ERASECHAR ;
-		} 
+		}
 		else if (c == usrlnext)
 		{
 			c = LNEXTCHAR ;
@@ -505,10 +505,10 @@ int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 		case cntl(']') :
 			c = ed_getchar(ep->ed,1);
 			if ((count == 0) || (count > eol))
-                        {
-                                beep();
-                                continue;
-                        }
+			{
+				beep();
+				continue;
+			}
 			if (out[i])
 				i++;
 			while (i < eol)
@@ -605,13 +605,13 @@ update:
 			search(ep,out,count);
 			goto drawline;
 		case cntl('P') :
-                        if (count <= hloff)
-                                hloff -= count;
-                        else
-                        {
-                                hline -= count - hloff;
-                                hloff = 0;
-                        }
+			if (count <= hloff)
+				hloff -= count;
+			else
+			{
+				hline -= count - hloff;
+				hloff = 0;
+			}
 #ifdef ESH_NFIRST
 			if (hline <= hismin)
 #else
@@ -830,7 +830,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 				return -1;
 			}
 		}
-		
+
 		case 'b':	/* M-b == go backward one word */
 		case DELETE :
 		case '\b':
@@ -857,7 +857,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 				return cur-i;
 			}
 		}
-		
+
 		case '>':
 			ed_ungetchar(ep->ed,cntl('N'));
 #ifdef ESH_NFIRST
@@ -876,7 +876,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 			hloff = 0;
 #endif /* ESH_NFIRST */
 			return 0;
-		
+
 		case '<':
 			ed_ungetchar(ep->ed,cntl('P'));
 			hloff = 0;
@@ -1198,21 +1198,21 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 
 static void xcommands(Emacs_t *ep,int count)
 {
-        int i = ed_getchar(ep->ed,0);
+	int i = ed_getchar(ep->ed,0);
 	NOT_USED(count);
-        switch(i)
-        {
-                case cntl('X'):	/* exchange dot and mark */
-                        if (ep->mark > eol)
-                                ep->mark = eol;
-                        i = ep->mark;
-                        ep->mark = cur;
-                        cur = i;
-                        draw(ep,UPDATE);
-                        return;
+	switch(i)
+	{
+		case cntl('X'):	/* exchange dot and mark */
+			if (ep->mark > eol)
+				ep->mark = eol;
+			i = ep->mark;
+			ep->mark = cur;
+			cur = i;
+			draw(ep,UPDATE);
+			return;
 
 #ifdef ESH_BETTER
-                case cntl('E'):	/* invoke emacs on current command */
+		case cntl('E'):	/* invoke emacs on current command */
 			if(eol>=0 && sh.hist_ptr)
 			{
 				if(blankline(ep,drawbuff))
@@ -1308,9 +1308,9 @@ static void xcommands(Emacs_t *ep,int count)
 #	endif /* debugging code */
 #endif /* ESH_BETTER */
 
-                default:
-                        beep();
-                        return;
+		default:
+			beep();
+			return;
 	}
 }
 
@@ -1504,13 +1504,13 @@ static void draw(Emacs_t *ep,Draw_t option)
 	genchar *logcursor;
 	genchar *nscend;		/* end of logical screen */
 	int i;
-	
+
 	nptr = nscreen;
 	sptr = drawbuff;
 	logcursor = sptr + cur;
 	longline = NORMAL;
 	ep->lastdraw = option;
-	
+
 	if (option == FIRST || option == REFRESH)
 	{
 		ep->overflow = NORMAL;
@@ -1525,17 +1525,17 @@ static void draw(Emacs_t *ep,Draw_t option)
 		*ep->cursor = '\0';
 		ed_putstring(ep->ed,Prompt);	/* start with prompt */
 	}
-	
+
 	/*********************
 	 Do not update screen if pending characters
 	**********************/
-	
+
 	if ((lookahead)&&(option != FINAL))
 	{
 		ep->scvalid = 0; /* Screen is out of date, APPEND will not work */
 		return;
 	}
-	
+
 	/***************************************
 	If in append mode, cursor at end of line, screen up to date,
 	the previous character was a 'normal' character,
@@ -1547,7 +1547,7 @@ static void draw(Emacs_t *ep,Draw_t option)
 		i = *(logcursor-1);	/* last character inserted */
 	else
 		i = 0;
-	
+
 	if ((option == APPEND)&&(ep->scvalid)&&(*logcursor == '\0')&&
 	    print(i)&&((ep->cursor-ep->screen)<(w_size-1)))
 	{
@@ -1564,12 +1564,12 @@ static void draw(Emacs_t *ep,Draw_t option)
 	nscend = nptr - 1;
 	if(sptr == logcursor)
 		ncursor = nptr;
-	
+
 	/*********************
 	 Does ncursor appear on the screen?
 	 If not, adjust the screen offset so it does.
 	**********************/
-	
+
 	i = ncursor - nscreen;
 	if ((ep->offset && i<=ep->offset)||(i >= (ep->offset+w_size)))
 	{
@@ -1578,13 +1578,13 @@ static void draw(Emacs_t *ep,Draw_t option)
 		if (--ep->offset < 0)
 			ep->offset = 0;
 	}
-			
+
 	/*********************
 	 Is the range of screen[0] through screen[w_size] up-to-date
 	 with nscreen[offset] through nscreen[offset+w_size] ?
 	 If not, update as need be.
 	***********************/
-	
+
 	nptr = &nscreen[ep->offset];
 	sptr = ep->screen;
 	i = w_size;
@@ -1623,11 +1623,11 @@ static void draw(Emacs_t *ep,Draw_t option)
 		ed_setcursor(ep->ed, ep->screen, ep->ed->e_peol, ep->ed->e_peol, -1);
 
 	/******************
-	
-	Screen overflow checks 
-	
+
+	Screen overflow checks
+
 	********************/
-	
+
 	if (nscend >= &nscreen[ep->offset+w_size])
 	{
 		if (ep->offset > 0)
@@ -1640,9 +1640,9 @@ static void draw(Emacs_t *ep,Draw_t option)
 		if (ep->offset > 0)
 			longline = LOWER;
 	}
-	
+
 	/* Update screen overflow indicator if need be */
-	
+
 	if (longline != ep->overflow)
 	{
 		setcursor(ep,w_size,longline);

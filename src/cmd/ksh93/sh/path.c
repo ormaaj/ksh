@@ -126,7 +126,7 @@ static pid_t command_xargs(const char *path, char *argv[],char *const envp[], in
 	/* subtract lengths of leading and trailing static arguments */
 	for(av=argv; (cp= *av) && av< &argv[sh.xargmin]; av++)
 		size -= strlen(cp) + 1 + arg_extra;
-	for(av=avlast; cp= *av; av++,nlast++)  
+	for(av=avlast; cp= *av; av++,nlast++)
 		size -= strlen(cp) + 1 + arg_extra;
 	size -= 2 + 2 * arg_extra;  /* final null env and arg elements */
 	if(size < 2048)
@@ -273,7 +273,7 @@ void  path_delete(Pathcomp_t *first)
 		}
 		else
 			old = pp;
-		pp = ppnext; 
+		pp = ppnext;
 	}
 }
 
@@ -1025,7 +1025,7 @@ noreturn void path_exec(const char *arg0,char *argv[],struct argnod *local)
 pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath, int spawn)
 {
 	char		*path;
-	char		**xp=0, *xval, *libenv = (libpath?libpath->lib:0); 
+	char		**xp=0, *xval, *libenv = (libpath?libpath->lib:0);
 	Namval_t*	np;
 	char		*s, *v;
 	int		r, n, pidsize=0;
@@ -1486,7 +1486,7 @@ static Pathcomp_t *path_addcomp(Pathcomp_t *first, Pathcomp_t *old,const char *n
 
 /*
  * This function checks for the .paths file in directory in <pp>
- * it assumes that the directory is on the stack at <offset> 
+ * it assumes that the directory is on the stack at <offset>
  */
 static int checkdotpaths(Pathcomp_t *first, Pathcomp_t* old,Pathcomp_t *pp, int offset)
 {

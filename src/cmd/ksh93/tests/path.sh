@@ -621,20 +621,20 @@ expect="printf is a function
 printf is a shell builtin
 $(all_paths printf | sed 's/^/printf is /')"
 [[ $actual == "$expect" ]] || err_exit "'whence -a': incorrect output for function+builtin" \
-        "(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
+	"(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
 actual=$(autoload printf; whence -a printf)
 expect="printf is an undefined function
 printf is a shell builtin
 $(all_paths printf | sed 's/^/printf is /')"
 [[ $actual == "$expect" ]] || err_exit "'whence -a': incorrect output for autoload+builtin" \
-        "(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
+	"(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
 
 # 'whence -v' canonicalized paths improperly: https://github.com/ksh93/ksh/issues/84
 cmdpath=${ whence -p printf; }
 actual=$(cd /; whence -v "${cmdpath#/}")
 expect="${cmdpath#/} is $cmdpath"
 [[ $actual == "$expect" ]] || err_exit "'whence -v': incorrect canonicalization of initial /" \
-        "(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
+	"(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
 dotdot=
 num=$(set -f; IFS=/; set -- $PWD; echo $#)
 for ((i=1; i<num; i++))
@@ -643,7 +643,7 @@ done
 actual=$(cd /; whence -v "$dotdot${cmdpath#/}")
 expect="$dotdot${cmdpath#/} is $cmdpath"
 [[ $actual == "$expect" ]] || err_exit "'whence -v': incorrect canonicalization of pathname containing '..'" \
-        "(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
+	"(expected $(printf %q "$expect"), got $(printf %q "$actual"))"
 
 # even absolute paths should be canonicalized
 if	[[ -x /usr/bin/env && -d /usr/lib ]]	# even NixOS has this...
@@ -986,7 +986,7 @@ cd "$tmp"
 got=$(unset PWD; "$SHELL" -c 'echo "$PWD"; pwd; cd emptydir' 2>&1)
 exp=$PWD$'\n'$PWD
 [[ $got == "$exp" ]] || err_exit "child shell failed to obtain PWD" \
-        "(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
 # Test backported from ksh93v- 2013-06-28 for deleting

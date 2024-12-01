@@ -160,7 +160,7 @@ sleep $secSleep
 secElapsed=SECONDS
 if	(( secElapsed < secSleep ))
 then	err_exit "slept ${secElapsed} seconds instead of ${secSleep}: " \
-                 "either 'sleep' or \$SECONDS not working"
+		 "either 'sleep' or \$SECONDS not working"
 fi
 unset -v secElapsed secSleep
 # _
@@ -277,7 +277,7 @@ fi
 ACCESS=0
 function COUNT.set
 {
-        (( ACCESS++ ))
+	(( ACCESS++ ))
 }
 COUNT=0
 (( COUNT++ ))
@@ -362,11 +362,11 @@ fi
 unset y
 function setdisc # var
 {
-        eval function $1.get'
-        {
-                .sh.value=good
-        }
-        '
+	eval function $1.get'
+	{
+		.sh.value=good
+	}
+	'
 }
 y=bad
 setdisc y
@@ -1552,7 +1552,7 @@ got=$(f && bar)
 
 unset var
 function three {
-        :
+	:
 }
 function two {
 	var+='wrong ' sh -c 'true'

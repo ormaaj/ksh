@@ -425,14 +425,14 @@ fi
 x=$(
     $SHELL  <<- \++EOF
 	set -o pipefail
-        foobar()
-        {
+	foobar()
+	{
 		for ((i=0; i < 10000; i++))
 		do	print abcdefghijklmnopqrstuvwxyz
 		done | head > /dev/null
-        }
-        foobar
-        print ok
+	}
+	foobar
+	print ok
 	++EOF
 )
 [[ $x == ok ]] || err_exit 'SIGPIPE exit status causes PIPE signal to be propagated'

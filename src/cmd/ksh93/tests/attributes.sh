@@ -154,10 +154,10 @@ typeset -Z  LAST=00
 unset -f foo
 function foo
 {
-        if [[ $1 ]]
-        then    LAST=$1
-        else    ((LAST++))
-        fi
+	if [[ $1 ]]
+	then    LAST=$1
+	else    ((LAST++))
+	fi
 }
 foo 1
 if	(( ${#LAST} != 2 ))
@@ -426,7 +426,7 @@ fi
 { $SHELL  <<-  \EOF
 	compound -a a1
 	for ((i=1 ; i < 100 ; i++ ))
-        do	[[ "$( typeset + a1[$i] )" == '' ]] && a1[$i].text='hello'
+	do	[[ "$( typeset + a1[$i] )" == '' ]] && a1[$i].text='hello'
 	done
 	[[ ${a1[70].text} == hello ]]
 EOF

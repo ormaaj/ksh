@@ -636,7 +636,7 @@ case $( (getopts '[-][123:xyz]' opt --xyz; echo 0$opt) 2>/dev/null ) in
 [D:define?Successful test macro definitions are emitted. This is the default.]
 [E:explicit?Disable implicit test output.]
 [F:features?Sets the feature test header to \ahdr\a.  This header typically
-        defines *_SOURCE feature test macros.]:[hdr:=NONE]
+	defines *_SOURCE feature test macros.]:[hdr:=NONE]
 [i:input?Sets the input file name to \afile\a, which
 	must contain \biffe\b statements.]:[file]
 [I:include?Adds \b-I\b\adir\a to the C compiler flags.]:[dir]

@@ -584,7 +584,7 @@ done
 
 function .sh.math.mysin x
 {
-        ((.sh.value = x - x**3/6. + x**5/120.-x**7/5040. + x**9/362880.))
+	((.sh.value = x - x**3/6. + x**5/120.-x**7/5040. + x**9/362880.))
 }
 
 (( abs(sin(.5)-mysin(.5)) < 1e-6 )) || err_exit 'mysin() not close to sin()'

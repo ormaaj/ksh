@@ -156,7 +156,7 @@ exec 3>&- 4>&-
 	        read -r line; print -r -- "$line"
 	) & wait
 	while	read -r line
-        do	print -r -- "$line"
+	do	print -r -- "$line"
 	done
  } << !
 line 1

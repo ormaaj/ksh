@@ -29,7 +29,7 @@ function test_arithmetic_expression_access_array_element_through_nameref
 {
 	((xtrace)) && set -x
 
-        compound out=( typeset stdout stderr ; integer res )
+	compound out=( typeset stdout stderr ; integer res )
 	compound -r -a tests=(
 		(
 			cmd='@@TYPE@@ -a @@VAR@@ ;  @@VAR@@[1]=90 ;       function x { nameref nz=$1 ;              print " $(( round(nz) ))==$(( round($nz) ))" ; } ; x @@VAR@@[1]'		; stdoutpattern=' 90==90'

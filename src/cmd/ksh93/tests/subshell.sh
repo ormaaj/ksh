@@ -604,12 +604,12 @@ $SHELL 2> /dev/null "$tmpfile" || err_exit 'IFS in subshell causes core dump'
 unset i
 if      [[ -d /dev/fd ]]
 then    integer i
-        for ((i=11; i < 29; i++))
-        do      if      ! [[ -r /dev/fd/$i  || -w /dev/fd/$i ]]
-                then    a=$($SHELL -c "[[ -r /dev/fd/$i || -w /dev/fd/$i ]]")
-                        (( $? )) || err_exit "file descriptor $i not close on exec"
-                fi
-        done
+	for ((i=11; i < 29; i++))
+	do      if      ! [[ -r /dev/fd/$i  || -w /dev/fd/$i ]]
+		then    a=$($SHELL -c "[[ -r /dev/fd/$i || -w /dev/fd/$i ]]")
+			(( $? )) || err_exit "file descriptor $i not close on exec"
+		fi
+	done
 fi
 
 trap USR1 USR1
@@ -1075,11 +1075,11 @@ sleep 2 & spid=$!
 for ((i=1; i<2048; i++))
 do	print $i
 done | (		# trigger 1: read from pipe
-        foo=`: &`	# trigger 2: bg job in backtick comsub
-        while read -r line
-        do	:
-        done
-        kill $spid
+	foo=`: &`	# trigger 2: bg job in backtick comsub
+	while read -r line
+	do	:
+	done
+	kill $spid
 ) &
 tpid=$!
 wait $spid 2>/dev/null

@@ -302,11 +302,9 @@ make install virtual
 			exec - set -- %{mam_libsum}
 			exec - %{AR} x "$1" sumlib.o
 		done
-		exec - if	test -f %{@}
-		exec - then	%{AR} rc %{@} %{?}  # add changed *.o
-		exec - else	%{AR} rc %{@} %{^}  # add all *.o
-		exec - fi || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+
+		note * include shell action for linking the library
+		incl link_ar.mam
 
 		note * save for dylink
 		setv _libcmd_object_files_ %{^}

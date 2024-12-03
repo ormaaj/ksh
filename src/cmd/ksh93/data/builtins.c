@@ -174,9 +174,6 @@ const struct shtable3 shtab_builtins[] =
 	CMDLIST(mktemp)
 	CMDLIST(mv)
 #endif
-#if SHOPT_REGRESS
-	"__regress__",		NV_BLTIN|BLT_ENV,	bltin(__regress__),
-#endif
 	"",		0, 0
 };
 
@@ -1669,10 +1666,6 @@ const char sh_optksh[] =
 	"in \afile\a that can be used in a separate shell script browser. The "
 	"-R option requires a script to be specified as the first operand.]"
 #endif /* SHOPT_KIA */
-#if SHOPT_REGRESS
-"[I:regress]:[intercept?Enable the regression test \aintercept\a. Must be "
-	"the first command line option(s).]"
-#endif
 "\fabc\f"
 "\n"
 "\n[arg ...]\n"

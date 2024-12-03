@@ -1,0 +1,34 @@
+note *	Shell action for linking an archive (static library) from previously
+note *	compiled object files, based on the current MAM automatic variables.
+note *
+note *	- %{@} - name of archive (like libfoo.a)
+note *	- %{^} - all the *.o files
+note *	- %{?} - the *.o files that changed in this run
+note *
+note *	This code avoids rebuilding the archive from scratch on each run,
+note *	updating only the object files that have changed.
+
+exec -	if	test -f %{@}
+exec -	then	ar -r -c %{@} %{?}  # add changed *.o
+exec -	else	ar -r -c %{@} %{^}  # add all *.o
+exec -	fi || exit
+
+note *	Sometimes, obsolete object files can interfere due to intercepts, so
+note *	delete any old object files that we no longer build from the archive
+
+exec -	to_delete=
+exec -	for o in $(ar -t %{@})
+exec -	do	case $o in
+exec -		*.o)	case ' %{^} ' in
+exec -			*" $o "*)
+exec -				;;
+exec -			*)	to_delete="${to_delete-} $o"
+exec -				;;
+exec -			esac
+exec -			;;
+exec -		esac
+exec -	done
+exec -	case ${to_delete:+y} in
+exec -	y)	ar -d %{@} $to_delete
+exec -		;;
+exec -	esac

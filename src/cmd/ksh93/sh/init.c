@@ -132,10 +132,6 @@ char e_version[]	= "\n@(#)$Id: Version "
 #define ATTRS		1
 			"M"
 #endif
-#if SHOPT_REGRESS
-#define ATTRS		1
-			"R"
-#endif
 #if SHOPT_SCRIPTONLY
 #define ATTRS		1
 			"s"
@@ -1281,9 +1277,6 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 #else
 	init_ebcdic();
 #endif
-#if SHOPT_REGRESS
-	sh_regress_init();
-#endif
 	sh.current_pid = sh.pid = getpid();
 	sh.current_ppid = sh.ppid = getppid();
 	sh.userid = getuid();
@@ -1307,38 +1300,6 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	stkoverflow(sh.stk = stkstd, nomemory);
 	sfsetbuf(sh.strbuf,NULL,64);
 	error_info.catalog = e_dict;
-#if SHOPT_REGRESS
-	{
-		Opt_t*	nopt;
-		Opt_t*	oopt;
-		char*	a;
-		char**	av = argv;
-		char*	regress[3];
-
-		regress[0] = "__regress__";
-		regress[2] = 0;
-		while ((a = *++av) && a[0] == '-' && (a[1] == 'I' || a[1] == '-' && a[2] == 'r'))
-		{
-			if (a[1] == 'I')
-			{
-				if (a[2])
-					regress[1] = a + 2;
-				else if (!(regress[1] = *++av))
-					break;
-			}
-			else if (strncmp(a+2, "regress", 7))
-				break;
-			else if (a[9] == '=')
-				regress[1] = a + 10;
-			else if (!(regress[1] = *++av))
-				break;
-			nopt = optctx(0, 0);
-			oopt = optctx(nopt, 0);
-			b___regress__(2, regress, &sh.bltindata);
-			optctx(oopt, nopt);
-		}
-	}
-#endif
 	sh.cpipe[0] = -1;
 	sh.coutpipe = -1;
 	for(n=0;n < 10; n++)

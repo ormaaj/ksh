@@ -75,14 +75,10 @@ static int sh_source(Sfio_t *iop, const char *file)
 	int	fd;
 
 	if (!file || !*file || (fd = path_open(file, NULL)) < 0)
-	{
-		REGRESS(source, "sh_source", ("%s:ENOENT", file));
 		return 0;
-	}
 	oid = error_info.id;
 	nid = error_info.id = sh_strdup(file);
 	sh.st.filename = path_fullname(stkptr(sh.stk,PATH_OFFSET));
-	REGRESS(source, "sh_source", ("%s", file));
 	exfile(iop, fd);
 	error_info.id = oid;
 	free(nid);

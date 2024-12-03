@@ -205,11 +205,6 @@ int sh_argopts(int argc,char *argv[])
 				n = 'n';
 			}
 #endif /* SHOPT_KIA */
-#if SHOPT_REGRESS
-			goto skip;
-		    case 'I':
-			continue;
-#endif /* SHOPT_REGRESS */
 			/* FALLTHROUGH */
 		    skip:
 		    default:

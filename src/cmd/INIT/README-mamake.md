@@ -43,6 +43,8 @@ the language to facilitate human maintenance of the `Mamfile`s.
         * [...while scanning and sorting leaf directories](#user-content-while-scanning-and-sorting-leaf-directories)
         * [...while building the current directory](#user-content-while-building-the-current-directory)
     * [Repeatedly iterating through a block](#user-content-repeatedly-iterating-through-a-block)
+    * [Including a MAM file](#user-content-including-a-mam-file)
+        * [Provided include files](#user-content-provided-include-files)
 * [Parallel processing](#user-content-parallel-processing)
 * [Debugging mamake](#user-content-debugging-mamake)
 * [Appendix: Main changes from the AT&T version](#user-content-appendix-main-changes-from-the-att-version)
@@ -502,8 +504,20 @@ iteration *variable*.
 `incl` *filename*
 
 The `incl` command reads a file with MAM commands from *filename* as if
-those commands had appeared in place of the `incl` command, except that the
-automatic variables are saved before and restored after reading.
+those commands had appeared in place of the `incl` command.
+If *filename* does not contain a `/`, mamake will look for the file in the
+current directory first, then in `%{PACKAGEROOT}/src/cmd/INIT/include`.
+
+#### Provided include files ####
+
+The following are provided in `%{PACKAGEROOT}/src/cmd/INIT/include`:
+
+* `link_ar.mam`: A shell action (see `exec` above) for linking a static
+  library archive (`lib`*name*`.a`) based on the contents of the automatic
+  variables, for including at the end of a `make lib`*name*`.a`...`done`
+  rule. All the child rules are expected to be `*.o` object files. The
+  action also deletes object files that no longer have a matching source
+  from the archive.
 
 ## Parallel processing ##
 

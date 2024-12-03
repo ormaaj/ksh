@@ -403,9 +403,6 @@ struct Shell_s
 	char		*fifo;		/* FIFO name for current process substitution */
 	Dt_t		*fifo_tree;	/* for cleaning up process substitution FIFOs */
 #endif /* !SHOPT_DEVFD */
-#if SHOPT_REGRESS
-	struct Regress_s *regress;
-#endif /* SHOPT_REGRESS */
 };
 
 /* used for builtins */

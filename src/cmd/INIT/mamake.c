@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2024-11-26"
+#define RELEASE_DATE "2024-12-03"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -1767,21 +1767,12 @@ static int include(Rule_t *r, Makestate_t *stp, char *file, int pushflags)
 	int	rv;
 	if (rv = push(file, NULL, pushflags))
 	{
-		/* save automatic variables */
-		char *s1 = auto_prev->value, *s2 = auto_allprev->value, *s3 = auto_updprev->value;
-		auto_prev->value = auto_allprev->value = auto_updprev->value = empty;
-		/* read the file */
 		report(-1, file, "include", NULL);
+		state.indent++;
 		make(r, stp);
+		state.indent--;
+		report(-1, file, "end of", NULL);
 		pop();
-		/* restore automatic variables */
-		if (auto_prev->value != empty)
-			free(auto_prev->value);
-		if (auto_allprev->value != empty)
-			free(auto_allprev->value);
-		if (auto_updprev->value != empty)
-			free(auto_updprev->value);
-		auto_prev->value = s1, auto_allprev->value = s2, auto_updprev->value = s3;
 	}
 	return rv;
 }
@@ -2167,6 +2158,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			}
 			if (s = require(t, !strcmp(v, "dontcare")))
 			{
+				char *s1, *s2, *s3;
 				char *libname = t + 2;
 				/*
 				 * bind to the *.a files that require() just derived from $INSTALLROOT/lib/lib/NAME
@@ -2216,10 +2208,22 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 					continue;
 				}
 				/* otherwise, include the rules file if it exists */
+				/* save automatic variables */
+				s1 = auto_prev->value, s2 = auto_allprev->value, s3 = auto_updprev->value;
+				auto_prev->value = auto_allprev->value = auto_updprev->value = empty;
+				/* read the file */
 				append(buf, state.installroot);
 				append(buf, "/lib/mam/");
 				append(buf, libname);
 				include(r, &st, use(buf), 0);
+				/* restore automatic variables */
+				if (auto_prev->value != empty)
+					free(auto_prev->value);
+				if (auto_allprev->value != empty)
+					free(auto_allprev->value);
+				if (auto_updprev->value != empty)
+					free(auto_updprev->value);
+				auto_prev->value = s1, auto_allprev->value = s2, auto_updprev->value = s3;
 			}
 			continue;
 
@@ -2307,6 +2311,15 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 		case KEY('i','n','c','l'):
 			if (!*t || *v)
 				error_out("syntax error", u);
+			if (!strchr(t,'/'))
+			{
+				if (include(r, &st, t, 0))
+					continue;
+				append(buf, state.packageroot);
+				append(buf, "/src/cmd/INIT/include/");
+				append(buf, t);
+				t = use(buf);
+			}
 			include(r, &st, t, STREAM_MUST);
 			continue;
 

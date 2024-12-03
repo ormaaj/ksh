@@ -223,14 +223,10 @@ make install virtual
 		prev %{INCLUDE_AST}/option.h
 	done
 
-	make include/regress.h
-	done
-
 	make include/argnod.h
 	done
 
 	make include/defs.h
-		prev include/regress.h
 		prev include/shtable.h
 		prev include/shell.h
 		prev %{INCLUDE_AST}/endian.h
@@ -642,16 +638,6 @@ make install virtual
 			prev shopt.h
 		done
 
-		make bltins/regress.c
-			prev %{INCLUDE_AST}/tmx.h
-			prev include/builtins.h
-			prev include/io.h
-			prev %{INCLUDE_AST}/ls.h
-			prev %{INCLUDE_AST}/error.h
-			prev include/defs.h
-			prev shopt.h
-		done
-
 		make sh/fault.c
 			prev include/ulimit.h
 			prev include/builtins.h
@@ -1054,14 +1040,8 @@ make install virtual
 			exec - %{compile} %{<}
 		done
 
-		note *
-		note * Link the library
-		note *
-		exec - if	test -f %{@}
-		exec - then	%{AR} rc %{@} %{?}  # add changed *.o
-		exec - else	%{AR} rc %{@} %{^}  # add all *.o
-		exec - fi || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+		note * include shell action for linking the library
+		incl link_ar.mam
 
 		note * save for dylink
 		setv _libshell_object_files_ %{^}

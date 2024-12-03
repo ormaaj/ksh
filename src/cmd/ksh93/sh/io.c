@@ -846,14 +846,6 @@ int sh_open(const char *path, int flags, ...)
 	}
 	else
 	{
-#if SHOPT_REGRESS
-		char	buf[PATH_MAX];
-		if(strncmp(path,"/etc/",5)==0)
-		{
-			sfsprintf(buf, sizeof(buf), "%s%s", sh_regress_etc(path, __LINE__, __FILE__), path+4);
-			path = buf;
-		}
-#endif
 		while((fd = open(path, flags, mode)) < 0)
 			if(errno!=EINTR || sh.trapnote)
 				return -1;

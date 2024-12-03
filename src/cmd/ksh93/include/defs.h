@@ -69,7 +69,6 @@ extern char*	sh_setenviron(const char*);
 #include	<shell.h>
 
 #include	"shtable.h"
-#include	"regress.h"
 
 #define	NIL(type)	NULL		/* for backward compatibility */
 

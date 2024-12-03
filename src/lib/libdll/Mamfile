@@ -102,11 +102,9 @@ make install virtual
 				exec - %{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} -I. -I%{INCLUDE_AST} -D_BLD_dll -c %{<}
 			done
 		done
-		exec - if	test -f %{@}
-		exec - then	%{AR} rc %{@} %{?}  # add changed *.o
-		exec - else	%{AR} rc %{@} %{^}  # add all *.o
-		exec - fi || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+
+		note * include shell action for linking the library
+		incl link_ar.mam
 
 		note * save for dylink
 		setv _libdll_object_files_ %{^}

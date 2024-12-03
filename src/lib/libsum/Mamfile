@@ -63,8 +63,9 @@ make install virtual
 			done
 			exec - %{CC} %{mam_cc_FLAGS} %{CCFLAGS} %{mam_cc_NOSTRICTALIASING} -I. -I%{INCLUDE_AST} -c %{<}
 		done sumlib.o
-		exec - %{AR} rc %{@} %{<} || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+
+		note * include shell action for linking the library
+		incl link_ar.mam
 	done libsum.a
 
 	note *

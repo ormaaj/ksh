@@ -4480,8 +4480,7 @@ make install virtual
 	note * the library and dependency information
 	make %{INSTALLROOT}/lib/libast.a
 		prev libast.a
-		exec - cp -f %{<} %{@} || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+		exec - cp -f %{<} %{@}
 	done
 	make %{INSTALLROOT}/lib/lib/ast
 		prev ast.req

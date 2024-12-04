@@ -332,8 +332,7 @@ make install virtual
 	done
 	make %{INSTALLROOT}/lib/libcmd.a
 		prev libcmd.a
-		exec - cp -f %{<} %{@} || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+		exec - cp -f %{<} %{@}
 	done
 	make %{INSTALLROOT}/lib/lib/cmd
 		prev cmd.req

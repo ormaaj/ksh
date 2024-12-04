@@ -1167,8 +1167,7 @@ make install virtual
 	done
 	make %{INSTALLROOT}/lib/libshell.a
 		prev libshell.a
-		exec - cp -f %{<} %{@} || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+		exec - cp -f %{<} %{@}
 	done
 	loop MAN3PG shell nval
 		make %{INSTALLROOT}/man/man3/%{MAN3PG}.3

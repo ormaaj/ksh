@@ -131,8 +131,7 @@ make install virtual
 	done
 	make %{INSTALLROOT}/lib/libdll.a
 		prev libdll.a
-		exec - cp -f %{<} %{@} || exit
-		exec - ranlib %{@} >/dev/null 2>&1 || true
+		exec - cp -f %{<} %{@}
 	done
 	make %{INSTALLROOT}/lib/lib/dll
 		prev dll.req

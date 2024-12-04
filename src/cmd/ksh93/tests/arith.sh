@@ -982,14 +982,14 @@ float x
 # Test for a bug with short integers that causes core dumps
 # (backported from ksh93v- 2013-08-07).
 "$SHELL" <<- \EOF || err_exit 'detected short integer bug that causes core dumps'
-       typeset -s -i -a t
-       typeset -s -i p
-       (( p=2**17 )) # tape start position
-       (( t[p]+=13))
-       while (( t[p] != 0 ))
-       do      ((t[p]-=1 , p+=1))
-       done
-       exit 0
+	typeset -s -i -a t
+	typeset -s -i p
+	(( p=2**17 )) # tape start position
+	(( t[p]+=13))
+	while (( t[p] != 0 ))
+	do	((t[p]-=1 , p+=1))
+	done
+	exit 0
 EOF
 
 # ======

@@ -41,7 +41,7 @@ function count_brackets
 	(( bracketstat.bopen=0 , bracketstat.bclose=0 ))
 
 	for (( i=0 ; i < ${#x} ; i++ )) ; do
-	        c="${x:i:1}"
+		c="${x:i:1}"
 		[[ "$c" == '(' ]] && (( bracketstat.bopen++ ))
 		[[ "$c" == ')' ]] && (( bracketstat.bclose++ ))
 	done
@@ -132,7 +132,7 @@ s=${
 				float my_nan=-nan
 			)
 			[a_hexfloat]=(
-			       typeset -X my_hexfloat=1.1
+				typeset -X my_hexfloat=1.1
 			)
 		)
 	)
@@ -197,7 +197,7 @@ s=${
 				float my_nan=-nan
 			)
 			[a_hexfloat]=(
-			       typeset -X my_hexfloat=1.1
+				typeset -X my_hexfloat=1.1
 			)
 		)
 	)
@@ -274,7 +274,7 @@ compound x=(
 			float my_nan=-nan
 		)
 		[a_hexfloat]=(
-		       typeset -X my_hexfloat=1.1
+			typeset -X my_hexfloat=1.1
 		)
 	)
 )
@@ -389,7 +389,7 @@ function test6
 		nameref test=tests[testid]
 		typeset testname="test2/${testid}"
 
-	        out.stderr="${ { out.stdout="${ ${SHELL} -c "${test.cmd}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
+		out.stderr="${ { out.stdout="${ ${SHELL} -c "${test.cmd}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
 		(( out.res == 0 )) || err_exit "${testname}: Test shell returned with exit code ${out.res}"
 		[[ "${out.stdout}" == ${test.stdoutpattern} ]] || err_exit "${testname}: Expected match for ${test.stdoutpattern}, got $(printf "%q\n" "${out.stdout}")"
@@ -421,7 +421,7 @@ function test_3D_array_read_C
 	for (( i=0 ; i < ${#tests[@]} ; i++ )) ; do
 		out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -c "${tests[i]}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
-	        [[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
+		[[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
 		[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 	done
 
@@ -441,7 +441,7 @@ function test_access_2Darray_in_type_in_compound
 	for (( i=0 ; i < ${#tests[@]} ; i++ )) ; do
 		out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -c "${tests[i]}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
-	        [[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
+		[[ "${out.stdout}" == '' ]] || err_exit "$0/${i}: Expected empty stdout, got $(printf '%q\n' "${out.stdout}")"
 		[[ "${out.stderr}" == '' ]] || err_exit "$0/${i}: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 	done
 
@@ -498,7 +498,7 @@ print -v c2
 	out.stderr="${ { out.stdout="${ ${SHELL} -o nounset -c "${test}" ; (( out.res=$? )) ; }" ; } 2>&1 ; }"
 
 	[[ "${out.stdout}" != '' ]] || err_exit "$0: Expected nonempty stdout."
-       	[[ "${out.stderr}" == '' ]] || err_exit "$0: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
+	[[ "${out.stderr}" == '' ]] || err_exit "$0: Expected empty stderr, got $(printf '%q\n' "${out.stderr}")"
 
 	return 0
 }

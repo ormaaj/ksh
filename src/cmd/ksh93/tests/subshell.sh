@@ -1121,7 +1121,7 @@ e2=$( (ulimit -t unlimited 2>/dev/null; f() { return 267; }; f); echo $? )
 # effects of .sh.value on shared-state command substitutions.
 function foo
 {
-       .sh.value=bam
+	.sh.value=bam
 }
 got=${ foo; }
 [[ $got ]] && err_exit "setting .sh.value in a function affects shared-state command substitution output when it shouldn't print anything" \

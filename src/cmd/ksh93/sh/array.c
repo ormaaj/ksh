@@ -1222,8 +1222,6 @@ Namval_t *nv_putsub(Namval_t *np,char *sp,long mode)
 							ap->header.nelem++;
 					}
 				}
-				if(n=ap->maxi-ap->maxi)
-					memset(&ap->val[size], 0, n * sizeof(void*));
 			}
 			else if(!(sp = ap->val[size]) || sp==Empty)
 			{

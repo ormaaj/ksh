@@ -6,7 +6,6 @@ note *
 setv MAMAKE_STRICT 5
 setv INSTALLROOT ../../..
 setv CC cc
-setv AR %{mam_cc_AR} %{mam_cc_AR_ARFLAGS}
 setv mam_cc_FLAGS %{mam_cc_TARGET} %{mam_cc_DLL} %{-debug-symbols?1?%{mam_cc_DEBUG} -D_BLD_DEBUG?%{mam_cc_OPTIMIZE}?} %{mam_cc_NOSTRICTALIASING} -DERROR_CATALOG=\""libcmd"\" -DHOSTTYPE=\""%{mam_cc_HOSTTYPE}"\" -D_BLD_cmd
 setv CCFLAGS
 setv IFFEFLAGS
@@ -298,9 +297,10 @@ make install virtual
 			done
 		done
 		make sumlib.o
+			note * extract sumlib.o from libsum.a
 			bind -lsum
 			exec - set -- %{mam_libsum}
-			exec - %{AR} x "$1" sumlib.o
+			exec - %{mam_cc_AR} %{mam_cc_AR_ARFLAGS} -x "$1" sumlib.o
 		done
 
 		note * include shell action for linking the library

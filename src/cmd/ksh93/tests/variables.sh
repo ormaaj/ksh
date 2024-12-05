@@ -689,6 +689,8 @@ function dave.unset
 unset dave
 [[ $(typeset +f) == *dave.* ]] && err_exit 'unset discipline not removed'
 
+# ======
+
 x=$(
 	dave=dave
 	function dave.unset
@@ -696,7 +698,28 @@ x=$(
 		print dave.unset
 	}
 )
-[[ $x == dave.unset ]] || err_exit 'unset discipline not called with subset completion'
+[[ -n $x ]] && err_exit "unset discipline wrongly called upon subshell completion (got '$x')"
+
+x=$(
+	v="still set"
+	v.unset()
+	{
+		print UNSET
+	}
+	ulimit -c 0
+	print "$v"
+)
+[[ $x == 'still set' ]] || err_exit "incorrect behaviour of unset discipline in forked subshell (got $(printf %q "$x"))"
+
+echo 'echo ok' >script
+v.unset() { echo UNSET; }
+v=1
+./script >out
+{ unset v; } >/dev/null
+got=$(<out)
+[[ $got = ok ]]  || err_exit "incorrect behaviour of unset discipline when running #!-less script (got $(printf %q "$got"))"
+
+# ======
 
 print 'print ${VAR}' > $tmp/script
 unset VAR

@@ -8,6 +8,10 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   could not be recalled from the history (e.g. with arrow up). Bug introduced
   on 2022-10-31.
 
+- Fixed an issue that caused .unset discipline functions (if set) to be
+  incorrectly called during cleanup upon terminating a virtual subshell or
+  before running a #!-less script.
+
 2024-11-26:
 
 - The -v/--verbose option of the cp, mv and ln built-in commands (which are

@@ -98,8 +98,6 @@ static struct subshell
 #endif /* _lib_fchdir */
 } *subshell_data;
 
-static char subshell_noscope;	/* for temporarily disabling all virtual subshell scope creation */
-
 static unsigned int subenv;
 
 
@@ -264,10 +262,10 @@ void sh_assignok(Namval_t *np,int add)
 	Namarr_t		*ap;
 	unsigned int		save;
 	/*
-	 * Don't create a scope if told not to (see nv_restore()) or if this is a subshare.
+	 * Don't create a scope during virtual subshell cleanup (see nv_restore()) or if this is a subshare.
 	 * Also, ${.sh.level} (SH_LEVELNOD) is handled specially and is not scoped in virtual subshells.
 	 */
-	if(subshell_noscope || sh.subshare || np==SH_LEVELNOD)
+	if(sh.nv_restore || sh.subshare || np==SH_LEVELNOD)
 		return;
 	if((ap=nv_arrayptr(np)) && (mp=nv_opensub(np)))
 	{
@@ -330,7 +328,7 @@ static void nv_restore(struct subshell *sp)
 	Namval_t	*mp, *np;
 	Namval_t	*mpnext;
 	int		flags,nofree;
-	subshell_noscope = 1;
+	sh.nv_restore = 1;
 	for(lp=sp->svar; lp; lp=lq)
 	{
 		np = (Namval_t*)&lp->dict;
@@ -388,7 +386,7 @@ static void nv_restore(struct subshell *sp)
 		free(lp);
 		sp->svar = lq;
 	}
-	subshell_noscope = 0;
+	sh.nv_restore = 0;
 }
 
 /*

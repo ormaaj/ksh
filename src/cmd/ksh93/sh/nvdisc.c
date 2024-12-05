@@ -241,11 +241,15 @@ static void	assign(Namval_t *np,const char* val,int flags,Namfun_t *handle)
 	int		type = (flags&NV_APPEND)?APPEND:ASSIGN;
 	struct vardisc *vp = (struct vardisc*)handle;
 	Namval_t *nq =  vp->disc[type];
-	struct blocked	block, *bp = block_info(np, &block);
+	struct blocked	block, *bp;
 	Namval_t	node;
 	void		*saveval = np->nvalue;
 	Namval_t	*tp, *nr;  /* for 'typeset -T' types */
 	int		jmpval = 0;
+	/* No unset discipline during virtual subshell cleanup or shell reinit */
+	if(!val && (sh.nv_restore || sh_isstate(SH_INIT)))
+		return;
+	bp = block_info(np, &block);
 	if(val && (tp=nv_type(np)) && (nr=nv_open(val,sh.var_tree,NV_VARNAME|NV_ARRAY|NV_NOADD|NV_NOFAIL)) && tp==nv_type(nr))
 	{
 		char *sub = nv_getsub(np);

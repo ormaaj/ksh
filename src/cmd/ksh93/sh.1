@@ -3926,10 +3926,11 @@ for reading and store
 the file descriptor number in variable
 .BR n .
 .PP
-A special shorthand redirection operator \fB&>\fR\fIword\fR is available; it
-is equivalent to \fB>\fR\fIword\fR\fB 2>&1\fR. It cannot be preceded by any
-digit or variable name. This shorthand is disabled if the \fBposix\fR shell
-option is active.
+Special shorthand redirection operators \fB&>\fR\fIword\fR and
+\fB&>>\fR\fIword\fR are available; they are equivalent to
+\fB>\fR\fIword\fR\fB 2>&1\fR and \fB>\fR\fIword\fR\fB 2>&1\fR, respectively.
+They cannot be preceded by any digit or variable name. These shorthands are
+disabled if the \fBposix\fR shell option is active.
 .PP
 The order in which redirections are specified is significant.
 The shell evaluates each redirection in terms of the
@@ -8065,7 +8066,7 @@ and
 to open file descriptors > 2 without the close-on-exec flag,
 so that they are left open when invoking another program;
 .IP \[bu]
-disables the \fB&>\fR redirection shorthand;
+disables the \fB&>\fR and \fB&>>\fR redirection shorthands;
 .IP \[bu]
 disables fast filescan loops of type
 \f3while\fP \f2inputredirection\^\fP \f3;do\fP \f2list\^\fP \f3;done\fP;

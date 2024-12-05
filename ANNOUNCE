@@ -19,6 +19,9 @@ New command line editor features:
 
 New shell language features:
 
+- The appending redirection operator &>>FILE is now available. It is a
+  shorthand for: >>FILE 2>&1
+
 - The 'time' reserved word now outputs timings in a precision of 3 digits
   after the decimal point if the TIMEFORAMT variable is not set. See also
   TIMEFORMAT under 'New features in shell variables' below.

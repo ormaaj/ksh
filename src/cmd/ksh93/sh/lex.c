@@ -521,6 +521,12 @@ int sh_lex(Lex_t* lp)
 							/* bash-style "&>file" shorthand for ">file 2>&1" */
 							lp->digits = -1;
 							c = '>';
+							/* bash 4.0-style "&>>file" shorthand for ">>file 2>&1" */
+							fcgetc();
+							if(fcpeek(0)==c)
+								c |= SYMREP;
+							else
+								fcseek(-1);
 						}
 						else if(n=='|')
 							c |= SYMPIPE;

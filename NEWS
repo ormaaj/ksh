@@ -4,6 +4,9 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
 2024-12-05:
 
+- [v1.1] The appending redirection operator &>>FILE is now available
+  (inspired by bash 4.0 and later). It is a shorthand for: >>FILE 2>&1
+
 - Fixed an issue in the vi line editors where lines beginning with whitespace
   could not be recalled from the history (e.g. with arrow up). Bug introduced
   on 2022-10-31.

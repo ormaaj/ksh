@@ -174,7 +174,7 @@ static void search(Emacs_t*,genchar*,int);
 static void setcursor(Emacs_t*,int, int);
 static void show_info(Emacs_t*,const char*);
 static void xcommands(Emacs_t*,int);
-static char blankline(Emacs_t*, genchar*);
+static int blankline(Emacs_t*, genchar*, int);
 
 int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 {
@@ -716,9 +716,9 @@ update:
 			cur = eol;
 			draw(ep,UPDATE);
 			/* skip blank lines when going up/down in history */
-			if(c==cntl('N') && hline != histlines && blankline(ep,out))
+			if(c==cntl('N') && hline != histlines && blankline(ep,out,0))
 				ed_ungetchar(ep->ed,cntl('N'));
-			else if(c==cntl('P') && hline != hismin && blankline(ep,out))
+			else if(c==cntl('P') && hline != hismin && blankline(ep,out,0))
 				ed_ungetchar(ep->ed,cntl('P'));
 			continue;
 		}
@@ -1007,7 +1007,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 		case '*':		/* filename expansion */
 		case '=':	/* escape = - list all matching file names */
 		{
-			if(cur<1 || blankline(ep,out))
+			if(cur<1 || blankline(ep,out,1))
 			{
 				beep();
 				return -1;
@@ -1296,7 +1296,7 @@ static void xcommands(Emacs_t *ep,int count)
 		case cntl('E'):	/* invoke emacs on current command */
 			if(eol>=0 && sh.hist_ptr)
 			{
-				if(blankline(ep,drawbuff))
+				if(blankline(ep,drawbuff,1))
 				{
 					cur = 0;
 					eol = 1;
@@ -1769,11 +1769,11 @@ static int _isword(int c)
 /*
  * determine if the command line is blank (empty or all whitespace)
  */
-static char blankline(Emacs_t *ep, genchar *out)
+static int blankline(Emacs_t *ep, genchar *out, int uptocursor)
 {
 	int x;
 	ep->mark = cur;
-	for(x=0; x < cur; x++)
+	for(x=0; uptocursor ? (x < cur) : (x <= eol); x++)
 	{
 #if SHOPT_MULTIBYTE
 		if(!iswspace((wchar_t)out[x]))

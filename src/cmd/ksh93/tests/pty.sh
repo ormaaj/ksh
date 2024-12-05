@@ -1337,5 +1337,17 @@ w print Exit status $?
 u ^Exit status 0\r\n$
 !
 
+((SHOPT_VSH)) && tst $LINENO <<"!"
+L 'k' skips over history entries starting with whitespace
+# https://github.com/ksh93/ksh/issues/799
+
+d 40
+p :test-1:
+w   true
+p :test-2:
+c \Ek
+r :test-2:   true
+!
+
 # ======
 exit $((Errors<125?Errors:125))

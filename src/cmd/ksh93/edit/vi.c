@@ -174,7 +174,7 @@ typedef struct _vi_
 
 static const char paren_chars[] = "([{)]}";   /* for % command */
 
-static char	blankline(Vi_t*);
+static int	blankline(Vi_t*, int);
 static void	cursor(Vi_t*, int);
 static void	del_line(Vi_t*,int);
 static int	getcount(Vi_t*,int);
@@ -668,9 +668,9 @@ static int cntlmode(Vi_t *vp)
 			}
 #endif /* SHOPT_EDPREDICT */
 			/* skip blank lines when going up/down in history */
-			if((c=='k' || c=='-') && curhline != histmin && blankline(vp))
+			if((c=='k' || c=='-') && curhline != histmin && blankline(vp,0))
 				ed_ungetchar(vp->ed,'k');
-			else if((c=='j' || c=='+') && curhline != histmax && blankline(vp))
+			else if((c=='j' || c=='+') && curhline != histmax && blankline(vp,0))
 				ed_ungetchar(vp->ed,'j');
 			break;
 
@@ -694,7 +694,7 @@ static int cntlmode(Vi_t *vp)
 		case 'v':
 			if(vp->repeat_set==0)
 			{
-				if(blankline(vp) || cur_virt == INVALID)
+				if(blankline(vp,1) || cur_virt == INVALID)
 				{
 					cur_virt = 0;
 					last_virt = cur_virt;
@@ -1297,7 +1297,7 @@ static void getline(Vi_t* vp,int mode)
 		{
 			if(!sh_isoption(SH_VI) || !sh.nextprompt)
 				goto fallback;
-			if(blankline(vp))
+			if(blankline(vp,1))
 			{
 				ed_ringbell();
 				break;
@@ -2289,7 +2289,7 @@ addin:
 	case '\\':		/** do file name completion in place **/
 	case '=':		/** list file name expansions **/
 	{
-		if(cur_virt == INVALID || blankline(vp))
+		if(cur_virt == INVALID || blankline(vp,1))
 			return BAD;
 		/* FALLTHROUGH */
 		save_v(vp);
@@ -2645,10 +2645,10 @@ yankeol:
 /*
  * determine if the command line is blank (empty or all whitespace)
  */
-static char blankline(Vi_t *vp)
+static int blankline(Vi_t *vp, int uptocursor)
 {
 	int x;
-	for(x=0; x <= cur_virt; x++)
+	for(x=0; x <= (uptocursor ? cur_virt : last_virt); x++)
 	{
 #if SHOPT_MULTIBYTE
 		if(!iswspace((wchar_t)virtual[x]))

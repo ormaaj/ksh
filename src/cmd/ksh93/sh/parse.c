@@ -419,7 +419,7 @@ void	*sh_parse(Sfio_t *iop, int flag)
 		{
 			int version;
 			fcseek(4);
-			fcgetc(version);
+			version = fcgetc();
 			fcclose();
 			fcrestore(&sav_input);
 			lexp->arg = sav_arg;
@@ -502,9 +502,8 @@ Shnode_t *sh_dolparen(Lex_t* lp)
 		 * This code handles the case where string has been converted
 		 * to a file by an alias setup
 		 */
-		int c;
 		char *cp;
-		if(fcgetc(c) > 0)
+		if(fcgetc() > 0)
 			fcseek(-1);
 		cp = fcseek(0);
 		fcclose();
@@ -995,13 +994,13 @@ static Shnode_t *funct(Lex_t *lexp)
 
 static int check_array(Lex_t *lexp)
 {
-	int n,c;
+	int c;
 	if(lexp->token==0 && strcmp(lexp->arg->argval, SYSTYPESET->nvname)==0)
 	{
-		while((c=fcgetc(n))==' ' || c=='\t');
+		while((c = fcgetc())==' ' || c=='\t');
 		if(c=='-')
 		{
-			if(fcgetc(n)=='a')
+			if(fcgetc()=='a')
 			{
 				lexp->assignok = SH_ASSIGN;
 				lexp->noreserv = 1;
@@ -1115,10 +1114,9 @@ static struct argnod *assign(Lex_t *lexp, struct argnod *ap, int type)
 		(nv_isattr(np,BLT_DCL) || np==SYSDOT || np==SYSSOURCE)))
 	{
 		array=SH_ARRAY;
-		if(fcgetc(n)==LPAREN)
+		if((n = fcgetc())==LPAREN)
 		{
-			int c;
-			if(fcgetc(c)==RPAREN)
+			if(fcgetc()==RPAREN)
 			{
 				lexp->token =  SYMRES;
 				array = 0;
@@ -1713,7 +1711,7 @@ static struct ionod	*inout(Lex_t *lexp,struct ionod *lastio,int flag)
 		{
 			int n;
 			iof |= IOLSEEK;
-			if(fcgetc(n)=='#')
+			if((n = fcgetc())=='#')
 				iof |= IOCOPY;
 			else if(n>0)
 				fcseek(-1);
@@ -1934,7 +1932,7 @@ static void ere_match(void)
 {
 	Sfio_t *base, *iop = sfopen(NULL," ~(E)","s");
 	int c;
-	while( fcgetc(c),(c==' ' || c=='\t'));
+	while(c = fcgetc(), c==' ' || c=='\t');
 	if(c)
 		fcseek(-1);
 	if(!(base=fcfile()))

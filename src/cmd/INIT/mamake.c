@@ -1663,7 +1663,7 @@ static void run(Rule_t *r, char *s)
 		if (x && state.shim)
 		{
 			/* Also subject the user-set shim to viewpathing
-			 * (plus other code preprended above, but it should not contain anything viewpathable) */
+			 * (plus other code prepended above, but it should not contain anything viewpathable) */
 			char	*pre = use(buf);
 			size_t	n = strlen(pre);
 			if (!(tofree = malloc(n + strlen(s) + 1)))
@@ -2233,7 +2233,7 @@ static void make(Rule_t *r, Makestate_t *parentstate)
 			{
 				/* loop block done */
 				if (*t)
-					error_out("superflous arguments", u);
+					error_out("syntax error", u);
 				break;
 			}
 			/* make block done */

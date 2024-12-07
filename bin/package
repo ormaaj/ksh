@@ -131,7 +131,7 @@ command=${0##*/}
 case $(getopts '[-][123:xyz]' opt --xyz 2>/dev/null; echo 0$opt) in
 0123)	USAGE=$'
 [-?
-@(#)$Id: '$command$' (ksh 93u+m) 2024-08-16 $
+@(#)$Id: '$command$' (ksh 93u+m) 2024-12-07 $
 ]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
@@ -564,7 +564,7 @@ SEE ALSO
   pkgadd(1), pkgmk(1), rpm(1), sh(1), tar(1), optget(3)
 
 IMPLEMENTATION
-  version         package (ksh 93u+m) 2024-08-16
+  version         package (ksh 93u+m) 2024-12-07
   author          Glenn Fowler <gsf@research.att.com>
   author          Contributors to https://github.com/ksh93/ksh
   copyright       (c) 1994-2012 AT&T Intellectual Property
@@ -2080,7 +2080,7 @@ case $x in
 			$show _RLD_ROOT=$_RLD_ROOT
 			$show export _RLD_ROOT
 			export _RLD_ROOT
-			# Haiku
+			# dynamic library search path for gcc and clang; also used for runtime linking on Haiku
 			case $LIBRARY_PATH: in
 			$INSTALLROOT/dyn/lib:*)
 				;;
@@ -2088,6 +2088,16 @@ case $x in
 				$show LIBRARY_PATH=$LIBRARY_PATH
 				$show export LIBRARY_PATH
 				export LIBRARY_PATH
+				;;
+			esac
+			# include header search path for gcc and clang
+			case $C_INCLUDE_PATH: in
+			$INSTALLROOT/include/ast:*)
+				;;
+			*)	C_INCLUDE_PATH=$INSTALLROOT/include/ast${C_INCLUDE_PATH:+:$C_INCLUDE_PATH}
+				$show C_INCLUDE_PATH=$C_INCLUDE_PATH
+				$show export C_INCLUDE_PATH
+				export C_INCLUDE_PATH
 				;;
 			esac
 			;;

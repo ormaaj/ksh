@@ -19,6 +19,8 @@
  *	Interface for history mechanism
  *	written by David Korn
  *
+ * NOTE: this header defines a public libshell interface,
+ * unless _BLD_ksh is defined as nonzero
  */
 
 #include	<ast.h>
@@ -82,7 +84,7 @@ extern int		hist_match(History_t*,off_t, char*, int*);
 extern off_t		hist_tell(History_t*,int);
 extern off_t		hist_seek(History_t*,int);
 extern char 		*hist_word(char*, int, int);
-#if SHOPT_ESH
+#if !_BLD_ksh || SHOPT_ESH
     extern Histloc_t	hist_locate(History_t*,int, int, int);
 #endif	/* SHOPT_ESH */
 

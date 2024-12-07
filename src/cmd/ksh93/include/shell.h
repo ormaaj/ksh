@@ -24,6 +24,8 @@
  *
  * Interface definitions for shell command language
  *
+ * NOTE: this header defines a public libshell interface,
+ * unless _BLD_ksh is defined as nonzero
  */
 
 #define SH_VERSION	20220719
@@ -32,12 +34,12 @@
 #include	<cdt.h>
 #include	<history.h>
 #include	<stk.h>
-#ifdef defs_h_defined
+#if _BLD_ksh
 #   include	"name.h"
+#   include	"fault.h"
 #else
 #   include	<nval.h>
-#endif /* defs_h_defined */
-#include	"fault.h"
+#endif /* _BLD_ksh */
 
 /* options */
 typedef struct
@@ -108,7 +110,7 @@ typedef union Shnode_u Shnode_t;
 #define SH_NOCLOBBER	14
 #define SH_MARKDIRS	15
 #define SH_BGNICE	16
-#if SHOPT_VSH
+#if !_BLD_ksh || SHOPT_VSH
 #define SH_VI		17
 #define SH_VIRAW	18
 #endif
@@ -116,7 +118,7 @@ typedef union Shnode_u Shnode_t;
 #define SH_TRACKALL	20
 #define	SH_SFLAG	21
 #define	SH_NOEXEC	22
-#if SHOPT_ESH
+#if !_BLD_ksh || SHOPT_ESH
 #define SH_GMACS	24
 #define SH_EMACS	25
 #endif
@@ -126,30 +128,33 @@ typedef union Shnode_u Shnode_t;
 #define SH_DICTIONARY	30
 #define SH_PIPEFAIL	32
 #define SH_GLOBSTARS	33
-#if SHOPT_GLOBCASEDET || !defined(SHOPT_GLOBCASEDET)
+#if !_BLD_ksh || SHOPT_GLOBCASEDET || !defined(SHOPT_GLOBCASEDET)
 #define SH_GLOBCASEDET	34
 #endif
 #define SH_RC		35
 #define SH_SHOWME	36
 #define SH_LETOCTAL	37
-#if SHOPT_BRACEPAT
+#if !_BLD_ksh || SHOPT_BRACEPAT
 #define SH_BRACEEXPAND	42
 #endif
-#if SHOPT_HISTEXPAND
+#if !_BLD_ksh || SHOPT_HISTEXPAND
 #define SH_HISTEXPAND	43
-#if SHOPT_ESH || SHOPT_VSH
+#if !_BLD_ksh || SHOPT_ESH || SHOPT_VSH
 #define SH_HISTREEDIT	44
 #define SH_HISTVERIFY	45
 #endif
 #endif
 #define SH_POSIX	46
-#if SHOPT_ESH || SHOPT_VSH
+#if !_BLD_ksh || SHOPT_ESH || SHOPT_VSH
 #define SH_MULTILINE	47
 #define SH_NOBACKSLCTRL	48
 #endif
 #define SH_LOGIN_SHELL	67
+
+#if _BLD_ksh
 #define SH_NOUSRPROFILE	79	/* internal use only */
 #define SH_COMMANDLINE	0x100	/* bit flag for invocation-only options ('set -o' cannot change them) */
+#endif
 
 /*
  * passed as flags to builtins in Nambltin_t struct when BLT_OPTIM is on
@@ -183,6 +188,8 @@ typedef struct sh_scope
 	Dt_t		*var_tree;
 	struct sh_scope	*self;
 } Shscope_t;
+
+#if _BLD_ksh
 
 /* Private interface to shell scope. The first members must match the public interface. */
 struct sh_scoped
@@ -225,6 +232,8 @@ struct limits
 	int		child_max;	/* maximum number of children */
 };
 
+#endif /* _BLD_ksh */
+
 /*
  * Saves the state of the shell
  */
@@ -241,8 +250,8 @@ struct Shell_s
 	int		inlineno;	/* line number of current input file */
 	int		exitval;	/* exit status of the command currently being run */
 	int		savexit;	/* $? == exit status of the last command executed */
-
-	/* These are the former 'struct shared' (shgd) members. */
+#if _BLD_ksh
+	/* The rest are for ksh's internal use only */
 	struct limits	lim;
 	uid_t		userid;
 	uid_t		euserid;
@@ -263,12 +272,6 @@ struct Shell_s
 	void		*ed_context;
 	int		sigmax;
 	Shwait_f	waitevent;
-#if SHOPT_STATS
-	int		*stats;
-#endif
-
-	/* The following members are not considered to be part of the documented API.
-	 * Programs using libshell should not rely on them as they may change. */
 	int		subshell;	/* set for virtual subshell */
 	int		realsubshell;	/* ${.sh.subshell}, actual subshell level (including virtual and forked) */
 	char		nv_restore;	/* set while restoring variables upon terminating a virtual subshell */
@@ -387,6 +390,9 @@ struct Shell_s
 	char		nv_putsub_already_called_sh_arith;
 	int		nv_putsub_idx;	/* saves array index obtained by nv_putsub() using sh_arith() */
 	int16_t		level;		/* ${.sh.level} */
+#if SHOPT_STATS
+	int		*stats;
+#endif
 #if SHOPT_OPTIMIZE
 	char		**argaddr;	/* pointer to arguments for the loop invariants optimizer */
 	void		*optlist;	/* linked list of invariant nodes */
@@ -398,6 +404,7 @@ struct Shell_s
 	char		*fifo;		/* FIFO name for current process substitution */
 	Dt_t		*fifo_tree;	/* for cleaning up process substitution FIFOs */
 #endif /* !SHOPT_DEVFD */
+#endif /* _BLD_ksh */
 };
 
 /* used for builtins */

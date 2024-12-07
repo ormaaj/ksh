@@ -123,7 +123,7 @@ case ${exec_file} in
 	esac
 	sym_links="$lib_linkname $prefix$module_name$suffix"
 	# ... remove possible old versions
-	(set +o noglob; exec rm -f "$dest_dir/lib/lib$module_name".*)
+	(set +o noglob; exec rm -f "$dest_dir/lib/$prefix$module_name".*)
 	# ... execute linker command
 	case $HOSTTYPE in
 	darwin.*)

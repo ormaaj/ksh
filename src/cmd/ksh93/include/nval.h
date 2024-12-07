@@ -25,6 +25,8 @@
  * Interface definitions of structures for name-value pairs
  * These structures are used for named variables, functions and aliases
  *
+ * NOTE: this header defines a public libshell interface,
+ * unless _BLD_ksh is defined as nonzero
  */
 
 
@@ -134,11 +136,13 @@ struct Namval
 #define NV_REF		0x4000	/* reference bit */
 #define NV_TABLE	0x800	/* node is a dictionary table */
 #define NV_MINIMAL	0x1000	/* node does not contain all fields */
+#if _BLD_ksh
 #if SHOPT_OPTIMIZE
 #define NV_NOOPTIMIZE	NV_TABLE	/* disable loop invariants optimizer */
 #else
 #define NV_NOOPTIMIZE	0
-#endif
+#endif /* SHOPT_OPTIMIZE */
+#endif /* _BLD_ksh */
 
 #define NV_INTEGER	0x2	/* integer attribute */
 /* The following attributes are valid only when NV_INTEGER is off */

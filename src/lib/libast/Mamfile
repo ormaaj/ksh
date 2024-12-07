@@ -15,7 +15,7 @@ setv IFFEFLAGS
 setv LDFLAGS
 setv DYLIB_PRE %{mam_cc_SUFFIX_DYNAMIC?*?%{mam_cc_PREFIX_DYNAMIC}?%{mam_cc_PREFIX_SHARED}?}
 setv DYLIB_SUF %{mam_cc_SUFFIX_DYNAMIC-%{mam_cc_SUFFIX_SHARED}}
-setv DYLIB_VERSION 6.0
+setv DYLIB_VERSION 8.0
 
 note *
 note * iffe and cc invocations are mostly the same but some add custom flags;

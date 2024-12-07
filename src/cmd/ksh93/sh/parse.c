@@ -252,7 +252,7 @@ static void check_typedef(struct comnod *tp, char intypeset)
  * Hack to avoid an inconsistent state if a 'typeset -T' or 'enum' declaration is parsed but not executed:
  *
  * The parser needs to know about to-be-created type built-ins before their declarations are executed,
- * otherwise assignment-arguments with parenteses -- e.g., Type_t foo=(bar baz) -- are a syntax error if
+ * otherwise assignment-arguments with parentheses -- e.g., Type_t foo=(bar baz) -- are a syntax error if
  * parsed within the same pass as the 'typeset -T Type_t=(...)' declaration. This would be especially bad
  * in dot scripts, which are completely parsed in one single sh_parse() call before execution.
  *

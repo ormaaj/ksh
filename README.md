@@ -19,7 +19,39 @@ and click on commit messages for full details.
 For all fixes, see [the commit log](https://github.com/ksh93/ksh/commits/1.0).
 For known issues in the current release, see [TODO](https://github.com/ksh93/ksh/blob/1.0/TODO).
 
-## Build
+## Table of contents ##
+
+* [Installing from source](#user-content-installing-from-source)
+    * [Prepare](#user-content-prepare)
+    * [Build](#user-content-build)
+    * [Test](#user-content-test)
+    * [Install](#user-content-install)
+* [What is ksh93?](#user-content-what-is-ksh93)
+
+## Installing from source
+
+You can download a [release](releases) tarball,
+or clone the current code from the 1.0 branch:
+`git clone -b 1.0 https://github.com/ksh93/ksh`
+
+### Prepare
+
+The build system requires only a basic POSIX-compatible shell, utilities and
+compiler environment. The `cc`, `ar` and `getconf` commands are needed at
+build time. The `tput` and `getconf` commands are used at runtime if
+available (for multiline editing and to complete the `getconf` built-in,
+respectively). Not all systems come with all of these preinstalled. Here are
+system-specific instructions for making them available:
+
+* **Android/[Termux](https://termux.dev/):**
+  install dependencies using `pkg install`.
+    * Build dependencies: `clang`, `binutils`, `getconf`
+    * Runtime dependencies (optional): `ncurses-utils`, `getconf`
+* **macOS:**
+  install the Xcode Command Line Tools:    
+  `xcode-select --install`
+
+### Build
 
 To build ksh with a custom configuration of features, edit
 [`src/cmd/ksh93/SHOPT.sh`](https://github.com/ksh93/ksh/blob/1.0/src/cmd/ksh93/SHOPT.sh).
@@ -27,7 +59,7 @@ To build ksh with a custom configuration of features, edit
 On systems such as NetBSD and OpenBSD, where `/bin/ksh` is not ksh93 and the
 preinstalled `/etc/ksh.kshrc` profile script is incompatible with ksh93, you'll
 want to disable `SHOPT_SYSRC` to avoid loading it on startup -- unless you can
-edit it to make it compatible with ksh93. This geneerally involves differences
+edit it to make it compatible with ksh93. This generally involves differences
 in the declaration and usage of local variables in functions.
 
 Then `cd` to the top directory and run:
@@ -37,6 +69,7 @@ bin/package make
 ```
 
 To suppress compiler output, use `quiet make` instead of `make`.
+
 In some non-POSIX shells you might need to prepend `sh` to all calls to `bin/package`.
 
 Parallel building is supported by appending `-j` followed by the

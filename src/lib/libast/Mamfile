@@ -81,7 +81,7 @@ make install virtual
 	note *
 
 	note * The standards test influences all subsequent iffe feature tests, so must be made first
-	note * Block parallellisation here by nesting FEATURE/standards in ast_standards.h
+	note * Block parallelisation here by nesting FEATURE/standards in ast_standards.h
 	make ast_standards.h
 		make FEATURE/standards
 			makp features/standards

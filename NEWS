@@ -2,6 +2,14 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-12-08:
+
+- POSIX mode: Fixed a bug in the test and [ built-in commands where
+  superfluous operands following simple unary or binary expressions were
+  ignored instead of throwing an error message. In the 1.0 release series,
+  this fix is limited to the POSIX mode due to backward compatibility
+  concerns. It will be fixed for native ksh mode in the future 1.1 release.
+
 2024-12-05:
 
 - Fixed an issue in the vi line editors where lines beginning with whitespace

@@ -62,7 +62,7 @@ static void	dcl_hacktivate(void), dcl_dehacktivate(void), (*orig_exit)(int), dcl
 static Dt_t	*dcl_tree;
 static unsigned	dcl_recursion;
 
-#define	sh_getlineno(lp)	(lp->lastline)
+#define sh_getlineno(lp)	(lp->lastline)
 
 #define CNTL(x)		((x)&037)
 

@@ -103,7 +103,7 @@ static char *erase_eos;  /* erase to end of screen */
 #define DFLTWINDOW	80	/* default window width */
 #define RAWMODE		1
 #define ECHOMODE	3
-#define	SYSERR	-1
+#define SYSERR	-1
 
 static int keytrap(Edit_t *,char*, int, int, int);
 

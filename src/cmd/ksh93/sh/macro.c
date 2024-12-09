@@ -953,7 +953,7 @@ static void mac_substitute(Mac_t *mp, char *cp,char *str,int subexp[],int subsiz
 }
 
 #if  SHOPT_FILESCAN
-#define	MAX_OFFSETS	 (sizeof(sh.offsets)/sizeof(sh.offsets[0]))
+#define MAX_OFFSETS	 (sizeof(sh.offsets)/sizeof(sh.offsets[0]))
 #define MAX_ARGN	(32*1024)
 
 /*

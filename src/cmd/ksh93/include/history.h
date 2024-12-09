@@ -69,8 +69,8 @@ typedef struct
 extern const char	hist_fname[];
 
 extern int _Hist;
-#define	hist_min(hp)	((_Hist=((int)((hp)->histind-(hp)->histsize)))>=0?_Hist:0)
-#define	hist_max(hp)	((int)((hp)->histind))
+#define hist_min(hp)	((_Hist=((int)((hp)->histind-(hp)->histsize)))>=0?_Hist:0)
+#define hist_max(hp)	((int)((hp)->histind))
 /* these are the history interface routines */
 extern int		sh_histinit(void);
 extern void 		hist_cancel(History_t*);

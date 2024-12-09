@@ -58,7 +58,7 @@ local_iswblank(wchar_t wc)
 
 #endif
 
-#define	pushlevel(lp,c,s)	((lp->lexd.level>=lex_max?stack_grow():1) &&\
+#define pushlevel(lp,c,s)	((lp->lexd.level>=lex_max?stack_grow():1) &&\
 				((lex_match[lp->lexd.level++]=lp->lexd.lastc),\
 				lp->lexd.lastc=(((s)<<CHAR_BIT)|(c))))
 #define oldmode(lp)	(lp->lexd.lastc>>CHAR_BIT)

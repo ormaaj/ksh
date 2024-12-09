@@ -30,9 +30,9 @@
 #include	"jobs.h"
 #include	"FEATURE/cmds"
 #include	"FEATURE/poll"
-#define	bltin(x)	(b_##x)
+#define bltin(x)	(b_##x)
 /* The following is for builtins that do not accept -- options */
-#define	Bltin(x)	(B_##x)
+#define Bltin(x)	(B_##x)
 
 #ifndef SHOPT_CMDLIB_DIR
 #   define SHOPT_CMDLIB_DIR	SH_CMDLIB_DIR

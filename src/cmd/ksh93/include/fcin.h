@@ -47,9 +47,9 @@ typedef struct _fcin
 #endif
 #define fcfile()	(_Fcin._fcfile)
 #define fcgetc()	(*_Fcin.fcptr++ ? (int)_Fcin.fcptr[-1] : fcfill())
-#define	fcget()		((int)(*_Fcin.fcptr++))
-#define	fcpeek(n)	((int)_Fcin.fcptr[n])
-#define	fcseek(n)	((char*)(_Fcin.fcptr+=(n)))
+#define fcget()		((int)(*_Fcin.fcptr++))
+#define fcpeek(n)	((int)_Fcin.fcptr[n])
+#define fcseek(n)	((char*)(_Fcin.fcptr+=(n)))
 #define fcfirst()	((char*)_Fcin.fcbuff)
 #define fclast()	((char*)_Fcin.fclast)
 #define fcleft()	(_Fcin.fclast-_Fcin.fcptr)

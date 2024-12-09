@@ -47,7 +47,7 @@
 #   define NTICKS	5		/* number of ticks for typeahead */
 #endif /* FIORDCHK */
 
-#define	MAXCHAR	MAXLINE-2		/* max char per line */
+#define MAXCHAR	MAXLINE-2		/* max char per line */
 
 #if SHOPT_MULTIBYTE
 #   include	"lexstates.h"
@@ -134,7 +134,7 @@ typedef struct _vi_
 #define cur_phys	editb.e_pcur	/* current phys column cursor is at */
 #define curhline	editb.e_hline		/* current history line */
 #define first_virt	editb.e_fcol		/* first allowable column */
-#define	globals		editb.e_globals		/* local global variables */
+#define globals		editb.e_globals		/* local global variables */
 #define histmin		editb.e_hismin
 #define histmax		editb.e_hismax
 #define last_phys	editb.e_peol		/* last column in physical */
@@ -151,26 +151,26 @@ typedef struct _vi_
 #define usrlnext	editb.e_lnext		/* user defined next literal */
 #define usrkill		editb.e_kill		/* user defined kill char */
 #define virtual		editb.e_inbuf	/* pointer to virtual image buffer */
-#define	window		editb.e_window		/* window buffer */
-#define	w_size		editb.e_wsize		/* window size */
-#define	inmacro		editb.e_inmacro		/* true when in macro */
+#define window		editb.e_window		/* window buffer */
+#define w_size		editb.e_wsize		/* window size */
+#define inmacro		editb.e_inmacro		/* true when in macro */
 #define yankbuf		editb.e_killbuf		/* yank/delete buffer */
 
 
-#define	ABORT	-2			/* user abort */
-#define	APPEND	-10			/* append chars */
-#define	BAD	-1			/* failure flag */
-#define	BIGVI	-15			/* user wants real vi */
-#define	CONTROL	-20			/* control mode */
-#define	ENTER	-25			/* enter flag */
-#define	GOOD	0			/* success flag */
-#define	INPUT	-30			/* input mode */
-#define	INSERT	-35			/* insert mode */
-#define	REPLACE	-40			/* replace chars */
-#define	SEARCH	-45			/* search flag */
-#define	TRANSLATE	-50		/* translate virt to phys only */
+#define ABORT	-2			/* user abort */
+#define APPEND	-10			/* append chars */
+#define BAD	-1			/* failure flag */
+#define BIGVI	-15			/* user wants real vi */
+#define CONTROL	-20			/* control mode */
+#define ENTER	-25			/* enter flag */
+#define GOOD	0			/* success flag */
+#define INPUT	-30			/* input mode */
+#define INSERT	-35			/* insert mode */
+#define REPLACE	-40			/* replace chars */
+#define SEARCH	-45			/* search flag */
+#define TRANSLATE	-50		/* translate virt to phys only */
 
-#define	INVALID	(-1)			/* invalid column */
+#define INVALID	(-1)			/* invalid column */
 
 static const char paren_chars[] = "([{)]}";   /* for % command */
 

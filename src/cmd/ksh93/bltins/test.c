@@ -57,7 +57,7 @@
 #   define isasock(f,p) (0)
 #endif
 
-#define	permission(a,f)		(sh_access(a,f)==0)
+#define permission(a,f)		(sh_access(a,f)==0)
 static int	test_time(const char*, const char*);
 static int	test_stat(const char*, struct stat*);
 static int	test_mode(const char*);

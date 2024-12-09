@@ -144,7 +144,7 @@ typedef uint64_t sha2_word64;	/* Exactly 8 bytes */
 
 #if !defined(SHA2_USE_MEMSET_MEMCPY) && !defined(SHA2_USE_BZERO_BCOPY)
 /* Default to memset()/memcpy() if no option is specified */
-#define	SHA2_USE_MEMSET_MEMCPY	1
+#define SHA2_USE_MEMSET_MEMCPY	1
 #endif
 #if defined(SHA2_USE_MEMSET_MEMCPY) && defined(SHA2_USE_BZERO_BCOPY)
 /* Abort with an error if BOTH options are defined */

@@ -571,7 +571,7 @@ typedef struct _sfextern_s
 #define O_EXCL		040
 
 #ifndef O_RDONLY
-#define	O_RDONLY	000
+#define O_RDONLY	000
 #endif
 #ifndef O_WRONLY
 #define O_WRONLY	001
@@ -591,7 +591,7 @@ typedef struct _sfextern_s
 #define O_TEMPORARY	000
 #endif
 
-#define	SFIO_RADIX	64	/* maximum integer conversion base */
+#define SFIO_RADIX	64	/* maximum integer conversion base */
 
 #define SFIO_MAXCHAR	((uchar)(~0))
 

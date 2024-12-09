@@ -62,7 +62,7 @@
 #   define WIFCONTINUED(wstat)	(0)
 #endif
 
-#define	NJOB_SAVELIST	4
+#define NJOB_SAVELIST	4
 
 /*
  * temporary hack to get W* macros to work

@@ -114,7 +114,7 @@ struct Ufunction
 #define nv_isref(n)	(nv_isattr((n),NV_REF|NV_TAGGED|NV_FUNCT)==NV_REF)
 #define is_abuiltin(n)	(nv_isattr(n,NV_BLTIN|NV_INTEGER)==NV_BLTIN)
 #define is_afunction(n)	(nv_isattr(n,NV_FUNCTION|NV_REF)==NV_FUNCTION)
-#define	nv_funtree(n)	(((struct Ufunction*)(n)->nvalue)->ptree)
+#define nv_funtree(n)	(((struct Ufunction*)(n)->nvalue)->ptree)
 
 /* NAMNOD MACROS */
 /* ... for attributes */

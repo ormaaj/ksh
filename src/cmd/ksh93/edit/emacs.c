@@ -117,7 +117,7 @@ typedef struct _emacs_
 	Edit_t	*ed;	/* pointer to edit data */
 } Emacs_t;
 
-#define	editb		(*ep->ed)
+#define editb		(*ep->ed)
 #define eol		editb.e_eol
 #define cur		editb.e_cur
 #define hline		editb.e_hline
@@ -1490,10 +1490,10 @@ restore:
 
 static void draw(Emacs_t *ep,Draw_t option)
 {
-#define	NORMAL ' '
-#define	LOWER  '<'
-#define	BOTH   '*'
-#define	UPPER  '>'
+#define NORMAL ' '
+#define LOWER  '<'
+#define BOTH   '*'
+#define UPPER  '>'
 
 	genchar *sptr;			/* Pointer within screen */
 	genchar nscreen[2*MAXLINE];	/* New entire screen */

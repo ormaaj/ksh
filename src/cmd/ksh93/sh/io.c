@@ -372,7 +372,7 @@ static Sfdouble_t nget_cur_eof(Namval_t* np, Namfun_t *fp)
 
 static const Namdisc_t EOF_disc	= { sizeof(struct Eof), 0, 0, nget_cur_eof};
 
-#define	MATCH_BUFF	(64*1024)
+#define MATCH_BUFF	(64*1024)
 struct Match
 {
 	Sfoff_t	offset;

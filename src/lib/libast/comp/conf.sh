@@ -1459,7 +1459,7 @@ ${generated}
 #define prefix_elements	_ast_conf_nprefix
 
 #define CONF_nop	0
-#define	CONF_confstr	1
+#define CONF_confstr	1
 #define CONF_pathconf	2
 #define CONF_sysconf	3
 #define CONF_sysinfo	4

@@ -232,7 +232,7 @@ struct Namval
 /* The following are operations for nv_putsub() */
 #define ARRAY_BITS	22
 #define ARRAY_ADD	(1L<<ARRAY_BITS)	/* add subscript if not found */
-#define	ARRAY_SCAN	(2L<<ARRAY_BITS)	/* For ${array[@]} */
+#define ARRAY_SCAN	(2L<<ARRAY_BITS)	/* For ${array[@]} */
 #define ARRAY_UNDEF	(4L<<ARRAY_BITS)	/* For ${array} */
 
 

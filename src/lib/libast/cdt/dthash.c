@@ -25,7 +25,7 @@
 
 /* these bits should be outside the scope of DT_METHODS */
 #define H_FIXED		0100000	/* table size is fixed	*/
-#define	H_FLATTEN	0200000	/* table was flattened	*/
+#define H_FLATTEN	0200000	/* table was flattened	*/
 
 #define HLOAD(n)	(n)	/* load one-to-one	*/
 

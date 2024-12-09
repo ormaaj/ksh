@@ -959,9 +959,9 @@ Sfdouble_t arith_strval(const char *s, char **end, Sfdouble_t(*convert)(const ch
 
 #if _mem_name__exception
 #undef	_mem_name_exception
-#define	_mem_name_exception	1
+#define _mem_name_exception	1
 #undef	exception
-#define	exception		_exception
+#define exception		_exception
 #undef	matherr
 #endif
 

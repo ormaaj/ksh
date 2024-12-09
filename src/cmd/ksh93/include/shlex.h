@@ -147,8 +147,8 @@ typedef struct  _shlex_
 /* additional parser flag, others in <shell.h> */
 #define SH_EMPTY	04
 #define SH_NOIO		010
-#define	SH_ASSIGN	020
-#define	SH_FUNDEF	040
+#define SH_ASSIGN	020
+#define SH_FUNDEF	040
 #define SH_ARRAY	0100
 #define SH_SEMI		0200	/* semicolon after NL ok */
 

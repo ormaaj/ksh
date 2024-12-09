@@ -53,7 +53,7 @@ typedef struct Shell_s Shell_t;
 #include	<shcmd.h>
 
 /* get pointer to a built-in command's entry function */
-#define	funptr(n)	((Shbltin_f)(n)->nvalue)
+#define funptr(n)	((Shbltin_f)(n)->nvalue)
 
 typedef void	(*Shinit_f)(Shell_t*, int);
 #ifndef SH_wait_f_defined
@@ -69,8 +69,8 @@ typedef union Shnode_u Shnode_t;
  * See also shell options below. States 0-5 are also used as shell options.
  */
 #define SH_NOFORK	0	/* set when fork not necessary */
-#define	SH_FORKED	7	/* set when process has been forked */
-#define	SH_PROFILE	8	/* set when processing profiles */
+#define SH_FORKED	7	/* set when process has been forked */
+#define SH_PROFILE	8	/* set when processing profiles */
 #define SH_NOALIAS	9	/* do not expand non-exported aliases */
 #define SH_NOTRACK	10	/* set to disable sftrack() function */
 #define SH_STOPOK	11	/* set for stopable builtins */
@@ -79,8 +79,8 @@ typedef union Shnode_u Shnode_t;
 #define SH_DEFPATH	14	/* set when using default path */
 #define SH_INIT		15	/* set when initializing the shell */
 #define SH_TTYWAIT	16	/* waiting for keyboard input */
-#define	SH_FCOMPLETE	17	/* set for filename completion */
-#define	SH_PREINIT	18	/* set with SH_INIT before parsing options */
+#define SH_FCOMPLETE	17	/* set for filename completion */
+#define SH_PREINIT	18	/* set with SH_INIT before parsing options */
 #define SH_COMPLETE	19	/* set for command completion */
 #define SH_XARG		21	/* set while in xarg (command -x) mode */
 #define SH_NOTILDEXP	22	/* set to disable tilde expansion */
@@ -95,13 +95,13 @@ typedef union Shnode_u Shnode_t;
  */
 #define SH_CFLAG	0
 #define SH_HISTORY	1	/* used also as a state */
-#define	SH_ERREXIT	2	/* used also as a state */
-#define	SH_VERBOSE	3	/* used also as a state */
+#define SH_ERREXIT	2	/* used also as a state */
+#define SH_VERBOSE	3	/* used also as a state */
 #define SH_MONITOR	4	/* used also as a state */
-#define	SH_INTERACTIVE	5	/* used also as a state */
-#define	SH_RESTRICTED	6
-#define	SH_XTRACE	7
-#define	SH_KEYWORD	8
+#define SH_INTERACTIVE	5	/* used also as a state */
+#define SH_RESTRICTED	6
+#define SH_XTRACE	7
+#define SH_KEYWORD	8
 #define SH_NOUNSET	9
 #define SH_NOGLOB	10
 #define SH_ALLEXPORT	11
@@ -114,10 +114,10 @@ typedef union Shnode_u Shnode_t;
 #define SH_VI		17
 #define SH_VIRAW	18
 #endif
-#define	SH_TFLAG	19
+#define SH_TFLAG	19
 #define SH_TRACKALL	20
-#define	SH_SFLAG	21
-#define	SH_NOEXEC	22
+#define SH_SFLAG	21
+#define SH_NOEXEC	22
 #if !_BLD_ksh || SHOPT_ESH || SHOPT_VSH
 #define SH_NOARROWSRCH	23
 #endif
@@ -486,7 +486,7 @@ extern int		sh_exec(const Shnode_t*,int);
  * sh_getinterp() is here for compatibility with the documented interface.
  */
 extern Shell_t		sh;
-#define	sh_getinterp()	(&sh)
+#define sh_getinterp()	(&sh)
 
 #define chdir(a)	sh_chdir(a)
 #define fchdir(a)	sh_fchdir(a)

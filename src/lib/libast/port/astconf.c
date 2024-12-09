@@ -77,7 +77,7 @@
 
 #if MAXVAL <= UNIV_SIZE
 #undef	MAXVAL
-#define	MAXVAL		(UNIV_SIZE+1)
+#define MAXVAL		(UNIV_SIZE+1)
 #endif
 
 #ifndef _UNIV_DEFAULT

@@ -45,7 +45,7 @@ extern void sh_save_rand_seed(struct rand *, int);
 
 /* The following defines must be kept synchronous with shtab_variables[] in data/variables.c */
 
-#define	PATHNOD		(sh.bltin_nodes)
+#define PATHNOD		(sh.bltin_nodes)
 #define PS1NOD		(sh.bltin_nodes+1)
 #define PS2NOD		(sh.bltin_nodes+2)
 #define IFSNOD		(sh.bltin_nodes+3)

@@ -152,11 +152,11 @@ void nv_putv(Namval_t *np, const char *value, int flags, Namfun_t *nfp)
 	}
 }
 
-#define	LOOKUPS		0
-#define	ASSIGN		1
-#define	APPEND		2
-#define	UNASSIGN	3
-#define	LOOKUPN		4
+#define LOOKUPS		0
+#define ASSIGN		1
+#define APPEND		2
+#define UNASSIGN	3
+#define LOOKUPN		4
 
 struct	vardisc
 {

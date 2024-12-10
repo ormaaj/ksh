@@ -27,7 +27,7 @@
  *	0ooo		octal
  *	0[xX]hhh	hexadecimal
  *	ddd		decimal
- *	n#ccc		base n, 2 <= b <= 36
+ *	n#ccc		base n, 2 <= b <= 64
  *
  * NOTE: all operands are evaluated as both the parse
  *	 and evaluation are done on the fly

@@ -87,21 +87,12 @@ typedef int        (*Math_3i_f)(Sfdouble_t,Sfdouble_t,Sfdouble_t);
 #define peekchr(vp)	(*(vp)->nextchr)
 #define ungetchr(vp)	((vp)->nextchr--)
 
-#if ('a'==97)	/* ASCII encodings */
-#   define getop(c)	(((c) >= sizeof(strval_states))? \
+/*
+ * convert ASCII char to math expression token
+ */
+#define getop(c)	(((c) >= sizeof(strval_states))? \
 				((c)=='|'?A_OR:((c)=='^'?A_XOR:((c)=='~'?A_TILDE:A_REG))):\
 				strval_states[(c)])
-#else
-#   define getop(c)	(isdigit(c)?A_DIG:((c==' '||c=='\t'||c=='\n'||c=='"')?0: \
-			(c=='<'?A_LT:(c=='>'?A_GT:(c=='='?A_ASSIGN: \
-			(c=='+'?A_PLUS:(c=='-'?A_MINUS:(c=='*'?A_TIMES: \
-			(c=='/'?A_DIV:(c=='%'?A_MOD:(c==','?A_COMMA: \
-			(c=='&'?A_AND:(c=='!'?A_NOT:(c=='('?A_LPAR: \
-			(c==')'?A_RPAR:(c==0?A_EOF:(c==':'?A_COLON: \
-			(c=='?'?A_QUEST:(c=='|'?A_OR:(c=='^'?A_XOR: \
-			(c=='\''?A_LIT: \
-			(c=='.'?A_DOT:(c=='~'?A_TILDE:A_REG)))))))))))))))))))))))
-#endif
 
 #define seterror(v,msg)		_seterror(v,ERROR_dictionary(msg))
 #define ERROR(vp,msg)		return seterror((vp),msg)

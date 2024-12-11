@@ -436,7 +436,6 @@ make install virtual
 		done
 
 		make bltins/print.c
-			prev %{INCLUDE_AST}/ccode.h
 			prev %{INCLUDE_AST}/tmx.h
 			prev include/streval.h
 			prev include/builtins.h
@@ -634,7 +633,6 @@ make install virtual
 			prev %{INCLUDE_AST}/ls.h
 			prev FEATURE/time
 			prev include/fault.h
-			prev %{INCLUDE_AST}/ccode.h
 			prev %{INCLUDE_AST}/ast.h
 			prev shopt.h
 		done
@@ -710,7 +708,6 @@ make install virtual
 			prev %{INCLUDE_AST}/ast_random.h
 			prev %{INCLUDE_AST}/regex.h
 			prev %{INCLUDE_AST}/tmx.h
-			prev %{INCLUDE_AST}/ccode.h
 			prev include/defs.h
 			prev shopt.h
 		done
@@ -832,7 +829,6 @@ make install virtual
 			prev include/national.h
 			prev include/lexstates.h
 			prev include/shtable.h
-			prev %{INCLUDE_AST}/ccode.h
 			prev include/defs.h
 			prev %{INCLUDE_AST}/lc.h
 			prev %{INCLUDE_AST}/ast_wchar.h
@@ -861,7 +857,6 @@ make install virtual
 		done
 
 		make sh/tdump.c
-			prev %{INCLUDE_AST}/ccode.h
 			prev include/io.h
 			prev include/path.h
 			prev include/shnodes.h
@@ -880,7 +875,6 @@ make install virtual
 		done
 
 		make sh/trestore.c
-			prev %{INCLUDE_AST}/ccode.h
 			prev include/io.h
 			prev include/path.h
 			prev include/shnodes.h

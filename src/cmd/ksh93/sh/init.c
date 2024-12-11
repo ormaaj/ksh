@@ -29,7 +29,6 @@
 
 #include	"shopt.h"
 #include        "defs.h"
-#include        <ccode.h>
 #include        <pwd.h>
 #include        <tmx.h>
 #include        <regex.h>
@@ -479,54 +478,6 @@ static void put_lang(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		sh.radixpoint = strlen(cp)==1 ? *cp : '.';
 	}
 #endif
-	if(CC_NATIVE!=CC_ASCII && (type==LC_ALL || type==LC_LANG || type==LC_CTYPE))
-	{
-		if(sh_lexstates[ST_BEGIN]!=sh_lexrstates[ST_BEGIN])
-			free(sh_lexstates[ST_BEGIN]);
-		lctype++;
-		if(ast.locale.set&(1<<AST_LC_CTYPE))
-		{
-			int c;
-			char *state[4];
-			sh_lexstates[ST_BEGIN] = state[0] = (char*)sh_malloc(4*(1<<CHAR_BIT));
-			memcpy(state[0],sh_lexrstates[ST_BEGIN],(1<<CHAR_BIT));
-			sh_lexstates[ST_NAME] = state[1] = state[0] + (1<<CHAR_BIT);
-			memcpy(state[1],sh_lexrstates[ST_NAME],(1<<CHAR_BIT));
-			sh_lexstates[ST_DOL] = state[2] = state[1] + (1<<CHAR_BIT);
-			memcpy(state[2],sh_lexrstates[ST_DOL],(1<<CHAR_BIT));
-			sh_lexstates[ST_BRACE] = state[3] = state[2] + (1<<CHAR_BIT);
-			memcpy(state[3],sh_lexrstates[ST_BRACE],(1<<CHAR_BIT));
-			for(c=0; c<(1<<CHAR_BIT); c++)
-			{
-				if(state[0][c]!=S_REG)
-					continue;
-				if(state[2][c]!=S_ERR)
-					continue;
-				if(isblank(c))
-				{
-					state[0][c]=0;
-					state[1][c]=S_BREAK;
-					state[2][c]=S_BREAK;
-					continue;
-				}
-				if(!isalpha(c))
-					continue;
-				state[0][c]=S_NAME;
-				if(state[1][c]==S_REG)
-					state[1][c]=0;
-				state[2][c]=S_ALP;
-				if(state[3][c]==S_ERR)
-					state[3][c]=0;
-			}
-		}
-		else
-		{
-			sh_lexstates[ST_BEGIN]=(char*)sh_lexrstates[ST_BEGIN];
-			sh_lexstates[ST_NAME]=(char*)sh_lexrstates[ST_NAME];
-			sh_lexstates[ST_DOL]=(char*)sh_lexrstates[ST_DOL];
-			sh_lexstates[ST_BRACE]=(char*)sh_lexrstates[ST_BRACE];
-		}
-	}
 }
 
 /* Trap for IFS assignment and invalidates state table */
@@ -1171,29 +1122,6 @@ static int newconf(const char *name, const char *path, const char *value)
 	return 1;
 }
 
-#if	(CC_NATIVE != CC_ASCII)
-    static void a2e(char *d, const char *s)
-    {
-	const unsigned char *t;
-	int i;
-	t = CCMAP(CC_ASCII, CC_NATIVE);
-	for(i=0; i<(1<<CHAR_BIT); i++)
-		d[t[i]] = s[i];
-    }
-
-    static void init_ebcdic(void)
-    {
-	int i;
-	char *cp = (char*)sh_malloc(ST_NONE*(1<<CHAR_BIT));
-	for(i=0; i < ST_NONE; i++)
-	{
-		a2e(cp,sh_lexrstates[i]);
-		sh_lexstates[i] = cp;
-		cp += (1<<CHAR_BIT);
-	}
-    }
-#endif
-
 /*
  * return SH_TYPE_* bitmask for path
  * 0 for "not a shell"
@@ -1272,11 +1200,7 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	n = strlen(e_version);
 	if(e_version[n-1]=='$' && e_version[n-2]==' ')
 		e_version[n-2]=0;
-#if	(CC_NATIVE == CC_ASCII)
 	memcpy(sh_lexstates,sh_lexrstates,ST_NONE*sizeof(char*));
-#else
-	init_ebcdic();
-#endif
 	sh.current_pid = sh.pid = getpid();
 	sh.current_ppid = sh.ppid = getppid();
 	sh.userid = getuid();

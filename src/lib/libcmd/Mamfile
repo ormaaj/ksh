@@ -81,7 +81,6 @@ make install virtual
 			prev cmd.h
 		done
 		make cmp.c
-			prev %{INCLUDE_AST}/ccode.h
 			prev %{INCLUDE_AST}/ls.h
 			prev cmd.h
 		done
@@ -201,7 +200,6 @@ make install virtual
 		done
 		make stty.c
 			prev %{INCLUDE_AST}/ast_tty.h
-			prev %{INCLUDE_AST}/ccode.h
 			prev cmd.h
 		done
 		make sum.c

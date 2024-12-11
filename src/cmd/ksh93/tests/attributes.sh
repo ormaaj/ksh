@@ -181,16 +181,16 @@ fi
 if	[[ $(typeset | grep PS2) == PS2 ]]
 then	err_exit 'typeset without arguments outputs names without attributes'
 fi
+
+# ======
+# typeet -b tests (ASCII assumed)
+
 unset a z q x
 w1=hello
 w2=world
 t1="$w1 $w2"
-if	(( 'a' == 97 ))
-then	b1=aGVsbG8gd29ybGQ=
-	b2=aGVsbG8gd29ybGRoZWxsbyB3b3JsZA==
-else	b1=iIWTk5ZAppaZk4Q=
-	b2=iIWTk5ZAppaZk4SIhZOTlkCmlpmThA==
-fi
+b1=aGVsbG8gd29ybGQ=
+b2=aGVsbG8gd29ybGRoZWxsbyB3b3JsZA==
 z=$b1
 typeset -b x=$b1
 [[ $x == "$z" ]] || err_exit "binary variable not expanding correctly ($(printf %q "$x") != $(printf %q "$z"))"
@@ -212,6 +212,9 @@ typeset -b -Z20 z=$b1
 } << !
 hello worldhello worldhello world
 !
+
+# ======
+
 [[ $v1 == "$b1" ]] || err_exit "v1=$v1 should be $b1"
 [[ $v2 == "$x" ]] || err_exit "v1=$v2 should be $x"
 if	env '!=1' >/dev/null 2>&1

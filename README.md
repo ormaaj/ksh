@@ -22,6 +22,7 @@ For known issues in the current release, see [TODO](https://github.com/ksh93/ksh
 ## Table of contents ##
 
 * [Installing from source](#user-content-installing-from-source)
+    * [Supported systems](#user-content-supported-systems)
     * [Prepare](#user-content-prepare)
     * [Build](#user-content-build)
     * [Test](#user-content-test)
@@ -33,6 +34,32 @@ For known issues in the current release, see [TODO](https://github.com/ksh93/ksh
 You can download a [release](releases) tarball,
 or clone the current code from the 1.0 branch:
 `git clone -b 1.0 https://github.com/ksh93/ksh`
+
+### Supported systems
+
+KornShell 93u+m is currently known to build and run on:
+* Android/Termux
+* Cygwin
+* DragonFly BSD
+* FreeBSD
+* Haiku
+* illumos distributions (e.g., OmniOS)
+* Linux: all distributions with glibc or musl libc
+* macOS
+* NetBSD
+* OpenBSD
+* QNX Neutrino (6.5.0)
+* Solaris
+
+Systems that may work, but that we have not been able to test lately, include:
+* AIX
+* HP-UX
+* UnixWare
+
+KornShell 93u+m supports systems that use the ASCII character set as the
+lowest common denominator. This includes Linux on IBM zSeries, but not z/OS.
+Support for the EBCDIC character set has been removed, as we do not have
+access to a mainframe with z/OS to test and maintain it.
 
 ### Prepare
 
@@ -50,6 +77,7 @@ system-specific instructions for making them available:
 * **macOS:**
   install the Xcode Command Line Tools:    
   `xcode-select --install`
+* (to be completed)
 
 ### Build
 

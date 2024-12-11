@@ -146,12 +146,12 @@ typedef struct _emacs_
 #define killing		editb.e_mode
 #define location	ep->_location
 
-#define LBUF	100
+#define LBUF		100
 #define KILLCHAR	UKILL
 #define ERASECHAR	UERASE
 #define EOFCHAR		UEOF
-#define LNEXTCHAR		ULNEXT
-#define DELETE		('a'==97?0177:7)
+#define LNEXTCHAR	ULNEXT
+#define DELETE		0177	/* ASCII */
 
 /**********************
 A large lookahead helps when the user is inserting

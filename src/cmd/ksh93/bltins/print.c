@@ -34,7 +34,6 @@
 #include	"builtins.h"
 #include	"streval.h"
 #include	<tmx.h>
-#include	<ccode.h>
 
 union types_t
 {
@@ -545,8 +544,6 @@ static char *fmthtml(const char *string, int flags)
 		/* Encode for HTML and XML, for main text and single- and double-quoted attributes. */
 		while(op = cp, c = mbchar(cp))
 		{
-			if(!mbwide())
-				c = CCMAPC(c,CC_NATIVE,CC_ASCII);
 			if(mbwide() && c < 0)		/* invalid multibyte char */
 				sfputc(sh.stk,'?');
 			else if(c == 60)		/* < */
@@ -586,7 +583,7 @@ static char *fmthtml(const char *string, int flags)
 				if(strchr(URI_RFC3986_UNRESERVED, c))
 					sfputc(sh.stk,c);
 				else
-					sfprintf(sh.stk, "%%%02X", CCMAPC(c, CC_NATIVE, CC_ASCII));
+					sfprintf(sh.stk, "%%%02X", c);
 			}
 		}
 	}
@@ -1195,7 +1192,7 @@ static int fmtvecho(const char *string, struct printf *pp)
 		if( c=='\\') switch(*++cp)
 		{
 			case 'E':
-				c = ('a'==97?'\033':39); /* ASCII/EBCDIC */
+				c = '\033'; /* ASCII */
 				break;
 			case 'a':
 				c = '\a';

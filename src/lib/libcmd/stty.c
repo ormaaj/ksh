@@ -58,7 +58,6 @@ static const char usage[] =
 ;
 
 #include	<cmd.h>
-#include	<ccode.h>
 #include	<ctype.h>
 #include	<ast_tty.h>
 
@@ -348,11 +347,7 @@ static const Tty_t Ttable[] =
 { "LCASE",	CASE,	C_FLAG,	IG,	0 , 0, C("Same as \blcase\b") }
 };
 
-#if CC_NATIVE == CC_ASCII
-#define cntl(x)		(((x)=='?')?0177:((x)&037))
-#else
-#define cntl(x)		(((x)=='?')?ccmapc(0177,CC_ASCII,CC_NATIVE):ccmapc(ccmapc(x,CC_NATIVE,CC_ASCII)&037,CC_ASCII,CC_NATIVE))
-#endif
+#define cntl(x)		(((x)=='?')?0177:((x)&037))	/* assumes ASCII */
 
 static void sane(struct termios *sp)
 {
@@ -537,14 +532,7 @@ static void output(struct termios *sp, int flags)
 			else if(isprint(off&0xff))
 				sfprintf(sfstdout,"%s = %c;%c",tp->name,off,delim);
 			else
-#if CC_NATIVE == CC_ASCII
-			sfprintf(sfstdout,"%s = ^%c;%c",tp->name,off==0177?'?':(off^0100),delim);
-#else
-			{
-				off = ccmapc(off, CC_NATIVE, CC_ASCII);
-				sfprintf(sfstdout,"%s = ^%c;%c",tp->name,off==0177?'?':ccmapc(off^0100,CC_ASCII,CC_NATIVE),delim);
-			}
-#endif
+				sfprintf(sfstdout,"%s = ^%c;%c",tp->name,off==0177?'?':(off^0100),delim);  /* assumes ASCII */
 			delim = ' ';
 			break;
 		    case SIZE:

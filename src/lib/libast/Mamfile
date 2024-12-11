@@ -428,7 +428,6 @@ make install virtual
 		done
 	done
 
-	makp include/magicid.h
 	makp include/tar.h
 	makp include/vdb.h
 
@@ -1364,48 +1363,6 @@ make install virtual
 			exec - compile %{<}
 		done
 
-		make magic.o
-			make misc/magic.c
-				make include/magic.h
-					prev include/ls.h
-					prev include/sfio.h
-				done
-				make include/swap.h
-					prev ast_common.h
-				done
-				prev include/regex.h
-				prev include/error.h
-				prev include/modex.h
-				prev include/cdt.h
-				prev include/ccode.h
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
-		make mime.o
-			make misc/mime.c
-				make misc/mimelib.h
-					make include/mime.h
-						prev include/ls.h
-						prev include/sfio.h
-					done
-					prev include/tok.h
-					prev include/magic.h
-					prev include/cdt.h
-					prev include/ast.h
-				done
-			done
-			exec - compile %{<} -Imisc
-		done
-
-		make mimetype.o
-			make misc/mimetype.c
-				prev misc/mimelib.h
-			done
-			exec - compile %{<} -Imisc
-		done
-
 		make signal.o
 			make misc/signal.c
 				prev ast_map.h
@@ -1870,7 +1827,9 @@ make install virtual
 
 		make swapget.o
 			make string/swapget.c
-				prev include/swap.h
+				make include/swap.h
+					prev ast_common.h
+				done
 				prev include/ast.h
 			done
 			exec - compile %{<}
@@ -4481,7 +4440,7 @@ make install virtual
 	done
 
 	note * section 3 manual pages
-	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 magic mem mime modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc strexpr strgid strmatch stropt strperm strsort strtape strton struid swap tab tm tmx tok touch tv
+	loop SECT3MAN LIBAST aso ast cdt chr compat error find fmt fmtls ftwalk getcwd hash iblocks int ip6 mem modecanon optget path proc re regex setenviron sfio sig spawnveg stk strcopy strdup strelapsed strerror stresc strexpr strgid strmatch stropt strperm strsort strtape strton struid swap tab tm tmx tok touch tv
 		make %{INSTALLROOT}/man/man3/%{SECT3MAN}.3
 			makp man/%{SECT3MAN}.3
 			exec - cp -f %{<} %{@}
@@ -4498,7 +4457,7 @@ make install virtual
 	note * #include headers
 	make %{INSTALLROOT}/lib/mam/ast
 		note * ...main AST headers
-		loop HDR ast ast_dir ast_std ast_windows ccode cdt cmdarg debug error find ftwalk fts glob hash hashkey hashpart ip6 ls magic mc mime mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok vdb wait magicid fnv aso
+		loop HDR ast ast_dir ast_std ast_windows ccode cdt cmdarg debug error find ftwalk fts glob hash hashkey hashpart ip6 ls mc mnt modecanon modex namval option proc recfmt regex sfio sfio_s sfio_t sfdisc shcmd stk stak swap tar times tm tok vdb wait fnv aso
 			make %{INCLUDE_AST}/%{HDR}.h
 				prev include/%{HDR}.h
 				exec - cp -f %{<} %{@}
@@ -4529,12 +4488,6 @@ make install virtual
 		exec - mkdeps -last %{^} > %{@}
 		makp %{INSTALLROOT}/bin/mkdeps
 	done %{INSTALLROOT}/lib/mam/ast
-
-	note * misc stuff
-	make %{INSTALLROOT}/lib/file/magic
-		makp misc/magic.tab
-		exec - cp -f %{<} %{@}
-	done
 
 	make %{INSTALLROOT}/lib/package/gen/.asthdr_tstamp
 		prev comp/fmtmsg.h

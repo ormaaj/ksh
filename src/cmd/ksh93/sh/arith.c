@@ -29,6 +29,7 @@
 #include	"streval.h"
 #include	"variables.h"
 #include	"builtins.h"
+#include	<ast_release.h>
 
 #ifndef LLONG_MAX
 #define LLONG_MAX	LONG_MAX

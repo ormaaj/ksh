@@ -35,9 +35,7 @@
 #define LOOKAHEAD	80
 
 #if SHOPT_MULTIBYTE
-#   ifndef ESS_MAXCHAR
-#	include	"national.h"
-#   endif /* ESS_MAXCHAR */
+#   include	"national.h"
     typedef wchar_t genchar;
 #   define CHARSIZE	(sizeof(wchar_t)<=2?3:sizeof(wchar_t))
 #else

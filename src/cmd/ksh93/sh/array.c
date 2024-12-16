@@ -28,6 +28,7 @@
 #include	"shopt.h"
 #include	"defs.h"
 #include	"name.h"
+#include	<ast_release.h>
 
 #if _AST_release
 #define NDEBUG

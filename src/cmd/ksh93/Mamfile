@@ -561,6 +561,7 @@ make install virtual
 		done
 
 		make sh/arith.c
+			prev %{INCLUDE_AST}/ast_release.h
 			prev include/builtins.h
 			prev include/variables.h
 			prev include/streval.h
@@ -584,6 +585,7 @@ make install virtual
 		done
 
 		make sh/array.c
+			prev %{INCLUDE_AST}/ast_release.h
 			prev include/name.h
 			prev include/defs.h
 			prev shopt.h
@@ -727,6 +729,7 @@ make install virtual
 		done
 
 		make sh/lex.c
+			prev %{INCLUDE_AST}/ast_release.h
 			prev include/shlex.h
 			prev include/io.h
 			prev include/lexstates.h
@@ -973,6 +976,7 @@ make install virtual
 		done
 
 		make edit/emacs.c
+			prev %{INCLUDE_AST}/ast_release.h
 			prev include/terminal.h
 			prev include/edit.h
 			prev include/history.h

@@ -35,6 +35,7 @@
 #include	"lexstates.h"
 #include	"io.h"
 #include	"shlex.h"
+#include	<ast_release.h>
 
 #define TEST_RE		3
 #define SYNBAD		3	/* exit value for syntax errors */

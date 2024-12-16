@@ -510,7 +510,7 @@ visit(State_t* state, FTSENT* ent)
 		backup:
 			if (!(s = sfstruse(state->tmp)))
 			{
-				error(ERROR_SYSTEM|3, "%s: out of space", state->path);
+				error(ERROR_SYSTEM|3, "%s: out of memory", state->path);
 				UNREACHABLE();
 			}
 			if (rename(state->path, s))
@@ -699,7 +699,7 @@ b_cp(int argc, char** argv, Shbltin_t* context)
 	state->wflags = O_WRONLY|O_CREAT|O_TRUNC|O_BINARY;
 	if (!state->tmp && !(state->tmp = sfstropen()))
 	{
-		error(ERROR_SYSTEM|3, "out of space [tmp string]");
+		error(ERROR_SYSTEM|3, "out of memory");
 		UNREACHABLE();
 	}
 	sfputr(state->tmp, usage_head, -1);
@@ -739,7 +739,7 @@ b_cp(int argc, char** argv, Shbltin_t* context)
 	sfputr(state->tmp, usage_tail, -1);
 	if (!(usage = sfstruse(state->tmp)))
 	{
-		error(ERROR_SYSTEM|3, "%s: out of space", state->path);
+		error(ERROR_SYSTEM|3, "out of memory");
 		UNREACHABLE();
 	}
 	state->opname = state->op == CP ? ERROR_translate(0, 0, 0, "overwrite") : ERROR_translate(0, 0, 0, "replace");

@@ -594,7 +594,7 @@ fi
 	while (( i <2))
 	do	(( i++))
 	done) == $'0\n0\n1\n1\n2' ]]  || err_exit  "DEBUG trap not working"
-if builtin getconf 2> /dev/null; then
+if ((!SHOPT_ECHOPRINT)) && builtin getconf 2> /dev/null; then
 	getconf UNIVERSE - ucb
 	[[ $($SHELL -c 'echo -3') == -3 ]] || err_exit "echo -3 not working in ucb universe"
 fi

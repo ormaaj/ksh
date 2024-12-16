@@ -72,6 +72,7 @@ One line screen editor for any program
 #if SHOPT_MULTIBYTE
 #include	<wctype.h>
 #endif /* SHOPT_MULTIBYTE */
+#include	<ast_release.h>
 
 #define ESH_NFIRST
 #define ESH_KAPPEND

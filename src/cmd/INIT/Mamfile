@@ -11,7 +11,7 @@ note * initialization for the build system
 note *
 
 make install virtual
-	loop DIR bin include/ast lib/lib lib/probe/C/make lib/probe/C/pp lib/probe/C/mam
+	loop DIR bin include/ast lib/lib lib/probe/C/make lib/probe/C/mam
 		make %{INSTALLROOT}/%{DIR}
 			exec - mkdir -p %{@}
 		done
@@ -184,7 +184,6 @@ make test dontcare virtual
 	done
 	make test.iffe virtual
 		makp iffe.tst
-		exec - unset C_INCLUDE_PATH  # set by bin/package, but invalidates some iffe tests
 		exec - regress --verbose %{<} iffe
 	done
 done test

@@ -33,13 +33,16 @@ esac
 set -o noglob
 
 command=iffe
-version=2024-08-02
+version=2024-12-16
 
 # DEFPATH should be inherited from package(1)
 case $DEFPATH in
 /*)	;;
-*)	echo "$command: DEFPATH not set" >&2
-	exit 1 ;;
+*)	DEFPATH=$(getconf PATH) ||
+	{
+		echo "$command: DEFPATH not set" >&2
+		exit 1
+	} ;;
 esac
 
 compile() # $cc ...
@@ -1173,8 +1176,10 @@ esac
 		{	test -f "$3" && test "$o" -nt "$3"
 		}
 	} || exit 1
-	echo "$command: test results in $o are up to date" >&$stderr
-	# update timestamp for correct dependency resolution in mamake
+	# still bump the timestamp for correct dependency resolution in mamake
+	case $verbose in
+	1)	echo "$command: test results in $o are up to date; bumping timestamp" >&$stderr ;;
+	esac
 	touch "$o" || kill "$$"
 ) && exit 0
 
@@ -1211,9 +1216,11 @@ std='/* AST backward compatibility macros */
 #define _END_EXTERNS_'
 # To ensure the environment tested is the same as that used, add standards
 # compliance macros as probed by libast as soon as they are available.
-if	test -f "${INSTALLROOT}/src/lib/libast/${dir}/standards"
-then	std=${std}${nl}$(cat "${INSTALLROOT}/src/lib/libast/${dir}/standards")
-fi
+case $INSTALLROOT in
+/*)	if	test -f "${INSTALLROOT}/src/lib/libast/${dir}/standards"
+	then	std="${std}${nl}#include \"${INSTALLROOT}/src/lib/libast/${dir}/standards\""
+	fi ;;
+esac
 tst=
 ext="#include <stdio.h>"
 
@@ -2855,18 +2862,13 @@ int x;
 									sed 's,/\*[^/]*\*/, ,g' $x > $tmp.t
 									;;
 								esac
-								if	cmp -s $tmp.c $tmp.t
-								then	rm -f $tmp.h
-									case $verbose in
-									1)	echo "$command: $x: unchanged;" \
-											"updating timestamp" >&$stderr ;;
-									esac
-									touch "$x"  # needed for mamake dependency tree integrity
-								else	case $x in
-									${dir}[\\/]$cur)	test -d $dir || mkdir $dir || exit 1 ;;
-									esac
-									mv $tmp.h $x
-								fi
+								# to ensure correct dependency resolution, always move the new file
+								# over, to bump the timestamp even if the results haven't changed
+								case $x in
+								${dir}[\\/]$cur)
+									test -d $dir || mkdir $dir || exit ;;
+								esac
+								mv -f $tmp.h $x || exit
 								;;
 							esac
 							;;

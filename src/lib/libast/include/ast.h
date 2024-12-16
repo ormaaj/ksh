@@ -28,8 +28,6 @@
 #ifndef _AST_H
 #define _AST_H
 
-#include <ast_release.h>
-
 #ifndef _AST_STD_H
 #include <ast_std.h>
 #endif

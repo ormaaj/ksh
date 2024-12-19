@@ -1216,19 +1216,31 @@ int sh_exec(const Shnode_t *t, int flags)
 						if(io)
 						{
 							struct openlist *item;
+							/* Below, 'type' is the type flag for sh_redirect; see there for info */
 							if(np == SYSEXEC)		/* 'exec' */
-								type = 1 + !com[1];
-							else if(np == SYSREDIR)		/* 'redirect' */
-								if(!com[1])
-									type = 2;
+							{
+								/* Interactive shells no longer force an exit on failure to exec,
+								 * so if there is a program to 'exec', save the file descriptor
+								 * state (type==0) on interactive shells in case path_exec fails */
+								if(com[1])
+									type = sh_isstate(SH_INTERACTIVE) ? 0 : 1;
 								else
+									type = 2;	/* no operand: mark FD > 2 close-on-exec */
+							}
+							else if(np == SYSREDIR)		/* 'redirect' */
+							{
+								if(com[1])		/* do not allow operands */
 								{
 									errormsg(SH_DICT, ERROR_exit(2), "%s: %s: %s",
 										 SYSREDIR->nvname, e_badsyntax, com[1]);
 									UNREACHABLE();
 								}
+								type = 2;
+							}
+							else if(execflg)
+								type = 1;		/* don't bother to save redirection state */
 							else
-								type = (execflg && !sh.subshell && !sh.st.trapcom[0]);
+								type = 0;		/* normal non-persistent redirection */
 							sh.redir0 = 1;
 							sh_redirect(io,type);
 							for(item=buffp->olist;item;item=item->next)

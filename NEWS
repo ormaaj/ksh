@@ -2,6 +2,14 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-12-21:
+
+- Fixed a bug in the emacs/gmacs line editor where a command repeat count
+  (e.g., ESC 3) sticks and is re-used for the next command after an ESC
+  command. For example, ESC 3 ESC _ recalls the third word from the last
+  command in the history. The bug is that the next command, such as ^B to
+  move back, is then repeated three times. Bug introduced on 2020-09-17.
+
 2024-12-18:
 
 - Persuant to POSIX.1-2024, exec(1) will no longer cause the shell to exit

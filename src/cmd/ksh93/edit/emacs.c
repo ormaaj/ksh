@@ -624,8 +624,10 @@ update:
 			vt220_save_repeat = oadjust;
 		do_escape:
 			adjust = escape(ep,out,oadjust);
-			if(adjust > -1)
+			if(adjust > -2)
 				vt220_save_repeat = 0;
+			if(adjust < -1)
+				adjust = -1;
 			continue;
 		case cntl('R') :
 			search(ep,out,count);
@@ -1125,33 +1127,33 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 					{
 						ed_ungetchar(ep->ed,'\r');
 						ed_ungetchar(ep->ed,cntl('R'));
-						return -1;
+						return -2;
 					}
 				}
 				*lstring = 0;
 				ed_ungetchar(ep->ed,cntl('P'));
-				return -1;
+				return -2;
 			    case 'B':
 				/* VT220 down arrow */
 				ed_ungetchar(ep->ed,cntl('N'));
-				return -1;
+				return -2;
 			    case 'C':
 				/* VT220 right arrow */
 				ed_ungetchar(ep->ed,cntl('F'));
-				return -1;
+				return -2;
 			    case 'D':
 				/* VT220 left arrow */
 				ed_ungetchar(ep->ed,cntl('B'));
-				return -1;
+				return -2;
 			    case 'H':
 				/* VT220 Home key */
 				ed_ungetchar(ep->ed,cntl('A'));
-				return -1;
+				return -2;
 			    case 'F':
 			    case 'Y':
 				/* VT220 End key */
 				ed_ungetchar(ep->ed,cntl('E'));
-				return -1;
+				return -2;
 			    case '1':
 			    case '7':
 				/*
@@ -1162,7 +1164,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 				if(ch == '~')
 				{ /* Home key */
 					ed_ungetchar(ep->ed,cntl('A'));
-					return -1;
+					return -2;
 				}
 				else if(i == '1' && ch == ';')
 				{
@@ -1185,17 +1187,17 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 				}
 				ed_ungetchar(ep->ed,ch);
 				ed_ungetchar(ep->ed,i);
-				return -1;
+				return -2;
 			    case '2': /* Insert key */
 				ch = ed_getchar(ep->ed,1);
 				if(ch == '~')
 				{
 					ed_ungetchar(ep->ed, cntl('V'));
-					return -1;
+					return -2;
 				}
 				ed_ungetchar(ep->ed,ch);
 				ed_ungetchar(ep->ed,i);
-				return -1;
+				return -2;
 			    case '3':
 				ch = ed_getchar(ep->ed,1);
 				if(ch == '~')
@@ -1207,7 +1209,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 					 */
 					if(cur < eol)
 						ed_ungetchar(ep->ed,ERASECHAR);
-					return -1;
+					return -2;
 				}
 				else if(ch == ';')
 				{
@@ -1227,7 +1229,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 				}
 				ed_ungetchar(ep->ed,ch);
 				ed_ungetchar(ep->ed,i);
-				return -1;
+				return -2;
 			    case '5':  /* Haiku terminal Ctrl-Arrow key */
 				ch = ed_getchar(ep->ed,1);
 				switch(ch)
@@ -1241,7 +1243,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 				}
 				ed_ungetchar(ep->ed,ch);
 				ed_ungetchar(ep->ed,i);
-				return -1;
+				return -2;
 			    case '4':
 			    case '8': /* rxvt */
 				ch = ed_getchar(ep->ed,1);
@@ -1249,7 +1251,7 @@ static int escape(Emacs_t* ep,genchar *out,int count)
 				{
 					/* End key */
 					ed_ungetchar(ep->ed,cntl('E'));
-					return -1;
+					return -2;
 				}
 				ed_ungetchar(ep->ed,ch);
 				/* FALLTHROUGH */

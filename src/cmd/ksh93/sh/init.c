@@ -830,7 +830,7 @@ void sh_setmatch(const char *v, int vsize, int nmatch, int match[], int index)
 			free(ap);
 		SH_MATCHNOD->nvalue = NULL;
 		SH_MATCHNOD->nvfun = NULL;
-		if(!(mp->nmatch=nmatch) && !v)
+		if(!(mp->nmatch=nmatch) || !v)
 		{
 			sh.subshell = savesub;
 			return;

@@ -2,6 +2,12 @@ This documents significant changes in the dev branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-12-22:
+
+- In the emacs/gmacs line editor, the ESC [ <letter> macro feature, which is
+  documented to input the value of the alias __<letter>, now actually works.
+  A decades-old bug in internal variable handling rendered it inoperative.
+
 2024-12-21:
 
 - Fixed a bug in the emacs/gmacs line editor where a command repeat count

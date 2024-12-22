@@ -601,9 +601,9 @@ int ed_macro(Edit_t *ep, int i)
 	genchar buff[LOOKAHEAD+1];
 	if(i != '@')
 		ep->e_macro[1] = i;
-	/* undocumented feature, macros of the form <ESC>[c evoke alias __c */
+	/* macros of the form <ESC>[c evoke alias __c */
 	if(i=='_')
-		ep->e_macro[2] = ed_getchar(ep,1);
+		ep->e_macro[2] = i = ed_getchar(ep,1);
 	else
 		ep->e_macro[2] = 0;
 	if (isalnum(i)&&(np=nv_search(ep->e_macro,sh.alias_tree,0))&&(out=nv_getval(np)))

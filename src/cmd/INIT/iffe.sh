@@ -33,7 +33,7 @@ esac
 set -o noglob
 
 command=iffe
-version=2024-12-16
+version=2024-12-23
 
 # DEFPATH should be inherited from package(1)
 case $DEFPATH in
@@ -2894,13 +2894,15 @@ int x;
 						*)	cur=$out
 							;;
 						esac
+						# for privacy and brevity, strip leading $PACKAGEROOT/ from header comments
+						x=${PACKAGEROOT:-/dev/null}
 						case $in in
 						""|-|+)	case $o in
-							run)	x=" from $a" ;;
+							run)	x=" from ${a#"$x"[\\/]}" ;;
 							*)	x= ;;
 							esac
 							;;
-						*)	x=" from $in"
+						*)	x=" from ${in#"$x"[\\/]}"
 							;;
 						esac
 

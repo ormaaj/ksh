@@ -5353,11 +5353,16 @@ Kill the entire current line.
 Restore last item removed from line. (Yank item back to the line.)
 .TP 10
 .BI ^X^E
-Return the command
-.BI "hist \-e ${\s-1VISUAL\s+1:\-${\s-1EDITOR\s+1:\-vi}}"
-in the input buffer to call a full editor \(em
-.BI vi
-by default \(em on the current command line.
+Edit the current command line in a full editor (as set in the
+.SM
+.B VISUAL
+or
+.SM
+.B EDITOR
+variable, or
+.IR vi (1),
+in that order of preference).
+The command line is executed if the file is saved before exiting the editor.
 .TP 10
 .BI ^L
 Line feed and print current line.
@@ -6113,14 +6118,21 @@ Undo the last text modifying command.
 Undo all the text modifying commands performed on the line.
 .TP 10
 [\f2count\fP]\f3v\fP
-Returns the command
-.BI "hist \-e ${\s-1VISUAL\s+1:\-${\s-1EDITOR\s+1:\-vi}}" " count"
-in the input buffer to call a full editor \(em
-.BI vi
-by default \(em on a history entry.
+Edit command line number
+.I count\^
+in a full editor (as set in the
+.SM
+.B VISUAL
+or
+.SM
+.B EDITOR
+variable, or
+.IR vi (1),
+in that order of preference).
 If
 .I count\^
 is omitted, then the current line is used.
+The command line is executed if the file is saved before exiting the editor.
 .TP 10
 .BI ^L
 Line feed and print current line.
@@ -6783,7 +6795,7 @@ Does nothing, and exits 1. Used with
 for infinite loops.
 .TP
 .PD 0
-\f3fc\fP \*(OK \f3\-e\fP \f2ename\^\fP \ \*(CK \*(OK \f3\-N\fP \f2num\^\fP \*(CK \*(OK \f3\-nlr\^\fP \*(CK \*(OK \f2first\^\fP \*(OK \f2last\^\fP \*(CK \*(CK
+\f3fc\fP \*(OK \f3\-e\fP \f2ename\^\fP \ \*(CK \*(OK \f3\-N\fP \f2num\^\fP \*(CK \*(OK \f3\-Enlr\^\fP \*(CK \*(OK \f2first\^\fP \*(OK \f2last\^\fP \*(CK \*(CK
 .TP
 \f3fc \-s \fP \*(OK \f2old\fP\f3\=\fP\f2new\^\fP \*(CK \*(OK \f2command\^\fP \*(CK
 .PD
@@ -6952,7 +6964,7 @@ option empties the hash table. This can also be achieved by resetting
 .BR PATH.
 .TP
 .PD 0
-\f3hist\fP \*(OK \f3\-e\fP \f2ename\^\fP \ \*(CK \*(OK \f3\-N\fP \f2num\^\fP \*(CK \*(OK \f3\-nlr\^\fP \*(CK \*(OK \f2first\^\fP \*(OK \f2last\^\fP \*(CK \*(CK
+\f3hist\fP \*(OK \f3\-e\fP \f2ename\^\fP \ \*(CK \*(OK \f3\-N\fP \f2num\^\fP \*(CK \*(OK \f3\-Enlr\^\fP \*(CK \*(OK \f2first\^\fP \*(OK \f2last\^\fP \*(CK \*(CK
 .TP
 \f3hist \-s\fP \*(OK \f2old\fP\f3\=\fP\f2new\^\fP \*(CK \*(OK \f2command\^\fP \*(CK
 .PD
@@ -6997,8 +7009,11 @@ is not set, then
 (default
 .BR /bin/ed\^ )
 is used as the editor.
-When editing is complete, the edited command(s)
-is executed if the changes have been saved.
+When the editor exits, the contents of the file become
+the new command line and it is either executed
+regardless of any change, or if the
+.B \-E
+option is given, it is executed if the file has been saved.
 If
 .I last\^
 is not specified,

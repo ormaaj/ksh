@@ -406,6 +406,7 @@ make install virtual
 			prev include/io.h
 			prev include/variables.h
 			prev %{INCLUDE_AST}/error.h
+			prev %{INCLUDE_AST}/tv.h
 			prev %{INCLUDE_AST}/ls.h
 			prev include/defs.h
 			prev shopt.h

@@ -2,6 +2,16 @@ This documents significant changes in the dev branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2024-12-24:
+
+- [v1.1] The fc/hist command has a new -E option. If this option is given,
+  the command line that was loaded into the editor will only be executed if
+  the temp file is saved before exiting the editor.
+
+- [v1.1] The ^X^E (emacs mode) and v (vi mode) commands will now only
+  execute the command line that was loaded into the full-screen editor if
+  the temp file is saved before exiting the editor.
+
 2024-12-22:
 
 - In the emacs/gmacs line editor, the ESC [ <letter> macro feature, which is

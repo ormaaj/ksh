@@ -1017,7 +1017,7 @@ const char sh_opthash[] =
 
 #if !SHOPT_SCRIPTONLY
 const char sh_opthist[]	=
-"[-1cn?\n@(#)$Id: hist (AT&T Research) 2000-04-02 $\n]"
+"[-1cn?\n@(#)$Id: hist (ksh 93u+m) 2024-12-23 $\n]"
 "[--catalog?" SH_DICT "]"
 "[+NAME?\f?\f - process command history list]"
 "[+DESCRIPTION?\b\f?\f\b lists, edits, or re-executes, commands  "
@@ -1055,6 +1055,8 @@ const char sh_opthist[]	=
 "[+?If no editor is specified, then the editor specified by the \bHISTEDIT\b "
 	"variable will be used if set, or the \bFCEDIT\b variable will be "
 	"used if set, otherwise, \bed\b will be used.]"
+"[E?Only execute the edited command line if the file is saved before "
+	"exiting the editor.]"
 "[e]:[editor?\aeditor\a specifies the editor to use to edit the history "
 	"command. A value of \b-\b for \aeditor\a is equivalent to "
 	"specifying the \b-s\b option.]"

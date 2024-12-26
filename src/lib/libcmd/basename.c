@@ -26,7 +26,7 @@
  */
 
 static const char usage[] =
-"[-?\n@(#)$Id: basename (ksh 93u+m) 2022-08-30 $\n]"
+"[-?\n@(#)$Id: basename (ksh 93u+m) 2024-12-05 $\n]"
 "[--catalog?" ERROR_CATALOG "]"
 "[+NAME?basename - strip directory and suffix from filenames]"
 "[+DESCRIPTION?\bbasename\b removes all leading directory components "
@@ -48,6 +48,8 @@ static const char usage[] =
 "[s:suffix?All operands are treated as \astring\a and each modified "
     "pathname, with \asuffix\a removed if it exists, is printed on a "
     "separate line on the standard output.]:[suffix]"
+"[z:zero?Each line of output is terminated with a NUL character instead "
+    "of a newline.]"
 "\n"
 "\n string [suffix]\n"
 "string ...\n"
@@ -63,23 +65,27 @@ static const char usage[] =
 
 #include <cmd.h>
 
-static void namebase(Sfio_t *outfile, char *pathname, char *suffix)
+static void namebase(Sfio_t *outfile, char *pathname, char *suffix, char termch)
 {
 	char *first, *last;
 	int n=0;
+	/* go to end of path */
 	for(first=last=pathname; *last; last++);
 	/* back over trailing '/' */
 	if(last>first)
 		while(*--last=='/' && last > first);
+	/* only slash(es)? */
 	if(last==first && *last=='/')
 	{
-		/* all '/' or "" */
-		if(*first=='/')
-			if(*++last=='/')	/* keep leading // */
-				last++;
+		/* advance back over first '/' */
+		last++;
+		/* keep leading '//' if PATH_LEADING_SLASHES is set */
+		if(*last=='/' && *astconf("PATH_LEADING_SLASHES",NULL,NULL)=='1')
+			last++;
 	}
 	else
 	{
+		/* set to first / from end */
 		for(first=last++;first>pathname && *first!='/';first--);
 		if(*first=='/')
 			first++;
@@ -92,7 +98,7 @@ static void namebase(Sfio_t *outfile, char *pathname, char *suffix)
 	}
 	if(last>first)
 		sfwrite(outfile,first,last-first);
-	sfputc(outfile,'\n');
+	sfputc(outfile,termch);
 }
 
 int
@@ -101,6 +107,7 @@ b_basename(int argc, char** argv, Shbltin_t* context)
 	char*	string;
 	char*	suffix = 0;
 	int	all = 0;
+	char    termch = '\n';
 
 	cmdinit(argc, argv, context, ERROR_CATALOG, 0);
 	for (;;)
@@ -113,6 +120,9 @@ b_basename(int argc, char** argv, Shbltin_t* context)
 		case 's':
 			all = 1;
 			suffix = opt_info.arg;
+			continue;
+		case 'z':
+			termch = '\0';
 			continue;
 		case ':':
 			error(2, "%s", opt_info.arg);
@@ -131,9 +141,9 @@ b_basename(int argc, char** argv, Shbltin_t* context)
 		UNREACHABLE();
 	}
 	if (!all)
-		namebase(sfstdout, argv[0], argv[1]);
+		namebase(sfstdout, argv[0], argv[1], termch);
 	else
 		while (string = *argv++)
-			namebase(sfstdout, string, suffix);
+			namebase(sfstdout, string, suffix, termch);
 	return 0;
 }

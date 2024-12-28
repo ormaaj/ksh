@@ -8,20 +8,17 @@ valgrindflags='--xml=yes --log-file=/dev/null --track-origins=yes --read-var-inf
 
 USAGE=$'
 [-s8?
-@(#)$Id: shtests (ksh 93u+m) 2024-07-27 $
+@(#)$Id: shtests (ksh 93u+m) 2024-12-28 $
 ]
 [-author?David Korn <dgk@research.att.com>]
 [-author?Glenn Fowler <gsf@research.att.com>]
 [-author?Contributors to https://github.com/ksh93/ksh]
 [-copyright?(c) 2000-2012 AT&T Intellectual Property]
-[-copyright?(c) 2020-2023 Contributors to ksh 93u+m]
+[-copyright?(c) 2020-2024 Contributors to ksh 93u+m]
 [-license?https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html]
 [+NAME?shtests - ksh regression test harness]
 [+DESCRIPTION?\bshtests\b is the \bksh\b(1) regression test harness for
-    \b$SHELL\b or \bksh\b if \bSHELL\b is not defined and exported. If
-    none of the \b--posix\b \b--utf8\b \b--compile\b options are specified then
-    all three are enabled for most tests, whereas only \b--posix\b \b--utf8\b
-    are enabled for the \bpty\b tests for the interactive shell.]
+    \b$SHELL\b (or \bksh\b if \bSHELL\b is not defined and exported).]
 [+INPUT FILES?\bshtests\b regression test files are shell scripts that
     run in an environment controlled by \bshtests\b. An identification
     message is printed before and after each test on the standard output.
@@ -46,6 +43,9 @@ USAGE=$'
     \bvalgrind\b(1) on \bksh\b. If \b$SHELL-g\b exists and is executable,
     then it is used instead of \b$SHELL\b.]
 [x:trace?Enable script execution trace.]
+[+?If none of the \b--posix\b \b--utf8\b \b--compile\b options are specified,
+    then all three are enabled for most tests, whereas only \b--posix\b
+    \b--utf8\b are enabled for the \blocale.sh\b and \bpty.sh\b tests.]
 
 [ test.sh ... ] [ name=value ... ]
 
@@ -410,8 +410,8 @@ do	[[ $i == *.sh ]] || i+='.sh'
 			esac
 		done
 	fi
-	# Skip pty tests for shcomp, unless -c was explicitly specified (compile==2)
-	if	[[ compile -gt 0 && ! ($u == pty && compile -lt 2) ]]
+	# Skip certain tests for shcomp, unless -c was explicitly specified (compile==2)
+	if	[[ compile -gt 0 && ! (compile -lt 2 && ($u == 'locale' || $u == 'pty')) ]]
 	then	c=$tmp/shcomp-$u.ksh
 		o="$u(shcomp)"
 		echo test $o begins ${time:+"at $(date +%Y-%m-%d+%H:%M:%S)"}

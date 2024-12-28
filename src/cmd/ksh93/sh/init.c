@@ -423,11 +423,33 @@ static void put_cdpath(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	sh.cdpathlist = path_addpath((Pathcomp_t*)sh.cdpathlist,val,PATH_CDPATH);
 }
 
+static struct put_lang_defer_s
+{
+	Namval_t *np;
+	const char *val;
+	int flags;
+	Namfun_t *fp;
+	struct put_lang_defer_s *next;
+} *put_lang_defer;
+
 /* Trap for the LC_* and LANG variables */
 static void put_lang(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
 	int type;
-	char *name = nv_name(np);
+	char *name;
+	if (val && sh_isstate(SH_INIT) && !sh_isstate(SH_LCINIT))
+	{
+		/* defer setting locale while importing environment */
+		struct put_lang_defer_s *p = sh_malloc(sizeof(struct put_lang_defer_s));
+		p->np = np;
+		p->val = val;
+		p->flags = flags;
+		p->fp = fp;
+		p->next = put_lang_defer;
+		put_lang_defer = p;
+		return;
+	}
+	name = nv_name(np);
 	if(name==(LCALLNOD)->nvname)
 		type = LC_ALL;
 	else if(name==(LCTYPENOD)->nvname)
@@ -453,13 +475,9 @@ static void put_lang(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 	if(type>=0 || type==LC_ALL || type==LC_NUMERIC || type==LC_LANG)
 	{
 		char*		r;
-#ifdef AST_LC_setenv
 		ast.locale.set |= AST_LC_setenv;
-#endif
 		r = setlocale(type,val?val:"");
-#ifdef AST_LC_setenv
 		ast.locale.set ^= AST_LC_setenv;
-#endif
 		if(!r && val)
 		{
 			if(!sh_isstate(SH_INIT) || !sh_isoption(SH_LOGIN_SHELL))
@@ -1896,6 +1914,19 @@ static char *env_init(void)
 	}
 	if((cp = nv_getval(SHELLNOD)) && (sh_type(cp)&SH_TYPE_RESTRICTED))
 		sh_onoption(SH_RESTRICTED); /* restricted shell */
+	/*
+	 * Since AST setlocale() may use the environment (PATH, _AST_FEATURES),
+	 * defer setting locale until all of the environment has been imported.
+	 */
+	sh_onstate(SH_LCINIT);
+	while (put_lang_defer)
+	{
+		struct put_lang_defer_s *p = put_lang_defer;
+		put_lang(p->np, p->val, p->flags, p->fp);
+		put_lang_defer = p->next;
+		free(p);
+	}
+	sh_offstate(SH_LCINIT);
 	return(next);
 }
 

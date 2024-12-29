@@ -384,23 +384,24 @@ int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 			draw(ep,APPEND);
 			continue;
 		case cntl('Y') :
+			c = count * genlen(kstack);
+			if (c + eol > scend)
 			{
-				c = genlen(kstack);
-				if ((c + eol) > scend)
-				{
-					beep();
-					continue;
-				}
-				ep->mark = i;
-				for(i=eol;i>=cur;i--)
-					out[c+i] = out[i];
+				beep();
+				continue;
+			}
+			ep->mark = i;
+			for (i = eol; i >= cur; i--)
+				out[c + i] = out[i];
+			while (count--)
+			{
 				kptr=kstack;
 				while (i = *kptr++)
 					out[cur++] = i;
-				draw(ep,UPDATE);
-				eol = genlen(out);
-				continue;
 			}
+			draw(ep,UPDATE);
+			eol = genlen(out);
+			continue;
 		case '\n':
 		case '\r':
 			c = '\n';

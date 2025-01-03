@@ -1902,11 +1902,7 @@ static char *env_init(void)
 	}
 	if(save_env_n)
 		sh.save_env_n = save_env_n;
-	if(nv_isnull(PWDNOD) || nv_isattr(PWDNOD,NV_TAGGED))
-	{
-		nv_offattr(PWDNOD,NV_TAGGED);
-		path_pwd();
-	}
+	path_pwd();
 	if((cp = nv_getval(SHELLNOD)) && (sh_type(cp)&SH_TYPE_RESTRICTED))
 		sh_onoption(SH_RESTRICTED); /* restricted shell */
 	/*

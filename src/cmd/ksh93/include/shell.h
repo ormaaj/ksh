@@ -367,7 +367,9 @@ struct Shell_s
 	Sfio_t		**sftable;
 	unsigned char	*fdstatus;
 	char		*pwd;
+#if _lib_openat
 	int		pwdfd;		/* file descriptor for pwd */
+#endif /* _lib_openat */
 	void		*jmpbuffer;
 	void		*mktype;
 	Sfio_t		*strbuf;

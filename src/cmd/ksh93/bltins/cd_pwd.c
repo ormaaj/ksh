@@ -46,6 +46,7 @@ static void rehash(Namval_t *np,void *data)
 		nv_rehash(np,data);
 }
 
+#if _lib_openat
 /*
  * Obtain a file handle to the directory "path" relative to directory "dir"
  */
@@ -62,6 +63,7 @@ int sh_diropenat(int dir, const char *path)
 	close(fd);
 	return shfd;
 }
+#endif /* _lib_openat */
 
 int	b_cd(int argc, char *argv[],Shbltin_t *context)
 {
@@ -70,9 +72,11 @@ int	b_cd(int argc, char *argv[],Shbltin_t *context)
 	const char *dp;
 	int saverrno=0;
 	int rval,pflag=0,eflag=0,ret=1;
-	int newdirfd;
 	char *oldpwd, *cp;
 	Namval_t *opwdnod, *pwdnod;
+#if _lib_openat
+	int newdirfd;
+#endif /* _lib_openat */
 	NOT_USED(context);
 	while((rval = optget(argv,sh_optcd))) switch(rval)
 	{
@@ -136,8 +140,13 @@ int	b_cd(int argc, char *argv[],Shbltin_t *context)
 	 * If sh_subshell() in subshell.c cannot use fchdir(2) to restore the PWD using a saved file descriptor,
 	 * we must fork any virtual subshell now to avoid the possibility of ending up in the wrong PWD on exit.
 	 */
+#if _lib_openat
 	if(sh.subshell && !sh.subshare && (!sh_validate_subpwdfd() || !test_inode(sh.pwd,e_dot)))
 		sh_subfork();
+#else
+	if(sh.subshell && !sh.subshare && !test_inode(sh.pwd,e_dot))
+		sh_subfork();
+#endif /* _lib_openat */
 	/*
 	 * Do $CDPATH processing, except if the path is absolute or the first component is '.' or '..'
 	 */
@@ -157,7 +166,6 @@ int	b_cd(int argc, char *argv[],Shbltin_t *context)
 	if(*dir!='/')
 	{
 		/* check for leading .. */
-		char *cp;
 		sfprintf(sh.strbuf,"%s",dir);
 		cp = sfstruse(sh.strbuf);
 		pathcanon(cp, 0);
@@ -199,6 +207,7 @@ int	b_cd(int argc, char *argv[],Shbltin_t *context)
 				if(!pathcanon(cp,PATH_DOTDOT))
 					continue;
 		}
+#if _lib_openat
 		cp = path_relative(stkptr(sh.stk,PATH_OFFSET));
 		rval = newdirfd = sh_diropenat((sh.pwdfd>0)?sh.pwdfd:AT_FDCWD,cp);
 		if(newdirfd>0)
@@ -217,10 +226,17 @@ int	b_cd(int argc, char *argv[],Shbltin_t *context)
 #endif
 		if(saverrno==0)
 			saverrno=errno;
+#else
+		if((rval=chdir(path_relative(stkptr(sh.stk,PATH_OFFSET)))) >= 0)
+			goto success;
+		if(errno!=ENOENT && saverrno==0)
+			saverrno=errno;
+#endif /* _lib_openat */
 	}
 	while(cdpath);
 	if(rval<0 && *dir=='/' && *(path_relative(stkptr(sh.stk,PATH_OFFSET)))!='/')
 	{
+#if _lib_openat
 		rval = newdirfd = sh_diropenat((sh.pwdfd>0)?sh.pwdfd:AT_FDCWD,dir);
 		if(newdirfd>0)
 		{
@@ -236,6 +252,9 @@ int	b_cd(int argc, char *argv[],Shbltin_t *context)
 		else if((rval=chdir(dir)) >= 0)
 			sh_pwdupdate(sh_diropenat(AT_FDCWD,dir));
 #endif
+#else
+		rval = chdir(dir);
+#endif /* _lib_openat */
 	}
 	if(rval<0)
 	{

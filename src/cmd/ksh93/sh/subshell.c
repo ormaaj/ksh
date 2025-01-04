@@ -85,6 +85,9 @@ static struct subshell
 	char		rand_state;         /* 0 means sp->rand_seed hasn't been set, 1 is the opposite */
 	uint32_t	srand_upper_bound;  /* parent shell's upper bound for $SRANDOM */
 	int		pwdfd;              /* parent shell's file descriptor for PWD */
+#if !_lib_openat
+	char		pwdclose;
+#endif /* !_lib_openat */
 } *subshell_data;
 
 static unsigned int subenv;
@@ -446,6 +449,8 @@ void sh_subjobcheck(pid_t pid)
 	}
 }
 
+#if _lib_openat
+
 /*
  * Set the file descriptor for the current shell's PWD without wiping
  * out the stored file descriptor for the parent shell's PWD.
@@ -467,6 +472,8 @@ int sh_validate_subpwdfd(void)
 	struct subshell *sp = subshell_data;
 	return sp->pwdfd > 0;
 }
+
+#endif /* _lib_openat */
 
 /*
  * Run command tree <t> in a virtual subshell
@@ -516,6 +523,10 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 		path_get(e_dot);
 		sh.pathinit = 0;
 	}
+#if !_lib_openat
+	if(!sh.pwd)
+		path_pwd();
+#endif /* !_lib_openat */
 	sp->bckpid = sh.bckpid;
 	if(comsub)
 		sh_stats(STAT_COMSUB);
@@ -531,8 +542,40 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 	if(!sh.subshare)
 	{
 		char *save_debugtrap = 0;
+#if _lib_openat
 		sp->pwd = sh_strdup(sh.pwd);
 		sp->pwdfd = sh.pwdfd;
+#else
+		struct subshell *xp;
+		sp->pwdfd = -1;
+		for(xp=sp->prev; xp; xp=xp->prev)
+		{
+			if(xp->pwdfd>0 && xp->pwd && strcmp(xp->pwd,sh.pwd)==0)
+			{
+				sp->pwdfd = xp->pwdfd;
+				break;
+			}
+		}
+		if(sp->pwdfd<0)
+		{
+			int n = open(e_dot,O_SEARCH);
+			if(n>=0)
+			{
+				sp->pwdfd = n;
+				if(n<10)
+				{
+					sp->pwdfd = sh_fcntl(n,F_DUPFD,10);
+					close(n);
+				}
+				if(sp->pwdfd>0)
+				{
+					fcntl(sp->pwdfd,F_SETFD,FD_CLOEXEC);
+					sp->pwdclose = 1;
+				}
+			}
+		}
+		sp->pwd = (sh.pwd?sh_strdup(sh.pwd):0);
+#endif /* _lib_openat */
 		sp->mask = sh.mask;
 		sh_stats(STAT_SUBSHELL);
 		/* save trap table */
@@ -606,6 +649,10 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 		if(sh.savesig < 0)
 		{
 			sh.savesig = 0;
+#if !_lib_openat
+			if(sp->pwdfd < 0 && !sh.subshare)	/* if we couldn't get a file descriptor to our PWD ... */
+				sh_subfork();			/* ...we have to fork, as we cannot fchdir back to it. */
+#endif /* !_lib_openat */
 			/* Virtual subshells are not safe to suspend (^Z, SIGTSTP) in the interactive main shell. */
 			if(sh_isstate(SH_INTERACTIVE))
 			{
@@ -789,6 +836,7 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 			free(savsig);
 		}
 		sh.options = sp->options;
+#if _lib_openat
 		if(sh.pwdfd != sp->pwdfd)
 		{
 			/*
@@ -810,6 +858,18 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 			if(fatalerror != 2)
 				sh_pwdupdate(sp->pwdfd);
 		}
+#else
+		/* restore the present working directory */
+		if(sp->pwdfd > 0 && fchdir(sp->pwdfd) < 0)
+		{
+			saveerrno = errno;
+			fatalerror = 2;
+		}
+		else if(sp->pwd && strcmp(sp->pwd,sh.pwd))
+			path_newdir(sh.pathlist);
+		if(sp->pwdclose)
+			close(sp->pwdfd);
+#endif /* _lib_openat */
 		free(sh.pwd);
 		sh.pwd = sp->pwd;
 		if(sp->mask!=sh.mask)

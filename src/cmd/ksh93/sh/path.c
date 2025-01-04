@@ -249,8 +249,10 @@ char *path_pwd(void)
 	if(!tofree)
 		cp = sh_strdup(cp);
 	sh.pwd = cp;
+#if _lib_openat
 	/* Set sh.pwdfd */
 	sh_pwdupdate(sh_diropenat(AT_FDCWD,cp));
+#endif /* _lib_openat */
 	return sh.pwd;
 }
 

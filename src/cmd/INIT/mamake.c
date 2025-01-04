@@ -112,8 +112,6 @@ static const char usage[] =
  * must be enabled to prevent the build from failing at the very start.
  */
 
-#define _POSIX_C_SOURCE 21000101L	/* generic */
-#define _XOPEN_SOURCE	9900		/* generic */
 #define _DARWIN_C_SOURCE 1		/* macOS */
 #define _GNU_SOURCE 1			/* GNU/Linux, Cygwin */
 #define _FILE_OFFSET_BITS 64		/* 32-bit Linux 5.6+ (glibc 2.32+) */

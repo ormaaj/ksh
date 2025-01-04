@@ -114,7 +114,6 @@ extern char		*sh_checkid(char*,char*);
 extern void		sh_chktrap(void);
 extern void		sh_deparse(Sfio_t*,const Shnode_t*,int,int);
 extern int		sh_debug(const char*,const char*,const char*,char *const[],int);
-extern int		sh_diropenat(int,const char *);
 extern char 		**sh_envgen(void);
 extern Sfdouble_t	sh_arith(const char*);
 extern void		*sh_arithcomp(char*);
@@ -142,8 +141,6 @@ extern Dt_t		*sh_subfuntree(int);
 extern void		sh_subjobcheck(pid_t);
 extern int		sh_subsavefd(int);
 extern void		sh_subtmpfile(void);
-extern void		sh_pwdupdate(int);
-extern int		sh_validate_subpwdfd(void);
 extern char 		*sh_substitute(const char*,const char*,char*);
 extern void		sh_timetraps(void);
 extern const char	*_sh_translate(const char*);
@@ -151,6 +148,11 @@ extern int		sh_trace(char*[],int);
 extern void		sh_trim(char*);
 extern int		sh_type(const char*);
 extern void             sh_unscope(void);
+#if _lib_openat
+    extern int		sh_diropenat(int,const char *);
+    extern void		sh_pwdupdate(int);
+    extern int		sh_validate_subpwdfd(void);
+#endif /* _lib_openat */
 #if SHOPT_NAMESPACE
     extern Namval_t	*sh_fsearch(const char *,int);
 #endif /* SHOPT_NAMESPACE */

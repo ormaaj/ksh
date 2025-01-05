@@ -28,7 +28,7 @@
  * coded for portability
  */
 
-#define RELEASE_DATE "2025-01-02"
+#define RELEASE_DATE "2025-01-05"
 static char id[] = "\n@(#)$Id: mamake (ksh 93u+m) " RELEASE_DATE " $\0\n";
 
 #if _PACKAGE_ast
@@ -542,9 +542,9 @@ static char *reduplicate(char *orig, char *s)
 			free(orig);
 		return empty;
 	}
-	if (!(t = realloc(orig == empty ? NULL : orig, n + 1)))
+	if (!(t = realloc(orig == empty ? NULL : orig, ++n)))
 		out_of_memory();
-	strcpy(t, s);
+	memcpy(t, s, n);
 	return t;
 }
 
@@ -635,10 +635,11 @@ static Dict_item_t *search(Dict_t *dict, char *name, int create)
 	}
 	else if (create)
 	{
-		if (!(root = malloc(sizeof(Dict_item_t) + strlen(name) + 1)))
+		size_t n = strlen(name) + 1;
+		if (!(root = malloc(sizeof(Dict_item_t) + n)))
 			out_of_memory();
 		root->value = NULL;
-		strcpy(root->name, name);
+		memcpy(root->name, name, n);
 	}
 	if (root)
 	{
@@ -757,7 +758,7 @@ static void view(void)
 	char		*s, *t, *p;
 	View_t		*vp, *zp;
 	int		c;
-	size_t		n;
+	size_t		slen, plen;
 	struct stat	st, ts;
 	char		buf[CHUNK];
 	Dict_item_t	*vnode;
@@ -770,7 +771,7 @@ static void view(void)
 		state.pwd = s;
 	if (!state.pwd)
 	{
-		if (!getcwd(buf, sizeof(buf) - 1))
+		if (!getcwd(buf, sizeof buf - 1))
 			error_out("cannot determine PWD", NULL);
 		state.pwd = duplicate(buf);
 		vnode->value = state.pwd;
@@ -820,15 +821,16 @@ static void view(void)
 						error_out("cannot determine viewpath offset", s);
 				}
 			}
-			n = strlen(s);
+			slen = strlen(s);
 			assert(p);
-			if (!(vp = malloc(sizeof(View_t) + strlen(p) + n + 2)))
+			plen = strlen(p);
+			if (!(vp = malloc(sizeof(View_t) + slen + plen + 2)))
 				out_of_memory();
 			vp->next = NULL;
-			vp->node = n + 1;
-			strcpy(vp->dir, s);
-			*(vp->dir + n) = '/';
-			strcpy(vp->dir + n + 1, p);
+			vp->node = slen + 1;
+			memcpy(vp->dir, s, slen);
+			*(vp->dir + slen) = '/';
+			memcpy(vp->dir + slen + 1, p, plen + 1);
 			report(-4, vp->dir, "view", NULL);
 			if (!state.view)
 				state.view = zp = vp;
@@ -1389,7 +1391,7 @@ static char *input(void)
 
 	if (!state.sp)
 		error_out("no input file stream", NULL);
-	if (!fgets(input, sizeof(input), state.sp->fp) || !*input)
+	if (!fgets(input, sizeof input, state.sp->fp) || !*input)
 	{
 		if (ferror(state.sp->fp))
 			error_out("read error", NULL);
@@ -1398,7 +1400,7 @@ static char *input(void)
 	state.sp->line++;
 	if (*(e = input + strlen(input) - 1) == '\n')
 		*e = 0;
-	else if (e == input + sizeof(input) - 2)
+	else if (e == input + sizeof input - 2)
 		error_out("line too long", NULL);
 	return input;
 }
@@ -1481,8 +1483,8 @@ static void reap(Rule_t *r, int flag)
 		return;
 	if (state.debug <= -4)
 	{
-		char b[64];
-		sprintf(b, "reaping PID %lu", (unsigned long)r->pid);
+		char b[32];
+		snprintf(b, sizeof b, "reaping PID %lu", (unsigned long)r->pid);
 		report(-4, r->name, b, r);
 	}
 	/* dump saved-up log output */
@@ -1622,7 +1624,7 @@ static void run(Rule_t *r, char *s)
 		{
 			static unsigned	serial;
 			char		logtmp[32];
-			sprintf(logtmp, ".mamake.%u.out", serial++);
+			snprintf(logtmp, sizeof logtmp, ".mamake.%u.out", serial++);
 			append(buf, "exec >");
 			append(buf, logtmp);
 			append(buf, " 2>&1\n");
@@ -1665,11 +1667,11 @@ static void run(Rule_t *r, char *s)
 			/* Also subject the user-set shim to viewpathing
 			 * (plus other code prepended above, but it should not contain anything viewpathable) */
 			char	*pre = use(buf);
-			size_t	n = strlen(pre);
-			if (!(tofree = malloc(n + strlen(s) + 1)))
+			size_t	prelen = strlen(pre), slen_endzero = strlen(s) + 1;
+			if (!(tofree = malloc(prelen + slen_endzero)))
 				out_of_memory();
-			strcpy(tofree, pre);
-			strcpy(tofree + n, s);
+			memcpy(tofree, pre, prelen);
+			memcpy(tofree + prelen, s, slen_endzero);
 			s = tofree;
 		}
 		/* Find words to apply viewpathing to */
@@ -1924,9 +1926,9 @@ static char *require(char *lib, int dontcare)
 {
 	char		*s, *r, varname[64];
 
-	if (strlen(lib + 2) > sizeof(varname) - sizeof(LIB_VARPREFIX))
+	if (strlen(lib + 2) > sizeof varname - sizeof LIB_VARPREFIX)
 		error_out("-lname too long", lib);
-	sprintf(varname, LIB_VARPREFIX "%s", lib + 2);
+	snprintf(varname, sizeof varname, LIB_VARPREFIX "%s", lib + 2);
 
 	if (!(r = getval(state.vars, varname)))
 	{
@@ -2024,28 +2026,28 @@ static char *require(char *lib, int dontcare)
 static void update_allprev(Rule_t *r, char *all, char *upd)
 {
 	char		*name = r->name;
-	size_t		n = strlen(name), nn;
+	size_t		n = strlen(name) + 1, nn;
 	/* set %{<} */
 	auto_prev->value = reduplicate(auto_prev->value, name);
 	/* restore %{^}, append to it */
 	if (nn = strlen(all))
-		(all = realloc(all, nn + n + 2)) && (all[nn++] = ' ');
+		(all = realloc(all, nn + n + 1)) && (all[nn++] = ' ');
 	else
-		all = malloc(n + 1);
+		all = malloc(n);
 	if (!all)
 		out_of_memory();
-	strcpy(all + nn, name);
+	memcpy(all + nn, name, n);
 	auto_allprev->value = all;
 	/* restore %{?}, append to it if rule was updated */
 	if (r->flags & RULE_updated)
 	{
 		if (nn = strlen(upd))
-			(upd = realloc(upd, nn + n + 2)) && (upd[nn++] = ' ');
+			(upd = realloc(upd, nn + n + 1)) && (upd[nn++] = ' ');
 		else
-			upd = malloc(n + 1);
+			upd = malloc(n);
 		if (!upd)
 			out_of_memory();
-		strcpy(upd + nn, name);
+		memcpy(upd + nn, name, n);
 	}
 	auto_updprev->value = upd;
 }

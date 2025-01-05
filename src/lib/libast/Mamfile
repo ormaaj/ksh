@@ -1147,15 +1147,6 @@ make install virtual
 			exec - compile %{<}
 		done
 
-		make pathkey.o
-			make path/pathkey.c
-				prev ast_api.h
-				prev include/ls.h
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
 		make pathrepl.o
 			make path/pathrepl.c
 				prev ast_api.h

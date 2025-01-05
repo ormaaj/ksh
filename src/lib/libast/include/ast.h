@@ -365,8 +365,6 @@ extern char*		pathfind(const char*, const char*, const char*, char*, size_t);
 extern int		pathgetlink(const char*, char*, int);
 extern int		pathicase(const char*);
 extern int		pathinclude(const char*);
-extern char*		pathkey(char*, char*, const char*, const char*, const char*);
-extern char*		pathkey_20100601(const char*, const char*, const char*, char*, size_t, char*, size_t);
 extern size_t		pathnative(const char*, char*, size_t);
 extern char*		pathpath(char*, const char*, const char*, int);
 extern char*		pathpath_20100601(const char*, const char*, int, char*, size_t);

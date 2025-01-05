@@ -291,18 +291,6 @@ int stkclose(Sfio_t* stream)
 }
 
 /*
- * returns 1 if <loc> is on this stack
- */
-int stkon(Sfio_t * stream, char* loc)
-{
-	struct stk *sp = stream2stk(stream);
-	struct frame *fp;
-	for(fp=(struct frame*)sp->stkbase; fp; fp=(struct frame*)fp->prev)
-		if(loc>=((char*)(fp+1)) && loc< fp->end)
-			return 1;
-	return 0;
-}
-/*
  * reset the bottom of the current stack back to <address>
  * if <address> is null, then the stack is reset to the beginning
  * if <address> is not in this stack, the program dumps core

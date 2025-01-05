@@ -945,6 +945,11 @@ got=$(typeset -A yarr; typeset -i yarr[lorem=ipsum]=456 yarr[foo=bar]=123 2>&1; 
 exp='typeset -A -i yarr=([foo=bar]=123 [lorem=ipsum]=456)'
 [[ $got == "$exp" ]] || err_exit "associative array index containing '=' misparsed in declaration command" \
 	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+unset SUCCESS
+got=$(typeset toto[${SUCCESS:=0}]="SUCCESS" 2>&1; typeset -p toto)
+exp='typeset -a toto=(SUCCESS)'
+[[ $got == "$exp" ]] || err_exit "array index containing expansion containing '=' misparsed in declaration command" \
+	"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
 # ======
 exit $((Errors<125?Errors:125))

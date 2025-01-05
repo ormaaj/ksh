@@ -47,17 +47,13 @@ The
 library supports high resolution
 .B Tv_t
 time specifications.
-.SS Tv_t
+.B Tv_t
 contains these elements:
 .TP
-.L unsigned
-.L _ast_int4_t
-.L tv_sec
+.L "time_t tv_sec"
 Seconds since the epoch.
 .TP
-.L unsigned
-.L _ast_int4_t
-.L tv_nsec
+.L "uint32_t tv_nsec"
 Nanosecond resolution.
 .PP
 In practice resolution is much coarser than 1 nanosecond.

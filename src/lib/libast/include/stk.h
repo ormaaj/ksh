@@ -56,6 +56,5 @@ extern char*		stkcopy(Stk_t*, const char*);
 extern void*		stkset(Stk_t*, void*, size_t);
 extern void*		_stkseek(Stk_t*, ssize_t);
 extern void*		stkfreeze(Stk_t*, size_t);
-extern int		stkon(Stk_t*, char*);
 
 #endif

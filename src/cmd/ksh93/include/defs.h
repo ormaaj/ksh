@@ -49,10 +49,6 @@
 #include	"name.h"
 #include	<ctype.h>
 
-#ifndef pointerof
-#define pointerof(x)		((void*)((char*)0+(x)))
-#endif
-
 #define Empty			((char*)(e_sptbnl+3))
 #define AltEmpty		((char*)(e_dot+1))	/* alternative pointer to empty string */
 

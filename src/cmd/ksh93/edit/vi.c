@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -235,7 +235,7 @@ int ed_viread(void *context, int fd, char *shbuf, int nchar, int reedit)
 
 	virtual = (genchar*)shbuf;
 #if SHOPT_MULTIBYTE
-	virtual = (genchar*)roundof((char*)virtual-(char*)0,sizeof(genchar));
+	virtual = (genchar*)roundof((uintptr_t)virtual,sizeof(genchar));
 	shbuf[i+1] = 0;
 	i = ed_internal(shbuf,virtual)-1;
 #endif /* SHOPT_MULTIBYTE */

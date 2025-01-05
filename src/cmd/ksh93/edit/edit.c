@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2014 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -1165,7 +1165,7 @@ int	ed_internal(const char *src, genchar *dest)
 	const unsigned char *cp = (unsigned char *)src;
 	int c;
 	wchar_t *dp = (wchar_t*)dest;
-	if(dest == (genchar*)roundof(cp-(unsigned char*)0,sizeof(genchar)))
+	if(dest == (genchar*)roundof((uintptr_t)cp,sizeof(genchar)))
 	{
 		genchar buffer[MAXLINE];
 		c = ed_internal(src,buffer);
@@ -1227,8 +1227,8 @@ int	ed_external(const genchar *src, char *dest)
 
 void	ed_gencpy(genchar *dp,const genchar *sp)
 {
-	dp = (genchar*)roundof((char*)dp-(char*)0,sizeof(genchar));
-	sp = (const genchar*)roundof((char*)sp-(char*)0,sizeof(genchar));
+	dp = (genchar*)roundof((uintptr_t)dp,sizeof(genchar));
+	sp = (const genchar*)roundof((uintptr_t)sp,sizeof(genchar));
 	while(*dp++ = *sp++);
 }
 #endif /* (SHOPT_ESH || SHOPT_VSH) && SHOPT_MULTIBYTE */
@@ -1240,8 +1240,8 @@ void	ed_gencpy(genchar *dp,const genchar *sp)
 
 void	ed_genncpy(genchar *dp,const genchar *sp, int n)
 {
-	dp = (genchar*)roundof((char*)dp-(char*)0,sizeof(genchar));
-	sp = (const genchar*)roundof((char*)sp-(char*)0,sizeof(genchar));
+	dp = (genchar*)roundof((uintptr_t)dp,sizeof(genchar));
+	sp = (const genchar*)roundof((uintptr_t)sp,sizeof(genchar));
 	while(n-->0 && (*dp++ = *sp++));
 }
 #endif /* (SHOPT_ESH || SHOPT_VSH) && SHOPT_MULTIBYTE */
@@ -1254,7 +1254,7 @@ void	ed_genncpy(genchar *dp,const genchar *sp, int n)
 int	ed_genlen(const genchar *str)
 {
 	const genchar *sp = str;
-	sp = (const genchar*)roundof((char*)sp-(char*)0,sizeof(genchar));
+	sp = (const genchar*)roundof((uintptr_t)sp,sizeof(genchar));
 	while(*sp++);
 	return sp-str-1;
 }

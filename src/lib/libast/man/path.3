@@ -51,7 +51,6 @@ char*     pathcd(char* \fIpath\fP, const char* \fIhome\fP);
 int       pathcheck(const char* \fIpackage\fP, const char* \fItool\fP, Pathcheck_t* \fIpc\fP);
 int       pathgetlink(const char* \fIname\fP, char* \fIbuf\fP, int \fIsiz\fP);
 int       pathicase(const char* \fIpath\fP);
-char*     pathkey(char* \fIkey\fP, char* \fIattr\fP, const char* \fIlang\fP, const char* \fIpath\fP);
 char*     pathnext(char* \fIpath\fP, char* \fIextra\fP, long* \fIvisits\fP);
 char*     pathpath(char* \fIpath\fP, const char* \fIp\fP, const char* \fIa\fP, int \fImode\fP);
 char*     pathrepl(char* \fIpath\fP, const char* \fImatch\fP, const char* \fIreplace\fP);
@@ -255,25 +254,6 @@ with
 .L errno
 set to
 .LR ENOSYS .
-.PP
-.L pathkey
-generates in
-.I key
-a 14 character lookup key (plus terminating 0) for the language
-.I lang
-processor in
-.IR path .
-A pointer to the key is returned, 0 on error.
-If
-.I "key == 0"
-then space is allocated via
-.IR malloc (3).
-Key specific attribute
-.I name=value
-pairs are copied into
-.I attr
-if
-.IR "attr != 0" .
 .PP
 .L pathpath
 constructs in

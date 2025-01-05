@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -203,7 +203,7 @@ int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 #if !SHOPT_MULTIBYTE
 	out = (genchar*)buff;
 #else
-	out = (genchar*)roundof(buff-(char*)0,sizeof(genchar));
+	out = (genchar*)roundof((uintptr_t)buff,sizeof(genchar));
 	if(reedit)
 		ed_internal(buff,out);
 #endif /* SHOPT_MULTIBYTE */

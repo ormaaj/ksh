@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1997-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -50,7 +50,7 @@ dllnames(const char* id, const char* name, Dllnames_t* names)
 	if (!names)
 	{
 		s = fmtbuf(sizeof(Dllnames_t*) + sizeof(names) - 1);
-		if (n = (s - (char*)0) % sizeof(names))
+		if (n = (uintptr_t)s % sizeof(names))
 			s += sizeof(names) - n;
 		names = (Dllnames_t*)s;
 	}

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -51,6 +51,9 @@ static ssize_t teewrite(Sfio_t* 	f,	/* the stream being written to */
 /* on close, remove the discipline */
 static int teeexcept(Sfio_t* f, int type, void* data, Sfdisc_t* disc)
 {
+	NOT_USED(f);
+	NOT_USED(data);
+
 	if(type == SFIO_FINAL || type == SFIO_DPOP)
 		free(disc);
 

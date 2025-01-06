@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -52,6 +52,7 @@ static int read_tree(Namval_t* np, Sfio_t *iop, int n, Namfun_t *dp)
 {
 	Sfio_t	*sp;
 	int	c;
+	NOT_USED(dp);
 	if(n>=0)
 		return -1;
 	while((c = sfgetc(iop)) &&  isblank(c));

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -369,7 +369,7 @@ b_uname(int argc, char** argv, Shbltin_t* context)
 					Sfio_t *io = sfopen(NULL, "/proc/cpuinfo", "r");
 					if (io)
 					{
-						while (fgets(line, sizeof(line), io) > 0)
+						while (fgets(line, sizeof(line), io))
 						{
 							if (strncmp(line, "vendor_id", 9) == 0)
 							{

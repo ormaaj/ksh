@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -959,6 +959,7 @@ int	sh_pipe(int pv[])
 static int pat_seek(void *handle, const char *str, size_t sz)
 {
 	char **bp = (char**)handle;
+	NOT_USED(sz);
 	*bp = (char*)str;
 	return -1;
 }
@@ -1858,6 +1859,7 @@ int sh_ioaccess(int fd,int mode)
 static int slowexcept(Sfio_t *iop,int type,void *data,Sfdisc_t *handle)
 {
 	int	n,fno;
+	NOT_USED(data);
 	if(type==SFIO_DPOP || type==SFIO_FINAL)
 		free(handle);
 	if(type==SFIO_WRITE && ERROR_PIPE(errno))
@@ -1971,6 +1973,7 @@ static ssize_t slowread(Sfio_t *iop,void *buff,size_t size,Sfdisc_t *handle)
 #if SHOPT_HISTEXPAND
 	char    *xp=0;
 #endif /* SHOPT_HISTEXPAND */
+	NOT_USED(handle);
 #if SHOPT_ESH
 	if(sh_isoption(SH_EMACS) || sh_isoption(SH_GMACS))
 		readf = ed_emacsread;
@@ -2204,6 +2207,7 @@ static int	io_prompt(Sfio_t *iop,int flag)
  */
 static int pipeexcept(Sfio_t* iop, int mode, void *data, Sfdisc_t* handle)
 {
+	NOT_USED(data);
 	if(mode==SFIO_DPOP || mode==SFIO_FINAL)
 		free(handle);
 	else if(mode==SFIO_WRITE && ERROR_PIPE(errno))
@@ -2344,7 +2348,7 @@ static int eval_exceptf(Sfio_t *iop,int type, void *data, Sfdisc_t *handle)
 	struct eval *ep = (struct eval*)handle;
 	char	*cp;
 	int	len;
-
+	NOT_USED(data);
 	/* no more to do */
 	if(type!=SFIO_READ || !(cp = ep->argv[0]))
 	{
@@ -2419,6 +2423,7 @@ static ssize_t subread(Sfio_t* sp,void* buff,size_t size,Sfdisc_t* handle)
 static int subexcept(Sfio_t* sp,int mode, void *data, Sfdisc_t* handle)
 {
 	struct subfile *disp = (struct subfile*)handle;
+	NOT_USED(data);
 	if(mode==SFIO_CLOSING)
 	{
 		sfdisc(sp,SFIO_POPDISC);

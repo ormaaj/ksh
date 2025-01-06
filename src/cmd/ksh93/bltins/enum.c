@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -122,6 +122,7 @@ static int enuminfo(Opt_t* op, Sfio_t *out, const char *str, Optdisc_t *fp)
 	struct Enum	*ep;
 	int		n=0;
 	const char	*v;
+	NOT_USED(op);
 	np = *(Namval_t**)(fp+1);
 	ep = (struct Enum*)np->nvfun;
 	if(!ep)
@@ -151,6 +152,9 @@ static int enuminfo(Opt_t* op, Sfio_t *out, const char *str, Optdisc_t *fp)
 static Namfun_t *clone_enum(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 {
 	struct Enum	*ep, *pp=(struct Enum*)fp;
+	NOT_USED(np);
+	NOT_USED(mp);
+	NOT_USED(flags);
 	ep = sh_newof(0,struct Enum,1,pp->nelem*sizeof(char*));
 	memcpy(ep,pp,sizeof(struct Enum)+pp->nelem*sizeof(char*));
 	return &ep->hdr;

@@ -711,6 +711,7 @@ sha256_print(Sum_t* p, Sfio_t* sp, int flags, size_t scale)
 	sha2_byte*	d;
 	sha2_byte*	e;
 
+	NOT_USED(scale);
 	d = (flags & SUM_TOTAL) ? sha->digest_sum : sha->digest;
 	e = d + SHA256_DIGEST_LENGTH;
 	while (d < e)
@@ -1072,6 +1073,7 @@ sha512_print(Sum_t* p, Sfio_t* sp, int flags, size_t scale)
 	sha2_byte*	d;
 	sha2_byte*	e;
 
+	NOT_USED(scale);
 	d = (flags & SUM_TOTAL) ? sha->digest_sum : sha->digest;
 	e = d + SHA512_DIGEST_LENGTH;
 	while (d < e)
@@ -1141,6 +1143,7 @@ sha384_print(Sum_t* p, Sfio_t* sp, int flags, size_t scale)
 	sha2_byte*	d;
 	sha2_byte*	e;
 
+	NOT_USED(scale);
 	d = (flags & SUM_TOTAL) ? sha->digest_sum : sha->digest;
 	e = d + SHA384_DIGEST_LENGTH;
 	while (d < e)

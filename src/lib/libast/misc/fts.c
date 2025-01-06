@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -485,7 +485,7 @@ popdirs(FTS* fts)
  */
 
 static int
-info(FTS* fts, FTSENT* f, const char* path, struct stat* sp, int flags)
+info(FTSENT* f, const char* path, struct stat* sp, int flags)
 {
 	if (path)
 	{
@@ -632,7 +632,7 @@ toplist(FTS* fts, char* const* pathnames)
 			f->fts_info = FTS_NS;
 		}
 		else
-			info(fts, f, path, f->fts_statp, fts->flags);
+			info(f, path, f->fts_statp, fts->flags);
 #ifdef S_ISLNK
 
 		/*
@@ -645,7 +645,7 @@ toplist(FTS* fts, char* const* pathnames)
 			if (stat(path, &st) >= 0)
 			{
 				*f->fts_statp = st;
-				info(fts, f, NULL, f->fts_statp, 0);
+				info(f, NULL, f->fts_statp, 0);
 			}
 			else
 				f->fts_info = FTS_SLNONE;
@@ -1056,14 +1056,14 @@ fts_read(FTS* fts)
 						if (fts->current->fts_parent->fts_level < 0)
 						{
 							f->fts_statp = &fts->current->fts_parent->statb;
-							info(fts, f, s, f->fts_statp, 0);
+							info(f, s, f->fts_statp, 0);
 						}
 						else
 							f->fts_statp = fts->current->fts_parent->fts_statp;
 					}
 					f->fts_info = FTS_DOT;
 				}
-				else if ((fts->nostat || SKIP(fts, f)) && (f->fts_info = FTS_NSOK) || info(fts, f, s, &f->statb, fts->flags))
+				else if ((fts->nostat || SKIP(fts, f)) && (f->fts_info = FTS_NSOK) || info(f, s, &f->statb, fts->flags))
 					f->statb.st_ino = D_FILENO(d);
 				if (fts->comparf)
 					fts->root = search(f, fts->root, fts->comparf, 1);
@@ -1303,7 +1303,7 @@ fts_read(FTS* fts)
 					if (fts->children > 1 && i)
 					{
 						if (f->status == FTS_STAT)
-							info(fts, f, NULL, f->fts_statp, 0);
+							info(f, NULL, f->fts_statp, 0);
 						else if (f->fts_info == FTS_NSOK && !SKIP(fts, f))
 						{
 							s = f->fts_name;
@@ -1312,7 +1312,7 @@ fts_read(FTS* fts)
 								memcpy(fts->endbase, s, f->fts_namelen + 1);
 								s = fts->path;
 							}
-							info(fts, f, s, f->fts_statp, fts->flags);
+							info(f, s, f->fts_statp, fts->flags);
 						}
 					}
 					fts->bot = f;
@@ -1344,7 +1344,7 @@ fts_read(FTS* fts)
 				f->status = 0;
 				if (f->fts_info == FTS_SL || ISTYPE(f, DT_LNK) || f->fts_info == FTS_NSOK)
 				{
-					info(fts, f, f->fts_accpath, f->fts_statp, 0);
+					info(f, f->fts_accpath, f->fts_statp, 0);
 					if (f->fts_info != FTS_SL)
 					{
 						fts->state = FTS_preorder;
@@ -1370,7 +1370,7 @@ fts_read(FTS* fts)
 				f->status = 0;
 				if (f->fts_info == FTS_SL || ISTYPE(f, DT_LNK) || f->fts_info == FTS_NSOK)
 				{
-					info(fts, f, f->fts_accpath, f->fts_statp, 0);
+					info(f, f->fts_accpath, f->fts_statp, 0);
 					if (f->symlink && f->fts_info != FTS_SL)
 					{
 						if (!(f->fts_link = fts->top))

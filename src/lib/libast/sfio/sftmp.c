@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -103,7 +103,7 @@ static Sfdisc_t	Rmdisc =
 
 #endif /*_tmp_rmfail*/
 
-static int _rmtmp(Sfio_t* f, char* file)
+static int _rmtmp(char* file)
 {
 #if _tmp_rmfail	/* remove only when stream is closed */
 	File_t*	ff;
@@ -126,7 +126,7 @@ static int _rmtmp(Sfio_t* f, char* file)
 	return 0;
 }
 
-static int _tmpfd(Sfio_t* f)
+static int _tmpfd(void)
 {
 	char*	file;
 	int	fd;
@@ -150,7 +150,7 @@ static int _tmpfd(Sfio_t* f)
 	if(!(file = pathtemp(NULL,PATH_MAX,NULL,"sf",&fd)))
 #endif
 		return -1;
-	_rmtmp(f, file);
+	_rmtmp(file);
 	free(file);
 	return fd;
 }
@@ -163,6 +163,7 @@ static int _tmpexcept(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 	Sfnotify_f	notify = _Sfnotify;
 
 	NOT_USED(val);
+	NOT_USED(disc);
 
 	/* the discipline needs to change only under the following exceptions */
 	if(type != SFIO_WRITE && type != SFIO_SEEK &&
@@ -174,7 +175,7 @@ static int _tmpexcept(Sfio_t* f, int type, void* val, Sfdisc_t* disc)
 	newf.flags = SFIO_STATIC;
 	newf.mode = SFIO_AVAIL;
 
-	if((fd = _tmpfd(f)) < 0 )
+	if((fd = _tmpfd()) < 0 )
 		return -1;
 
 	/* make sure that the notify function won't be called here since

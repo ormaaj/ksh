@@ -41,7 +41,7 @@
 
 static int		canexecute(char*,int);
 static void		funload(int,const char*);
-static void noreturn	exscript(char*, char*[], char**);
+static void noreturn	exscript(char*, char*[]);
 static int		checkdotpaths(Pathcomp_t*,Pathcomp_t*,Pathcomp_t*,int);
 static void		checkdup(Pathcomp_t*);
 static Pathcomp_t	*defpathinit(void);
@@ -984,7 +984,7 @@ noreturn void path_exec(const char *arg0,char *argv[],struct argnod *local)
 		if(libpath=pp)
 		{
 			pp = path_nextcomp(pp,arg0,0);
-			opath = stkfreeze(sh.stk,1)+PATH_OFFSET;
+			opath = (char*)stkfreeze(sh.stk,1) + PATH_OFFSET;
 		}
 		else
 			opath = arg0;
@@ -1067,7 +1067,7 @@ pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath
 	stkseek(sh.stk,PATH_OFFSET);
 	pidsize = sfprintf(sh.stk, "*%jd*", (Sflong_t)(spawn ? sh.current_pid : sh.current_ppid));
 	sfputr(sh.stk,opath,-1);
-	opath = stkfreeze(sh.stk,1)+PATH_OFFSET+pidsize;
+	opath = (char*)stkfreeze(sh.stk,1) + PATH_OFFSET + pidsize;
 	np = path_gettrackedalias(argv[0]);
 	while(libpath && !libpath->lib)
 		libpath=libpath->next;
@@ -1233,7 +1233,7 @@ pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath
 			while(_sh_fork(pid,0,NULL) < 0);
 			((struct checkpt*)sh.jmplist)->mode = SH_JMPEXIT;
 		}
-		exscript(path,argv,envp);
+		exscript(path,argv);
 		UNREACHABLE();
 	    case EACCES:
 	    {
@@ -1245,7 +1245,7 @@ pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath
 #ifdef S_ISSOCK
 			if(S_ISSOCK(statb.st_mode))
 			{
-				exscript(path,argv,envp);
+				exscript(path,argv);
 				UNREACHABLE();
 			}
 #endif
@@ -1293,7 +1293,7 @@ pid_t path_spawn(const char *opath,char **argv, char **envp, Pathcomp_t *libpath
  * File is executable but not machine code.
  * Assume file is a shell script and execute it.
  */
-static noreturn void exscript(char *path,char *argv[],char **envp)
+static noreturn void exscript(char *path,char *argv[])
 {
 	Sfio_t *sp;
 	path = path_relative(path);
@@ -1771,6 +1771,7 @@ static char *talias_get(Namval_t *np, Namfun_t *nvp)
 {
 	Pathcomp_t *pp = np->nvalue;
 	char *ptr;
+	NOT_USED(nvp);
 	if(!pp)
 		return NULL;
 	sh.last_table = 0;

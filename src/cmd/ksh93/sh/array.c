@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -81,7 +81,7 @@ struct assoc_array
    static void array_fixed_setdata(Namval_t*,Namarr_t*,struct fixed_array*);
 #endif /* SHOPT_FIXEDARRAY */
 
-static Namarr_t *array_scope(Namval_t *np, Namarr_t *ap, int flags)
+static Namarr_t *array_scope(Namarr_t *ap, int flags)
 {
 	Namarr_t *aq;
 #if SHOPT_FIXEDARRAY
@@ -139,7 +139,7 @@ static void array_syncsub(Namarr_t *ap, Namarr_t *aq)
 	((struct index_array*)ap)->cur = ((struct index_array*)aq)->cur;
 }
 
-static int array_covered(Namval_t *np, struct index_array *ap)
+static int array_covered(struct index_array *ap)
 {
 	struct index_array *aq = (struct index_array*)ap->header.scope;
 	if(!ap->header.fun && aq)
@@ -400,7 +400,7 @@ static Namval_t *array_find(Namval_t *np,Namarr_t *arp, int flag)
 			char *xp = nv_setdisc(np,"get",np,(Namfun_t*)np);
 		if(flag!=ARRAY_ASSIGN)
 			return xp && xp != (char*)np ? np : 0;
-		if(!array_covered(np,ap))
+		if(!array_covered(ap))
 			ap->header.nelem++;
 	}
 	return np;
@@ -463,7 +463,7 @@ static Namfun_t *array_clone(Namval_t *np, Namval_t *mp, int flags, Namfun_t *fp
 		return NULL;
 	if((flags&NV_TYPE) && !ap->scope)
 	{
-		ap = array_scope(np,ap,flags);
+		ap = array_scope(ap,flags);
 		return &ap->hdr;
 	}
 	ap = (Namarr_t*)nv_clone_disc(fp,0);
@@ -644,7 +644,7 @@ static void array_putval(Namval_t *np, const char *string, int flags, Namfun_t *
 						if(!xfree)
 							nv_delete(mp,ap->table,0);
 					}
-					if(!array_covered(np,(struct index_array*)ap))
+					if(!array_covered((struct index_array*)ap))
 					{
 						if(array_elem(ap))
 							ap->nelem--;
@@ -1219,7 +1219,7 @@ Namval_t *nv_putsub(Namval_t *np,char *sp,long mode)
 					if(!ap->val[n])
 					{
 						ap->val[n] = Empty;
-						if(!array_covered(np,ap))
+						if(!array_covered(ap))
 							ap->header.nelem++;
 					}
 				}
@@ -1243,7 +1243,7 @@ Namval_t *nv_putsub(Namval_t *np,char *sp,long mode)
 				}
 				else if(!sh.cond_expan)
 					ap->val[size] = Empty;
-				if(!sp && !array_covered(np,ap))
+				if(!sp && !array_covered(ap))
 					ap->header.nelem++;
 			}
 		}
@@ -1417,7 +1417,7 @@ static int array_fixed_init(Namval_t *np, char *sub, char *cp)
 	return 1;
 }
 
-static char *array_fixed(Namval_t *np, char *sub, char *cp,int mode)
+static char *array_fixed(Namval_t *np, char *sub, char *cp)
 {
 	Namarr_t		*ap = nv_arrayptr(np);
 	struct fixed_array	*fp = (struct fixed_array*)ap->fixed;
@@ -1532,7 +1532,7 @@ char *nv_endsubscript(Namval_t *np, char *cp, int mode)
 			mode |= NV_ADD;
 #if SHOPT_FIXEDARRAY
 		if(ap && ap->fixed)
-			cp = array_fixed(np,sp,cp,mode);
+			cp = array_fixed(np,sp,cp);
 		else
 #endif /* SHOPT_FIXEDARRAY */
 		nv_putsub(np, sp, ((mode&NV_ADD)?ARRAY_ADD:0)|(cp[1]&&(mode&NV_ADD)?ARRAY_FILL:mode&ARRAY_FILL));

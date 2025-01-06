@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -241,6 +241,8 @@ static void put_chtype(Namval_t* np, const char* val, int flag, Namfun_t* fp)
 
 static Namfun_t *clone_chtype(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 {
+	NOT_USED(np);
+	NOT_USED(mp);
 	if(flags&NV_NODISC)
 		return NULL;
 	return nv_clone_disc(fp,flags);
@@ -475,6 +477,7 @@ static Namval_t *create_type(Namval_t *np,const char *name,int flag,Namfun_t *fp
 	const char		*cp=name;
 	int			i=0,n;
 	Namval_t		*nq=0;
+	NOT_USED(flag);
 	if(!name)
 		return dp->parent;
 	while((n=*cp++) && n != '=' && n != '+' && n!='[');
@@ -576,6 +579,7 @@ static Namval_t *next_type(Namval_t* np, Dt_t *root,Namfun_t *fp)
 static Namfun_t *clone_inttype(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 {
 	Namfun_t	*pp = (Namfun_t*)sh_malloc(fp->dsize);
+	NOT_USED(flags);
 	memcpy(pp, fp, fp->dsize);
 	fp->nofree &= ~1;
 	if(nv_isattr(mp,NV_NOFREE) && mp->nvalue)
@@ -595,6 +599,7 @@ static int typeinfo(Opt_t* op, Sfio_t *out, const char *str, Optdisc_t *fp)
 	Namval_t	*np,*nq,*tp;
 	int		n, i, offset=stktell(sh.stk);
 	Sfio_t		*sp;
+	NOT_USED(op);
 	np = *(Namval_t**)(fp+1);
 	sfputr(sh.stk,NV_CLASS,'.');
 	sfputr(sh.stk,np->nvname,0);

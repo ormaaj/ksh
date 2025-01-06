@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -230,6 +230,7 @@ int	b_alarm(int argc,char *argv[],Shbltin_t *context)
 	int n,rflag=0;
 	Namval_t *np;
 	struct tevent *tp;
+	NOT_USED(context);
 	while (n = optget(argv, sh_optalarm)) switch (n)
 	{
 	    case 'r':

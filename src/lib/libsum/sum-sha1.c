@@ -304,6 +304,7 @@ sha1_print(Sum_t* p, Sfio_t* sp, int flags, size_t scale)
 	unsigned char*	d;
 	int		n;
 
+	NOT_USED(scale);
 	d = (flags & SUM_TOTAL) ? sha->digest_sum : sha->digest;
 	for (n = 0; n < elementsof(sha->digest); n++)
 		sfprintf(sp, "%02x", d[n]);

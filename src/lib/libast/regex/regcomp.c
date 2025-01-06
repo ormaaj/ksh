@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2013 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -2940,7 +2940,7 @@ alt(Cenv_t* env, int number, int cond)
  */
 
 static void
-bmstr(Cenv_t* env, Rex_t* a, unsigned char* v, int n, Bm_mask_t b)
+bmstr(Rex_t* a, unsigned char* v, int n, Bm_mask_t b)
 {
 	int	c;
 	int	m;
@@ -2974,14 +2974,14 @@ bmstr(Cenv_t* env, Rex_t* a, unsigned char* v, int n, Bm_mask_t b)
  */
 
 static int
-bmtrie(Cenv_t* env, Rex_t* a, unsigned char* v, Trie_node_t* x, int n, int m, Bm_mask_t b)
+bmtrie(Rex_t* a, unsigned char* v, Trie_node_t* x, int n, int m, Bm_mask_t b)
 {
 	do
 	{
 		v[m] = x->c;
 		if (m >= (n - 1))
 		{
-			bmstr(env, a, v, n, b);
+			bmstr(a, v, n, b);
 			if (!(b <<= 1))
 			{
 				b = 1;
@@ -2991,7 +2991,7 @@ bmtrie(Cenv_t* env, Rex_t* a, unsigned char* v, Trie_node_t* x, int n, int m, Bm
 				a->re.bm.complete = 0;
 		}
 		else if (x->son)
-			b = bmtrie(env, a, v, x->son, n, m + 1, b);
+			b = bmtrie(a, v, x->son, n, m + 1, b);
 	} while (x = x->sib);
 	return b;
 }
@@ -3084,7 +3084,7 @@ special(Cenv_t* env, regex_t* p)
 				h += UCHAR_MAX + 1;
 			}
 			if (x)
-				bmstr(env, a, x->re.string.base, n, 1);
+				bmstr(a, x->re.string.base, n, 1);
 			else
 			{
 				v = (unsigned char*)q;
@@ -3092,7 +3092,7 @@ special(Cenv_t* env, regex_t* p)
 				m = 1;
 				for (i = 0; i <= UCHAR_MAX; i++)
 					if (t->re.trie.root[i])
-						m = bmtrie(env, a, v, t->re.trie.root[i], n, 0, m);
+						m = bmtrie(a, v, t->re.trie.root[i], n, 0, m);
 			}
 			mask--;
 			memset(q, 0, n * sizeof(*q));

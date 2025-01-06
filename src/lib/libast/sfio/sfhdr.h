@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -643,7 +643,7 @@ typedef struct _sftab_
 	Sfdouble_t	sf_neg10[SFIO_MAXEXP10];	/* negative powers of 10	*/
 	uchar		sf_dec[200];		/* ASCII reps of values < 100	*/
 	char*		sf_digits;		/* digits for general bases	*/
-	int		(*sf_cvinitf)();	/* initialization function	*/
+	int		(*sf_cvinitf)(void);	/* initialization function	*/
 	int		sf_cvinit;		/* initialization state		*/
 	Fmtpos_t*	(*sf_fmtposf)(Sfio_t*,const char*,va_list,Sffmt_t*,int);
 	char*		(*sf_fmtintf)(const char*,int*);

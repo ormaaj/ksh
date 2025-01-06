@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -210,7 +210,7 @@ typedef struct Fmt
  */
 
 static int
-settime(Shbltin_t* context, const char* cmd, Time_t now, int adjust, int network)
+settime(Shbltin_t* context, Time_t now, int adjust, int network)
 {
 	char**		argv;
 	char*		args[7];
@@ -285,7 +285,6 @@ b_date(int argc, char** argv, Shbltin_t* context)
 	Fmt_t		fmt;
 	struct stat	st;
 
-	char*		cmd = argv[0];	/* original command path	*/
 	char*		format = 0;	/* tmxfmt() format		*/
 	char*		string = 0;	/* date string			*/
 	int		elapsed = 0;	/* args are start/stop pairs	*/
@@ -506,7 +505,7 @@ b_date(int argc, char** argv, Shbltin_t* context)
 			tmxfmt(buf, sizeof(buf), format, now);
 			sfprintf(sfstdout, "%s\n", buf);
 		}
-		else if (settime(context, cmd, now, increment, network))
+		else if (settime(context, now, increment, network))
 		{
 			error(ERROR_SYSTEM|3, "cannot set system time");
 			UNREACHABLE();

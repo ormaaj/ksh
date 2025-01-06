@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -685,7 +685,7 @@ static long set_instance(Namval_t *nq, Namval_t *node, struct Namref *nr)
 	return 0;
 }
 
-static void unset_instance(Namval_t *nq, Namval_t *node, struct Namref *nr,long mode)
+static void unset_instance(Namval_t *node, struct Namref *nr, long mode)
 {
 	L_ARGNOD->nvalue = node->nvalue;
 	L_ARGNOD->nvflag = node->nvflag;
@@ -1376,7 +1376,7 @@ int sh_exec(const Shnode_t *t, int flags)
 					if(scope)
 						sh.invoc_local--;
 					if(nq)
-						unset_instance(nq,nodep,nrp,mode);
+						unset_instance(nodep,nrp,mode);
 					sh_funstaks(slp->slchild,-1);
 					if(slp->slptr)
 					{
@@ -3202,7 +3202,7 @@ int sh_fun(Namval_t *np, Namval_t *nq, char *argv[])
 	}
 	sh_popcontext(checkpoint);
 	if(nq)
-		unset_instance(nq, &node, &nr, mode);
+		unset_instance(&node, &nr, mode);
 	fcrestore(&save);
 	if(offset>0)
 		stkset(sh.stk,base,offset);

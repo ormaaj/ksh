@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1996-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -98,6 +98,7 @@ ast4_print(Sum_t* p, Sfio_t* sp, int flags, size_t scale)
 {
 	Ast4_sum_t*	a;
 
+	NOT_USED(scale);
 	a = (flags & SUM_TOTAL) ? &((Ast4_t*)p)->tot : &((Ast4_t*)p)->cur;
 	sfprintf(sp, "%06..64u%06..64u%06..64u%06..64u", a->sum0, a->sum1, a->sum2, a->sum3);
 	return 0;

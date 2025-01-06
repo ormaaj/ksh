@@ -106,6 +106,7 @@ static const char usage[] =
 #else
 
 #define elementsof(x)	(sizeof(x)/sizeof(x[0]))
+#define NOT_USED(x)	do (void)(x); while(0)
 
 /*
  * For compatibility with compiler flags such as -std=c99, feature macros
@@ -502,7 +503,7 @@ static char *appendn(Buf_t *buf, char *str, size_t n)
 {
 	size_t	m, i;
 
-	if ((n + 1) >= (buf->end - buf->nxt))
+	if ((n + 1) >= (size_t)(buf->end - buf->nxt))
 	{
 		i = buf->nxt - buf->buf;
 		m = (((buf->end - buf->buf) + n + CHUNK + 1) / CHUNK) * CHUNK;
@@ -2766,6 +2767,8 @@ int main(int argc, char **argv)
 	char		**e, *s, *t, *v;
 	Buf_t		*tmp;
 	int		c;
+
+	NOT_USED(argc);
 
 	/*
 	 * initialize the state

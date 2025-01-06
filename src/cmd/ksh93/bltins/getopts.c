@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -34,6 +34,8 @@
 static int infof(Opt_t* op, Sfio_t* sp, const char* s, Optdisc_t* dp)
 {
 	Stk_t	*stkp = sh.stk;
+	NOT_USED(op);
+	NOT_USED(dp);
 #if SHOPT_NAMESPACE
 	if((sh.namespace && sh_fsearch(s,0)) || nv_search(s,sh.fun_tree,0))
 #else
@@ -61,6 +63,8 @@ int	b_getopts(int argc,char *argv[],Shbltin_t *context)
 	volatile int extended, r= -1;
 	struct checkpt buff, *pp;
 	Optdisc_t disc;
+
+	NOT_USED(context);
 	memset(&disc, 0, sizeof(disc));
 	disc.version = OPT_VERSION;
 	disc.infof = infof;

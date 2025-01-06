@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2014 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -152,7 +152,7 @@ static History_t *hist_ptr;
 #endif /* SHOPT_ACCTFILE */
 
 #if SHOPT_AUDIT
-static int sh_checkaudit(History_t *hp, const char *name, char *logbuf, size_t len)
+static int sh_checkaudit(const char *name, char *logbuf, size_t len)
 {
 	char	*cp, *last;
 	int	id1, id2, r=0, n, fd;
@@ -340,7 +340,7 @@ retry:
 	{
 		char buff[SFIO_BUFSIZE];
 		hp->auditfp = 0;
-		if(sh_isstate(SH_INTERACTIVE) && (hp->auditmask=sh_checkaudit(hp,SHOPT_AUDITFILE, buff, sizeof(buff))))
+		if(sh_isstate(SH_INTERACTIVE) && (hp->auditmask = sh_checkaudit(SHOPT_AUDITFILE, buff, sizeof(buff))))
 		{
 			if((fd=sh_open(buff,O_BINARY|O_WRONLY|O_APPEND|O_CREAT|O_cloexec,S_IRUSR|S_IWUSR))>=0 && fd < 10)
 			{

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2023 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -35,6 +35,8 @@ static const char lib[] = "libast:cmdarg";
 static int
 cmdrun(int argc, char** argv, Cmddisc_t* disc)
 {
+	NOT_USED(argc);
+	NOT_USED(disc);
 	return procrun(argv[0], argv, PROC_ARGMOD|PROC_IGNOREPATH);
 }
 

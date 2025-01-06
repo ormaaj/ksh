@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2013 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -382,6 +382,8 @@ process(Sfio_t* mp, Sfio_t* lp, int delay, int timeout)
 	struct stat	dst;
 	struct stat	fst;
 
+	NOT_USED(lp);
+	NOT_USED(delay);
 	ip = sfstdin;
 	if (!fstat(sffileno(ip), &dst) && !stat("/dev/null", &fst) && dst.st_dev == fst.st_dev && dst.st_ino == fst.st_ino)
 		ip = 0;

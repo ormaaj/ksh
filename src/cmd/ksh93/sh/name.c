@@ -2577,6 +2577,10 @@ static void put_optimize(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 
 static Namfun_t *clone_optimize(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 {
+	NOT_USED(np);
+	NOT_USED(mp);
+	NOT_USED(flags);
+	NOT_USED(fp);
 	return NULL;
 }
 

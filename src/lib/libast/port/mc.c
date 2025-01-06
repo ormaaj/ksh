@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -67,6 +67,7 @@ mcfind(const char* locale, const char* catalog, int category, int nls, char* pat
 
 	static char	lc_messages[] = "LC_MESSAGES";
 
+	NOT_USED(nls);
 	if ((category = lcindex(category, 1)) < 0)
 		return NULL;
 	if (!(lc = locale ? lcmake(locale) : locales[category]))

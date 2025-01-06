@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -602,8 +602,13 @@ format(Feature_t* fp, const char* path, const char* value, unsigned int flags, E
 	int			n;
 	static struct utsname	uts;
 
+#ifndef UNIV_MAX
+	NOT_USED(conferror);
+#endif
 #if DEBUG_astconf
 	error(-6, "astconf format name=%s path=%s value=%s flags=%04x fp=%p%s", fp->name, path, value, flags, fp, state.synthesizing ? " SYNTHESIZING" : "");
+#else
+	NOT_USED(flags);
 #endif
 	if (value)
 		fp->flags &= ~CONF_GLOBAL;

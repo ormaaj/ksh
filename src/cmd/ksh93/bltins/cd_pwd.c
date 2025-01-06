@@ -277,7 +277,7 @@ success:
 		}
 		stkseek(sh.stk,dir-stkptr(sh.stk,0));
 	}
-	dir = stkfreeze(sh.stk,1)+PATH_OFFSET;
+	dir = (char*)stkfreeze(sh.stk,1) + PATH_OFFSET;
 	if(*dp && (*dp!='.'||dp[1]) && strchr(dir,'/'))
 		sfputr(sfstdout,dir,'\n');
 	nv_putval(opwdnod,oldpwd,NV_RDONLY);

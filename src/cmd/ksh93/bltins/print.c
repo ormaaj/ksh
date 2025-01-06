@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2014 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -153,6 +153,9 @@ static int infof(Opt_t* op, Sfio_t* sp, const char* s, Optdisc_t* dp)
 {
 	const struct printmap *pm;
 	char c='%';
+	NOT_USED(op);
+	NOT_USED(s);
+	NOT_USED(dp);
 	for(pm=Pmap;pm->size>0;pm++)
 		sfprintf(sp, "[+%c(%s)q?Equivalent to %s.]",c,pm->name,pm->equivalent);
 	return 1;
@@ -750,6 +753,7 @@ static int extend(Sfio_t* sp, void* v, Sffmt_t* fe)
 	struct printf*	pp = (struct printf*)fe;
 	char*		argp = *pp->nextarg;
 	char		*w,*s;
+	NOT_USED(sp);
 	if(fe->n_str>0 && (format=='T'||format=='Q') && varname(fe->t_str,fe->n_str) && (!argp || varname(argp,-1)))
 	{
 		if(argp)

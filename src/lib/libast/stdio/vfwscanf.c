@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -41,6 +41,7 @@ typedef struct
 static int
 wideexcept(Sfio_t* f, int op, void* val, Sfdisc_t* dp)
 {
+	NOT_USED(val);
 	if (sffileno(f) >= 0)
 		return -1;
 	switch (op)
@@ -68,9 +69,10 @@ static ssize_t
 wideread(Sfio_t* f, void* buf, size_t size, Sfdisc_t* dp)
 {
 	Wide_t*	w = (Wide_t*)dp;
-	wchar_t			wuf[2];
+	wchar_t	wuf[2];
 	ssize_t	r;
 
+	NOT_USED(f);
 	r = sfread(w->f, wuf, sizeof(wuf[0]));
 	if (r != sizeof(wuf[0]))
 		return -1;

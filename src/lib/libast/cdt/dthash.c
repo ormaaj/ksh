@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -403,6 +403,7 @@ static int hashevent(Dt_t* dt, int event, void* arg)
 {
 	Dthash_t	*hash = (Dthash_t*)dt->data;
 
+	NOT_USED(arg);
 	if(event == DT_OPEN)
 	{	if(hash)
 			return 0;

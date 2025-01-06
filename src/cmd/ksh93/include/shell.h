@@ -469,7 +469,7 @@ extern ssize_t 		sh_write(int, const void*, size_t);
 extern off_t		sh_seek(int, off_t, int);
 extern int 		sh_pipe(int[]);
 extern mode_t 		sh_umask(mode_t);
-extern void		*sh_waitnotify(Shwait_f);
+extern Shwait_f		sh_waitnotify(Shwait_f);
 extern Shscope_t	*sh_getscope(int,int);
 extern Shscope_t	*sh_setscope(Shscope_t*);
 extern void		sh_sigcheck(void);

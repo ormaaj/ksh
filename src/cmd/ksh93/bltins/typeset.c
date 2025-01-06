@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -94,6 +94,7 @@ int    b_readonly(int argc,char *argv[],Shbltin_t *context)
 	char *command = argv[0];
 	struct tdata tdata;
 	NOT_USED(argc);
+	NOT_USED(context);
 	memset(&tdata,0,sizeof(tdata));
 	tdata.aflag = '-';
 	while((flag = optget(argv,*command=='e'?sh_optexport:sh_optreadonly))) switch(flag)
@@ -137,6 +138,7 @@ int    b_alias(int argc,char *argv[],Shbltin_t *context)
 	int rflag=0, xflag=0, n;
 	struct tdata tdata;
 	NOT_USED(argc);
+	NOT_USED(context);
 	memset(&tdata,0,sizeof(tdata));
 	troot = sh.alias_tree;
 	if(*argv[0]=='h')
@@ -1129,6 +1131,7 @@ int	b_builtin(int argc,char *argv[],Shbltin_t *context)
 	int list = 0;
 #endif
 	NOT_USED(argc);
+	NOT_USED(context);
 	memset(&tdata,0,sizeof(tdata));
 	stkp = sh.stk;
 	if(!sh.pathlist)
@@ -1256,6 +1259,7 @@ int	b_builtin(int argc,char *argv[],Shbltin_t *context)
 int    b_set(int argc,char *argv[],Shbltin_t *context)
 {
 	struct tdata tdata;
+	NOT_USED(context);
 	memset(&tdata,0,sizeof(tdata));
 	tdata.prefix=0;
 	if(argv[1])

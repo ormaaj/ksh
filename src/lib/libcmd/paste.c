@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -142,7 +142,7 @@ static int paste(int nstream,Sfio_t* streams[],Sfio_t *out, const char *delim, i
 /*
  * Handles paste -s, for file <in> to file <out> using delimiters <delim>
  */
-static int spaste(Sfio_t *in,Sfio_t* out,const char *delim,int dsiz,int dlen,Delim_t* mp)
+static int spaste(Sfio_t *in,Sfio_t* out,const char *delim,int dlen,Delim_t* mp)
 {
 	const char *cp;
 	int d=0;
@@ -272,7 +272,7 @@ b_paste(int argc, char** argv, Shbltin_t* context)
 			error(ERROR_system(0),"%s: cannot open",cp);
 		if(fp && sflag)
 		{
-			if(spaste(fp,sfstdout,delim,dsiz,dlen,mp) < 0)
+			if(spaste(fp,sfstdout,delim,dlen,mp) < 0)
 				error(ERROR_system(0),"write failed");
 			if(fp!=sfstdin)
 				sfclose(fp);

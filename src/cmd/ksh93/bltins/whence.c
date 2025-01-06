@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -52,6 +52,7 @@ static int whence(char**, int);
 int	b_command(int argc,char *argv[],Shbltin_t *context)
 {
 	int n, flags=0;
+	NOT_USED(context);
 	opt_info.index = opt_info.offset = 0;
 	while((n = optget(argv,sh_optcommand))) switch(n)
 	{
@@ -111,6 +112,7 @@ int	b_whence(int argc,char *argv[],Shbltin_t *context)
 {
 	int flags=0, n;
 	NOT_USED(argc);
+	NOT_USED(context);
 	if(*argv[0]=='t')
 		flags = V_FLAG;  /* <t>ype == whence -v */
 	while((n = optget(argv,sh_optwhence))) switch(n)

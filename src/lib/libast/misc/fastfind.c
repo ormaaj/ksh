@@ -112,7 +112,7 @@ static char*		findnames[] =
  */
 
 char*
-typefix(char* buf, size_t n, const char* t)
+typefix(char* buf, const char* t)
 {
 	int	c;
 	char*	b = buf;
@@ -417,7 +417,7 @@ findopen(const char* file, const char* pattern, const char* type, Finddisc_t* di
 		{
 			if (type)
 			{
-				type = (const char*)typefix(fp->decode.bigram2, sizeof(fp->decode.bigram2), type);
+				type = (const char*)typefix(fp->decode.bigram2, type);
 				memset(fp->decode.bigram1, 0, sizeof(fp->decode.bigram1));
 			}
 			fp->method = FF_typ;
@@ -979,7 +979,7 @@ findwrite(Find_t* fp, const char* path, size_t len, const char* type)
 	case FF_typ:
 		if (type)
 		{
-			type = (const char*)typefix((char*)fp->encode.bigram, sizeof(fp->encode.bigram), type);
+			type = (const char*)typefix((char*)fp->encode.bigram, type);
 			if (x = (Type_t*)dtmatch(fp->encode.namedict, type))
 				u = x->index;
 			else if (!(x = newof(0, Type_t, 1, strlen(type) + 1)))

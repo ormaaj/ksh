@@ -360,12 +360,14 @@ static void put_optindex(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 static Sfdouble_t nget_optindex(Namval_t* np, Namfun_t *fp)
 {
 	int32_t *lp = np->nvalue;
+	NOT_USED(fp);
 	return (Sfdouble_t)*lp;
 }
 
 static Namfun_t *clone_optindex(Namval_t* np, Namval_t *mp, int flags, Namfun_t *fp)
 {
 	Namfun_t *dp = (Namfun_t*)sh_malloc(sizeof(Namfun_t));
+	NOT_USED(flags);
 	memcpy(dp,fp,sizeof(Namfun_t));
 	mp->nvalue = np->nvalue;
 	dp->nofree = 0;
@@ -725,6 +727,7 @@ static char* get_lastarg(Namval_t* np, Namfun_t *fp)
 {
 	char	*cp;
 	int	pid;
+	NOT_USED(fp);
 	if(sh_isstate(SH_INIT) && (cp=sh.lastarg) && *cp=='*' && (pid=strtol(cp+1,&cp,10)) && *cp=='*')
 		nv_putval(np,cp+1,0);
 	return sh.lastarg;
@@ -732,6 +735,7 @@ static char* get_lastarg(Namval_t* np, Namfun_t *fp)
 
 static void put_lastarg(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 {
+	NOT_USED(fp);
 	if(flags&NV_INTEGER)
 	{
 		sfprintf(sh.strbuf,"%.*Lg",12,*((Sfdouble_t*)val));
@@ -944,8 +948,8 @@ static Sfdouble_t nget_version(Namval_t* np, Namfun_t *fp)
 	const char	*cp = e_version + strlen(e_version)-10;
 	int		c;
 	Sflong_t	t = 0;
+	NOT_USED(np);
 	NOT_USED(fp);
-
 	while (c = *cp++)
 		if (c >= '0' && c <= '9')
 		{
@@ -989,6 +993,7 @@ static const Namdisc_t L_ARG_disc	= {  sizeof(Namfun_t), put_lastarg, get_lastar
 
 static char *name_math(Namval_t *np, Namfun_t *fp)
 {
+	NOT_USED(fp);
 	sfprintf(sh.strbuf,".sh.math.%s",np->nvname);
 	return sfstruse(sh.strbuf);
 }
@@ -1025,6 +1030,8 @@ static void math_init(void)
 
 static Namval_t *create_math(Namval_t *np,const char *name,int flag,Namfun_t *fp)
 {
+	NOT_USED(np);
+	NOT_USED(flag);
 	if(!name)
 		return SH_MATHNOD;
 	if(name[0]!='a' || name[1]!='r' || name[2]!='g' || name[4] || !isdigit(name[3]) || (name[3]=='0' || (name[3]-'0')>MAX_MATH_ARGS))
@@ -1038,6 +1045,8 @@ static char* get_math(Namval_t* np, Namfun_t *fp)
 	Namval_t	*mp,fake;
 	char		*val;
 	int		first=0;
+	NOT_USED(np);
+	NOT_USED(fp);
 	fake.nvname = ".sh.math.";
 	mp = (Namval_t*)dtprev(sh.fun_tree,&fake);
 	while(mp=(Namval_t*)dtnext(sh.fun_tree,mp))
@@ -1057,6 +1066,7 @@ static char *setdisc_any(Namval_t *np, const char *event, Namval_t *action, Namf
 	Namval_t	*mp,fake;
 	char		*name;
 	int		getname=0, off=stktell(sh.stk);
+	NOT_USED(fp);
 	fake.nvname = nv_name(np);
 	if(!event)
 	{
@@ -1089,6 +1099,7 @@ static const Namdisc_t LC_disc = {  sizeof(Namfun_t), put_lang };
 static int newconf(const char *name, const char *path, const char *value)
 {
 	char *arg;
+	NOT_USED(path);
 	if(!name)
 		setenviron(value);
 	else if(strcmp(name,"UNIVERSE")==0 && strcmp(astconf(name,0,0),value))
@@ -1597,6 +1608,7 @@ struct Stats
 static Namval_t *next_stat(Namval_t* np, Dt_t *root,Namfun_t *fp)
 {
 	struct Stats *sp = (struct Stats*)fp;
+	NOT_USED(np);
 	if(!root)
 		sp->current = 0;
 	else if(++sp->current>=sp->numnodes)
@@ -1610,6 +1622,7 @@ static Namval_t *create_stat(Namval_t *np,const char *name,int flag,Namfun_t *fp
 	const char		*cp=name;
 	int			i=0,n;
 	Namval_t		*nq=0;
+	NOT_USED(flag);
 	if(!name)
 		return SH_STATS;
 	while((i=*cp++) && i != '=' && i != '+' && i!='[');
@@ -1645,6 +1658,7 @@ static const Namdisc_t stat_disc =
 
 static char *name_stat(Namval_t *np, Namfun_t *fp)
 {
+	NOT_USED(fp);
 	sfprintf(sh.strbuf,".sh.stats.%s",np->nvname);
 	return sfstruse(sh.strbuf);
 }

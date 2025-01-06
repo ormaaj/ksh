@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -59,6 +59,7 @@ key(void* handle, Sffmt_t* fp, const char* arg, char** ps, Sflong_t* pn)
 	int	fd;
 	pid_t	tid;
 
+	NOT_USED(arg);
 	if (!(s = fp->t_str) || streq(s, "pid"))
 		*pn = getpid();
 	else if (streq(s, "pgid"))

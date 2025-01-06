@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -33,6 +33,8 @@ static void assign(Namval_t*,const char*,int,Namfun_t*);
 
 int nv_compare(Dt_t* dict, void *sp, void *dp, Dtdisc_t *disc)
 {
+	NOT_USED(dict);
+	NOT_USED(disc);
 	if(sp==dp)
 		return 0;
 	return strcmp((char*)sp,(char*)dp);
@@ -1267,6 +1269,7 @@ struct adata
 
 static void delete_fun(Namval_t *np, void *data)
 {
+	NOT_USED(data);
 	nv_delete(np,sh.fun_tree,NV_NOFREE);
 }
 

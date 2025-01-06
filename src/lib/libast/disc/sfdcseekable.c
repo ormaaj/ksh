@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -39,6 +39,10 @@ static ssize_t skwrite(Sfio_t*		f,	/* stream involved */
 		       size_t		n,	/* number of bytes to read */
 		       Sfdisc_t*	disc)	/* discipline */
 {
+	NOT_USED(f);
+	NOT_USED(buf);
+	NOT_USED(n);
+	NOT_USED(disc);
 	return (ssize_t)(-1);
 }
 
@@ -143,6 +147,8 @@ static int skexcept(Sfio_t* f, int type, void* data, Sfdisc_t* disc)
 {
 	Seek_t*		sk;
 
+	NOT_USED(f);
+	NOT_USED(data);
 	sk = (Seek_t*)disc;
 
 	switch (type)

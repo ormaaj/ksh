@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -334,6 +334,7 @@ Opt_t*		_opt_infop_ = &_opt_info_;
 Optstate_t*
 optstate(Opt_t* p)
 {
+	NOT_USED(p);
 	return &state;
 }
 

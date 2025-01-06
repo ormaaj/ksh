@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -121,6 +121,8 @@ static int dioexcept(Sfio_t* f, int type, void* data, Sfdisc_t* disc)
 int sfdcdio(Sfio_t* f, size_t bufsize)
 {
 #ifndef F_DIOINFO
+	NOT_USED(f);
+	NOT_USED(bufsize);
 	return -1;
 #else
 	int		cntl;

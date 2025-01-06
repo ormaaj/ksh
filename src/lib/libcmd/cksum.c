@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1992-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -433,6 +433,8 @@ order(FTSENT* const* f1, FTSENT* const* f2)
 static int
 optinfo(Opt_t* op, Sfio_t* sp, const char* s, Optdisc_t* dp)
 {
+	NOT_USED(op);
+	NOT_USED(dp);
 	if (streq(s, "methods"))
 		return sumusage(sp);
 	return 0;

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -47,6 +47,10 @@ static ssize_t unwrite(Sfio_t*		f,	/* stream involved */
 		       size_t		n,	/* number of bytes to read */
 		       Sfdisc_t*	disc)	/* discipline */
 {
+	NOT_USED(f);
+	NOT_USED(buf);
+	NOT_USED(n);
+	NOT_USED(disc);
 	return -1;
 }
 
@@ -83,6 +87,8 @@ static Sfoff_t unseek(Sfio_t* f, Sfoff_t addr, int type, Sfdisc_t* disc)
 	Union_t*	un;
 	int		i;
 	Sfoff_t	extent, s;
+
+	NOT_USED(f);
 
 	un = (Union_t*)disc;
 	if(un->type&UNSEEKABLE)
@@ -125,6 +131,9 @@ static Sfoff_t unseek(Sfio_t* f, Sfoff_t addr, int type, Sfdisc_t* disc)
 /* on close, remove the discipline */
 static int unexcept(Sfio_t* f, int type, void* data, Sfdisc_t* disc)
 {
+	NOT_USED(f);
+	NOT_USED(data);
+
 	if(type == SFIO_FINAL || type == SFIO_DPOP)
 		free(disc);
 

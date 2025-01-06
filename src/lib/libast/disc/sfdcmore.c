@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1985-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -78,6 +78,8 @@ static int ttyquery(Sfio_t* rp, Sfio_t* wp, const char* label, Sfdisc_t* dp)
 	int		rfd = sffileno(rp);
 	int		wfd = sffileno(rp);
 
+	NOT_USED(wp);
+	NOT_USED(dp);
 	if (!label)
 		n = 0;
 	else if (n = strlen(label))
@@ -232,6 +234,7 @@ static int moreexcept(Sfio_t* f, int type, void* data, Sfdisc_t* dp)
 {
 	More_t*	more = (More_t*)dp;
 
+	NOT_USED(data);
 	if (type == SFIO_FINAL || type == SFIO_DPOP)
 	{
 		if (f = more->input)

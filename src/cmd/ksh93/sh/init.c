@@ -215,7 +215,6 @@ static Init_t		*nv_init(void);
 #if SHOPT_STATS
 static void		stat_init(void);
 #endif
-static int		rand_shift;
 
 /*
  * Exception callback routine for stk(3) and sh_*alloc wrappers.
@@ -623,6 +622,39 @@ static Sfdouble_t nget_seconds(Namval_t* np, Namfun_t *fp)
 	return dtime(&tp) - offset;
 }
 
+#if !_lib_rand_r
+#undef RAND_MAX
+#define RAND_MAX 0x7fffffff
+#define rand_r _ksh_rand_r
+/*
+ * rand_r(3) fallback nicked from FreeBSD libc.
+ * License: BSD 3-clause. See the COPYRIGHT file.
+ * Not to be confused with actual randomness!
+ *
+ * Compute x = (7^5 * x) mod (2^31 - 1)
+ * without overflowing 31 bits:
+ *      (2^31 - 1) = 127773 * (7^5) + 2836
+ * From "Random number generators: good ones are hard to find",
+ * Park and Miller, Communications of the ACM, vol. 31, no. 10,
+ * October 1988, p. 1195.
+ */
+static int rand_r(unsigned int *seed)
+{
+	long hi, lo, x;
+	/* Transform to [1, 0x7ffffffe] range. */
+	x = (*seed % 0x7ffffffe) + 1;
+	hi = x / 127773;
+	lo = x % 127773;
+	x = 16807 * lo - 2836 * hi;
+	if (x < 0)
+		x += 0x7fffffff;
+	/* Transform to [0, 0x7ffffffd] range. */
+	x--;
+	*seed = x;
+	return x;
+}
+#endif /* !_lib_rand_r */
+
 /*
  * These four functions are used to get and set the RANDOM variable
  */
@@ -643,7 +675,7 @@ static void put_rand(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		n = *(Sfdouble_t*)val;
 	else
 		n = sh_arith(val);
-	srand(rp->rand_seed = (unsigned int)n);
+	rp->rand_seed = (unsigned int)n;
 	rp->rand_last = -1;
 	if(!np->nvalue)
 		np->nvalue = &rp->rand_last;
@@ -661,7 +693,14 @@ static Sfdouble_t nget_rand(Namval_t* np, Namfun_t *fp)
 	int32_t last = *lp;
 	sh_save_rand_seed(rp, 1);
 	do
-		cur = (rand_r(&rp->rand_seed)>>rand_shift)&RANDMASK;
+#if RAND_MAX > (RANDMASK << 3)
+		/* don't use lower bits when rand_r() generates large numbers */
+		cur = (rand_r(&rp->rand_seed) >> 3) & RANDMASK;
+#elif RAND_MAX > RANDMASK
+		cur = rand_r(&rp->rand_seed) & RANDMASK;
+#else
+		cur = rand_r(&rp->rand_seed);
+#endif
 	while(cur==last);
 	*lp = cur;
 	return (Sfdouble_t)cur;
@@ -680,7 +719,7 @@ void sh_reseed_rand(struct rand *rp)
 	static unsigned int	seq;
 	timeofday(&tp);
 	time = (unsigned int)remainder(dtime(&tp) * 10000.0, (double)UINT_MAX);
-	srand(rp->rand_seed = (unsigned int)sh.current_pid ^ time ^ ++seq);
+	rp->rand_seed = (unsigned int)sh.current_pid ^ time ^ ++seq;
 	rp->rand_last = -1;
 }
 
@@ -1221,15 +1260,6 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	error_info.catalog = e_dict;
 	sh.cpipe[0] = -1;
 	sh.coutpipe = -1;
-	for(n=0;n < 10; n++)
-	{
-		/* don't use lower bits when rand() generates large numbers */
-		if(rand() > RANDMASK)
-		{
-			rand_shift = 3;
-			break;
-		}
-	}
 	sh_ioinit();
 	/* initialize signal handling */
 	sh_siginit();

@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2012 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -2385,7 +2385,6 @@ static void comsubst(Mac_t *mp,Shnode_t* t, int type)
  */
 static void mac_copy(Mac_t *mp,const char *str, int size)
 {
-	char		*state;
 	const char	*cp=str;
 	int		c,n,nopat,len;
 	Stk_t		*stkp=sh.stk;
@@ -2395,7 +2394,7 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 		sfwrite(mp->sp,str,size);
 	else if(mp->pattern>=2 || (mp->pattern && nopat) || mp->assign==3)
 	{
-		state = sh_lexstates[ST_MACRO];
+		const char *macro_state = sh_lexstates[ST_MACRO];
 		/* insert \ before file expansion characters */
 		while(size-->0)
 		{
@@ -2405,7 +2404,7 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 				size -= (len-1);
 				continue;
 			}
-			c = state[n= *(unsigned char*)cp++];
+			c = macro_state[n = *(unsigned char*)cp++];
 			if(mp->assign==3 && mp->pattern!=4)
 			{
 				if(c==S_BRACT)
@@ -2434,7 +2433,7 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 			}
 			else if(mp->pattern==2 && c==S_SLASH)
 				c=1;
-			else if(mp->pattern==3 && c==S_ESC && (state[*(unsigned char*)cp]==S_DIG||(*cp==ESCAPE)))
+			else if(mp->pattern==3 && c==S_ESC && (macro_state[*(unsigned char*)cp]==S_DIG || (*cp==ESCAPE)))
 			{
 				if(!(c=mp->quote))
 					cp++;
@@ -2455,27 +2454,27 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 	else if(!mp->quote && mp->split && (mp->ifs||mp->pattern))
 	{
 		/* split words at ifs characters */
-		state = sh.ifstable;
+		char *ifs_state = sh.ifstable;
 		if(mp->pattern)
 		{
 			char *sp = "&|()";
 			while(c = *sp++)
 			{
-				if(state[c]==0)
-					state[c] = S_EPAT;
+				if(ifs_state[c]==0)
+					ifs_state[c] = S_EPAT;
 			}
 			sp = "*?[{";
 			while(c = *sp++)
 			{
-				if(state[c]==0)
-					state[c] = S_PAT;
+				if(ifs_state[c]==0)
+					ifs_state[c] = S_PAT;
 			}
-			if(state[ESCAPE]==0)
-				state[ESCAPE] = S_ESC;
+			if(ifs_state[ESCAPE]==0)
+				ifs_state[ESCAPE] = S_ESC;
 		}
 		while(size-->0)
 		{
-			n=state[c= *(unsigned char*)cp++];
+			n = ifs_state[c = *(unsigned char*)cp++];
 			if(mbwide() && n!=S_MBYTE && (len=mbsize(cp-1))>1)
 			{
 				sfwrite(stkp,cp-1, len);
@@ -2518,7 +2517,7 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 				}
 				if(n==S_SPACE || n==S_NL)
 				{
-					while(size>0 && ((n=state[c= *(unsigned char*)cp++])==S_SPACE||n==S_NL))
+					while(size>0 && ((n = ifs_state[c = *(unsigned char*)cp++])==S_SPACE || n==S_NL))
 						size--;
 					if(mbwide() && n==S_MBYTE && sh_strchr(mp->ifsp,cp-1)>=0)
 					{
@@ -2535,7 +2534,7 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 				endfield(mp,n==S_DELIM||mp->quoted);
 				mp->patfound = 0;
 				if(n==S_DELIM)
-					while(size>0 && ((n=state[c= *(unsigned char*)cp++])==S_SPACE||n==S_NL))
+					while(size>0 && ((n = ifs_state[c = *(unsigned char*)cp++])==S_SPACE || n==S_NL))
 						size--;
 				if(size<=0)
 					break;
@@ -2550,14 +2549,14 @@ static void mac_copy(Mac_t *mp,const char *str, int size)
 			cp = "&|()";
 			while(c = *cp++)
 			{
-				if(state[c]==S_EPAT)
-					state[c] = 0;
+				if(ifs_state[c]==S_EPAT)
+					ifs_state[c] = 0;
 			}
 			cp = "*?[{";
 			while(c = *cp++)
 			{
-				if(state[c]==S_PAT)
-					state[c] = 0;
+				if(ifs_state[c]==S_PAT)
+					ifs_state[c] = 0;
 			}
 			if(sh.ifstable[ESCAPE]==S_ESC)
 				sh.ifstable[ESCAPE] = 0;

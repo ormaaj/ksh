@@ -2,7 +2,7 @@
 *                                                                      *
 *               This software is part of the ast package               *
 *          Copyright (c) 1982-2011 AT&T Intellectual Property          *
-*          Copyright (c) 2020-2024 Contributors to ksh 93u+m           *
+*          Copyright (c) 2020-2025 Contributors to ksh 93u+m           *
 *                      and is licensed under the                       *
 *                 Eclipse Public License, Version 2.0                  *
 *                                                                      *
@@ -718,7 +718,7 @@ static const char sh_lexstate11[256] =
 /*
  * This must be kept synchronous with all the above and the ST_* definitions in lexstates.h
  */
-const char *sh_lexrstates[ST_NONE] =
+const char *sh_lexstates[ST_NONE] =
 {
 	sh_lexstate0, sh_lexstate1, sh_lexstate2, sh_lexstate3,
 	sh_lexstate4, sh_lexstate5, sh_lexstate6, sh_lexstate7,

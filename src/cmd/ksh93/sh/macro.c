@@ -1916,7 +1916,7 @@ retry2:
 							flag & STR_MAXIMAL);
 					else
 						nmatch = strngrpmatch(v, vsize,
-							*pattern ? pattern : "~(E)^",
+							*pattern ? pattern : (c=='#' ? "~(E)^" : pattern),
 							(ssize_t*)match,
 							elementsof(match) / 2,
 							flag | STR_INT);
@@ -1943,9 +1943,13 @@ retry2:
 						/* avoid infinite loop */
 						if(nmatch && match[1]==0)
 						{
+							int	sz;
 							nmatch = 0;
-							mac_copy(mp,v,1);
-							v++;
+							/* copy, and advance v by, one character */
+							if ((sz = mbsize(v)) < 1)
+								sz = 1;
+							mac_copy(mp, v, sz);
+							v += sz;
 						}
 						tsize -= v-oldv;
 						continue;

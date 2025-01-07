@@ -1826,9 +1826,7 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 	{
 		void *tofree=0;
 		int offset = 0;
-#if _lib_pathnative
 		char buff[PATH_MAX];
-#endif /* _lib_pathnative */
 		if(flags&NV_INTEGER)
 		{
 			if((flags&NV_DOUBLE)==NV_DOUBLE)
@@ -1856,7 +1854,6 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 		}
 		if(nv_isattr(np, NV_HOST|NV_INTEGER)==NV_HOST && sp)
 		{
-#if _lib_pathnative
 			/*
 			 * return the host file name given the UNIX name
 			 */
@@ -1868,9 +1865,6 @@ void nv_putval(Namval_t *np, const char *string, int flags)
 					*buff += 'a'-'A';
 			}
 			sp = buff;
-#else
-			;
-#endif /* _lib_pathnative */
 		}
 		else if((nv_isattr(np, NV_RJUST|NV_ZFILL|NV_LJUST)) && sp)
 		{

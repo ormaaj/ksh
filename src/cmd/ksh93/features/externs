@@ -1,7 +1,6 @@
 hdr	nc
 mem	exception.name,_exception.name math.h
-lib	setreuid,setregid,nice,fork
-lib	pathnative,pathposix
+lib	setreuid,setregid
 lib	memcntl sys/mman.h
 
 # for main.c fixargs():

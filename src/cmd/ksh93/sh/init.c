@@ -984,17 +984,14 @@ static char* get_version(Namval_t* np, Namfun_t *fp)
 
 static Sfdouble_t nget_version(Namval_t* np, Namfun_t *fp)
 {
-	const char	*cp = e_version + strlen(e_version)-10;
+	const char	*cp = e_version + sizeof e_version - 15;  /* version date */
 	int		c;
 	Sflong_t	t = 0;
 	NOT_USED(np);
 	NOT_USED(fp);
 	while (c = *cp++)
-		if (c >= '0' && c <= '9')
-		{
-			t *= 10;
-			t += c - '0';
-		}
+		if (isdigit(c))
+			t = 10 * t + c - '0';
 	return (Sfdouble_t)t;
 }
 
@@ -1226,14 +1223,12 @@ int sh_type(const char *path)
  */
 Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 {
-	size_t n;
 	int type = 0;
 	char *save_envmarker;
 	static char *login_files[2];
 	sh_onstate(SH_INIT);
-	n = strlen(e_version);
-	if(e_version[n-1]=='$' && e_version[n-2]==' ')
-		e_version[n-2]=0;
+	/* truncate final " $\0\n" from e_version for ${.sh.version} output (it's there for what(1) or ident(1)) */
+	e_version[sizeof e_version - 5] = '\0';
 	memcpy(sh_lexstates,sh_lexrstates,ST_NONE*sizeof(char*));
 	sh.current_pid = sh.pid = getpid();
 	sh.current_ppid = sh.ppid = getppid();
@@ -1294,6 +1289,7 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 		 */
 		char *cp=nv_getval(L_ARGNOD);
 		char buff[PATH_MAX+1];
+		size_t n;
 		sh.shpath = 0;
 		if((n = pathprog(NULL, buff, sizeof(buff))) > 0 && n <= sizeof(buff))
 			sh.shpath = sh_strdup(buff);
@@ -1357,9 +1353,8 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 				name = sh.st.dolv[0];
 				if(name[1]==':' && (name[2]=='/' || name[2]=='\\'))
 				{
-#if _lib_pathposix
 					char*	p;
-
+					size_t	n;
 					if((n = pathposix(name, NULL, 0)) > 0)
 					{
 						p = (char*)sh_malloc(++n);
@@ -1367,7 +1362,6 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 						name = p;
 					}
 					else
-#endif
 					{
 						name[1] = name[0];
 						name[0] = name[2] = '/';

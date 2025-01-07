@@ -1690,4 +1690,11 @@ wait "$parallel_1" || err_exit 'setting TMOUT in a virtual subshell removes its 
 wait "$parallel_2" || err_exit "TMOUT applies to 'read' from a non-terminal"
 
 # ======
+# TODO: fix to support > 4 year digits well before the year 10,000 :)
+got=$((.sh.version))
+exp='^[[:digit:]]{8}$'
+[[ $got =~ $exp ]] || err_exit '$((.sh.version)) does not yield YYYYMMDD digits' \
+	"(expected match of ERE $exp, got '$got')"
+
+# ======
 exit $((Errors<125?Errors:125))

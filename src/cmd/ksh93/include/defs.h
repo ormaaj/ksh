@@ -34,11 +34,8 @@
 #endif
 
 #include	<ast.h>
-#if !defined(AST_VERSION) || AST_VERSION < 20220801
-#error libast version 20220801 or later is required
-#endif
-#if !_lib_fork
-#error In 2021, ksh joined the 21st century and started requiring fork(2).
+#if !defined(AST_VERSION) || AST_VERSION < 20240811
+#error libast version 20240811 or later is required
 #endif
 
 #include	<sfio.h>

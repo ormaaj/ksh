@@ -49,9 +49,6 @@
 #define _use_ntfork_tcpgrp 1
 #endif
 
-#if _lib_nice
-    extern int	nice(int);
-#endif /* _lib_nice */
 #if SHOPT_SPAWN
     static pid_t sh_ntfork(const Shnode_t*,char*[],int*,int);
 #endif /* SHOPT_SPAWN */
@@ -1535,10 +1532,8 @@ int sh_exec(const Shnode_t *t, int flags)
 				}
 				sh_offstate(SH_INTERACTIVE);
 				/* pipe in or out */
-#if _lib_nice
 				if((type&FAMP) && sh_isoption(SH_BGNICE))
 					nice(4);
-#endif /* _lib_nice */
 #if !SHOPT_DEVFD
 				if(sh.fifo && (type&(FPIN|FPOU)))
 				{

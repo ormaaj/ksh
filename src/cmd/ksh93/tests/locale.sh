@@ -466,6 +466,22 @@ then	unset s "${!LC_@}"
 	exp=$'typeset -L 12 s=コーンシェル\n6'  # each double-width character counts for two terminal positions
 	[[ $got == "$exp" ]] || err_exit "default terminal width for typeset -L incorrect" \
 		"(expected $(printf %q "$exp"); got $(printf %q "$got"))"
+	unset s
+fi
+
+# ======
+# https://github.com/ksh93/ksh/issues/813
+if	((SHOPT_MULTIBYTE))
+then	LANG=C.UTF-8
+	s='あいう'
+	got=${s//""/-}
+	exp=$s
+	[[ $got == "$exp" ]] || err_exit '${parameter//“”/string}' \
+		"(expected $(printf %q "$exp"); got $(printf %q "$got"))"
+	got=${s//~(E)^/-}
+	exp='-あ-い-う-'
+	[[ $got == "$exp" ]] || err_exit '${parameter//~(E)^/string}' \
+		"(expected $(printf %q "$exp"); got $(printf %q "$got"))"
 fi
 
 # ======

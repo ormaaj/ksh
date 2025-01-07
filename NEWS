@@ -2,6 +2,16 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2025-01-07:
+
+- Fixed the expansion ${variable//""/string}; since the shell pattern is
+  empty, this should output the value of the variable unchanged, and now
+  once again does. Bug introduced on 2023-05-18.
+
+- Fixed multibyte processing in the expansion ${variable//~(E)/string},
+  i.e., the pattern is an empty Extended Regular Expression (ERE). This
+  now inserts string between each character instead of each byte.
+
 2025-01-05:
 
 - Fixed a crash that could occur if a discipline function was first assigned

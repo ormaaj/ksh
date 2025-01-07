@@ -886,7 +886,7 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 		rp = (struct rand*)RANDNOD->nvfun;
 		if(sp->rand_state)
 		{
-			srand(rp->rand_seed = sp->rand_seed);
+			rp->rand_seed = sp->rand_seed;
 			rp->rand_last = sp->rand_last;
 		}
 		/* restore $SRANDOM upper bound */

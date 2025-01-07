@@ -1262,7 +1262,6 @@ Shell_t *sh_init(int argc,char *argv[], Shinit_f userinit)
 	sh_onstate(SH_INIT);
 	/* truncate final " $\0\n" from e_version for ${.sh.version} output (it's there for what(1) or ident(1)) */
 	e_version[sizeof e_version - 5] = '\0';
-	memcpy(sh_lexstates,sh_lexrstates,ST_NONE*sizeof(char*));
 	sh.current_pid = sh.pid = getpid();
 	sh.current_ppid = sh.ppid = getppid();
 	sh.userid = getuid();

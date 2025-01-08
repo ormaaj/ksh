@@ -345,11 +345,14 @@ int ed_emacsread(void *context, int fd,char *buff,int scend, int reedit)
 			}
 		do_default_processing:
 		default:
-
+			/* ordinary typing: insert one character */
 			if ((eol+1) >= (scend)) /* will not fit on line */
 			{
-				ed_ungetchar(ep->ed,c); /* save character for next line */
-				goto process;
+				beep();
+				lookahead = 0;
+				if (!ep->scvalid)
+					draw(ep,UPDATE);
+				continue;
 			}
 			for(i= ++eol; i>cur; i--)
 				out[i] = out[i-1];

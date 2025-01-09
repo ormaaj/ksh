@@ -152,10 +152,6 @@ make install virtual
 		prev FEATURE/lib
 		exec - cp -f %{<} %{@}
 	done
-	make ast_mmap.h
-		prev FEATURE/mmap
-		exec - cp -f %{<} %{@}
-	done
 	make ast_fs.h
 		prev FEATURE/fs
 		exec - cp -f %{<} %{@}
@@ -4278,15 +4274,6 @@ make install virtual
 			exec - compile %{<}
 		done
 
-		make astcopy.o
-			make port/astcopy.c
-				prev include/ls.h
-				prev ast_mmap.h
-				prev include/ast.h
-			done
-			exec - compile %{<}
-		done
-
 		make astconf.o
 			make port/astconf.c
 				prev FEATURE/libpath
@@ -4463,7 +4450,7 @@ make install virtual
 			done
 		done
 		note * ...generated headers
-		loop HDR ast_release ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mmap ast_mode ast_ndbm ast_param ast_time ast_tty ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
+		loop HDR ast_release ast_standards ast_common ast_lib ast_sys lc align sig tmx tv ast_api ast_ccode ast_fcntl ast_float ast_fs ast_map ast_mode ast_ndbm ast_param ast_time ast_tty ast_limits ast_sizeof ast_dirent ast_iconv ast_nl_types ast_stdio ast_wchar ast_wctype
 			make %{INCLUDE_AST}/%{HDR}.h
 				prev %{HDR}.h
 				exec - cp -f %{<} %{@}

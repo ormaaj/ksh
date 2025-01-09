@@ -745,7 +745,7 @@ The call \f3sfreserve(f, 0, SFIO_LOCKR)\fP is similar but also locks the stream.
 .Tp
 \f3n > 0\fP:
 \f3sfreserve()\fP will use attempt to get \fIat most\fP \f3n\fP bytes into
-the buffer. Further, if \f3type == 3SFIO_LOCKR\fP (see below), read attempts
+the buffer. Further, if \f3type == SFIO_LOCKR\fP (see below), read attempts
 end on a positive amount.
 
 For a successful reservation, the argument \f3type\fP dictates treatment

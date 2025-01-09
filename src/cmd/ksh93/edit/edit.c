@@ -536,15 +536,17 @@ void	ed_setup(Edit_t *ep, int fd, int reedit)
 			buff = (char*)sh_malloc(MAXLINE);
 		ep->e_outbase = ep->e_outptr = buff;
 		ep->e_outlast = ep->e_outptr + MAXLINE - 1;
-		return;
 	}
-	qlen = sfset(sfstderr,SFIO_READ,0);
-	/* make sure SFIO_READ not on */
-	ep->e_outbase = ep->e_outptr = (char*)sfreserve(sfstderr,SFIO_UNBOUND,SFIO_LOCKR);
-	ep->e_outlast = ep->e_outptr + sfvalue(sfstderr) - 1;
-	if(qlen)
-		sfset(sfstderr,SFIO_READ,1);
-	sfwrite(sfstderr,ep->e_outptr,0);
+	else
+	{
+		qlen = sfset(sfstderr,SFIO_READ,0);
+		/* make sure SFIO_READ not on */
+		ep->e_outbase = ep->e_outptr = sfreserve(sfstderr,SFIO_UNBOUND,SFIO_LOCKR);
+		ep->e_outlast = ep->e_outptr + sfvalue(sfstderr) - 1;
+		if(qlen)
+			sfset(sfstderr,SFIO_READ,1);
+		sfwrite(sfstderr,ep->e_outptr,0);
+	}
 	ep->e_eol = reedit;
 	if(ep->e_default && (pp = nv_getval(ep->e_default)))
 	{

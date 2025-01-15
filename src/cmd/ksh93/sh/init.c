@@ -16,6 +16,7 @@
 *         hyenias <58673227+hyenias@users.noreply.github.com>          *
 *                 Harald van Dijk <harald@gigawatt.nl>                 *
 *               K. Eugene Carlson <kvngncrlsn@gmail.com>               *
+*             dnewhall <dnewhall@users.noreply.github.com>             *
 *                                                                      *
 ***********************************************************************/
 /*

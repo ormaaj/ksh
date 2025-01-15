@@ -1742,4 +1742,19 @@ exp='^[[:digit:]]{8}$'
 	"(expected match of ERE $exp, got '$got')"
 
 # ======
+# As of 93u+m/1.1, $RANDOM uses nrand48(3) which should use the same pseudorandom
+# generator on all systems, producing a known sequence for a given seed value.
+case ${.sh.version} in
+*93u+m/1.0.*)
+	;;
+*93u+m/*)
+	RANDOM=123
+	exp='24979 26943 1328 1988 6255 23944 24547 11971 6923 8339'
+	got="$RANDOM $RANDOM $RANDOM $RANDOM $RANDOM $RANDOM $RANDOM $RANDOM $RANDOM $RANDOM"
+	[[ $got == "$exp" ]] || err_exit "RANDOM does not seem to use the expected pseudorandom generator" \
+		"(expected $(printf %q "$exp"), got $(printf %q "$got"))"
+	;;
+esac
+
+# ======
 exit $((Errors<125?Errors:125))

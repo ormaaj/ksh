@@ -80,7 +80,7 @@ static struct subshell
 	int		cpipe;
 	char		subshare;
 	char		comsub;
-	unsigned int	rand_seed;          /* parent shell $RANDOM seed */
+	unsigned short	rand_seed[3];       /* parent shell $RANDOM seed */
 	int		rand_last;          /* last random number from $RANDOM in parent shell */
 	char		rand_state;         /* 0 means sp->rand_seed hasn't been set, 1 is the opposite */
 	uint32_t	srand_upper_bound;  /* parent shell's upper bound for $SRANDOM */
@@ -226,7 +226,7 @@ void sh_save_rand_seed(struct rand *rp, int reseed)
 	struct subshell	*sp = subshell_data;
 	if(!sh.subshare && sp && !sp->rand_state)
 	{
-		sp->rand_seed = rp->rand_seed;
+		memcpy(sp->rand_seed, rp->rand_seed, sizeof sp->rand_seed);
 		sp->rand_last = rp->rand_last;
 		sp->rand_state = 1;
 		if(reseed)
@@ -886,7 +886,7 @@ Sfio_t *sh_subshell(Shnode_t *t, volatile int flags, int comsub)
 		rp = (struct rand*)RANDNOD->nvfun;
 		if(sp->rand_state)
 		{
-			rp->rand_seed = sp->rand_seed;
+			memcpy(rp->rand_seed, sp->rand_seed, sizeof rp->rand_seed);
 			rp->rand_last = sp->rand_last;
 		}
 		/* restore $SRANDOM upper bound */

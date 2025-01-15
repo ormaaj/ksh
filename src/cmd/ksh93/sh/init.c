@@ -623,38 +623,15 @@ static Sfdouble_t nget_seconds(Namval_t* np, Namfun_t *fp)
 	return dtime(&tp) - offset;
 }
 
-#if !_lib_rand_r
-#undef RAND_MAX
-#define RAND_MAX 0x7fffffff
-#define rand_r _ksh_rand_r
 /*
- * rand_r(3) fallback nicked from FreeBSD libc.
- * License: BSD 3-clause. See the COPYRIGHT file.
- * Not to be confused with actual randomness!
- *
- * Compute x = (7^5 * x) mod (2^31 - 1)
- * without overflowing 31 bits:
- *      (2^31 - 1) = 127773 * (7^5) + 2836
- * From "Random number generators: good ones are hard to find",
- * Park and Miller, Communications of the ACM, vol. 31, no. 10,
- * October 1988, p. 1195.
+ * Seeds the rand stucture using the same algorithm as srand48()
  */
-static int rand_r(unsigned int *seed)
+static void seed_rand_uint(struct rand *rp, unsigned int seed)
 {
-	long hi, lo, x;
-	/* Transform to [1, 0x7ffffffe] range. */
-	x = (*seed % 0x7ffffffe) + 1;
-	hi = x / 127773;
-	lo = x % 127773;
-	x = 16807 * lo - 2836 * hi;
-	if (x < 0)
-		x += 0x7fffffff;
-	/* Transform to [0, 0x7ffffffd] range. */
-	x--;
-	*seed = x;
-	return x;
+  	rp->rand_seed[0] = 0x330e; /* Constant from POSIX spec. */
+	rp->rand_seed[1] = (unsigned short)seed;
+	rp->rand_seed[2] = (unsigned short)(seed >> 16);
 }
-#endif /* !_lib_rand_r */
 
 /*
  * These four functions are used to get and set the RANDOM variable
@@ -676,7 +653,7 @@ static void put_rand(Namval_t* np,const char *val,int flags,Namfun_t *fp)
 		n = *(Sfdouble_t*)val;
 	else
 		n = sh_arith(val);
-	rp->rand_seed = (unsigned int)n;
+	seed_rand_uint(rp, (unsigned int)n);
 	rp->rand_last = -1;
 	if(!np->nvalue)
 		np->nvalue = &rp->rand_last;
@@ -694,14 +671,8 @@ static Sfdouble_t nget_rand(Namval_t* np, Namfun_t *fp)
 	int32_t last = *lp;
 	sh_save_rand_seed(rp, 1);
 	do
-#if RAND_MAX > (RANDMASK << 3)
-		/* don't use lower bits when rand_r() generates large numbers */
-		cur = (rand_r(&rp->rand_seed) >> 3) & RANDMASK;
-#elif RAND_MAX > RANDMASK
-		cur = rand_r(&rp->rand_seed) & RANDMASK;
-#else
-		cur = rand_r(&rp->rand_seed);
-#endif
+		/* don't use lower bits when generating large numbers */
+		cur = (nrand48(rp->rand_seed) >> 3) & RANDMASK;
 	while(cur==last);
 	*lp = cur;
 	return (Sfdouble_t)cur;
@@ -715,7 +686,7 @@ static char* get_rand(Namval_t* np, Namfun_t *fp)
 
 void sh_reseed_rand(struct rand *rp)
 {
-	rp->rand_seed = arc4random();
+	seed_rand_uint(rp, arc4random());
 	rp->rand_last = -1;
 }
 

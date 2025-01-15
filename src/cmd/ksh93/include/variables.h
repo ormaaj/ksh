@@ -26,7 +26,7 @@
 struct rand
 {
 	Namfun_t	hdr;
-	unsigned int	rand_seed;
+	unsigned short	rand_seed[3];
 	int32_t		rand_last;
 };
 extern void sh_reseed_rand(struct rand *);

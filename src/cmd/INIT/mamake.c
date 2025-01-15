@@ -1029,8 +1029,8 @@ static void substitute(Buf_t *buf, char *s)
 						while (*q && !isspace(*q))
 							q++;
 						n++;
-						c = *q, *q = 0;  /* terminate for strdup */
-						if (!(argv = realloc(argv, (n+1)*sizeof(char*))) || !(argv[n-1] = strdup(a)))
+						c = *q, *q = 0;  /* terminate for duplicate() */
+						if (!(argv = realloc(argv, (n+1)*sizeof(char*))) || !(argv[n-1] = duplicate(a)))
 							out_of_memory();
 						*q = c;
 					}

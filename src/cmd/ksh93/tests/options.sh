@@ -158,8 +158,13 @@ then	mkdir bar foo
 		err_exit "-G **/bam.c failed -- expected '$expected', got '$*'"
 fi
 
+# Marker
 t="<$$>.profile.<$$>"
-echo "echo '$t'" > .profile
+# If the local sysadmin thought they were smart and made /etc/profile source
+# ~/.profile itself, then the ksh -p tests below would be defeated. Therefore
+# make ~/.profile emit the marker only if it hasn't been sourced by another
+# script (or called by a function), which we can check for using ${.sh.level}.
+echo "if (( \${.sh.level} == 0 )); then echo '$t'; fi" > .profile
 cp $SHELL ./-ksh
 if	[[ -o privileged ]]
 then

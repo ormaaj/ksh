@@ -380,11 +380,21 @@ function foo
 	:
 }
 [[ $(whence -p foo) == foo ]] && err_exit 'whence -p foo should not find function foo'
+unset -f foo
 
 # whence -q bug fix
-$SHELL -c 'whence -q cat' & pid=$!
-sleep .1
-kill $! 2> /dev/null && err_exit 'whence -q appears to be hung'
+"$SHELL" -c 'whence -q cat' &
+unset i m
+typeset -i i m=300
+for ((i=0; i<m; i++))
+do	sleep .01
+	kill -0 $! || break
+done 2>/dev/null
+if	((i==m))
+then	kill -9 $! 2>/dev/null
+	err_exit 'whence -q appears to be hung'
+fi
+unset m i
 
 FPATH=$PWD
 print  'function foobar { :;}' > foobar

@@ -223,6 +223,12 @@ int sh_argopts(int argc,char *argv[])
 				f = 1;
 				goto byname;
 			}
+			if(opt_info.name[0]=='+' && opt_info.name[1]=='+')
+			{
+				opt_info.arg = argv[opt_info.index-1] + 2;
+				f = 0;  /* ++foo means: turn off foo */
+				goto byname;
+			}
 			errormsg(SH_DICT,2, "%s", opt_info.arg);
 			continue;
 		    case '?':

@@ -731,4 +731,13 @@ got=$("$SHELL" -c 'print $-')
 [[ $got == *s* ]] && err_exit "-s incorrectly set upon invocation with -c script (got '$got')"
 
 # ======
+# ++foo should turn off foo and not produce incorrect behaviour
+got=$(set -o posix; set ++posix 2>&1; [[ -o posix ]])
+[[ e=$? -eq 1 && -z $got ]] || err_exit "set ++posix does not turn off --posix (got status $e and output $(printf %q "$got"))"
+exp=': unknown option'
+got=$(set ++nonexistent 2>&1)
+[[ e=$? -eq 2 && $got == *"$exp"* ]] || err_exit "set ++nonexistent does not error out correctly" \
+	"(expected status 2 and *$(printf %q "$exp"*), got status $e and $(printf %q "$got"))"
+
+# ======
 exit $((Errors<125?Errors:125))

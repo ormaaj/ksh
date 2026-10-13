@@ -7,6 +7,11 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 - Fixed a bug in the 'kill' builtin: the arguments -ERR, -KEYBD, and -DEBUG
   were incorrectly accepted and translated to invalid signal numbers.
 
+- Fixed a bug in shell option handling where an initial ++ produced incorrect
+  and inconsistent behaviour. The ++ prefix now correctly turns off a shell
+  option by its long-form name like + does for single-letter options. This
+  applies to ksh command line invocation options as well.
+
 2026-10-10:
 
 - Fixed a bug that caused the emacs and vi editor modes to treat multibyte

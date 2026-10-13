@@ -942,6 +942,12 @@ fi
 got=$(set +x; trap 'function f { :; }' DEBUG; { b=(v1=1 v2=2); } 2>&1)
 [[ -z $got ]] || err_exit "DEBUG trap with function definition invoked by compound assignment (got $(printf %q "$got"))"
 
+# Assigning to .sh.command within DEBUG trap crashes the shell
+# https://github.com/ksh93/ksh/issues/1047
+got=$(set +x; { "$SHELL" -c 'trap ".sh.command=" DEBUG; true'; } 2>&1)
+[[ e=$? -eq 0 && -z $got ]] || err_exit "assign to .sh.command within DEBUG trap" \
+	"(got status $e$( ((e>128)) && print -n /SIG && kill -l "$e" ) and output $(printf %q "$got"))"
+
 # ======
 # In ksh93v- and ksh2020 EXIT traps don't work in forked subshells
 # https://github.com/att/ast/issues/1452

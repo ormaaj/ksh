@@ -12,6 +12,8 @@ Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
   option by its long-form name like + does for single-letter options. This
   applies to ksh command line invocation options as well.
 
+- Fixed a crash upon assigning to .sh.command within a DEBUG trap action.
+
 2026-10-10:
 
 - Fixed a bug that caused the emacs and vi editor modes to treat multibyte

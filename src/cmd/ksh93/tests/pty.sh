@@ -905,6 +905,20 @@ u Exit status is 0
 !
 
 tst $LINENO <<"!"
+L assigning an array to .sh.edtext within a KEYBD trap
+# https://github.com/ksh93/ksh/issues/1058
+
+d 15
+p :test-1:
+w trap '.sh.edtext=(x)' KEYBD
+r KEYBD\r?\n$
+p :test-2:
+w echo ok
+r echo ok\r?\n$
+r ^ok\r?\n$
+!
+
+tst $LINENO <<"!"
 L interrupted PS2 discipline function
 # https://github.com/ksh93/ksh/issues/347
 

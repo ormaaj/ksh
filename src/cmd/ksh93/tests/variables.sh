@@ -29,6 +29,10 @@
 # setting TMOUT in a virtual subshell removes its special meaning
 # https://github.com/ksh93/ksh/issues/782
 (
+	if	! { true </dev/tty; } 2>/dev/null
+	then	warning "no tty -- TMOUT test skipped"
+		exit 0
+	fi
 	typeset -F s=SECONDS
 	"$SHELL" -c 'TMOUT=2; (TMOUT=3); TMOUT=1; read v' </dev/tty
 	((SECONDS < s + 2))

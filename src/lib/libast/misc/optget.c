@@ -32,7 +32,7 @@
 #include <ccode.h>
 #include <ctype.h>
 
-#define OPTGET_VERSION	"optget (ksh 93u+m) 2026-10-07"
+#define OPTGET_VERSION	"optget (ksh 93u+m) 2026-10-14"
 
 #define KEEP		"*[A-Za-z][A-Za-z]*"
 #define OMIT		"*@(\\[[-+]*\\?*\\]|\\@\\(#\\)|Copyright \\(c\\)|\\$\\I\\d\\: )*"
@@ -4203,7 +4203,7 @@ opterror(char* p, int err, int version, char* id, char* catalog)
 	s = *p == '-' ? p : opt_info.name;
 	if (*p == '!')
 	{
-		while (*s == '-')
+		while (*s == '-' || *s == '+')
 			sfputc(mp, *s++);
 		sfputc(mp, 'n');
 		sfputc(mp, 'o');
@@ -4246,7 +4246,7 @@ opterror(char* p, int err, int version, char* id, char* catalog)
 		p = C("value not expected");
 	else if (*p == '?')
 		p = *(p + 1) == '?' ? C("optget: option not supported") : C("ambiguous option");
-	else if (*p == '+')
+	else if (*p == '+' && *(p + 1) != '+')
 		p = C("section not found");
 	else
 	{

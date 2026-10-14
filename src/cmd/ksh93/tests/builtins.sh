@@ -1814,6 +1814,61 @@ printf 'xyz\naA:bc\n:' | read -rd: -n10 got
 exp=$'xyz\naA'
 [[ $got == "$exp" ]] || err_exit "read from pipe with custom delimiter (expected $(printf %q "$exp"), got $(printf %q "$got"))"
 
+# ======
+# Self-documentation section lookup (see optget(3)).
+# A section defined as [+name?text] can be requested with a +name argument;
+# on success only that section is displayed. This needs the optstring to use a
+# single-character long-option prefix, i.e. the 'p1' flag in the leading flags
+# header (as in the '+[-p1?]' control string below). None of the ksh builtin
+# optstrings in src/cmd/ksh93/data/builtins.c set that flag -- their headers
+# are of the form '[-1c?...]' -- so for them a '+name' argument is not parsed
+# as a section request. That is why, e.g., 'typeset +NAME' does not display the
+# NAME section of 'typeset --man': with the default two-character prefix,
+# '+NAME' is parsed as the short options +N +A +M +E instead.
+OPTIND=1
+sectusage='+[-p1?][+NAME?NAME section text][+DESCRIPTION?DESCRIPTION section text][o:opt]'
+got=$(getopts "$sectusage" o +NAME 2>&1)
+exp='NAME section text'
+[[ $got == *"$exp" ]] || err_exit "getopts +NAME section lookup" \
+	"(expected *$(printf %q "$exp"), got $(printf %q "$got"))"
+got=$(getopts "$sectusage" o +DESCRIPTION 2>&1)
+exp='DESCRIPTION section text'
+[[ $got == *"$exp" ]] || err_exit "getopts +DESCRIPTION section lookup" \
+	"(expected *$(printf %q "$exp"), got $(printf %q "$got"))"
+
+# requesting a nonexistent section is a legitimate error
+OPTIND=1
+got=$(getopts "$sectusage" o +NONEXISTENT 2>&1)
+exp=': +NONEXISTENT: section not found'
+[[ $got == *"$exp" ]] || err_exit "getopts +NONEXISTENT message" \
+	"(expected *$(printf %q "$exp"), got $(printf %q "$got"))"
+
+# https://github.com/ksh93/ksh/issues/1051
+# an unknown ++long-option must not be misreported as a missing section,
+# but --opy and a valid ++opt must keep working as before
+OPTIND=1
+got=$(getopts '[-+][o:opt]' o ++opy 2>&1)
+exp=': ++opy: unknown option'
+[[ $got == *"$exp" ]] || err_exit "getopts error message for unknown option ++opy" \
+	"(expected *$(printf %q "$exp"), got $(printf %q "$got"))"
+OPTIND=1
+got=$(getopts '[-+][o:opt]' o --opy 2>&1)
+exp=': --opy: unknown option'
+[[ $got == *"$exp" ]] || err_exit "getopts error message for unknown option --opy" \
+	"(expected *$(printf %q "$exp"), got $(printf %q "$got"))"
+OPTIND=1
+getopts '[-+][o:opt]' o ++opt
+[[ $o == +o ]] || err_exit "getopts ++opt failed" \
+	"(expected +o, got $(printf %q "$o"))"
+
+# https://github.com/ksh93/ksh/issues/1051#issuecomment-6106681513
+#got=$("$SHELL" -c 'getopts "[-+][o:opt]:" opt' myscript ++noopt=1 2>&1)
+OPTIND=1
+got=$(getopts "[-+][o:opt]:" opt ++noopt=1 2>&1)
+exp=': ++noopt: value not expected'
+[[ $got == *"$exp" ]] || err_exit "getopts error message for ++noopt=1" \
+	"(expected $(printf %q *"$exp"), got $(printf %q "$got"))"
+
 # ====== ADD NEW TESTS ABOVE THIS LINE ======
 # checks for tests run in parallel (see top)
 wait "$parallel_1"

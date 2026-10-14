@@ -506,6 +506,12 @@ int sh_debug(const char *trap, const char *name, const char *subscript, char *co
 		sfputc(sh.stk,')');
 	else
 		*stkptr(sh.stk,stktell(sh.stk)-1) = 0;
+	if(np->nvalue || np->nvfun)
+	{
+		if(nv_arrayptr(np))
+			nv_putsub(np,NULL,ARRAY_SCAN);
+		nv_unset(np,NV_RDONLY);
+	}
 	np->nvalue = stkfreeze(sh.stk,1);
 	nv_onattr(np,NV_NOFREE);
 	sh.st.lineno = error_info.line;
@@ -521,6 +527,8 @@ int sh_debug(const char *trap, const char *name, const char *subscript, char *co
 	n = sh_trap(trap,0);
 	/* restore state */
 	nv_onattr(SH_LEVELNOD,NV_RDONLY);
+	if(nv_arrayptr(np))
+		nv_putsub(np,NULL,ARRAY_SCAN);
 	nv_unset(np,NV_RDONLY);
 	sh.indebug = 0;
 	nv_onattr(SH_PATHNAMENOD,NV_NOFREE);

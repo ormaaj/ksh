@@ -1276,6 +1276,29 @@ size_t	ed_genlen(const genchar *str)
 #endif /* (SHOPT_ESH || SHOPT_VSH) && SHOPT_MULTIBYTE */
 
 /*
+ * Unset one of the internal .sh.ed* variables used to pass line editor
+ * state to a KEYBD trap.
+ *
+ * These variables are expected to be plain scalars, but a KEYBD trap is
+ * arbitrary user code and may assign an array to one of them, e.g.
+ * 'trap ".sh.edtext=(x)" KEYBD'. In that case a plain nv_unset() call
+ * only deletes the current array element, leaving an empty array shell
+ * (and its array discipline) in place. That corrupts the variable: the
+ * next nv_putval() call, which assumes a scalar, follows the array
+ * discipline and then frees an array-internal pointer as if it were the
+ * scalar value, crashing the shell. So request a full array scan first,
+ * which makes nv_unset() able to remove the array completely.
+ */
+static void ed_unset(Namval_t *np)
+{
+	if(!np->nvalue && !np->nvfun)
+		return;
+	if(nv_arrayptr(np))
+		nv_putsub(np,NULL,ARRAY_SCAN);
+	nv_unset(np,NV_RDONLY);
+}
+
+/*
  * Execute keyboard trap on given buffer <inbuff> of given size <isize>
  * <mode> < 0 for vi insert mode
  */
@@ -1299,9 +1322,13 @@ static int keytrap(Edit_t *ep,char *inbuff,int insize, int bufsize, int mode)
 	}
 	else
 		*ep->e_vi_insert = 0;
+	ed_unset(ED_CHRNOD);
 	nv_putval(ED_CHRNOD,inbuff,NV_NOFREE);
+	ed_unset(ED_COLNOD);
 	nv_putval(ED_COLNOD,(char*)&ep->e_col,NV_NOFREE|NV_INTEGER);
+	ed_unset(ED_TXTNOD);
 	nv_putval(ED_TXTNOD,(char*)cp,NV_NOFREE);
+	ed_unset(ED_MODENOD);
 	nv_putval(ED_MODENOD,ep->e_vi_insert,NV_NOFREE);
 	savexit = sh.savexit;
 	savelex = *lexp;
@@ -1309,7 +1336,7 @@ static int keytrap(Edit_t *ep,char *inbuff,int insize, int bufsize, int mode)
 	*lexp = savelex;
 	sh.savexit = savexit;
 	if((cp = nv_getval(ED_CHRNOD)) == inbuff)
-		nv_unset(ED_CHRNOD,0);
+		ed_unset(ED_CHRNOD);
 	else if(bufsize>0)
 	{
 		strncopy(inbuff,cp,(size_t)bufsize);
@@ -1318,7 +1345,7 @@ static int keytrap(Edit_t *ep,char *inbuff,int insize, int bufsize, int mode)
 	}
 	else
 		insize = 0;
-	nv_unset(ED_TXTNOD,0);
+	ed_unset(ED_TXTNOD);
 	return insize;
 }
 

@@ -336,23 +336,23 @@ case ${LC_ALL:-${LC_CTYPE:-${LANG:-}}} in
 	# URL/URI encoding of UTF-8 characters
 	expect='wh.at%3F'
 	actual=$(printf %#H 'wh.at?')
-	[[ $actual == "$expect" ]] || err_exit 'printf %H: ASCII characters' \
+	[[ $actual == "$expect" ]] || err_exit 'printf %#H: ASCII characters' \
 				"(expected $expect; got $actual)"
 	expect='%D8%B9%D9%86%D8%AF%D9%85%D8%A7%20%D9%8A%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%B9%D8%A7%D9%84%D9%85%20%D8%A3%D9%86%20%E2%80%AA%D9%8A%D8%AA%D9%83%D9%84%D9%91%D9%85%20%E2%80%AC%20%D8%8C%20%D9%81%D9%87%D9%88%20%D9%8A%D8%AA%D8%AD%D8%AF%D9%91%D8%AB%20%D8%A8%D9%84%D8%BA%D8%A9%20%D9%8A%D9%88%D9%86%D9%8A%D9%83%D9%88%D8%AF.'
 	actual=$(printf %#H 'عندما يريد العالم أن ‪يتكلّم ‬ ، فهو يتحدّث بلغة يونيكود.')
-	[[ $actual == "$expect" ]] || err_exit 'printf %H: Arabic UTF-8 characters' \
+	[[ $actual == "$expect" ]] || err_exit 'printf %#H: Arabic UTF-8 characters' \
 				"(expected $expect; got $actual)"
 	expect='%E6%AD%A3%E5%B8%B8%E7%B5%82%E4%BA%86%20%E6%AD%A3%E5%B8%B8%E7%B5%82%E4%BA%86'
 	eval 'actual=$(printf %#H '\''正常終了 正常終了'\'')'
-	[[ $actual == "$expect" ]] || err_exit 'printf %H: Japanese UTF-8 characters' \
+	[[ $actual == "$expect" ]] || err_exit 'printf %#H: Japanese UTF-8 characters' \
 				"(expected $expect; got $actual)"
 	expect='%C2%AB%20l%E2%80%99ab%C3%AEme%20de%20mon%C2%A0m%C3%A9tier%E2%80%A6%20%C2%BB'
 	actual=$(printf %#H '« l’abîme de mon métier… »')
-	[[ $actual == "$expect" ]] || err_exit 'printf %H: Latin UTF-8 characters' \
+	[[ $actual == "$expect" ]] || err_exit 'printf %#H: Latin UTF-8 characters' \
 				"(expected $expect; got $actual)"
-	expect='%3F%C2%86%3F%3F%3F'
+	expect='%86%C2%86%F0%96v%A7%B5'
 	actual=$(printf %#H $'\x86\u86\xF0\x96\x76\xA7\xB5')
-	[[ $actual == "$expect" ]] || err_exit 'printf %H: invalid UTF-8 characters' \
+	[[ $actual == "$expect" ]] || err_exit 'printf %#H: invalid UTF-8 characters' \
 				"(expected $expect; got $actual)"
 	;;
 esac

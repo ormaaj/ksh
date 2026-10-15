@@ -556,29 +556,13 @@ static char *fmthtml(const char *string, int flags)
 	}
 	else
 	{
-		/* Percent-encode for URI. Ref.: RFC 3986, section 2.3 */
-		if(mbwide())
+		/* Percent-encode for URI. Ref.: RFC 3986, section 2.3. Intentionally *not* multibyte-aware. */
+		while(c = *(unsigned char*)cp++)
 		{
-			while(op = cp, c = mbchar(cp))
-			{
-				if(c < 0)
-					sfputr(sh.stk,"%3F",-1);
-				else if(c < 128 && strchr(URI_RFC3986_UNRESERVED, c))
-					sfputc(sh.stk,c);
-				else
-					while(c = *(unsigned char*)op++, op <= cp)
-						sfprintf(sh.stk, "%%%02X", c);
-			}
-		}
-		else
-		{
-			while(c = *(unsigned char*)cp++)
-			{
-				if(strchr(URI_RFC3986_UNRESERVED, c))
-					sfputc(sh.stk,c);
-				else
-					sfprintf(sh.stk, "%%%02X", c);
-			}
+			if(isascii(c) && strchr(URI_RFC3986_UNRESERVED, c))
+				sfputc(sh.stk,c);
+			else
+				sfprintf(sh.stk, "%%%02X", c);
 		}
 	}
 	sfputc(sh.stk,0);

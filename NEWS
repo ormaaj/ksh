@@ -2,6 +2,18 @@ This documents significant changes in the 1.0 branch of ksh 93u+m.
 For full details, see the git log at: https://github.com/ksh93/ksh/tree/1.0
 Uppercase BUG_* IDs are shell bug IDs as used by the Modernish shell library.
 
+2206-10-15:
+
+- Fixed 'printf %#H' URL pecent-encoding to be locale-independent. Bytes
+  that are invalid multibyte sequences in the current locale are no longer
+  encoded as %3F (the question mark). No change for valid characters. Issue
+  introduced on 2020-08-10. ('printf %H', HTML encoding, is not changed.)
+
+2026-10-14:
+
+- Fixed spurious "section not found" error message fon an invalid option
+  that starts with ++ (for commands that support these).
+
 2026-10-13:
 
 - Fixed a bug in the 'kill' builtin: the arguments -ERR, -KEYBD, and -DEBUG
